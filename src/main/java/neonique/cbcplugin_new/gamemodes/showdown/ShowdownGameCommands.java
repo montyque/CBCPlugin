@@ -1,0 +1,105 @@
+package neonique.cbcplugin_new.gamemodes.showdown;
+
+import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.gamemodes._base.BaseTeamGameCommands;
+import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
+import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+
+public class ShowdownGameCommands extends BaseTeamGameCommands {
+
+    ShowdownGame game;
+
+    public ShowdownGameCommands(GameManager gm, CombatManager wm, ShowdownGame game) {
+        super(gm, wm, game);
+        this.game = game;
+    }
+
+    @Override
+    public void putPlayerOnTeam (CBCPlayer player, CBCTeam team, boolean spawnImmediately) {
+
+        // Kill player if player is alive
+        if (player.isAlive()) {
+            if (player.getLastPlayerHitBy() != null) {
+                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCauses.COMMAND, false);
+            } else {
+                combatManager.playerDeath(player, null, DeathCauses.COMMAND, false);
+            }
+        }
+
+        removePlayerFromTeam(player, false);
+
+        team.addPlayer(player);
+        if (player.isOnline()) {
+            player.getPlayer().sendMessage(
+                    Component.text("You have been added to ").color(NamedTextColor.GREEN).append(
+                            Component.text(team.getTeamName()).color(team.getColor())
+                    ).append(
+                            Component.text(" team!").color(NamedTextColor.GREEN)
+                    ).decorate(TextDecoration.BOLD)
+            );
+        }
+    }
+
+    @Override
+    public void revive(Player user, String[] args, int perms) {
+
+        if (checkIfPerms(user, perms, 1)) return;
+
+        if (game.isRoundNotInPlay()) {
+            sendColorMessage(user, "Round is not in play right now!", NamedTextColor.YELLOW);
+            return;
+        }
+
+        if (args.length < 2) {
+            sendColorMessage(user, "You must include a player name!", NamedTextColor.YELLOW);
+            return;
+        }
+
+        // Check if player is alive right now
+        String playerName = args[1];
+        CBCPlayer playerObj = findPlayerInGame(user, args[1]);
+
+        if (playerObj == null) return;
+
+        if (playerObj.isAlive()) {
+            sendColorMessage(user, playerName + " is currently alive! You can only use this command on dead players.", NamedTextColor.YELLOW);
+            return;
+        }
+
+        if (!(playerObj instanceof ShowdownPlayer showdownPlayer)) {
+            sendColorMessage(user, playerName + " does not have a ShowdownPlayer object.", NamedTextColor.YELLOW);
+            return;
+        }
+        if (!(showdownPlayer.getTeam() instanceof ShowdownTeam team)) {
+            sendColorMessage(user, playerName + " does not have a ShowdownPlayer object.", NamedTextColor.YELLOW);
+            return;
+        }
+
+        if (!showdownPlayer.isOnline()) {
+            sendColorMessage(user, playerName + " cannot be revived as they are offline!", NamedTextColor.YELLOW);
+            return;
+        }
+
+        showdownPlayer.playerStartRound();
+
+        showdownPlayer.getPlayer().teleport(team.getRoundSpawn());
+        Vector dir = game.getMap().getMapCentre().clone().subtract(showdownPlayer.getPlayer().getEyeLocation()).toVector();
+        Location loc = showdownPlayer.getPlayer().getLocation().setDirection(dir);
+        showdownPlayer.getPlayer().teleport(loc);
+
+        if (!team.isTeamAlive()) {
+            team.reviveTeam();
+        }
+
+        sendColorMessage(user, playerName + " has been revived!", NamedTextColor.GREEN);
+        broadcastAction(user, "used /game revive to revive " + playerName);
+    }
+}

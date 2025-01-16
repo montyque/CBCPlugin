@@ -1,0 +1,67 @@
+package neonique.cbcplugin_new.playerclasses;
+
+import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
+import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.managers.PracticeManager;
+import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class PracticePlayer extends CBCPlayer {
+
+    PracticeManager practiceManager;
+
+    public PracticePlayer(GameManager gameManager, CombatManager combatManager, PracticeManager practiceManager, Player player, Integer playerId) {
+        super(gameManager, combatManager, player, playerId);
+        this.practiceManager = practiceManager;
+    }
+
+    @Override
+    public void playerSpawn() {
+
+        if (!isOnline()) return;
+
+        resetPlayer();
+
+        setImmune(true);
+        new TempImmunityTask(getGameManager(), getWeaponManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
+
+        // Teleport player to spawn point
+        teleportPlayer();
+
+        getGameManager().getWorld().spawnParticle(Particle.INSTANT_EFFECT, getPlayer().getLocation(), 80, 0.25, 0.25, 0.25, 1, null, true);
+
+        setAlive(true);
+        setRespawning(false);
+        setReloadsBySecond(1);
+        loadout();
+    }
+
+    public void teleportPlayer() {
+
+        // Find spawnpoint that is the farthest away from other players
+        List<FFASpawnpoint> spawns = practiceManager.getSpawns();
+        Collections.shuffle(spawns);
+
+        for (FFASpawnpoint spawn : spawns) {
+            spawn.findDistanceOfNearestPlayer(50.0, this);
+        }
+
+        spawns.sort(Comparator.comparingDouble(FFASpawnpoint::getNearestPlayerRange));
+        Collections.reverse(spawns);
+
+        getPlayer().teleport(spawns.get(0));
+        Vector dir = practiceManager.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
+        Location loc = getPlayer().getLocation().setDirection(dir);
+        getPlayer().teleport(loc);
+
+    }
+}

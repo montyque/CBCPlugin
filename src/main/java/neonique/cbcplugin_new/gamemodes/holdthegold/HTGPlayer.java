@@ -1,0 +1,269 @@
+package neonique.cbcplugin_new.gamemodes.holdthegold;
+
+import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
+import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
+import neonique.cbcplugin_new.util.TextUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+public class HTGPlayer extends CBCPlayer {
+
+    private final HTGGame game;
+
+    // Game fields
+    private boolean isHoldingGold = false;
+    private Location lastValidPosition = null;
+
+    // Statistics
+    private int pointsScored = 0;
+    private int timesPickedUp = 0;
+    private int goldHoldersKilled = 0;
+
+    // Constants for game points
+    private static int KILL_PTS = 10; // Points you gain for kills
+    private static int GOLDHOLDER_KILL_PTS = 35; // Extra points you gain for killing the gold holder
+    private static int KILL_WITH_TEAMMATE_GOLD_PTS = 10; // Extra points you gain for killing an enemy while your teammate has the gold
+    private static int GOLD_SCORE_PTS = 10; // Points you gain for scoring a point with the gold
+    private static int GOLD_SCORE_WITHIN_7_PTS = 5; // Extra points for scoring a point with the gold while within 7
+    private static int WINNING_GOLD_RUN_PTS = 100; // Points you gain for getting a winning gold run
+
+    public HTGPlayer(HTGGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
+        super(gameManager, combatManager, player, playerId);
+        this.game = game;
+    }
+
+    public void setLastValidPosition() {
+        if (isOnline() && isAlive()) {
+            Location nPlayerLoc = getPlayer().getLocation().clone();
+            Location playerLoc = getPlayer().getLocation().clone();
+            for (int y = playerLoc.getBlockY(); y > game.getGameManager().combatManager.getVoidPlane(); y--) {
+                playerLoc.setY(y);
+                if (playerLoc.getBlock().isSolid()) {
+                    lastValidPosition = new Location(nPlayerLoc.getWorld(), nPlayerLoc.getBlockX(), nPlayerLoc.getBlockY(), nPlayerLoc.getBlockZ());
+                    break;
+                }
+            }
+        }
+    }
+
+    public Location getLastValidPosition() {
+        return lastValidPosition;
+    }
+
+    @Override
+    public void playerAfterKill (CBCPlayer playerKilled) {
+
+        int killPts = KILL_PTS;
+
+        // Check if player killed someone while their teammate has the gold
+        if (game.getGoldHolder() != null) {
+            if (game.getGoldHolder().getTeam() == getTeam() && game.getGoldHolder() != this) {
+                killPts += KILL_WITH_TEAMMATE_GOLD_PTS;
+            }
+        }
+
+        addGamePoints(killPts);
+
+        // Update leaderboards
+        game.updateTopKillsList();
+        game.updateTopGameScoreList();
+        game.getSidebarManager().updateServerBoard();
+    }
+
+    @Override
+    public void playerAfterDeath (CBCPlayer playerKiller) {
+
+        if (isHoldingGold) {
+            if (playerKiller != null) {
+                ((HTGPlayer) playerKiller).killedGoldHolder();
+            }
+            dropGold();
+        }
+
+        // The player will respawn, so we are overriding the old method
+        if (isOnline() && getTeam() != null ) {
+
+            // Remove potion effects
+            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
+                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
+            }
+
+            if (!((HTGTeam) getTeam()).isOutOfGame()) {
+                // Respawn player
+                setRespawning(true);
+
+                // Find the amount of time that it takes for the players to respawn
+                int timeToRespawn = 4;
+                // Set up respawn timer
+                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getWeaponManager(), this, timeToRespawn + 1);
+                respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
+            }
+        }
+
+        game.getBossbarManager().update();
+    }
+
+    public HTGSpawn selectSpawn () {
+
+        List<HTGSpawn> spawns = new ArrayList<>(game.getSpawns());
+
+        List<HTGSpawn> teamNearbySpawns = new ArrayList<>();
+        List<HTGSpawn> noEnemyNearbySpawns = new ArrayList<>();
+
+        for (HTGSpawn spawn : spawns) {
+            if (!spawn.isEnemyNearbySpawn(this)) {
+                noEnemyNearbySpawns.add(spawn);
+                if (spawn.isOutOfCombatAllyNearSpawn(this)) {
+                    teamNearbySpawns.add(spawn);
+                }
+            }
+        }
+
+        if (!teamNearbySpawns.isEmpty()) {
+            teamNearbySpawns.sort(Comparator.comparingDouble(HTGSpawn::getGoldDistanceMinusGoldRadius));
+            return teamNearbySpawns.get(0);
+        }
+        else if (!noEnemyNearbySpawns.isEmpty()) {
+            noEnemyNearbySpawns.sort(Comparator.comparingDouble(HTGSpawn::getGoldDistanceMinusGoldRadius));
+            return noEnemyNearbySpawns.get(0);
+        } else {
+            spawns.sort(Comparator.comparingDouble(HTGSpawn::getGoldDistanceMinusGoldRadius));
+            return spawns.get(0);
+        }
+    }
+
+    public void teleportPlayerToSpawn () {
+        getPlayer().teleport(selectSpawn());
+        Vector dir = game.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
+        Location loc = getPlayer().getLocation().setDirection(dir);
+        getPlayer().teleport(loc);
+    }
+
+    public void teleportPlayerToSpawn (Location spawnLoc) {
+        getPlayer().teleport(spawnLoc);
+        Vector dir = game.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
+        Location loc = getPlayer().getLocation().setDirection(dir);
+        getPlayer().teleport(loc);
+    }
+
+
+    @Override
+    public void playerSpawn() {
+
+        if (!isOnline()) return;
+
+        if (game.getWinner() == null) {
+            new TempImmunityTask(getGameManager(), getWeaponManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
+        }
+        else {
+            setImmune(true);
+        }
+
+        resetPlayer();
+
+        // Teleport player to spawn point
+        teleportPlayerToSpawn();
+
+        setAlive(true);
+        setRespawning(false);
+        setReloadsBySecond(1);
+        loadout();
+    }
+
+    public void pickupGold() {
+
+        if (!isOnline()) return;
+        Player playerEntity = getPlayer();
+
+        HTGTeam team = (HTGTeam) getTeam();
+        this.timesPickedUp++;
+        team.incrementTimesPickedUp();
+
+        isHoldingGold = true;
+
+        // Heal player and give player absorption hearts
+        playerEntity.setHealth(20);
+        playerEntity.addPotionEffect(
+                new PotionEffect(PotionEffectType.ABSORPTION, 30000000, 0, false, false, false)
+        );
+        playerEntity.addPotionEffect(
+                new PotionEffect(PotionEffectType.GLOWING, 30000000, 0, false, false, false)
+        );
+
+        // Play sound for player
+        playerEntity.playSound(getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 300, 2);
+
+        // Set player helmet to gold block
+        setoverrideGlassHelmet(true);
+        playerEntity.getInventory().setHelmet(game.getGoldHead());
+        playerEntity.updateInventory();
+
+        // Show gold holder title
+        Component titleComponent = Component.text("You have the gold!").decorate(TextDecoration.BOLD).color(NamedTextColor.GOLD);
+        Component subtitleComponent = Component.text("Survive to score points!");
+
+        Title title = Title.title(titleComponent, subtitleComponent, TextUtil.titleTimes(200, 800, 300));
+
+        playerEntity.showTitle(title);
+
+        // Update position
+        setLastValidPosition();
+    }
+
+    public void dropGold() {
+        isHoldingGold = false;
+        setoverrideGlassHelmet(false);
+        game.playerDropGold();
+    }
+
+    public void killedGoldHolder() {
+        goldHoldersKilled++;
+        // Add points
+        addGamePoints(GOLDHOLDER_KILL_PTS);
+    }
+
+    public void addPointsScored() {
+        pointsScored++;
+        // Add game score
+        int goldPts = GOLD_SCORE_PTS;
+        // Check if within 7
+        if (getTeam() != null) {
+            if (((HTGTeam) getTeam()).getScore() <= 7) {
+                goldPts += GOLD_SCORE_WITHIN_7_PTS;
+            }
+            if (((HTGTeam) getTeam()).getScore() == 1) {
+                goldPts += WINNING_GOLD_RUN_PTS;
+            }
+        }
+        addGamePoints(goldPts);
+    }
+
+    public int getPointsScored() {
+        return pointsScored;
+    }
+
+    public int getGoldholdersKilled() {
+        return goldHoldersKilled;
+    }
+
+    public int getTimesGoldPickedUp() {
+        return timesPickedUp;
+    }
+
+}
