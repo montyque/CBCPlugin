@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.managers;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.enums.WeaponsState;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
@@ -145,6 +145,7 @@ public class CombatManager {
     private DashPadTask dashPadTask;
     private SwimTimerTask swimTimerTask;
     private DayCycleTask dayCycleTask;
+    private PlayerParticlesTask playerParticlesTask;
 
     // Time tracking variable
     private int timer;
@@ -152,7 +153,17 @@ public class CombatManager {
     public CombatManager(GameManager gameManager) {
 
         this.gameManager = gameManager;
-        this.deathMessageManager = new DeathMessageManager();
+
+        // Load death messages
+        deathMessageManager = new DeathMessageManager();
+        boolean success = deathMessageManager.loadDeathMessages();
+
+        if (success) {
+            CBCPlugin.getPlugin().getLogger().info("Successfully loaded death messages!");
+        }
+        else {
+            CBCPlugin.getPlugin().getLogger().warning("Did not successfully load death messages!");
+        }
 
         // Create instances of listeners
         entityDamagePlayerListener = new EntityDamagePlayerListener(gameManager, this);
@@ -258,6 +269,7 @@ public class CombatManager {
 
         // Reset weapon presets to default
         resetWeaponPresetsToDefault();
+
     }
 
     public void loadWeaponPresets () {
@@ -627,6 +639,7 @@ public class CombatManager {
         healPadTask = new HealPadDetectionTask(gameManager, this);
         resetPlayerLastHitTask = new ResetPlayerLastHitTask(gameManager);
         weaponManagerTimerTask = new WeaponManagerTimerTask(this);
+        playerParticlesTask = new PlayerParticlesTask(gameManager);
 
         weaponReloadTask.runTaskTimer(plugin, 0, reloadTaskPeriod);
         creeperTrackingTask.runTaskTimer(plugin, 0, 1L);
@@ -637,6 +650,7 @@ public class CombatManager {
         healPadTask.runTaskTimer(plugin, 0, 2L);
         resetPlayerLastHitTask.runTaskTimer(plugin, 0, 20L);
         weaponManagerTimerTask.runTaskTimer(plugin, 0, 1L);
+        playerParticlesTask.runTaskTimer(plugin, 0, 1L);
 
         dashPadTask = new DashPadTask(gameManager, this);
         dashPadTask.runTaskTimer(plugin, 0, 2L);
@@ -746,6 +760,7 @@ public class CombatManager {
         cancelTask(jumpPadTask);
         cancelTask(swimTimerTask);
         cancelTask(dashPadTask);
+        cancelTask(playerParticlesTask);
 
         if (dayCycleTask != null) {
             dayCycleTask.cancel();
@@ -772,7 +787,7 @@ public class CombatManager {
     }
 
     // Runs when a player takes fatal damage
-    public void playerDeath (CBCPlayer playerKilled, CBCPlayer playerKiller, DeathCauses cause, boolean direct) {
+    public void playerDeath (CBCPlayer playerKilled, CBCPlayer playerKiller, DeathCause cause, boolean direct) {
 
         World world = gameManager.getWorld();
 
@@ -809,8 +824,10 @@ public class CombatManager {
             playerKilledEntity.setGameMode(GameMode.SPECTATOR);
 
             Location location = playerKilledEntity.getLocation();
+            Location particleLocation = location.clone().add(0, 1, 0);
+
             // Create effect or sound depending on player death cause
-            if (cause == DeathCauses.CREEPER) {
+            if (cause == DeathCause.CREEPER) {
 
                 // Summon a firework
                 Firework firework = (Firework) world.spawnEntity(location.clone().add(0, 2, 0),
@@ -831,30 +848,25 @@ public class CombatManager {
                 firework.setFireworkMeta(fireworkMeta);
                 firework.detonate();
 
-            } else if (cause == DeathCauses.FLAMEZONE) {
+            } else if (cause == DeathCause.FLAMEZONE) {
                 gameManager.playSound(location, Sound.ITEM_FIRECHARGE_USE, 4, 1);
-                for (int g = 0; g <= 30; g++) {
-                    Random random = new Random();
-                    double randomX = random.nextDouble() - 0.5;
-                    double randomZ = random.nextDouble() - 0.5;
-                    world.spawnParticle(Particle.FLAME, location, 0, randomX, 0, randomZ, 0.5);
-                }
-            } else if (cause == DeathCauses.XBOW || cause == DeathCauses.XBOW_PIGLIN) {
+                world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, particleLocation, 15, 0.4, 0, 0.4, 0.01);
+            } else if (cause == DeathCause.XBOW || cause == DeathCause.XBOW_PIGLIN) {
                 gameManager.playSound(location, Sound.BLOCK_GLASS_BREAK, 4, 0);
-                world.spawnParticle(Particle.SOUL_FIRE_FLAME, location, 30, 0.5, 0.5, 0.5, 0.5);
-            } else if (cause == DeathCauses.VOID) {
+                world.spawnParticle(Particle.SOUL_FIRE_FLAME, particleLocation, 20, 0, 0, 0, 0.5);
+            } else if (cause == DeathCause.VOID) {
                 gameManager.playSound(location, Sound.ENTITY_ITEM_PICKUP, 4, 1);
-                world.spawnParticle(Particle.INSTANT_EFFECT, location, 80, 0, 1, 0, 1);
-            } else if (cause == DeathCauses.MELEE) {
+                world.spawnParticle(Particle.INSTANT_EFFECT, particleLocation, 80, 0, 1, 0, 1);
+            } else if (cause == DeathCause.MELEE) {
                 gameManager.playSound(location, Sound.ENTITY_ITEM_BREAK, 4, 1);
-            } else if (cause == DeathCauses.DROWN) {
-                world.spawnParticle(Particle.BUBBLE_POP, location, 150, 0.5, 0.5, 0.5, 0.5);
+            } else if (cause == DeathCause.DROWN) {
+                world.spawnParticle(Particle.BUBBLE_POP, particleLocation, 150, 0.5, 0.5, 0.5, 0.5);
                 gameManager.playSound(location, Sound.ENTITY_ZOMBIE_CONVERTED_TO_DROWNED, 3F, (float) 1);
-            } else if (cause == DeathCauses.LAVA) {
-                world.spawnParticle(Particle.LAVA, location, 40, 0.5, 0.5, 0.5, 0.5);
+            } else if (cause == DeathCause.LAVA) {
+                world.spawnParticle(Particle.LAVA, particleLocation, 40, 0.5, 0.5, 0.5, 0.5);
                 gameManager.playSound(location, Sound.ENTITY_PLAYER_HURT_ON_FIRE, 3F, (float) 1);
-            } else if (cause == DeathCauses.COMMAND) {
-                world.spawnParticle(Particle.INSTANT_EFFECT, location, 80, 0.5, 0.5, 0.5, 0.5);
+            } else if (cause == DeathCause.COMMAND) {
+                world.spawnParticle(Particle.INSTANT_EFFECT, particleLocation, 80, 0.5, 0.5, 0.5, 0.5);
                 gameManager.playSound(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 3F, (float) 1);
                 gameManager.playSound(location, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 3F, (float) 1);
             }
@@ -1177,5 +1189,9 @@ public class CombatManager {
 
     public boolean isCanTrapdoorsOpen() {
         return canTrapdoorsOpen;
+    }
+
+    public DeathMessageManager getDeathMessageManager () {
+        return deathMessageManager;
     }
 }

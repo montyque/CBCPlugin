@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.commands;
 
+import neonique.cbcplugin_new.CBCPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
@@ -87,7 +88,9 @@ public class GetBlockLocationsCommand implements TabExecutor {
         }
 
         for (Location location : blocksFoundCoords) {
-            System.out.println(location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ());
+            CBCPlugin.getPlugin().getLogger().info(
+                    "- \"" + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ() + "\""
+            );
         }
 
         user.sendMessage(Component.text("Found " + blocksFoundCoords.size() + " and printed them to console.").color(NamedTextColor.GREEN));

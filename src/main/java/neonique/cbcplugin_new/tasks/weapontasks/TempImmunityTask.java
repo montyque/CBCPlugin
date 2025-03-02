@@ -37,9 +37,6 @@ public class TempImmunityTask extends BukkitRunnable {
         if (tick >= tickLimit) {
             player.setImmune(false);
             this.cancel();
-        } else {
-            gameManager.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, player.getPlayer().getLocation(), 10, 0.5, 0.5,
-                    0.5, 0);
         }
     }
 }

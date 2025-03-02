@@ -154,6 +154,23 @@ public class CBCScoreboardManager {
         }
     }
 
+    public void setTeamOption (Team team, Team.Option option, Team.OptionStatus status) {
+
+        String teamId = team.getName();
+
+        Team mainScoreboardTeam = mainScoreboard.getTeam(team.getName());
+        if (mainScoreboardTeam != null) {
+            mainScoreboardTeam.setOption(option, status);
+        }
+
+        for (Scoreboard scoreboard : getAllClientScoreboards()) {
+            Team clientTeam = scoreboard.getTeam(teamId);
+            if (clientTeam == null) continue;
+
+            clientTeam.setOption(option, status);
+        }
+    }
+
     // Register team for all current scoreboards
     public void unregisterTeamForAllClients (String teamId) {
         if (!active) return;

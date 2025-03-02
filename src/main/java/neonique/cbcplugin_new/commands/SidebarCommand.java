@@ -36,16 +36,6 @@ public class SidebarCommand implements CommandExecutor {
 
     public void summonGold (Location loc) {
 
-        ArmorStand armorStand = (ArmorStand) loc.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.COMMAND,
-                stand -> {
-                    stand.setInvulnerable(true);
-                });
-        armorStand.setInvisible(true);
-        AttributeInstance scaleAttr = armorStand.getAttribute(Attribute.GENERIC_SCALE);
-        if (scaleAttr != null) {
-            scaleAttr.setBaseValue(0.001);
-        }
-
         // Create block display
         BlockDisplay goldBlock = (BlockDisplay) loc.getWorld().spawnEntity(loc, EntityType.BLOCK_DISPLAY, CreatureSpawnEvent.SpawnReason.COMMAND,
                 entity -> {
@@ -54,13 +44,11 @@ public class SidebarCommand implements CommandExecutor {
 
         goldBlock.setBlock(Bukkit.createBlockData(Material.GOLD_BLOCK));
         goldBlock.setTransformation(
-                new Transformation(new Vector3f(-0.4f, 1.2f, -0.4f), new Quaternionf(0, 0, 0, 1),
+                new Transformation(new Vector3f(-0.4f, 0f, 0f), new Quaternionf(0, 0, 0, 1),
                         new Vector3f(0.8f, 0.8f, 0.8f), new Quaternionf(0, 0, 0, 1))
         );
         goldBlock.setGlowColorOverride(Color.fromRGB(255, 139, 22));
         goldBlock.setGlowing(true);
-
-        armorStand.addPassenger(goldBlock);
 
     }
 }

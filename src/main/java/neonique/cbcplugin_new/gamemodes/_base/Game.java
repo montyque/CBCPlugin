@@ -1,12 +1,13 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.CBCGamemode;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
+import neonique.cbcplugin_new.managers.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
@@ -268,9 +269,9 @@ public abstract class Game {
                 if (cbcplayer == null) return;
                 if (cbcplayer.isAlive()) {
                     if (cbcplayer.getLastPlayerHitBy() == null) {
-                        combatManager.playerDeath(cbcplayer, null, DeathCauses.DISCONNECT, false);
+                        combatManager.playerDeath(cbcplayer, null, DeathCause.DISCONNECT, false);
                     } else {
-                        combatManager.playerDeath(cbcplayer, cbcplayer.getLastPlayerHitBy(), DeathCauses.DISCONNECT, false);
+                        combatManager.playerDeath(cbcplayer, cbcplayer.getLastPlayerHitBy(), DeathCause.DISCONNECT, false);
                     }
                 }
 
@@ -418,6 +419,10 @@ public abstract class Game {
 
     public void setHeaderTitle (Component component) {
         headerTitle = component;
+    }
+
+    public CBCScoreboardManager getCBCScoreboardManager () {
+        return gameManager.getCbcScoreboardManager();
     }
 
 }

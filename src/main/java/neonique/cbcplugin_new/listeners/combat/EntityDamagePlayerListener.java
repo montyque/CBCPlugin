@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.listeners.combat;
 // This listener is used to check for both creeper, X-Bow and melee damage
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
@@ -102,13 +102,13 @@ public class EntityDamagePlayerListener implements Listener {
                 if (player.isAlly(damagerPlayer)) {
                     // If the killing blow is from an ally, check if player has been hit in last 6 seconds
                     if (player.getLastPlayerHitBy() == null) {
-                        combatManager.playerDeath(player, null, DeathCauses.CREEPER, false);
+                        combatManager.playerDeath(player, null, DeathCause.CREEPER, false);
                     } else {
-                        combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCauses.CREEPER, false);
+                        combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.CREEPER, false);
                     }
                 } else {
                     // The killing blow was from an enemy
-                    combatManager.playerDeath(player, damagerPlayer, DeathCauses.CREEPER, true);
+                    combatManager.playerDeath(player, damagerPlayer, DeathCause.CREEPER, true);
                 }
             }
 
@@ -149,7 +149,7 @@ public class EntityDamagePlayerListener implements Listener {
             if (arrow.getShooter() instanceof Piglin) {
                 if (arrow.getScoreboardTags().contains("xbowArrowPiglin")) {
                     // Run player death function
-                    combatManager.playerDeath(player, null, DeathCauses.XBOW_PIGLIN, true);
+                    combatManager.playerDeath(player, null, DeathCause.XBOW_PIGLIN, true);
                 }
                 return;
             }
@@ -184,7 +184,7 @@ public class EntityDamagePlayerListener implements Listener {
             if (arrow.getScoreboardTags().contains("xbowArrow")) {
                 // Run player death function
                 player.addPlayerDamaged(shooterPlayer);
-                combatManager.playerDeath(player, shooterPlayer, DeathCauses.XBOW, true);
+                combatManager.playerDeath(player, shooterPlayer, DeathCause.XBOW, true);
             }
             // Check if arrow is a Flame Zoner arrow
             if (arrow.getScoreboardTags().contains("flameArrow")) {
@@ -192,7 +192,7 @@ public class EntityDamagePlayerListener implements Listener {
 
                 if (e.getFinalDamage() >= playerEntity.getHealth()) {
                     // Run player death function
-                    combatManager.playerDeath(player, shooterPlayer, DeathCauses.FLAMEZONE, true);
+                    combatManager.playerDeath(player, shooterPlayer, DeathCause.FLAMEZONE, true);
                 }
             }
 
@@ -217,7 +217,7 @@ public class EntityDamagePlayerListener implements Listener {
             player.setLastPlayerHitBy(damagerPlayer);
             // Check if the hit kills the player
             if (e.getFinalDamage() > playerEntity.getHealth()) {
-                combatManager.playerDeath(player, damagerPlayer, DeathCauses.MELEE, true);
+                combatManager.playerDeath(player, damagerPlayer, DeathCause.MELEE, true);
             }
         } else if (damager instanceof Firework) {
             e.setCancelled(true);

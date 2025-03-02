@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
@@ -155,9 +155,9 @@ public class BaseGameCommands {
         }
 
         if (playerObj.getLastPlayerHitBy() == null) {
-            combatManager.playerDeath(playerObj, null, DeathCauses.COMMAND, false);
+            combatManager.playerDeath(playerObj, null, DeathCause.COMMAND, false);
         } else {
-            combatManager.playerDeath(playerObj, playerObj.getLastPlayerHitBy(), DeathCauses.COMMAND, false);
+            combatManager.playerDeath(playerObj, playerObj.getLastPlayerHitBy(), DeathCause.COMMAND, false);
         }
 
         sendColorMessage(user, playerName + " has been killed!", NamedTextColor.GREEN);

@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.tasks.weapontasks;
 
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
@@ -34,9 +34,9 @@ public class VoidTask extends BukkitRunnable {
             if (player.getPlayer().getLocation().getY() < voidPlane) {
                 // Kill player
                 if (player.getLastPlayerHitBy() != null) {
-                    combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCauses.VOID, false);
+                    combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.VOID, false);
                 } else {
-                    combatManager.playerDeath(player, null, DeathCauses.VOID, false);
+                    combatManager.playerDeath(player, null, DeathCause.VOID, false);
                 }
             }
         }

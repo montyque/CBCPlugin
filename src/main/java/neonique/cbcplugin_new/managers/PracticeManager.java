@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.managers;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
 import neonique.cbcplugin_new.listeners.practice.PracticePlayerTeleport;
@@ -143,7 +143,7 @@ public class PracticeManager {
     public void playerLeave (PracticePlayer player) {
 
         if (player.isAlive() && player.getLastPlayerHitBy() != null) {
-            combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCauses.LEAVE_PRACTICE, false);
+            combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.LEAVE_PRACTICE, false);
         }
         removePlayer(player);
         gameManager.removePlayer(player);

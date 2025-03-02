@@ -13,12 +13,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
@@ -74,7 +72,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         registerCommand("alphaorder", new AlphaOrderCommand());
 
         Objects.requireNonNull(getCommand("getblockcoords")).setExecutor(new GetBlockLocationsCommand());
-        Objects.requireNonNull(getCommand("cbcreload")).setExecutor(new ReloadCBCCommand(gameManager));
+        Objects.requireNonNull(getCommand("cbcreload")).setExecutor(new CBCReloadCommand(gameManager));
         Objects.requireNonNull(getCommand("sidebar")).setExecutor(new SidebarCommand());
 
         // Initialise armor trim manager

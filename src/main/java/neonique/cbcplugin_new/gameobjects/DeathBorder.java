@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.gameobjects;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathBorderShape;
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
@@ -152,9 +152,9 @@ public class DeathBorder {
         if (player.getPlayer().getHealth() <= 1) {
             // Kill player
             if (player.getLastPlayerHitBy() == null) {
-                combatManager.playerDeath(player, null, DeathCauses.SHOWDOWN_BORDER, false);
+                combatManager.playerDeath(player, null, DeathCause.DEATH_BORDER, false);
             } else {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCauses.SHOWDOWN_BORDER, false);
+                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.DEATH_BORDER, false);
             }
         } else {
             player.getPlayer().damage(1);

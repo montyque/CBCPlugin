@@ -61,7 +61,7 @@ public class ShowdownMap extends CBCMap {
             suddenDeathTimer = gamemodeYml.getInt("SuddenDeathTimer");
             suddenDeathBorderEnabled = gamemodeYml.getBoolean("SuddenDeathBorder");
             if (suddenDeathBorderEnabled) {
-                suddenDeathBorderShape = DeathBorderShape.valueOf(gamemodeYml.getString("BorderShape", "CIRCLE").toUpperCase());
+                suddenDeathBorderShape = DeathBorderShape.valueOf(gamemodeYml.getString("SuddenDeathBorderShape", "CIRCLE").toUpperCase());
                 suddenDeathBorderStartRadius = gamemodeYml.getInt("SuddenDeathBorderStartRadius");
                 suddenDeathBorderShrinkRate = gamemodeYml.getInt("SuddenDeathBorderShrinkRate");
                 suddenDeathBorderUpwardsLimit = gamemodeYml.getInt("SuddenDeathBorderUpwardsLimit");

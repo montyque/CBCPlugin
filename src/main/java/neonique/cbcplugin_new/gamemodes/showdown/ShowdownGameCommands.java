@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.gamemodes._base.BaseTeamGameCommands;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -28,9 +28,9 @@ public class ShowdownGameCommands extends BaseTeamGameCommands {
         // Kill player if player is alive
         if (player.isAlive()) {
             if (player.getLastPlayerHitBy() != null) {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCauses.COMMAND, false);
+                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
             } else {
-                combatManager.playerDeath(player, null, DeathCauses.COMMAND, false);
+                combatManager.playerDeath(player, null, DeathCause.COMMAND, false);
             }
         }
 

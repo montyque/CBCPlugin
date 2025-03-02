@@ -356,7 +356,7 @@ public class RendezvousTeam extends CBCTeam {
             runner.setOffhandCompass(inventory);
         }
 
-        targetCheckpoint.createSnowballMarker(this);
+        targetCheckpoint.createGlowingMarker(this);
 
         targetProgress = progressMax;
         targetCheckpoint.setHologramTitle(this);

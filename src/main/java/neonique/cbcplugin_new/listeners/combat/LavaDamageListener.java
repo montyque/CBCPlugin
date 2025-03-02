@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.listeners.combat;
 
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
@@ -62,9 +62,9 @@ public class LavaDamageListener implements Listener {
             }
 
             if (player.getLastPlayerHitBy() == null) {
-                combatManager.playerDeath(player, null, DeathCauses.LAVA, false);
+                combatManager.playerDeath(player, null, DeathCause.LAVA, false);
             } else {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCauses.LAVA, false);
+                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.LAVA, false);
             }
         }
     }

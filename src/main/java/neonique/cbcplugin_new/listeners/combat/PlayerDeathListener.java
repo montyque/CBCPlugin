@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.listeners.combat;
 
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
@@ -41,10 +41,10 @@ public class PlayerDeathListener implements Listener {
 
         // Kill player because they are still alive
         if (player.getLastPlayerHitBy() != null) {
-            combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCauses.NATURAL, false);
+            combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.NATURAL, false);
         }
         else {
-            combatManager.playerDeath(player, null, DeathCauses.NATURAL, false);
+            combatManager.playerDeath(player, null, DeathCause.NATURAL, false);
         }
 
         // Cancel the player's death event

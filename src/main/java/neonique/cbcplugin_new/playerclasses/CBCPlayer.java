@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.playerclasses;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
@@ -693,7 +693,7 @@ public class CBCPlayer {
 
     public void playerAfterKill(CBCPlayer playerKilled) {}
 
-    public void playerKillTitle (CBCPlayer playerKilled, DeathCauses directDeathCause) {
+    public void playerKillTitle (CBCPlayer playerKilled, DeathCause directDeathCause) {
 
         // Set player's title
         if (isOnline()) {
@@ -854,9 +854,9 @@ public class CBCPlayer {
                 // Damage player
                 if (player.getHealth() <= 1) {
                     if (lastPlayerHitBy != null) {
-                        combatManager.playerDeath(this, lastPlayerHitBy, DeathCauses.DROWN, false);
+                        combatManager.playerDeath(this, lastPlayerHitBy, DeathCause.DROWN, false);
                     } else {
-                        combatManager.playerDeath(this, null, DeathCauses.DROWN, false);
+                        combatManager.playerDeath(this, null, DeathCause.DROWN, false);
                     }
                 } else {
                     // Damage player

@@ -358,6 +358,15 @@ public class CTFGame extends TeamGame {
             suddenDeathBorder.activateBorder();
         }
 
+        // Disable all health pads
+        getCombatManager().disableAllHealPads();
+
+        // Heal all players
+        for (CBCPlayer player : getGameManager().getAlivePlayers()) {
+            if (!player.isOnline()) continue;
+            player.getPlayer().setHealth(player.getMaxHealth());
+        }
+
         // Display title to everyone
         Title title = Title.title(
                 Component.text("SUDDEN DEATH").color(NamedTextColor.RED).decorate(TextDecoration.BOLD), Component.space(),

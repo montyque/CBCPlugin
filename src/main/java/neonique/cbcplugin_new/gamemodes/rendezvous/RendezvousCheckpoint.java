@@ -8,7 +8,11 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -80,22 +84,21 @@ public class RendezvousCheckpoint extends Location {
         }
     }
 
-    public void createSnowballMarker (RendezvousTeam team) {
+    public void createGlowingMarker(RendezvousTeam team) {
 
-        Entity markerEntity = getWorld().spawnEntity(this.clone().add(0, -1.1 - (glowingMarkers.size()), 0), EntityType.SHULKER,
-                CreatureSpawnEvent.SpawnReason.COMMAND);
+        // Create block display
+        Entity markerEntity = getWorld().spawnEntity(this.clone().add(0, -1.05 - (glowingMarkers.size()), 0),
+                EntityType.BLOCK_DISPLAY, CreatureSpawnEvent.SpawnReason.COMMAND,
+                entity -> entity.setInvulnerable(true));
 
-        markerEntity.setInvulnerable(true);
-        markerEntity.setGlowing(true);
-        markerEntity.setGravity(false);
-
-        Shulker markerShulker = (Shulker) markerEntity;
-        markerShulker.setAI(false);
-        markerShulker.setPeek(0);
-
-        // Add to team
-        CBCScoreboardManager cbcScoreboardManager = gameManager.getCbcScoreboardManager();
-        cbcScoreboardManager.addTeamEntry(markerEntity.getUniqueId().toString(), team.getTeamObject());
+        BlockDisplay blockDisplay = (BlockDisplay) markerEntity;
+        blockDisplay.setBlock(Bukkit.createBlockData(Material.DIAMOND_BLOCK));
+        blockDisplay.setGlowColorOverride(Color.fromRGB(team.getColor().value()));
+        blockDisplay.setGlowing(true);
+        blockDisplay.setTransformation(
+                new Transformation(new Vector3f(-0.5f, 0f, -0.5f), new AxisAngle4f(0, 0, 0, 0),
+                        new Vector3f(1f, 1f, 1f), new AxisAngle4f(0, 0, 0, 0))
+        );
 
         // Add to glowing markers
         glowingMarkers.put(team, markerEntity.getUniqueId());

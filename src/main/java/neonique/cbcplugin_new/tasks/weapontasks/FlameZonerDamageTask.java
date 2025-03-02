@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.tasks.weapontasks;
 
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
@@ -67,14 +67,14 @@ public class FlameZonerDamageTask extends BukkitRunnable {
             }
 
             playerEntity.getWorld().spawnParticle(Particle.FLAME,
-                    playerEntity.getLocation().clone().add(0, 1, 0), 3,
-                    0F, 0F, 0F, 0.4);
+                    playerEntity.getLocation().clone().add(0, 1, 0), 8,
+                    0.3F, 0.7F, 0.3F, 0.01);
 
             // Check if player dies from the damage
             if (playerEntity.getHealth() <= 1) {
                 playerEntity.removePotionEffect(PotionEffectType.WITHER);
                 player.flamezoneFireTicks = 0;
-                combatManager.playerDeath(player, lastDamageSource, DeathCauses.FLAMEZONE, true);
+                combatManager.playerDeath(player, lastDamageSource, DeathCause.FLAMEZONE, true);
                 this.cancel();
                 return;
             } else {

@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.resourcepack;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCauses;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.enums.PlayerHeadType;
 import neonique.cbcplugin_new.enums.WeaponType;
@@ -15,7 +15,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -504,25 +503,25 @@ public class ResourcePackManager {
         }
     }
 
-    public static Component getDeathCauseIcon (DeathCauses cause, boolean isKiller, NamedTextColor color) {
+    public static Component getDeathCauseIcon (DeathCause cause, boolean isKiller, NamedTextColor color) {
 
         if (color == null) {
             color = NamedTextColor.WHITE;
         }
 
-        if (cause == DeathCauses.CREEPER) {
+        if (cause == DeathCause.CREEPER) {
             return setFont(Component.text("\uE400"), ResourcePackFont.DEFAULT).color(NamedTextColor.WHITE);
         }
-        else if (cause == DeathCauses.FLAMEZONE) {
+        else if (cause == DeathCause.FLAMEZONE) {
             return setFont(Component.text("\uE401"), ResourcePackFont.DEFAULT).color(NamedTextColor.WHITE);
         }
-        else if (cause == DeathCauses.XBOW) {
+        else if (cause == DeathCause.XBOW) {
             return setFont(Component.text("\uE402"), ResourcePackFont.DEFAULT).color(NamedTextColor.WHITE);
         }
-        else if (cause == DeathCauses.MELEE) {
+        else if (cause == DeathCause.MELEE) {
             return setFont(Component.text("\uE403"), ResourcePackFont.DEFAULT).color(NamedTextColor.WHITE);
         }
-        else if (cause == DeathCauses.VOID) {
+        else if (cause == DeathCause.VOID) {
             return setFont(Component.text("\uE404"), ResourcePackFont.DEFAULT).color(color);
         }
         else {

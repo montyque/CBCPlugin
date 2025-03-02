@@ -7,6 +7,7 @@ import neonique.cbcplugin_new.listeners.gamemodes.TagNoMove;
 import neonique.cbcplugin_new.listeners.gamemodes.TagTeleportListener;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
+import neonique.cbcplugin_new.managers.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
@@ -30,6 +31,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
@@ -281,11 +283,16 @@ public class TagGame extends TeamGame {
             team.clearAlliedTeams();
             // If this team is not tagging, make it so that they are treated as an ally by the other non-tagging teams
             if (taggers != team) {
+
                 // Add other teams
                 for (TagTeam team2 : getTeams()) {
                     if (team2 == team) continue;
                     if (taggers != team2) team.addAlliedTeam(team2);
                 }
+
+                // Make sure tagging team cannot see name tags of runners while blinded
+                getCBCScoreboardManager().setTeamOption(team.getTeamObject(),
+                        Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OWN_TEAM);
             }
         }
 
@@ -415,6 +422,12 @@ public class TagGame extends TeamGame {
                 player.playerStartRound();
             }
             player.setCanMove(true);
+        }
+
+        for (TagTeam team : getTeams()) {
+            // Turn on name tag visibility for all teams
+            getCBCScoreboardManager().setTeamOption(team.getTeamObject(),
+                    Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
         }
 
         // Start round timer
