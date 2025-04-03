@@ -1,10 +1,13 @@
 package neonique.cbcplugin_new.gamemodes.koth;
 
+import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
+import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
+import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,6 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 import static neonique.cbcplugin_new.util.TextUtil.*;
@@ -50,10 +54,10 @@ public class KOTHSidebarManager extends GameSidebarManager {
         this.game = game;
         this.world = gameManager.getWorld();
 
-        /*// Start stat change timer
+        // Start stat change timer
         if (showGamePoints) {
             createLbChangeTimer();
-        }*/
+        }
 
     }
 
@@ -135,9 +139,9 @@ public class KOTHSidebarManager extends GameSidebarManager {
             teamOrderOnSidebar.put(team, displayToEveryone.size() - 1);
         }
 
-        /*if (showGamePoints) {
+        if (showGamePoints) {
             updateSpecLbComponents();
-        }*/
+        }
 
         displayToEveryone.add(blankComponent());
         updateAllClientBoards();
@@ -189,7 +193,7 @@ public class KOTHSidebarManager extends GameSidebarManager {
                 clientStringList.add(generateGameScoreComponent(game.getGamemode(), kothPlayer, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
-        } else if (spectatorLeaderboardComponents.size() > 0) {
+        } else if (!spectatorLeaderboardComponents.isEmpty()) {
 
             // Add current leaderboard title
             clientStringList.add(getComponentSpaceOfLength(11).append(smallText("TOP " + currentDisplay + ":").color(NamedTextColor.AQUA)));
@@ -204,24 +208,19 @@ public class KOTHSidebarManager extends GameSidebarManager {
         clientSidebar.setSidebarComponents(clientStringList);
     }
 
-    /*public void updateSpecLbComponents () {
+    public void updateSpecLbComponents () {
         // Update leaderboard components
         spectatorLeaderboardComponents.clear();
 
         // Player is a spectator, show leaderboard
-        List<PlayerStatObject> currentLeaderboard = null;
-        switch (currentDisplay) {
-            case "GAME SCORE":
-                currentLeaderboard = game.getTopGameScoreList();
-                break;
-            case "KILLS":
-                currentLeaderboard = game.getTopKillsList();
-                break;
-            case "GOLD SCORE":
-                currentLeaderboard = game.getTopGoldScoreList();
-                break;
-        }
-
+        List<PlayerStatObject> currentLeaderboard = switch (currentDisplay) {
+            case "GAME SCORE" -> game.getTopGameScoreList();
+            case "KILLS" -> game.getTopKillsList();
+            case "HILL CAPTURES" -> game.getTopHillCapturesList();
+            case "POINTS DEFENDED" -> game.getTopPointsDefendedList();
+            case "TIME IN HILL" -> game.getTopTimeInHillList();
+            default -> null;
+        };
 
 
         // Only generate components if leaderboard exists
@@ -257,8 +256,18 @@ public class KOTHSidebarManager extends GameSidebarManager {
 
         // Add number
         int value = playerStat.getValue();
-        playerComponent = addLeadingSpaceForNumber(playerComponent, value, 4);
-        playerComponent = playerComponent.append(Component.text(value).color(NamedTextColor.WHITE));
+        if (Objects.equals(currentDisplay, "TIME IN HILL")) {
+            // If time alive, display in MM:SS format
+            if (value < 600) {
+                // Add leading space
+                playerComponent = playerComponent.append(getComponentSpaceOfLength(7));
+            }
+            playerComponent = playerComponent.append(Component.text("\uF812" + timerToText(value)).color(NamedTextColor.WHITE));
+        }
+        else {
+            playerComponent = addLeadingSpaceForNumber(playerComponent, value, 4);
+            playerComponent = playerComponent.append(Component.text(value).color(NamedTextColor.WHITE));
+        }
         return playerComponent;
     }
 
@@ -267,8 +276,11 @@ public class KOTHSidebarManager extends GameSidebarManager {
         // Change around the statistics in loop
         // Game Score -> Kills -> Gold Score
         if (Objects.equals(currentDisplay, "GAME SCORE")) {currentDisplay = "KILLS";}
-        else if (Objects.equals(currentDisplay, "KILLS")) {currentDisplay = "GOLD SCORE";}
-        else if (Objects.equals(currentDisplay, "GOLD SCORE")) {currentDisplay = "GAME SCORE";}
+        else if (Objects.equals(currentDisplay, "KILLS")) {currentDisplay = "HILL CAPTURES";}
+        else if (Objects.equals(currentDisplay, "HILL CAPTURES")) {currentDisplay = "POINTS DEFENDED";}
+        else if (Objects.equals(currentDisplay, "POINTS DEFENDED")) {currentDisplay = "TIME IN HILL";}
+        else if (Objects.equals(currentDisplay, "TIME IN HILL")) {currentDisplay = "GAME SCORE";}
+
 
         // Update server board
         updateServerBoard();
@@ -299,6 +311,6 @@ public class KOTHSidebarManager extends GameSidebarManager {
             }
         };
         changeTask.runTaskLater(CBCPlugin.getPlugin(), 300);
-    }*/
+    }
 
 }

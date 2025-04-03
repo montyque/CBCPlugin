@@ -4,6 +4,7 @@ package neonique.cbcplugin_new.gamemodes._base;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinMap;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagMap;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFMap;
@@ -19,6 +20,7 @@ import neonique.cbcplugin_new.gameobjects.DashPad;
 import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
 import neonique.cbcplugin_new.gameobjects.HealthPad;
 import neonique.cbcplugin_new.gameobjects.JumpPad;
+import neonique.cbcplugin_new.managers.DeathMessageGenerator;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import net.kyori.adventure.text.Component;
@@ -35,17 +37,17 @@ import java.util.*;
 
 public class CBCMap {
 
-    static final String[] SET_VALUES = new String[] {
+    private static final String[] SET_VALUES = new String[] {
             "MapId", "Name", "Center", "BlockSymbol", "MapBoundaryLow", "MapBoundaryHigh", "HealingPads",
                 "DefaultFFASpawns", "DefaultTeamSpawns", "MapMechanics"
     };
-    static final Set<String> REQUIRED_KEYS = new HashSet<>(Arrays.asList(SET_VALUES));
+    private static final Set<String> REQUIRED_KEYS = new HashSet<>(Arrays.asList(SET_VALUES));
 
-    static final String[] TEAM_IDS = new String[] {
+    private static final String[] TEAM_IDS = new String[] {
             "red", "blue", "green", "yellow", "cyan", "orange", "magenta", "purple"
     };
 
-    static final Set<String> TEAM_ID_SET = new HashSet<>(Arrays.asList(TEAM_IDS));
+    private static final Set<String> TEAM_ID_SET = new HashSet<>(Arrays.asList(TEAM_IDS));
 
     private final GameManager gameManager;
     private final CombatManager combatManager;
@@ -67,6 +69,9 @@ public class CBCMap {
     private final Set<Vector> ffaSpawnpointCoordinates;
     private final HashMap<String, Set<Vector>> defaultTeamSpawnCoordinates;
     private final boolean ignoreYInSpawnCalculations;
+
+    // Death message overrides that override default messages only on this map
+    private final HashMap<DeathCause, DeathMessageGenerator> deathMessageOverrides;
 
     // Firework variables
     private int fireworkSpawnRadius;
@@ -100,9 +105,7 @@ public class CBCMap {
                     Double.parseDouble(splitStrSet.get(1)),
                     Double.parseDouble(splitStrSet.get(2))
             );
-        } catch (Exception e) {
-            // Print out exception
-            e.printStackTrace();
+        } catch (NumberFormatException e) {
             return null;
         }
     }
@@ -115,9 +118,6 @@ public class CBCMap {
             if (vector != null) {
                 // Add vector into coordinates list
                 vectors.add(vector.add(new Vector(0.5, 0.0, 0.5)));
-            } else {
-                // Print out exception
-                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + mapId + " while trying to parse coordinates " + string);
             }
         }
         return vectors;
@@ -179,6 +179,7 @@ public class CBCMap {
     }
 
     public CBCMap(YamlConfiguration ymlConfig, GameManager gameManager, CombatManager combatManager) {
+
         this.gameManager = gameManager;
         this.combatManager = combatManager;
 
@@ -187,16 +188,15 @@ public class CBCMap {
         // Get map name
         mapId = ymlConfig.getString("MapId");
         mapName = ymlConfig.getString("Name");
-
         isPracticeMap = ymlConfig.getBoolean("PracticeMap", true);
 
-        // Get block
+        // Get block that represents map in inventory menu
         blockSymbol = Material.valueOf(ymlConfig.getString("BlockSymbol"));
 
         // Get center coordinates
         centreCoordinates = convertStringToVector(Objects.requireNonNull(ymlConfig.getString("Center"))).add(new Vector(0.5, 0.0, 0.5));
 
-        // Get center coordinates
+        // Get boundaries of map for chunk loading
         lowCornerOfMap = convertStringToVector(Objects.requireNonNull(ymlConfig.getString("MapBoundaryLow")));
         highCornerOfMap = convertStringToVector(Objects.requireNonNull(ymlConfig.getString("MapBoundaryHigh")));
 
@@ -226,12 +226,21 @@ public class CBCMap {
         // Get game mechanics
         ConfigurationSection gameMechanicsList = ymlConfig.getConfigurationSection("MapMechanics");
         assert gameMechanicsList != null;
-        // Void death mechanic
-        if (gameMechanicsList.contains("VoidDeath")) {
-            voidPlane = gameMechanicsList.getInt("VoidDeath");
-        }
-        // Instantly kill lava mechanic
+
+        // Game and visual mechanics
+        voidPlane = gameMechanicsList.getInt("VoidDeath", 0);
         instakillLava = gameMechanicsList.getBoolean("InstantLavaKill", false);
+        canTrapdoorsOpen = ymlConfig.getBoolean("canTrapdoorsOpen", true);
+        nightVisionAlwaysDisabled = ymlConfig.getBoolean("NightVisionAlwaysDisabled", false);
+
+        // Death message overrides
+        ConfigurationSection deathMessagesSection = ymlConfig.getConfigurationSection("DeathMessageOverrides");
+        if (deathMessagesSection != null) {
+            deathMessageOverrides = DeathMessageGenerator.loadDeathMessageGenerators(deathMessagesSection);
+        } else {
+            deathMessageOverrides = new HashMap<>();
+        }
+
         // Jump pad mechanic
         if (gameMechanicsList.contains("JumpPad")) {
             jumpPadsEnabled = gameMechanicsList.getBoolean("JumpPad");
@@ -242,7 +251,6 @@ public class CBCMap {
                 jumpPadCoordinates = new HashSet<>();
             }
         }
-
 
         // Dash pad mechanic
         if (gameMechanicsList.contains("DashPad")) {
@@ -290,12 +298,6 @@ public class CBCMap {
                 materialAtEnd = Material.valueOf(ymlConfig.getString("MaterialAtEnd"));
             }
         }
-
-        // Trapdoor disabled
-        canTrapdoorsOpen = ymlConfig.getBoolean("canTrapdoorsOpen", true);
-
-        // Night vision disabling
-        nightVisionAlwaysDisabled = ymlConfig.getBoolean("NightVisionAlwaysDisabled", false);
     }
 
     public World getWorld() {
@@ -576,5 +578,9 @@ public class CBCMap {
 
     public boolean isNightVisionAlwaysDisabled() {
         return nightVisionAlwaysDisabled;
+    }
+
+    public HashMap<DeathCause, DeathMessageGenerator> getDeathMessageOverrides() {
+        return deathMessageOverrides;
     }
 }

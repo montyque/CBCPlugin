@@ -15,9 +15,9 @@ public class DeathBorderDamageTask extends BukkitRunnable {
 
     private final int WARN_DISTANCE = 8;
 
-    public DeathBorderDamageTask(DeathBorder border) {
+    public DeathBorderDamageTask (GameManager gameManager, DeathBorder border) {
         this.border = border;
-        this.gameManager = border.getGame().getGameManager();
+        this.gameManager = gameManager;
         this.combatManager = gameManager.combatManager;
     }
 
@@ -28,7 +28,7 @@ public class DeathBorderDamageTask extends BukkitRunnable {
             return;
         }
 
-        if (border.isGameOver()) {
+        if (!combatManager.isActive()) {
             border.deactivateBorder();
             return;
         }

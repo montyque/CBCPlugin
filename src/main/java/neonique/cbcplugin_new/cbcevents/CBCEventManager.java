@@ -50,10 +50,10 @@ public class CBCEventManager {
     private int nextGameNum = 1;
 
     // Display variables
-    private final String eventName = "The Crossbow Championship 12";
-    private final String eventNameShorthand = "CBC 12";
-    private final String eventTagline = "HOLLY JOLLY CROSSBOWS";
-    private final String eventTime = "December 15 2024 00:00 UTC";
+    private final String eventName = "The Crossbow Championship 13";
+    private final String eventNameShorthand = "CBC 13";
+    private final String eventTagline = "THE EXPERIMENT";
+    private final String eventTime = "March 9 2025 00:00 UTC";
 
     private final char eventLogoUnicode = 0xE900;
 
@@ -104,40 +104,37 @@ public class CBCEventManager {
         // Create holograms
         recreateHolograms();
 
-        beaconGlassBlocksLocs.put(NamedTextColor.RED, new Location(world, -1042, 120, -1642));
-        beaconGlassBlocksLocs.put(NamedTextColor.BLUE, new Location(world, -1047, 120, -1639));
-        beaconGlassBlocksLocs.put(NamedTextColor.GREEN, new Location(world, -1052, 120, -1639));
-        beaconGlassBlocksLocs.put(NamedTextColor.YELLOW, new Location(world, -1057, 120, -1639));
-        beaconGlassBlocksLocs.put(NamedTextColor.DARK_PURPLE, new Location(world, -1062, 120, -1642));
+        beaconGlassBlocksLocs.put(NamedTextColor.RED, new Location(world, -1044, 120, -1640));
+        beaconGlassBlocksLocs.put(NamedTextColor.BLUE, new Location(world, -1048, 120, -1638));
+        beaconGlassBlocksLocs.put(NamedTextColor.GREEN, new Location(world, -1055, 120, -1638));
+        beaconGlassBlocksLocs.put(NamedTextColor.YELLOW, new Location(world, -1059, 120, -1640));
 
         // Beacon information
         beaconGlassBlock.put(NamedTextColor.RED, Material.RED_STAINED_GLASS);
         beaconGlassBlock.put(NamedTextColor.BLUE, Material.BLUE_STAINED_GLASS);
         beaconGlassBlock.put(NamedTextColor.GREEN, Material.LIME_STAINED_GLASS);
         beaconGlassBlock.put(NamedTextColor.YELLOW, Material.YELLOW_STAINED_GLASS);
-        beaconGlassBlock.put(NamedTextColor.DARK_PURPLE, Material.PURPLE_STAINED_GLASS);
 
         beaconAltGlassBlock.put(NamedTextColor.RED, Material.PINK_STAINED_GLASS);
         beaconAltGlassBlock.put(NamedTextColor.BLUE, Material.LIGHT_BLUE_STAINED_GLASS);
         beaconAltGlassBlock.put(NamedTextColor.GREEN, Material.YELLOW_STAINED_GLASS);
         beaconAltGlassBlock.put(NamedTextColor.YELLOW, Material.RED_STAINED_GLASS);
-        beaconAltGlassBlock.put(NamedTextColor.DARK_PURPLE, Material.MAGENTA_STAINED_GLASS);
 
         // Game 1
         gamemodeList.add(CBCGamemode.CBCTAG);
-        mapNameList.add("Leafy Lodge");
+        mapNameList.add("Marbury Mansion");
 
         // Game 2
-        gamemodeList.add(CBCGamemode.TDM);
-        mapNameList.add("Magmatic Rift");
+        gamemodeList.add(CBCGamemode.KOTH);
+        mapNameList.add("Volcanic Rift");
 
         // Game 3
-        gamemodeList.add(CBCGamemode.SHOWDOWN);
-        mapNameList.add("Aero Asteroids");
+        gamemodeList.add(CBCGamemode.RENDEZVOUS);
+        mapNameList.add("Garden of Eeshol");
 
         // Final -- BY DEFAULT
-        gamemodeList.add(CBCGamemode.HOLDTHEGOLD);
-        mapNameList.add("Astrozapper");
+        gamemodeList.add(CBCGamemode.SHOWDOWN);
+        mapNameList.add("Champions Crossroads");
 
 
     }
@@ -883,8 +880,8 @@ public class CBCEventManager {
             altBlock.setType(altMat);
 
             for (int y = 0; y < 4; y++) {
-                for (int x = 0; x < 2; x++) {
-                    for (int z = 0; z < 2; z++) {
+                for (int x = 0; x < 1; x++) {
+                    for (int z = 0; z < 1; z++) {
                         Location newLocation = location.clone().add(x, y, z);
                         Block block = newLocation.getBlock();
                         if (y == 0) {
@@ -909,8 +906,8 @@ public class CBCEventManager {
         for (Location loc : beaconGlassBlocksLocs.values()) {
 
             for (int y = 0; y < 4; y++) {
-                for (int x = 0; x < 2; x++) {
-                    for (int z = 0; z < 2; z++) {
+                for (int x = 0; x < 1; x++) {
+                    for (int z = 0; z < 1; z++) {
                         Location newLocation = loc.clone().add(x, y, z);
                         Block block = newLocation.getBlock();
                         if (y == 0) {

@@ -52,7 +52,7 @@ import java.util.*;
 public class CombatManager {
 
     // Weapons active
-    public WeaponsState weaponState = WeaponsState.DISABLED;
+    private boolean active = false;
 
     private final GameManager gameManager;
     // Death message manager
@@ -580,7 +580,7 @@ public class CombatManager {
 
     public void activateWeapons () {
 
-        weaponState = WeaponsState.ACTIVE;
+        active = true;
 
         // Setup any projectile sets
         this.creeperProjectileSet = new HashSet<>();
@@ -680,7 +680,7 @@ public class CombatManager {
 
     public void setupMap (CBCMap map) {
 
-        if (this.weaponState == WeaponsState.ACTIVE) {
+        if (active) {
 
             // Disable all current jump pads, heal pads and dash pads, along with other mechanics
             clearHealthPadList();
@@ -695,7 +695,7 @@ public class CombatManager {
 
         setHealthPadList(map.getHealthPads());
 
-        if (this.weaponState == WeaponsState.ACTIVE) {
+        if (active) {
             enableAllHealPads();
         }
 
@@ -720,14 +720,14 @@ public class CombatManager {
         }
 
         nightVisionDisabled = map.isNightVisionAlwaysDisabled();
-
         canTrapdoorsOpen = map.isTrapdoorsOpening();
+        deathMessageManager.setOverrides(map.getDeathMessageOverrides());
 
     }
 
     public void disableWeapons () {
 
-        weaponState = WeaponsState.DISABLED;
+        active = false;
 
         // Disable weapon listeners
         EntityShootBowEvent.getHandlerList().unregister(crossbowFiredListener);
@@ -1193,5 +1193,9 @@ public class CombatManager {
 
     public DeathMessageManager getDeathMessageManager () {
         return deathMessageManager;
+    }
+
+    public boolean isActive () {
+        return active;
     }
 }

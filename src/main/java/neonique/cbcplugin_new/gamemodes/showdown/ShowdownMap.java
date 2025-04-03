@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.enums.DeathBorderShape;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
+import neonique.cbcplugin_new.gameobjects.DeathBorder;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -101,16 +102,12 @@ public class ShowdownMap extends CBCMap {
         if (suddenDeathEnabled) return suddenDeathTimer; else return null;
     }
 
-    public Integer getSuddenDeathBorderStartRadius() {
-        if (suddenDeathBorderEnabled) return suddenDeathBorderStartRadius; else return null;
-    }
-
-    public Integer getSuddenDeathBorderShrinkRate () {
-        if (suddenDeathBorderEnabled) return suddenDeathBorderShrinkRate; else return null;
-    }
-
-    public DeathBorderShape getSuddenDeathBorderShape () {
-        if (suddenDeathBorderEnabled) return suddenDeathBorderShape; else return null;
+    public DeathBorder getSuddenDeathBorder() {
+        return new DeathBorder(
+                getGameManager(), getMapCentre(), suddenDeathBorderShape, suddenDeathBorderStartRadius,
+                suddenDeathBorderRadiusLimit, suddenDeathBorderUpwardsLimit,
+                suddenDeathBorderDownwardsLimit, suddenDeathBorderShrinkRate
+        );
     }
 
     public List<ShowdownSpawn> getTeamSpawns() {
@@ -128,17 +125,5 @@ public class ShowdownMap extends CBCMap {
                     this.getGameManager().getWorld(), teamSpawnsWithKeys.get(teamAssignedSpawnpoint), createBoxAtRoundStart));
         }
         return spawnpoints;
-    }
-
-    public int getSuddenDeathBorderUpwardsLimit() {
-        return suddenDeathBorderUpwardsLimit;
-    }
-
-    public int getSuddenDeathBorderDownwardsLimit() {
-        return suddenDeathBorderDownwardsLimit;
-    }
-
-    public int getSuddenDeathBorderRadiusLimit() {
-        return suddenDeathBorderRadiusLimit;
     }
 }

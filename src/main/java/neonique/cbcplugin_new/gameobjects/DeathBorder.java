@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.enums.DeathBorderShape;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gametasks.DeathBorderDamageTask;
 import neonique.cbcplugin_new.tasks.gametasks.DeathBorderShrinkTask;
@@ -21,7 +22,7 @@ import java.util.Set;
 
 public class DeathBorder {
 
-    private final Game game;
+    private final GameManager gameManager;
 
     // Defualt variables
     private final Location center;
@@ -41,9 +42,10 @@ public class DeathBorder {
     private DeathBorderShrinkTask borderShrinkTask;
     private DeathBorderDamageTask borderDamageTask;
 
-    public DeathBorder (Game game, Location center, DeathBorderShape shape, int startRadius, int finalRadius, int highestY, int lowestY, int shrinkRate) {
+    public DeathBorder (GameManager gameManager, Location center, DeathBorderShape shape, int startRadius,
+                        int finalRadius, int highestY, int lowestY, int shrinkRate) {
 
-        this.game = game;
+        this.gameManager = gameManager;
 
         this.center = center;
         this.shape = shape;
@@ -66,7 +68,7 @@ public class DeathBorder {
 
         borderShrinkTask = new DeathBorderShrinkTask(this);
         borderShrinkTask.runTaskTimer(CBCPlugin.getPlugin(), 0, (long) shrinkRate * 3L);
-        borderDamageTask = new DeathBorderDamageTask(this);
+        borderDamageTask = new DeathBorderDamageTask(gameManager, this);
         borderDamageTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
     }
@@ -147,7 +149,7 @@ public class DeathBorder {
         if (!player.isOnline()) return;
         if (player.isImmune()) return;
 
-        CombatManager combatManager = game.getGameManager().combatManager;
+        CombatManager combatManager = gameManager.combatManager;
 
         if (player.getPlayer().getHealth() <= 1) {
             // Kill player
@@ -254,16 +256,8 @@ public class DeathBorder {
         return active;
     }
 
-    public boolean isGameOver() {
-        return game.isGameOver();
-    }
-
     public double getCurrentRadius() {
         return currentRadius;
-    }
-
-    public Game getGame () {
-        return game;
     }
 
 }

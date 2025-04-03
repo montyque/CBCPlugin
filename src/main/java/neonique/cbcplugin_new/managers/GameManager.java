@@ -436,7 +436,7 @@ public class GameManager {
             lobby.deactivate();
 
             // Turn weapons off
-            if (combatManager.weaponState == WeaponsState.ACTIVE) {
+            if (combatManager.isActive()) {
                 combatManager.disableWeapons();
             }
 

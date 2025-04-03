@@ -31,15 +31,18 @@ import java.util.List;
 
 public class ResourcePackManager {
 
-    private HashMap<UUID, PlayerHead> playerHeads = new HashMap<>();
+    private HashMap<UUID, PlayerHead> singlePlayerHeads = new HashMap<>();
+    private HashMap<UUID, PlayerHead> multicharPlayerHeads = new HashMap<>();
 
-    private final String worldName = "world";
-    private final String zipName = "resources.zip";
+    private final String playerHeadsFileName = "playerheads.png";
+    private final String playerHeadsUpFileName = "playerheads_24up.png";
 
     private final String slotSectionName = "PlayerUUIDSlots";
     private final String recentPlayersListName = "MostRecentPlayers";
     private final String headsNotUpdated = "HeadsNotUpdated";
     private final int playerMax = 64;
+
+    private boolean useSingleCharHead = true;
 
     private final float translucentHeadOpacity = 0.2627f;
 
@@ -62,7 +65,6 @@ public class ResourcePackManager {
         List<String> newHeadsList = config.getStringList(headsNotUpdated);
 
         assert slotSection != null;
-
         boolean wasNotInPack = false;
 
         // Check if player is in the list
@@ -153,7 +155,7 @@ public class ResourcePackManager {
 
         // Create player head object
         int finalPlayerSlot = playerSlot;
-        createPlayerHeadComponent(playerUUID, oneCharacterHead, finalPlayerSlot);
+        createPlayerHeadComponent(playerUUID, oneCharacterHead, finalPlayerSlot, wasNotInPack);
 
         // Save to file
         try {
@@ -182,6 +184,8 @@ public class ResourcePackManager {
     @SuppressWarnings("deprecated")
     public boolean savePlayerHead (UUID playerUUID, String playerName, int slot) {
 
+        File dataFolder = CBCPlugin.getPlugin().getDataFolder();
+
         String uuidString = playerUUID.toString();
         URL playerHeadUrl;
 
@@ -197,72 +201,59 @@ public class ResourcePackManager {
         HashMap<String, String> env = new HashMap<>();
         env.put("create", "true");
 
-        File zipFile = getZipFile();
-        if (zipFile == null) {
-            CBCPlugin.getPlugin().getLogger().warning("Resource pack zip file not found.");
-            return true;
-        }
-        Path path = Paths.get(zipFile.getPath());
+        // Create a BufferedImage object
+        BufferedImage playerHeadImg;
 
-        URI uri = URI.create("jar:" + path.toUri());
-        try (FileSystem fs = FileSystems.newFileSystem(uri, env)) {
-
-            // Create a BufferedImage object
-            BufferedImage playerHeadImg;
-
-            try (InputStream in = playerHeadUrl.openStream()){
-                playerHeadImg = ImageIO.read(in);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            // Resize the image to be 8 by 8
-            BufferedImage playerHeadImg8x8 = resizePlayerHead(playerHeadImg, 8);
-
-            // Get transparent version of head
-            BufferedImage translucentPlayerHeadImg = changePlayerHeadOpacity(playerHeadImg8x8, translucentHeadOpacity);
-
-            // Get the 64x64 image with the player heads
-            boolean isNewHead = false;
-
-            Path plrHeadsPath = fs.getPath("assets", "minecraft", "textures", "font", "playerheads.png");
-            BufferedImage playerHeadsImg = loadImage(plrHeadsPath);
-            if (playerHeadsImg != null) {
-
-                // Check if same
-                isNewHead = isPlayerHeadNew(playerHeadsImg, playerHeadImg8x8, slot);
-
-                // Paste both opaque and translucent heads onto image
-                BufferedImage newPlayerHeadsImg = pastePlayerHead(playerHeadsImg, playerHeadImg8x8, (slot % 8) * 8, (slot / 8) * 8);
-                if (newPlayerHeadsImg != null) {
-                    newPlayerHeadsImg = pastePlayerHead(newPlayerHeadsImg, translucentPlayerHeadImg, (slot % 8) * 8, (slot / 8) * 8 + playerMax);
-                }
-                // Save image
-                if (newPlayerHeadsImg != null) {
-                    saveImage(newPlayerHeadsImg, plrHeadsPath);
-                }
-
-            }
-
-            // Get the 128x128 image with the raised player heads
-            Path plrHeadsRaisedPath = fs.getPath("assets", "minecraft", "textures", "font", "playerheads_24up.png");
-            BufferedImage playerRaisedHeadsImg = loadImage(plrHeadsRaisedPath);
-            if (playerHeadsImg != null) {
-                BufferedImage newPlayerRaisedHeadsImg = pastePlayerHead(playerRaisedHeadsImg, playerHeadImg8x8, (slot % 16) * 8, (slot / 16) * 32);
-                if (newPlayerRaisedHeadsImg != null) {
-                    newPlayerRaisedHeadsImg = pastePlayerHead(newPlayerRaisedHeadsImg, translucentPlayerHeadImg, (slot % 16) * 8, (slot / 16) * 32 + playerMax * 2);
-                }
-                // Save image
-                if (newPlayerRaisedHeadsImg != null) {
-                    saveImage(newPlayerRaisedHeadsImg, plrHeadsRaisedPath);
-                }
-            }
-
-            return isNewHead;
-
+        try (InputStream in = playerHeadUrl.openStream()){
+            playerHeadImg = ImageIO.read(in);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        // Resize the image to be 8 by 8
+        BufferedImage playerHeadImg8x8 = resizePlayerHead(playerHeadImg, 8);
+
+        // Get transparent version of head
+        BufferedImage translucentPlayerHeadImg = changePlayerHeadOpacity(playerHeadImg8x8, translucentHeadOpacity);
+
+        // Get the 64x64 image with the player heads
+        boolean isNewHead = false;
+
+        File playerHeadsFile = new File(dataFolder, playerHeadsFileName);
+        BufferedImage playerHeadsImg = loadImage(playerHeadsFile);
+        if (playerHeadsImg != null) {
+
+            // Check if same
+            isNewHead = isPlayerHeadNew(playerHeadsImg, playerHeadImg8x8, slot);
+
+            // Paste both opaque and translucent heads onto image
+            BufferedImage newPlayerHeadsImg = pastePlayerHead(playerHeadsImg, playerHeadImg8x8, (slot % 8) * 8, (slot / 8) * 8);
+            if (newPlayerHeadsImg != null) {
+                newPlayerHeadsImg = pastePlayerHead(newPlayerHeadsImg, translucentPlayerHeadImg, (slot % 8) * 8, (slot / 8) * 8 + playerMax);
+            }
+            // Save image
+            if (newPlayerHeadsImg != null) {
+                saveImage(newPlayerHeadsImg, playerHeadsFile);
+            }
+
+        }
+
+        // Get the 128x128 image with the raised player heads
+        File playerHeadsUpFile = new File(dataFolder, playerHeadsUpFileName);
+        BufferedImage playerRaisedHeadsImg = loadImage(playerHeadsUpFile);
+        if (playerHeadsImg != null) {
+            BufferedImage newPlayerRaisedHeadsImg = pastePlayerHead(playerRaisedHeadsImg, playerHeadImg8x8, (slot % 16) * 8, (slot / 16) * 32);
+            if (newPlayerRaisedHeadsImg != null) {
+                newPlayerRaisedHeadsImg = pastePlayerHead(newPlayerRaisedHeadsImg, translucentPlayerHeadImg, (slot % 16) * 8, (slot / 16) * 32 + playerMax * 2);
+            }
+            // Save image
+            if (newPlayerRaisedHeadsImg != null) {
+                saveImage(newPlayerRaisedHeadsImg, playerHeadsUpFile);
+            }
+        }
+
+        return isNewHead;
+
     }
 
     public File getPlayerHeadSlotsFile (CBCPlugin plugin) {
@@ -298,31 +289,6 @@ public class ResourcePackManager {
 
         // Return configuration section
         return playerHeadSlotsFile;
-    }
-
-    private File getWorldFolder() {
-        File worldFolder = new File(Bukkit.getServer().getWorldContainer(), worldName);
-        if (worldFolder.exists()) {
-            return worldFolder;
-        } else {
-            return null;
-        }
-    }
-
-    private File getZipFile() {
-
-        File worldFolder = getWorldFolder();
-        if (worldFolder == null) {
-            CBCPlugin.getPlugin().getLogger().warning("[!] World folder not found.");
-            return null;
-        }
-
-        File zipFile = new File(worldFolder, zipName);
-        if (zipFile.exists()) {
-            return zipFile;
-        } else {
-            return null;
-        }
     }
 
     // Used to resize the player head
@@ -369,38 +335,31 @@ public class ResourcePackManager {
         }
     }
 
-    private static void saveImage(BufferedImage image, Path path) {
+    private static void saveImage (BufferedImage image, File file) {
         try {
-            Path tempFile = Files.createTempFile(null, "png");
-            ImageIO.write(image, "png", tempFile.toFile());
-            Files.copy(tempFile, path, StandardCopyOption.REPLACE_EXISTING);
+            ImageIO.write(image, "png", file);
         } catch (IOException e) {
             CBCPlugin.getPlugin().getLogger().warning("Error while attempting to save image.");
-            e.printStackTrace();
         }
     }
 
-    private static BufferedImage loadImage(Path path) {
+    private static BufferedImage loadImage(File file) {
         BufferedImage img;
         try {
-            img = ImageIO.read(Files.newInputStream(path));
+            img = ImageIO.read(file);
             return img;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void createPlayerHeadComponent (UUID playerUUID, boolean oneCharacterHead, int slot) {
+    public void createPlayerHeadComponent (UUID playerUUID, boolean oneCharacterHead, int slot, boolean wasNotInPack) {
 
         String uuidString = playerUUID.toString();
         URL playerHeadUrl;
 
-        PlayerHead newPlayerHead = new PlayerHead(playerUUID);
 
-        if (oneCharacterHead) {
-            newPlayerHead.setHeadOneCharacter(slot);
-        }
-        else {
+        if (!oneCharacterHead) {
             try {
                 playerHeadUrl = new URL("https://mc-heads.net/avatar/" + uuidString);
             } catch (MalformedURLException e) {
@@ -417,10 +376,20 @@ public class ResourcePackManager {
 
             BufferedImage resizedHead = resizePlayerHead(playerHeadImg, 8);
 
+            PlayerHead newPlayerHead = new PlayerHead(playerUUID);
             newPlayerHead.setHead(resizedHead);
+            multicharPlayerHeads.put(playerUUID, newPlayerHead);
+
         }
 
-        playerHeads.put(playerUUID, newPlayerHead);
+        PlayerHead singleCharPlayerHead = new PlayerHead(playerUUID);
+        if (wasNotInPack) {
+            singleCharPlayerHead.setHeadOneCharacter(playerMax - 1);
+        } else {
+            singleCharPlayerHead.setHeadOneCharacter(slot);
+        }
+
+        singlePlayerHeads.put(playerUUID, singleCharPlayerHead);
 
     }
 
@@ -428,7 +397,11 @@ public class ResourcePackManager {
 
         UUID playerUUID = player.getUniqueId();
 
-        PlayerHead playerHeadObject = playerHeads.getOrDefault(playerUUID, null);
+        // Check if only using single head
+        PlayerHead playerHeadObject = singlePlayerHeads.getOrDefault(playerUUID, null);
+        if (!useSingleCharHead && multicharPlayerHeads.containsKey(playerUUID)) {
+            playerHeadObject = multicharPlayerHeads.get(playerUUID);
+        }
 
         if (playerHeadObject == null) {
             return normalText(String.valueOf((char) (headType.getStartingUnicodeId() + 63)));
@@ -531,5 +504,9 @@ public class ResourcePackManager {
                 return setFont(Component.text("\uE406"), ResourcePackFont.DEFAULT).color(color);
             }
         }
+    }
+
+    public void setSingleCharHead (boolean b) {
+        useSingleCharHead = b;
     }
 }

@@ -2,9 +2,11 @@ package neonique.cbcplugin_new.gamemodes.throwdown;
 
 import neonique.cbcplugin_new.enums.DeathBorderShape;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
+import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -26,6 +28,8 @@ public class ThrowdownMap extends CBCMap {
     private int suddenDeathBorderDownwardsLimit;
     private int suddenDeathBorderRadiusLimit;
 
+    private final Set<Vector> spawnOverrideSet;
+
     public ThrowdownMap(YamlConfiguration baseYml, YamlConfiguration gamemodeYml,
                        GameManager gameManager, CombatManager combatManager) {
 
@@ -40,7 +44,7 @@ public class ThrowdownMap extends CBCMap {
             suddenDeathTimer = gamemodeYml.getInt("SuddenDeathTimer");
             suddenDeathBorderEnabled = gamemodeYml.getBoolean("SuddenDeathBorder");
             if (suddenDeathBorderEnabled) {
-                suddenDeathBorderShape = DeathBorderShape.valueOf(gamemodeYml.getString("BorderShape", "CIRCLE"));
+                suddenDeathBorderShape = DeathBorderShape.valueOf(gamemodeYml.getString("SuddenDeathBorderShape", "CIRCLE").toUpperCase());
                 suddenDeathBorderStartRadius = gamemodeYml.getInt("SuddenDeathBorderStartRadius");
                 suddenDeathBorderShrinkRate = gamemodeYml.getInt("SuddenDeathBorderShrinkRate");
                 suddenDeathBorderUpwardsLimit = gamemodeYml.getInt("SuddenDeathBorderUpwardsLimit");
@@ -48,6 +52,11 @@ public class ThrowdownMap extends CBCMap {
                 suddenDeathBorderRadiusLimit = gamemodeYml.getInt("SuddenDeathBorderRadiusLimit", 16);
             }
         }
+
+        // Get FFA spawn point coordinates
+        List<String> spawnOverrides = gamemodeYml.getStringList("SpawnOverrides");
+        spawnOverrideSet = getVectorSetFromStrings(spawnOverrides);
+
     }
 
     public static Set<String> getGmYamlRequiredKeys() {
@@ -88,5 +97,13 @@ public class ThrowdownMap extends CBCMap {
 
     public int getSuddenDeathBorderRadiusLimit() {
         return suddenDeathBorderRadiusLimit;
+    }
+
+    public List<FFASpawnpoint> getOverrideSpawns() {
+        List<FFASpawnpoint> spawnpoints = new ArrayList<>();
+        for (Vector spawnpoint : spawnOverrideSet) {
+            spawnpoints.add(new FFASpawnpoint(getGameManager(), spawnpoint));
+        }
+        return spawnpoints;
     }
 }

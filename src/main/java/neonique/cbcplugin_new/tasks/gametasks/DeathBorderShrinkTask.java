@@ -18,12 +18,8 @@ public class DeathBorderShrinkTask extends BukkitRunnable {
             return;
         }
 
-        if (border.isGameOver()) {
-            border.deactivateBorder();
-            return;
-        }
-
         border.shrinkBorder();
+
     }
 
 }

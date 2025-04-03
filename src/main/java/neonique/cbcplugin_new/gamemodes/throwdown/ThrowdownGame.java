@@ -155,7 +155,11 @@ public class ThrowdownGame extends FFAGame {
         map = (ThrowdownMap) generalMap;
 
         // Variables that handle player movement at start of game
-        spawns = map.getSpawns();
+        if (map.getOverrideSpawns().isEmpty()) {
+            spawns = map.getSpawns();
+        } else {
+            spawns = map.getOverrideSpawns();
+        }
 
         // Setup sudden death
         if (map.isSuddenDeathEnabled()) {
@@ -215,7 +219,6 @@ public class ThrowdownGame extends FFAGame {
         roundStartCountdown = true;
 
         checkPlayerCounts();
-
         updateBossbarManager();
         updateServerSidebar();
     }
@@ -224,13 +227,13 @@ public class ThrowdownGame extends FFAGame {
 
         map.fillBlocksAtEnd();
 
-        roundInPlay = true;
-        getCombatManager().setVoidKill(true);
-
         // Start round for players
         for (ThrowdownPlayer player : getThrowdownPlayers()) {
             player.playerStartRound();
         }
+
+        roundInPlay = true;
+        getCombatManager().setVoidKill(true);
 
         // Release players so they can move
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
@@ -505,7 +508,7 @@ public class ThrowdownGame extends FFAGame {
         if (suddenDeathBorderEnabled) {
 
             suddenDeathBorder = new DeathBorder(
-                    this, map.getMapCentre(), map.getSuddenDeathBorderShape(), map.getSuddenDeathBorderStartRadius(),
+                    getGameManager(), map.getMapCentre(), map.getSuddenDeathBorderShape(), map.getSuddenDeathBorderStartRadius(),
                     map.getSuddenDeathBorderRadiusLimit(), map.getSuddenDeathBorderUpwardsLimit(),
                     map.getSuddenDeathBorderDownwardsLimit(), map.getSuddenDeathBorderShrinkRate()
             );

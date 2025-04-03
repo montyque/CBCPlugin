@@ -39,10 +39,24 @@ public class KOTHTeam extends CBCTeam {
     private float longestHeldTime = 0;
     private float currentHeldTime = 0;
 
+    private String materialColorName = "";
+
+
     public KOTHTeam(KOTHGame game, String teamId, String teamIdNum, String teamName, NamedTextColor teamColor,
                    String prefix, ItemStack item, ItemStack glassHead) {
         super(teamId, teamIdNum, teamName, teamColor, prefix, item, glassHead);
         this.game = game;
+
+        if (teamColor == NamedTextColor.RED) {
+            materialColorName = "RED";
+        } else if (teamColor == NamedTextColor.BLUE) {
+            materialColorName = "BLUE";
+        } else if (teamColor == NamedTextColor.GREEN) {
+            materialColorName = "LIME";
+        } else if (teamColor == NamedTextColor.YELLOW) {
+            materialColorName = "YELLOW";
+        }
+
     }
 
     public void score() {
@@ -185,5 +199,9 @@ public class KOTHTeam extends CBCTeam {
 
     public int getPointsScored() {
         return pointsScored;
+    }
+
+    public String getMaterialColorName() {
+        return materialColorName;
     }
 }

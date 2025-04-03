@@ -10,7 +10,6 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
-import neonique.cbcplugin_new.tasks.gamemodetasks.UpdateBossbarsTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.holdthegold.*;
 import neonique.cbcplugin_new.util.StringUtil;
 import net.kyori.adventure.text.Component;

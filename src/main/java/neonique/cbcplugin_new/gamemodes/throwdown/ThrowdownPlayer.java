@@ -48,56 +48,36 @@ public class ThrowdownPlayer extends CBCPlayer {
     // Runs for every player when a round is being setup
     public void playerSetupRound () {
 
+        // Do not start the round for this player if the player is offline
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
 
-        eliminated = false;
-
+        setAlive(false); // Set player's alive state to false
         // Set gamemode of player to adventure and reset their stats
         resetPlayer();
 
-        setAlive(false); // Set player's alive state to false
         playerRoundKills = 0;
+        eliminated = false;
 
         // Manage player effects
         playerEntity.removePotionEffect(PotionEffectType.GLOWING);
         playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 800000, 0, false, false, false));
-        setReloadsBySecond(3); // Reset player's reloading timers
+
     }
 
     public void playerStartRound () {
 
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
-        resetPlayer();
 
-        setReloadsBySecond(3); // Reset player's reloading timers
+        // Set gamemode of player to adventure and reset their stats
+        resetPlayer();
         setAlive(true); // Set player's state to alive
         setImmune(true); // Make player immune
+
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
         playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
         new TempImmunityTask(getGameManager(), getWeaponManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
-    }
-
-    public void sendBorderWarning(boolean isOutsideBorder) {
-
-        Title.Times times = Title.Times.times(
-                Duration.ofMillis(0), Duration.ofMillis(1000), Duration.ofMillis(250)
-        );
-
-        Component subtitle = Component.text("You are ").color(NamedTextColor.YELLOW).append(
-                Component.text("close to the border").color(NamedTextColor.GOLD)
-        );
-
-        if (isOutsideBorder) {
-            // Player is taking damage from border
-            subtitle = Component.text("You are ").color(NamedTextColor.YELLOW).append(
-                    Component.text("taking damage outside the border").color(NamedTextColor.RED)
-            );
-        }
-
-        // Display title
-        getPlayer().showTitle(Title.title(blankComponent(), subtitle, times));
 
     }
 

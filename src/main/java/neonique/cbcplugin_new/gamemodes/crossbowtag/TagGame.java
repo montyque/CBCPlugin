@@ -292,7 +292,7 @@ public class TagGame extends TeamGame {
 
                 // Make sure tagging team cannot see name tags of runners while blinded
                 getCBCScoreboardManager().setTeamOption(team.getTeamObject(),
-                        Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OWN_TEAM);
+                        Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS);
             }
         }
 

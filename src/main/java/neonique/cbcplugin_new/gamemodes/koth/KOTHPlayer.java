@@ -21,6 +21,15 @@ public class KOTHPlayer extends CBCPlayer {
     private int hillCaptures = 0;
     private int pointsDefended = 0;
 
+    // Constants for game points
+    private static final int KILL_PTS = 4; // Points you gain for kills
+    private static final int HILL_KILL_PTS = 2; // Extra points you gain for kills on players in the hill
+    private static final int HOLDER_KILL_PTS = 2; // Extra points you gain for kills on players holding the point
+    private static final int DEFEND_HILL_PTS = 10; // Points you gain for defending a point in the hill
+    private static final int CAPTURE_HILL_PTS = 10; // Points you gain for capture the hill
+    private static final int TIME_IN_HILL_PTS = 0; // Points you get for every second in the hill
+    private int timeInHillLast = 0;
+
     public KOTHPlayer(KOTHGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
         super(gameManager, combatManager, player, playerId);
         this.game = game;
@@ -37,10 +46,24 @@ public class KOTHPlayer extends CBCPlayer {
     public void playerAfterKill (CBCPlayer playerKilled) {
 
         // Set game points for kill
-        // int killPts = 5;
+        int killPts = KILL_PTS;
+
+        KOTHPlayer kothPlayerKilled = (KOTHPlayer) playerKilled;
+
+        if (kothPlayerKilled.isInHill()) {
+            killPts += HILL_KILL_PTS;
+        }
+
+        if (kothPlayerKilled.getTeam() == game.getPointControlTeam()) {
+            killPts += HOLDER_KILL_PTS;
+        }
 
         // Add game points for kill
-        // addGamePoints(killPts);
+        addGamePoints(killPts);
+
+        // Update leaderboards
+        game.updateTopKillsList();
+        game.updateTopGameScoreList();
 
         // Update leaderboards
         // game.updateTopKillsList();
@@ -142,6 +165,13 @@ public class KOTHPlayer extends CBCPlayer {
 
     public void addTimeInHill (float time) {
         timeInHill += time;
+
+        if (getSecondsInHill() > timeInHillLast) {
+            addGamePoints(TIME_IN_HILL_PTS * (getSecondsInHill() - timeInHillLast));
+            timeInHillLast = getSecondsInHill();
+            game.updateTopTimeInHillList();
+        }
+
         if (isOnline()) {
             game.getSidebarManager().updateClientBoard(getPlayer());
         }
@@ -157,6 +187,7 @@ public class KOTHPlayer extends CBCPlayer {
 
     public void addPointDefended () {
         pointsDefended++;
+        addGamePoints(DEFEND_HILL_PTS);
         if (isOnline()) {
             game.getSidebarManager().updateClientBoard(getPlayer());
         }
@@ -164,5 +195,9 @@ public class KOTHPlayer extends CBCPlayer {
 
     public void addHillCapture() {
         hillCaptures++;
+        addGamePoints(CAPTURE_HILL_PTS);
+        if (isOnline()) {
+            game.getSidebarManager().updateClientBoard(getPlayer());
+        }
     }
 }

@@ -21,6 +21,8 @@ public class KOTHMap extends CBCMap {
     private HashMap<String, Set<Vector>> teamSpawns; // The locations of each team's spawns
     private Set<Vector> randomSpawns; // If onlyTeamSpawns
 
+    private HashMap<String, Set<Vector>> blocksOnCapture; // The locations of each team's spawns
+
     private ConfigurationSection hillSettingsSection;
 
     public KOTHMap (YamlConfiguration ymlConfig, YamlConfiguration gamemodeYml,
@@ -62,6 +64,15 @@ public class KOTHMap extends CBCMap {
         // Find hill settings section, which has all the data for the hill
         assert gamemodeYml.getConfigurationSection("HillSettings") != null;
         hillSettingsSection = gamemodeYml.getConfigurationSection("HillSettings");
+
+        // Blocks to change -- blocks that change color when the point is captured
+        blocksOnCapture = new HashMap<>();
+        ConfigurationSection blocksOnCaptureSection = gamemodeYml.getConfigurationSection("BlocksOnCapture");
+        if (blocksOnCaptureSection != null) {
+            for (String material : blocksOnCaptureSection.getValues(false).keySet()) {
+                blocksOnCapture.put(material, getVectorSetFromStrings(blocksOnCaptureSection.getStringList(material)));
+            }
+        }
 
     }
 
@@ -116,6 +127,10 @@ public class KOTHMap extends CBCMap {
 
         return new KOTHHill(gameManager, zoneCenter, zoneShape, (float) zoneRadius, (float) zoneHeight);
 
+    }
+
+    public HashMap<String, Set<Vector>> getBlocksOnCapture() {
+        return blocksOnCapture;
     }
 
     public static Set<String> getGmYamlRequiredKeys() {

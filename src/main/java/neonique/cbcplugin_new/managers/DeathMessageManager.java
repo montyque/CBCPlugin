@@ -54,34 +54,12 @@ public class DeathMessageManager {
 
         YamlConfiguration deathMessagesFile = YamlConfiguration.loadConfiguration(file);
 
-        // Iterate through all keys (named after DeathCause enums) in file
-        for (String key : deathMessagesFile.getKeys(false)) {
-
-            ConfigurationSection deathCauseSection = deathMessagesFile.getConfigurationSection(key);
-            if (deathCauseSection == null) continue;
-
-            // Check if key matches with a value in the DeathCause enum
-            DeathCause deathCause;
-            try {
-                deathCause = DeathCause.valueOf(key.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                continue;
-            }
-
-            // Get all death messages for this death cause in string form
-            List<String> directStrings = deathCauseSection.getStringList("DIRECT");
-            List<String> indirectStrings = deathCauseSection.getStringList("INDIRECT");
-            List<String> indirectNoKillerStrings = deathCauseSection.getStringList("INDIRECT_NO_KILLER");
-
-            // Create death message generator and link it to this DeathCause enum
-            DeathMessageGenerator dmGen = new DeathMessageGenerator(directStrings, indirectStrings, indirectNoKillerStrings);
-            defaultDeathMessages.put(deathCause, dmGen);
-
-        }
+        defaultDeathMessages = DeathMessageGenerator.loadDeathMessageGenerators(deathMessagesFile);
 
         return true;
 
     }
+
 
     public Component getDeathMessage(CBCPlayer playerKilled, CBCPlayer playerKiller, DeathCause cause, boolean direct) {
 
@@ -160,5 +138,9 @@ public class DeathMessageManager {
                     .append(Component.text("!").color(NamedTextColor.WHITE))
                     .decorate(TextDecoration.BOLD);
         }
+    }
+
+    public void setOverrides (HashMap<DeathCause, DeathMessageGenerator> overrides) {
+        overrideDeathMessages = overrides;
     }
 }

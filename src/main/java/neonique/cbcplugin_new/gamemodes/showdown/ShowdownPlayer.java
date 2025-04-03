@@ -48,23 +48,13 @@ public class ShowdownPlayer extends CBCPlayer {
         // Set gamemode of player to adventure and reset their stats
         resetPlayer();
 
+        // Reset statistics
         playerRoundKills = 0;
 
         // Manage player effects
         playerEntity.removePotionEffect(PotionEffectType.GLOWING);
         playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 800000, 0, false, false, false));
 
-    }
-
-    public void teleportPlayerToSpawn (ShowdownSpawn spawn) {
-        if (!isOnline()) return;
-        Player playerEntity = getPlayer();
-
-        // Teleport player to spawn
-        playerEntity.teleport(spawn);
-        Vector dir = game.getMap().getMapCentre().clone().subtract(playerEntity.getEyeLocation()).toVector();
-        Location loc = playerEntity.getLocation().setDirection(dir);
-        playerEntity.teleport(loc);
     }
 
     public void playerStartRound () {
@@ -82,6 +72,7 @@ public class ShowdownPlayer extends CBCPlayer {
             playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
         }
         new TempImmunityTask(getGameManager(), getWeaponManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
+
     }
 
     @Override
@@ -102,10 +93,11 @@ public class ShowdownPlayer extends CBCPlayer {
                 if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
             }
         }
+
         // Update boss bar
-        game.getBossbarManager().update();
-        // Update sidebar manager
-        game.getSidebarManager().updateServerBoard();
+        game.updateBossbarManager();
+        game.updateServerSidebar();
+
     }
 
     @Override
@@ -126,10 +118,9 @@ public class ShowdownPlayer extends CBCPlayer {
 
         addGamePoints(killPts);
 
-        game.updateTopKillsList();
-
         playerRoundKills++;
-        game.getSidebarManager().updateServerBoard();
+        game.updateTopKillsList();
+        game.updateServerSidebar();
     }
 
     public void playerSurvivedRound () {

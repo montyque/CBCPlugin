@@ -3,7 +3,6 @@ package neonique.cbcplugin_new.commands.cbcpacksubcommands;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.commands.CBCPackCommand;
 import neonique.cbcplugin_new.commands._SubCommand;
-import neonique.cbcplugin_new.enums.PlayerHeadType;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

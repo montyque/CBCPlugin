@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.commands;
 
 import neonique.cbcplugin_new.commands.cbcpacksubcommands.cbcpack_reloadplayerhead;
+import neonique.cbcplugin_new.commands.cbcpacksubcommands.cbcpack_setsinglecharhead;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -26,12 +27,11 @@ public class CBCPackCommand extends _BaseCommand {
 
         int level = args.length;
 
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player user)) {
             return true;
         }
 
         // Get user and their permissions
-        Player user = (Player) sender;
         int perms = getPerms(user);
 
         if (level == 0) {
@@ -47,6 +47,9 @@ public class CBCPackCommand extends _BaseCommand {
         if (subcommand.equals("reloadplayerhead")) {
             cbcpack_reloadplayerhead.run(this, user, args, perms);
         }
+        else if (subcommand.equals("setsinglecharhead")) {
+            cbcpack_setsinglecharhead.run(this, user, args, perms);
+        }
 
         return true;
     }
@@ -56,12 +59,11 @@ public class CBCPackCommand extends _BaseCommand {
 
         int level = args.length;
 
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player user)) {
             return new ArrayList<>();
         }
 
         // Get user and their permissions
-        Player user = (Player) sender;
         int perms = getPerms(user);
 
         if (perms < 2) return new ArrayList<>();
@@ -70,10 +72,15 @@ public class CBCPackCommand extends _BaseCommand {
 
         if (level == 1) {
             tabCompletions.add("reloadplayerhead");
+            tabCompletions.add("setsinglecharhead");
         }
         else if (level >= 2) {
             if (args[0].equals("reloadplayerhead")) {
                 tabCompletions = _SubCommand.getAllPlayerNames();
+            }
+            else if (args[0].equals("setsinglecharhead")) {
+                tabCompletions.add("true");
+                tabCompletions.add("false");
             }
         }
 

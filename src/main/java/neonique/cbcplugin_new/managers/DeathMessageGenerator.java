@@ -1,5 +1,7 @@
 package neonique.cbcplugin_new.managers;
 
+import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 
 import java.awt.*;
@@ -7,6 +9,7 @@ import java.util.*;
 import java.util.List;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.configuration.ConfigurationSection;
 
 public class DeathMessageGenerator {
 
@@ -25,6 +28,40 @@ public class DeathMessageGenerator {
         indirectOwnDeathMessages = stringListToDeathMessages(indirectOwnStrings);
 
         randomGenerator = new Random();
+
+    }
+
+    public static HashMap<DeathCause, DeathMessageGenerator> loadDeathMessageGenerators 
+            (ConfigurationSection deathMessagesSection) {
+        
+        HashMap<DeathCause, DeathMessageGenerator> deathMessageGenerators = new HashMap<>();
+        
+        // Iterate through all keys (named after DeathCause enums) in file
+        for (String key : deathMessagesSection.getKeys(false)) {
+
+            ConfigurationSection deathCauseSection = deathMessagesSection.getConfigurationSection(key);
+            if (deathCauseSection == null) continue;
+
+            // Check if key matches with a value in the DeathCause enum
+            DeathCause deathCause;
+            try {
+                deathCause = DeathCause.valueOf(key.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+
+            // Get all death messages for this death cause in string form
+            List<String> directStrings = deathCauseSection.getStringList("DIRECT");
+            List<String> indirectStrings = deathCauseSection.getStringList("INDIRECT");
+            List<String> indirectNoKillerStrings = deathCauseSection.getStringList("INDIRECT_NO_KILLER");
+
+            // Create death message generator and link it to this DeathCause enum
+            DeathMessageGenerator dmGen = new DeathMessageGenerator(directStrings, indirectStrings, indirectNoKillerStrings);
+            deathMessageGenerators.put(deathCause, dmGen);
+
+        }
+        
+        return deathMessageGenerators;
 
     }
 

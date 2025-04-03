@@ -23,7 +23,6 @@ public class AssassinSidebarManager extends GameSidebarManager {
     private final AssassinGame game;
 
     private List<Component> displayToEveryone = new ArrayList<>();
-
     private List<AssassinPlayer> topPlayers = new ArrayList<>();
 
     public AssassinSidebarManager (GameManager gameManager, CombatManager combatManager, AssassinGame game) {
@@ -35,10 +34,7 @@ public class AssassinSidebarManager extends GameSidebarManager {
                 )
         );
 
-        this.gameManager = gameManager;
         this.game = game;
-        this.world = gameManager.getWorld();
-
         displayToEveryone.add(blankComponent());
 
     }

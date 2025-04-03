@@ -92,13 +92,12 @@ public class RendezvousTeam extends CBCTeam {
 
         // Sort players by name
         players.sort(Comparator.comparing(RendezvousPlayer::getLowercaseName));
-
         List<RendezvousPlayer> playersNotListed = getRendezvousPlayers();
 
         // Go through each character in number order list
         for (String chr : numberOrder.split("")) {
             // Try parse character as number
-            int num = 0;
+            int num;
             try {
                 num = Integer.parseInt(chr);
             } catch (NumberFormatException e) {
@@ -208,9 +207,8 @@ public class RendezvousTeam extends CBCTeam {
         }
 
         for (CBCPlayer player : getPlayers()) {
-            if (player.isOnline()) {
-                player.getPlayer().sendPlayerListFooter(footerQueueComponent);
-            }
+            if (!player.isOnline()) continue;
+            player.getPlayer().sendPlayerListFooter(footerQueueComponent);
         }
     }
 
@@ -220,117 +218,107 @@ public class RendezvousTeam extends CBCTeam {
 
     public void setRunner (RendezvousPlayer runner) {
 
+        if (runner == null) return;
         boolean newCheckpoint = false;
 
         if (this.runner != null) {
-            int oldRunnerId = this.runner.getPlayerId();
-            this.runner = runner;
-            if (oldRunnerId != runner.getPlayerId()) {
+            if (this.runner != runner) {
                 newCheckpoint = true;
                 changeInRunner();
             }
         }
         else {
-            this.runner = runner;
             newCheckpoint = true;
         }
 
+        this.runner = runner;
+        PlayerInventory inventory = runner.getPlayer().getInventory();
+        runner.giveRunnerCompass(inventory);
+
         if (newCheckpoint) {
-            if (onFinalCheckpoint()) {
-                if (runner.isAlive()) {
-                    runner.finalCheckpointTeleport();
-                }
+            if (onFinalCheckpoint() && runner.isAlive()) {
+                runner.finalCheckpointTeleport();
             } else {
-                selectNewCheckpoint(true);
+                selectNewCheckpoint();
             }
         }
-
-        // Update server sidebar
-        game.updateServerSidebar();
 
         for (RendezvousPlayer player : getRendezvousPlayers()) {
-            if (player.isAlive()) {
-                if (player.isPlayerRunner()) {
-                    player.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000,
-                            0, false, false, false));
-                }
-                else {
-                    player.getPlayer().removePotionEffect(PotionEffectType.GLOWING);
-                }
+            if (!player.isAlive()) continue;
+            if (player.isPlayerRunner()) {
+                player.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000,
+                        0, false, false, false));
+            }
+            else {
+                player.getPlayer().removePotionEffect(PotionEffectType.GLOWING);
             }
         }
 
-        if (runner != null) {
-            if (!runner.isOnline()) return;
-            PlayerInventory inventory = runner.getPlayer().getInventory();
-            runner.setOffhandCompass(inventory);
-        }
+        game.updateServerSidebar();
     }
 
     public void changeInRunner () {
 
         for (RendezvousPlayer player : getRendezvousPlayers()) {
-            if (player.isOnline()) {
+            if (player.isOnline()) break;
+            Player playerEntity = player.getPlayer();
+            if (player.isPlayerRunner()) {
 
-                Player playerEntity = player.getPlayer();
+                // Play title to the runner
+                Component titleComponent = Component.text("You're the runner!").color(getColor())
+                        .decorate(TextDecoration.BOLD);
 
-                if (player.isPlayerRunner()) {
-                    // Play title to the runner
-                    Component titleComponent = Component.text("You're the runner!").color(getColor())
-                            .decorate(TextDecoration.BOLD);
+                Component subtitleComponent = Component.text("Run to the new checkpoint!").color(NamedTextColor.WHITE);
 
-                    Component subtitleComponent = Component.text("Run to the new checkpoint!").color(NamedTextColor.WHITE);
+                Title title = Title.title(titleComponent, subtitleComponent, Title.Times.times(
+                        Duration.ofMillis(250), Duration.ofMillis(2500), Duration.ofMillis(250)
+                ));
 
-                    Title title = Title.title(titleComponent, subtitleComponent, Title.Times.times(
-                            Duration.ofMillis(250), Duration.ofMillis(2500), Duration.ofMillis(250)
-                    ));
+                playerEntity.showTitle(title);
 
-                    playerEntity.showTitle(title);
+                // Send message
+                gameManager.sendGlobalMessage(
+                        Component.text("RUNNER SWAP > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+                                .append(player.getNameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                                .append(Component.text(" is the new runner for ").color(NamedTextColor.WHITE)
+                                        .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                                .append(Component.text(getTeamName()).color(getColor())
+                                        .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                                .append(Component.text("!").color(NamedTextColor.WHITE)
+                                        .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                );
+            }
+            else {
+                // Play title to all non runners
+                Component titleComponent = Component.text("Runner switch!").color(getColor())
+                        .decorate(TextDecoration.BOLD);
+                Component subtitleComponent = Component.text("New runner is ").color(NamedTextColor.WHITE)
+                        .append(runner.getNameComponent());
+                Title title = Title.title(titleComponent, subtitleComponent, Title.Times.times(
+                        Duration.ofMillis(250), Duration.ofMillis(2000), Duration.ofMillis(250)
+                ));
+                playerEntity.showTitle(title);
 
-                    // Send message
-                    gameManager.sendGlobalMessage(
-                            Component.text("RUNNER SWAP > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
-                                    .append(player.getNameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
-                                    .append(Component.text(" is the new runner for ").color(NamedTextColor.WHITE)
-                                            .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
-                                    .append(Component.text(getTeamName()).color(getColor())
-                                            .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
-                                    .append(Component.text("!").color(NamedTextColor.WHITE)
-                                            .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
-                    );
-                }
-                else {
-                    // Play title to all non runners
-                    Component titleComponent = Component.text("Runner switch!").color(getColor())
-                            .decorate(TextDecoration.BOLD);
-
-                    Component subtitleComponent = Component.text("New runner is ").color(NamedTextColor.WHITE)
-                            .append(runner.getNameComponent());
-
-                    Title title = Title.title(titleComponent, subtitleComponent, Title.Times.times(
-                            Duration.ofMillis(250), Duration.ofMillis(2000), Duration.ofMillis(250)
-                    ));
-
-                    playerEntity.showTitle(title);
-                }
+                // Remove compass from other players
+                playerEntity.getInventory().remove(ItemStack.of(Material.COMPASS));
+                playerEntity.updateInventory();
             }
         }
 
 
     }
 
-    public void selectNewCheckpoint (boolean changeInRunner) {
+    public void selectNewCheckpoint () {
 
         if (targetCheckpoint != null) {
             this.targetCheckpoint.removeGlowingMarker(this);
             this.targetCheckpoint.removeHologram(this);
         }
 
-        if (game.isFinalCheckpointEnabled() && score == 1) {
-            // Do a final checkpoint instead
+        if (onFinalCheckpoint()) {
+            // Final checkpoint has been reached, which takes 7 seconds to fully capture
             targetCheckpoint = game.getFinalCheckpoint();
             currentCheckpointTargetDistance = targetCheckpoint.distance(runner.getPlayer().getLocation());
-            // Set progress max to 70 - takes 7 seconds to fully capture
             setProgressMax(70);
         }
         else {
@@ -353,11 +341,10 @@ public class RendezvousTeam extends CBCTeam {
         if (runner != null) {
             if (!runner.isOnline()) return;
             PlayerInventory inventory = runner.getPlayer().getInventory();
-            runner.setOffhandCompass(inventory);
+            runner.giveRunnerCompass(inventory);
         }
 
         targetCheckpoint.createGlowingMarker(this);
-
         targetProgress = progressMax;
         targetCheckpoint.setHologramTitle(this);
     }
@@ -386,7 +373,7 @@ public class RendezvousTeam extends CBCTeam {
 
             if (difference < acceptanceThreshold) {
                 // Check if final checkpoint is enabled and team is at their penultimate checkpoint
-                if (game.isFinalCheckpointEnabled() && score == 2) {
+                if (game.isFinalCheckpointEnabled() || score == 2) {
                     // Get distance between checkpoint and final checkpoint
                     double distanceToFinalCheckpoint = checkpoint.distance(game.getFinalCheckpoint());
                     double dif = Math.abs(70 - distanceToFinalCheckpoint);
@@ -413,67 +400,67 @@ public class RendezvousTeam extends CBCTeam {
     public void updateCheckpointStatus() {
 
         int oldTargetProgress = targetProgress;
-
         if (!runnerInCheckpoint) {
-            if (game.isFinalCheckpointEnabled() && score == 1) {
-                if (targetProgress < 20) {
-                    targetProgress = 20;
-                }
-            }
-            else {
-                // Reset checkpoint capture progress to progressMax
-                if (game.canHalfStick()) {
-                    if (targetProgress <= progressMax / 2) {
-                        targetProgress = progressMax / 2;
-                        hasHalfStick = true;
-                    }
-                    else {
-                        targetProgress = progressMax;
-                        hasHalfStick = false;
-                    }
-                }
-                else {
+            resetCheckpointProgress();
+        } else {
+            if (runner == null) return;
+            progressCheckpoint();
+        }
+
+        // Update the hologram title if required
+        if (targetProgress != oldTargetProgress) {
+            targetCheckpoint.setHologramTitle(this);
+        }
+
+    }
+
+    public void resetCheckpointProgress () {
+        if (onFinalCheckpoint()) {
+            targetProgress = Math.min(20, targetProgress);
+        }
+        else {
+            // Reset checkpoint capture progress to progressMax
+            if (game.canHalfStick()) {
+                if (targetProgress <= progressMax / 2) {
+                    targetProgress = progressMax / 2;
+                    hasHalfStick = true;
+                } else {
                     targetProgress = progressMax;
                     hasHalfStick = false;
                 }
+            } else {
+                targetProgress = progressMax;
+                hasHalfStick = false;
             }
+        }
+    }
 
-            if (oldTargetProgress != targetProgress) {
-                targetCheckpoint.setHologramTitle(this);
+    public void progressCheckpoint () {
+        // Start the checkpoint capturing process
+        targetProgress--;
+        if (!onFinalCheckpoint()) {
+            if (targetProgress <= progressMax / 2 && game.canHalfStick() && !hasHalfStick) {
+                runner.getPlayer().playSound(runner.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 100, 1);
+                hasHalfStick = true;
             }
-        } else {
-
-            if (runner == null) return;
-
-            // Start decreasing checkpoint capture progress
-            targetProgress--;
-
-            if (!onFinalCheckpoint()) {
-                if (targetProgress <= progressMax / 2 && game.canHalfStick() && !hasHalfStick) {
-                    runner.getPlayer().playSound(runner.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 100, 1);
-                    hasHalfStick = true;
-                }
-            }
-            else {
-                // On final checkpoint, play the sound when player is at 2 seconds left
-                if (targetProgress == 20 && !hasHalfStick) {
-                    runner.getPlayer().playSound(runner.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 100, 1);
-                    hasHalfStick = true;
-                }
-            }
-
-            // Show title
-            if (targetProgress == 0) {
-                // Cleared checkpoint
-                runner.checkpointCleared();
-            }
-            else {
-                float percentileProgress = 1f - (((float) targetProgress) / (float) progressMax);
-                runner.checkpointCapturingTitle(percentileProgress);
-                targetCheckpoint.setHologramTitle(this);
+        }
+        else {
+            // On final checkpoint, play the sound when player is at 2 seconds left
+            if (targetProgress == 20 && !hasHalfStick) {
+                runner.getPlayer().playSound(runner.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 100, 1);
+                hasHalfStick = true;
             }
         }
 
+        // Show title
+        if (targetProgress == 0) {
+            // Cleared checkpoint
+            runner.checkpointCleared();
+        }
+        else {
+            float percentileProgress = 1f - (((float) targetProgress) / (float) progressMax);
+            runner.checkpointCapturingTitle(percentileProgress);
+        }
     }
 
     public void checkpointCleared (RendezvousPlayer runner) {
@@ -495,17 +482,14 @@ public class RendezvousTeam extends CBCTeam {
 
         if (score > 0) {
             // Select new checkpoint
-            selectNewCheckpoint(false);
+            selectNewCheckpoint();
         }
         else {
             // Win game
             game.checkTeamWon(this);
         }
 
-        // Update placements
         game.updatePlacements();
-
-        // Update server sidebar
         game.updateServerSidebar();
     }
 

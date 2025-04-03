@@ -4,6 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.CBCGamemode;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
+import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
@@ -354,10 +355,6 @@ public abstract class Game {
 
     public boolean isGlobalKillsEnabled() {
         return globalKillsEnabled;
-    }
-
-    public void setBaseBossBarManager(GameBossBarManager baseBossBarManager) {
-        this.baseBossBarManager = baseBossBarManager;
     }
 
     public GameBossBarManager getBossbarManager () {

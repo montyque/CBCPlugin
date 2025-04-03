@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownSpawn;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
@@ -272,6 +273,19 @@ public class CBCPlayer {
                 player.removeScoreboardTag("NVDisable");
             }
         }
+    }
+
+    public void teleportPlayerToSpawn (Location spawn, Location faceLocation) {
+
+        if (!isOnline()) return;
+        Player playerEntity = getPlayer();
+
+        // Teleport player to spawn
+        playerEntity.teleport(spawn);
+
+        // Make them face location
+        faceToLocation(faceLocation, true);
+
     }
 
     public void faceToLocation (Location targetLocation, boolean eyeLevel) {
@@ -1070,6 +1084,14 @@ public class CBCPlayer {
         if (attr != null) {
             attr.setBaseValue(1.0);
         }
+    }
+
+    public void healToFull () {
+
+        if (!isOnline()) return;
+        Player playerEntity = getPlayer();
+        playerEntity.setHealth(getMaxHealth());
+
     }
 
     public double getMaxHealth () {

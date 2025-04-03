@@ -3,6 +3,7 @@ package neonique.cbcplugin_new.gamemodes.koth;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes._base.*;
+import neonique.cbcplugin_new.gamemodes.holdthegold.HTGPlayer;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
@@ -20,14 +21,16 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.Vector;
 
 import java.time.Duration;
 import java.util.*;
+
+import static neonique.cbcplugin_new.util.StatsUtil.sortPlayerStatList;
 
 public class KOTHGame extends TeamGame {
 
@@ -67,6 +70,13 @@ public class KOTHGame extends TeamGame {
     private int teamsToWin = 1;
     private int teamsWon = 0;
     private KOTHTeam originalWinningTeam = null;
+
+    // Current leaderboards
+    private List<PlayerStatObject> topGameScore = new ArrayList<>();
+    private List<PlayerStatObject> topKills = new ArrayList<>();
+    private List<PlayerStatObject> topHillCaptures = new ArrayList<>();
+    private List<PlayerStatObject> topPointsDefended = new ArrayList<>();
+    private List<PlayerStatObject> topTimeInHill = new ArrayList<>();
 
     public KOTHGame(GameManager gameManager, CombatManager combatManager) {
         super(gameManager, combatManager);
@@ -143,6 +153,9 @@ public class KOTHGame extends TeamGame {
 
         // Setup sidebar and bossbar
         createUIManagers();
+
+        // Reset any colored blocks to white
+        changeBlocks("WHITE", NamedTextColor.WHITE);
 
         // Start hill detection task
         float detectionFrequency = 5; // Amount of times per second to run this task
@@ -279,8 +292,13 @@ public class KOTHGame extends TeamGame {
         scoreTask = new KOTHScoreTask(this);
         scoreTask.runTaskTimer(CBCPlugin.getPlugin(), ticksToScore, ticksToScore);
 
+        // Update leaderboards
+        updateTopHillCapturesList();
+
         // Update sidebar manager
         updateServerSidebar();
+
+        changeBlocks(team.getMaterialColorName(), team.getColor());
 
     }
 
@@ -325,6 +343,31 @@ public class KOTHGame extends TeamGame {
         // Update sidebar manager
         updateServerSidebar();
 
+        // Change blocks to white
+        changeBlocks("WHITE", NamedTextColor.WHITE);
+
+    }
+
+    public void changeBlocks (String colorMaterialString, NamedTextColor particleColor) {
+        for (String materialString : map.getBlocksOnCapture().keySet()) {
+            try {
+                Material blockMaterial = Material.valueOf((colorMaterialString + "_" + materialString).toUpperCase());
+                Set<Vector> blockVectorList = map.getBlocksOnCapture().get(materialString);
+                for (Vector vector : blockVectorList) {
+
+                    Block block = getWorld().getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
+                    block.setType(blockMaterial);
+                    block.getState().update();
+
+                    if (particleColor != null) {
+                        Location particleLocation = block.getLocation().add(0.5, 0.5, 0.5);
+                        Particle.DustOptions options = new Particle.DustOptions(Color.fromRGB(particleColor.value()), 0.5f);
+                        particleLocation.getWorld().spawnParticle(Particle.DUST, particleLocation, 4, 1, 1, 1, 1, options);
+                    }
+
+                }
+            } catch (IllegalArgumentException ignored) {}
+        }
     }
 
     public void teamScore () {
@@ -379,6 +422,7 @@ public class KOTHGame extends TeamGame {
         }
 
         // Update sidebar manager
+        updateTopPointsDefendedList();
         updatePlacements();
         updateServerSidebar();
         updateBossbarManager();
@@ -388,6 +432,11 @@ public class KOTHGame extends TeamGame {
     public void gameWon (CBCTeam team) {
 
         super.gameWon(team);
+
+        // Add bonus points for winning
+        for (CBCPlayer player : team.getPlayers()) {
+            player.addGamePoints(40);
+        }
 
         // Disable hill
         hillEnabled = false;
@@ -478,6 +527,91 @@ public class KOTHGame extends TeamGame {
 
     public float getCapturingPlayerPercentage() {
         return capturingPlayerPercentage;
+    }
+
+    public void updateTopKillsList () {
+        // Create new top kills list
+        topKills = new ArrayList<>();
+        for (KOTHPlayer player : getKOTHPlayers()) {
+            // Add player's kills to the list
+            topKills.add(new PlayerStatObject(player, player.getKills()));
+        }
+        // Sort list
+        sortPlayerStatList(topKills, true);
+    }
+
+    public List<PlayerStatObject> getTopKillsList () {
+        return topKills;
+    }
+
+    public void updateTopGameScoreList () {
+        // Create new top game score list
+        topGameScore = new ArrayList<>();
+        for (KOTHPlayer player : getKOTHPlayers()) {
+            // Add player's game score to the list
+            topGameScore.add(new PlayerStatObject(player, player.getGamePoints()));
+        }
+        // Sort list
+        sortPlayerStatList(topGameScore, true);
+    }
+
+    public List<PlayerStatObject> getTopGameScoreList () {
+        return topGameScore;
+    }
+
+    public void updateTopHillCapturesList () {
+        // Create new top gold score list
+        topHillCaptures = new ArrayList<>();
+        for (KOTHPlayer player : getKOTHPlayers()) {
+            // Add player's gold score to the list
+            topHillCaptures.add(new PlayerStatObject(player, player.getHillCaptures()));
+        }
+        // Sort list
+        sortPlayerStatList(topHillCaptures, true);
+    }
+
+    public List<PlayerStatObject> getTopHillCapturesList () {
+        return topHillCaptures;
+    }
+
+    public void updateTopPointsDefendedList () {
+        // Create new top gold score list
+        topPointsDefended = new ArrayList<>();
+        for (KOTHPlayer player : getKOTHPlayers()) {
+            // Add player's gold score to the list
+            topPointsDefended.add(new PlayerStatObject(player, player.getPointsDefended()));
+        }
+        // Sort list
+        sortPlayerStatList(topHillCaptures, true);
+    }
+
+    public List<PlayerStatObject> getTopPointsDefendedList () {
+        return topPointsDefended;
+    }
+
+    public void updateTopTimeInHillList () {
+        // Create new top gold score list
+        topTimeInHill = new ArrayList<>();
+        for (KOTHPlayer player : getKOTHPlayers()) {
+            // Add player's gold score to the list
+            topTimeInHill.add(new PlayerStatObject(player, player.getSecondsInHill()));
+        }
+        // Sort list
+        sortPlayerStatList(topHillCaptures, true);
+    }
+
+    public List<PlayerStatObject> getTopTimeInHillList () {
+        return topTimeInHill;
+    }
+
+    public Set<KOTHPlayer> getKOTHPlayers () {
+        Set<KOTHPlayer> kothPlayers = new HashSet<>();
+        for (CBCPlayer player : getPlayers().values()) {
+            if (player instanceof KOTHPlayer) {
+                kothPlayers.add((KOTHPlayer) player);
+            }
+        }
+        return kothPlayers;
     }
 
 }

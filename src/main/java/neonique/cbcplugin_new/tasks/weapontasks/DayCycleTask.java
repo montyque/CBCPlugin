@@ -20,7 +20,7 @@ public class DayCycleTask extends BukkitRunnable {
     @Override
     public void run() {
 
-        if (combatManager.weaponState == WeaponsState.ACTIVE) {
+        if (combatManager.isActive()) {
             world.setTime(world.getTime() + speed);
         }
         else {

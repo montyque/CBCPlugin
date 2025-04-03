@@ -33,13 +33,12 @@ public class RendezvousPlayer extends CBCPlayer {
     private int checkpointsCleared = 0;
     private int enemyRunnersKilled = 0;
 
-    // Constants for game points
-    private static int KILL_PTS = 1; // Points you gain for kills
-    private static int MBOOST_KILL_PTS = 30; // Extra points for giving a morale boost to a teammate runner
-    private static int RUNNER_KILL_PTS = 30; // Extra points for killing a runner
-    private static int AS_RUNNER_KILL_PTS = 15; // Extra points for killing a runner
-    private static int CHECKPOINT_CAPTURE = 70; // Points for capturing a checkpoint
-    private static int FINAL_CHECKPOINT_CAPTURE = 50; // Extra points for capturing the final checkpoint
+    // Constants for giving players game score
+    private static int MBOOST_KILL_PTS = 20; // Extra points for giving a morale boost to a teammate runner
+    private static int RUNNER_KILL_PTS = 10; // Extra points for killing a runner
+    private static int AS_RUNNER_KILL_PTS = 10; // Extra points for killing someone as a runner
+    private static int CHECKPOINT_CAPTURE = 80; // Points for capturing a checkpoint
+    private static int FINAL_CHECKPOINT_CAPTURE = 60; // Extra points for capturing the final checkpoint
 
     public RendezvousPlayer(RendezvousGame game, GameManager gameManager, CombatManager combatManager,
                             Player player, Integer playerId) {
@@ -72,31 +71,31 @@ public class RendezvousPlayer extends CBCPlayer {
         Component progressComponent = smallText(coloredTitle.toString()).color(getTeam().getColor())
                 .append(smallText(whiteTitle.toString()).color(NamedTextColor.WHITE));
 
-        getPlayer().showTitle(Title.title(blankComponent(), progressComponent, Title.Times.times(Duration.ZERO, Duration.ofMillis(1000), Duration.ofMillis(200))));
+        getPlayer().showTitle(Title.title(blankComponent(), progressComponent,
+                Title.Times.times(Duration.ZERO, Duration.ofMillis(1000), Duration.ofMillis(200)))
+        );
 
     }
 
+    /**
+    Runs when a player fully captures their checkpoint.
+     */
     public void checkpointCleared () {
 
         if (!isOnline()) return;
-
         RendezvousTeam team = getRendezvousTeam();
 
-        // Send message scored
         getGameManager().sendGlobalMessage(
                         Component.text("CHECKPOINT > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
                         .append(getNameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
                         .append(Component.text(" has cleared a checkpoint!").color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
         );
+        team.playGlobalSound(Sound.ENTITY_PLAYER_LEVELUP, 300, 1);
 
-        // Add to checkpoints cleared
+        // Update statistics
         checkpointsCleared++;
-
-        // Add to points
         addGamePoints(CHECKPOINT_CAPTURE);
-
-        // Update leaderboard
         game.updateTopCheckpointsList();
 
         // Show title to player
@@ -108,28 +107,19 @@ public class RendezvousPlayer extends CBCPlayer {
         );
         getPlayer().showTitle(title);
 
-        // Heal player back to full health
-        getPlayer().setHealth(20);
-
-        // Play sound to all team members
-        for (CBCPlayer player : team.getPlayers()) {
-            if (player.isOnline()) {
-                Player playerEntity = player.getPlayer();
-                playerEntity.playSound(playerEntity.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 300, 1);
-            }
-        }
-
-        // Decrement score
+        healToFull();
         team.checkpointCleared(this);
 
         if (team.getScore() == 0) {
             addGamePoints(FINAL_CHECKPOINT_CAPTURE);
         }
+
     }
 
     @Override
     public void playerAfterKill (CBCPlayer playerKilled) {
 
+        int KILL_PTS = 1;
         int killPts = KILL_PTS;
 
         // Check if player killed was a runner
@@ -142,6 +132,7 @@ public class RendezvousPlayer extends CBCPlayer {
                                 .decorate(TextDecoration.BOLD).decorate(TextDecoration.ITALIC)
                 );
             }
+
             // Give points for killing runner
             killPts += RUNNER_KILL_PTS;
 
@@ -149,67 +140,76 @@ public class RendezvousPlayer extends CBCPlayer {
             game.updateTopRunnerKillsList();
         }
 
-        // Check if player killed was morale boost
-        if (!isPlayerRunner()) {
-            RendezvousPlayer teamRunner = getRendezvousTeam().getRunner();
-            RendezvousCheckpoint currentCheckpoint = getRendezvousTeam().getTargetCheckpoint();
-            if (teamRunner != null) {
-                // Check if runner is alive
-                if (teamRunner.isAlive()) {
-                    boolean grantMoraleBoost = teamRunner.damagingPlayersInLastTime(120).contains(playerKilled);
-
-                    // Check if player has been damaged recently
-                    if (playerKilled.isOnline() && !grantMoraleBoost) {
-                        Location playerKilledLoc = playerKilled.getPlayer().getLocation();
-                        // Check if player killed is nearby the checkpoint
-                        if (currentCheckpoint != null) {
-                            if (currentCheckpoint.distanceSquared(playerKilledLoc) <= 15 * 15) {
-                                grantMoraleBoost = true;
-                            }
-                        }
-                        if (!grantMoraleBoost) {
-                            if (teamRunner.getPlayer().getLocation().distanceSquared(playerKilledLoc) <= 15 * 15) {
-                                grantMoraleBoost = true;
-                            }
-                        }
-                    }
-
-                    // Give morale boost
-                    if (grantMoraleBoost) {
-                        teamRunner.addHealing(4);
-
-                        if (isOnline()) {
-                            getPlayer().sendMessage(
-                                    Component.text("Morale Boost given to ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
-                                            .append(Component.text(teamRunner.getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
-                                            .append(Component.text("! (Teammate receives + 2.0 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
-                            );
-                        }
-                        teamRunner.getPlayer().sendMessage(
-                                Component.text("Morale Boost received from ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
-                                        .append(Component.text(getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
-                                        .append(Component.text("! ( + 2.0 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
-                        );
-
-                        // Give points for morale boost
-                        killPts += MBOOST_KILL_PTS;
-                    }
-                }
-            } else {
-                killPts += AS_RUNNER_KILL_PTS;
-            }
+        if (isPlayerRunner()) {
+            killPts += AS_RUNNER_KILL_PTS;
         }
 
-        // Update kill leaderboard
-        game.updateTopKillsList();
+        // Give morale boost
+        if (checkMoraleBoost(playerKilled)) {
+            RendezvousPlayer teamRunner = getRendezvousTeam().getRunner();
 
-        // Add points
+            teamRunner.addHealing(6);
+            if (isOnline()) {
+                getPlayer().sendMessage(
+                        Component.text("Morale Boost given to ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
+                                .append(Component.text(teamRunner.getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                                .append(Component.text("! (Teammate receives + 3.0 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                );
+            }
+
+            teamRunner.getPlayer().sendMessage(
+                    Component.text("Morale Boost received from ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
+                            .append(Component.text(getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                            .append(Component.text("! ( + 3.0 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+            );
+
+            // Give points for morale boost
+            killPts += MBOOST_KILL_PTS;
+        }
+
+        game.updateTopKillsList();
         addGamePoints(killPts);
 
         if (!isOnline()) return;
 
         // Update user's client board
         game.updateServerSidebar();
+
+    }
+
+    /**
+    Checks if the player meets the requirements to give a Morale Boost to their runner.
+     @param playerKilled: The player who was killed.
+     */
+    public boolean checkMoraleBoost (CBCPlayer playerKilled) {
+
+        // Check if player killed was morale boost
+        if (isPlayerRunner()) return false;
+
+        RendezvousPlayer teamRunner = getRendezvousTeam().getRunner();
+        if (teamRunner == null) return false;
+        if (teamRunner.isAlive()) return false;
+
+        RendezvousCheckpoint currentCheckpoint = getRendezvousTeam().getTargetCheckpoint();
+        if (currentCheckpoint == null) return false;
+
+        // Check if the runner has been damaged in the last 6 seconds by the player who was killed
+        if (teamRunner.damagingPlayersInLastTime(120).contains(playerKilled)) {
+            return true;
+        }
+
+        if (!playerKilled.isOnline()) return false;
+        Location playerKilledLocation = playerKilled.getPlayer().getLocation();
+        Location teamRunnerLocation = teamRunner.getPlayer().getLocation();
+
+        // Check if player killed is nearby the checkpoint
+        if (currentCheckpoint.distanceSquared(playerKilledLocation) <= 15 * 15) {
+            return true;
+        }
+
+        // Check if player killed is nearby the checkpoint
+        return teamRunnerLocation.distanceSquared(teamRunnerLocation) <= 15 * 15;
+
     }
 
     public boolean isPlayerRunner () {
@@ -350,7 +350,7 @@ public class RendezvousPlayer extends CBCPlayer {
         // Create compass for runner
         if (isPlayerRunner() && getTeamCheckpoint() != null) {
             if (!inventory.contains(Material.COMPASS)) {
-                setOffhandCompass(inventory);
+                giveRunnerCompass(inventory);
             }
         }
         else {
@@ -360,7 +360,7 @@ public class RendezvousPlayer extends CBCPlayer {
         }
     }
 
-    public void setOffhandCompass (PlayerInventory inventory) {
+    public void giveRunnerCompass(PlayerInventory inventory) {
         RendezvousTeam team = getRendezvousTeam();
         inventory.setItem(8, team.getRunnerCompassItem());
     }

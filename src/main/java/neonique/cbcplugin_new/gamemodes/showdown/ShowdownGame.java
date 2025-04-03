@@ -85,6 +85,7 @@ public class ShowdownGame extends TeamGame {
 
         // Setup map
         setupMap(mapChosen);
+
         // Setup default game variables
         setupDefaultGameVars(boolVars, intVars, stringVars);
 
@@ -123,6 +124,7 @@ public class ShowdownGame extends TeamGame {
 
         // Start round 1
         setupRound();
+
     }
 
     public void setupMap (CBCMap generalMap) {
@@ -515,11 +517,7 @@ public class ShowdownGame extends TeamGame {
         // If sudden death border is enabled activate the border
         if (suddenDeathBorderEnabled) {
 
-            suddenDeathBorder = new DeathBorder(
-                    this, map.getMapCentre(), map.getSuddenDeathBorderShape(), map.getSuddenDeathBorderStartRadius(),
-                    map.getSuddenDeathBorderRadiusLimit(), map.getSuddenDeathBorderUpwardsLimit(),
-                    map.getSuddenDeathBorderDownwardsLimit(), map.getSuddenDeathBorderShrinkRate()
-            );
+            suddenDeathBorder = map.getSuddenDeathBorder();
             suddenDeathBorder.activateBorder();
 
         }
@@ -569,7 +567,7 @@ public class ShowdownGame extends TeamGame {
             if (!roundInPlay && roundStartCountdown) {
                 // Setup player round and teleport them to spawn
                 showdownPlayer.playerSetupRound();
-                showdownPlayer.teleportPlayerToSpawn(showdownTeam.getRoundSpawn());
+                showdownPlayer.teleportPlayerToSpawn(showdownTeam.getRoundSpawn(), map.getMapCentre());
             }
         }
     }
@@ -696,6 +694,7 @@ public class ShowdownGame extends TeamGame {
     public List<PlayerStatObject> getTopTimeAliveList () {
         return topTimeAlive;
     }
+
     public List<ShowdownPlayer> getShowdownPlayers () {
         // Get all players as ShowdownPlayer objects
         List<ShowdownPlayer> playersList = new ArrayList<>();

@@ -31,6 +31,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -38,26 +39,25 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.setTextFon
 
 public class Lobby {
 
-    GameManager gameManager;
-    World world;
+    private final GameManager gameManager;
 
     boolean active = false;
 
     // Lobby variables
-    Location lobbyTeleport;
+    private Location lobbyTeleport;
 
     // Map selected
-    CBCGamemode gamemodeSelected;
-    CBCMap mapSelected;
+    private CBCGamemode gamemodeSelected;
+    private CBCMap mapSelected;
 
     // Game variables
-    HashMap<String, Integer> gameInts;
-    HashMap<String, Boolean> gameBools;
-    HashMap<String, String> gameStrings;
+    private HashMap<String, Integer> gameInts;
+    private HashMap<String, Boolean> gameBools;
+    private HashMap<String, String> gameStrings;
 
-    HashMap<String, Integer> defaultGameInts = new HashMap<>();
-    HashMap<String, Boolean> defaultGameBools = new HashMap<>();
-    HashMap<String, String> defaultGameStrings = new HashMap<>();
+    private HashMap<String, Integer> defaultGameInts = new HashMap<>();
+    private HashMap<String, Boolean> defaultGameBools = new HashMap<>();
+    private HashMap<String, String> defaultGameStrings = new HashMap<>();
 
     private CreeperPreset creeperPreset;
     private FlamePreset flamePreset;
@@ -68,8 +68,8 @@ public class Lobby {
     private HashMap<String, XbowPreset> xbowPresetTeamOverrides;
 
     // If the game is starting
-    boolean gameStarting;
-    GameCountdownTask startingCountdown;
+    private boolean gameStarting;
+    private GameCountdownTask startingCountdown;
 
     // Players and teams
     private HashMap<UUID, LobbyPlayer> players = new HashMap<>();
@@ -78,21 +78,23 @@ public class Lobby {
     private Team ffaTeam;
 
     // Lobby sidebar manager
-    LobbySidebarManager sidebarManager;
+    private LobbySidebarManager sidebarManager;
 
     // Listeners and tasks
-    MenuClickEvent menuClickEvent;
-    PlayerDamageListener playerDamageListener;
+    private MenuClickEvent menuClickEvent;
+    private PlayerDamageListener playerDamageListener;
 
-    PlayerSafetyTask playerSafetyTask;
-    LobbySidebarManagerTask lobbySidebarManagerTask;
+    private PlayerSafetyTask playerSafetyTask;
+    private LobbySidebarManagerTask lobbySidebarManagerTask;
 
     // Image maps
-    LobbyImageMaps imageMaps;
+    private LobbyImageMaps imageMaps;
 
     public Lobby(GameManager gameManager) {
+
         this.gameManager = gameManager;
-        this.world = gameManager.getWorld();
+
+        World world = gameManager.getWorld();
         lobbyTeleport = new Location(world, -1069.5, 126, -1668.5);
 
         menuClickEvent = new MenuClickEvent(this, gameManager);
@@ -145,7 +147,7 @@ public class Lobby {
         active = true;
 
         // Set world spawn
-        world.setSpawnLocation(lobbyTeleport);
+        gameManager.getWorld().setSpawnLocation(lobbyTeleport);
 
         // Activate listeners and tasks
         CBCPlugin plugin = CBCPlugin.getPlugin();
@@ -221,6 +223,7 @@ public class Lobby {
 
         gameManager.setPlayerListFooter(Component.text(""));
         imageMaps.createItemFrames();
+
     }
 
     public void deactivate() {
@@ -236,6 +239,7 @@ public class Lobby {
         sidebarManager.removeSidebar();
         lobbySidebarManagerTask.cancel();
 
+        // Unregister all teams
         CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(ffaTeam.getName());
         CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(spectatorTeam.getName());
 
@@ -259,6 +263,7 @@ public class Lobby {
         if (!gameManager.practiceManager.isEnabled() && gameManager.getCurrentGame() == null) {
             gameManager.getCbcScoreboardManager().deactivate();
         }
+
     }
 
     public void randomizeTeams(Set<LobbyTeam> teamsSelected) {
@@ -280,9 +285,11 @@ public class Lobby {
 
         // Convert set of teams into list
         List<LobbyTeam> teamsRandomizing = new ArrayList<>(teamsSelected);
+
         // Shuffle list of players and list of teams
         Collections.shuffle(teamsRandomizing);
         Collections.shuffle(playersToRandomize);
+
         // Iterate through players and distribute them into teams
         int playersGoneThrough = 0;
         for (LobbyPlayer player : playersToRandomize) {
@@ -290,13 +297,15 @@ public class Lobby {
             playerJoinTeam(player, teamToJoin, false);
             playersGoneThrough++;
         }
+
         // Send message to confirm randomizing teams is finished
-        world.sendMessage(Component.text(
+        gameManager.getWorld().sendMessage(Component.text(
                 playersToRandomize.size() + " players have been randomized into " + teamsRandomizing.size() + " teams!"
         ).color(NamedTextColor.GREEN));
 
         // Update sidebars
         updateClientSidebars();
+
     }
 
     public void openTeamRandomizeMenu(Player user) {
@@ -308,7 +317,7 @@ public class Lobby {
         if (gamemodeSelected != null && mapSelected != null) {
             GamemodeOptions gamemode = gameManager.getGamemodes().get(gamemodeSelected);
             if (!gamemode.isTeamGamemode()) return; else {
-                if (mapSelected.getMinTeams() != null && mapSelected.getMinTeams() != null) {
+                if (mapSelected.getMinTeams() != null) {
                     minTeams = mapSelected.getMinTeams();
                     maxTeams = mapSelected.getMaxTeams();
                 } else return;
@@ -348,9 +357,9 @@ public class Lobby {
             // Create item
             ItemStack item = team.getItem();
 
+            ItemMeta itemMeta = item.getItemMeta();
             if (itemSlot < maxTeams) {
                 // Set randomising to true
-                ItemMeta itemMeta = item.getItemMeta();
                 itemMeta.addEnchant(Enchantment.THORNS, 1, false);
                 Component itemLore;
                 itemLore = Component.text("Click to remove from randomisation").color(NamedTextColor.DARK_GREEN)
@@ -363,8 +372,6 @@ public class Lobby {
 
                 randomisingTeams++;
             } else {
-                // Set randomising to false
-                ItemMeta itemMeta = item.getItemMeta();
                 Component itemLore;
                 itemLore = Component.text("Click to add to randomisation").color(NamedTextColor.DARK_RED)
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
@@ -379,7 +386,6 @@ public class Lobby {
                 itemMeta.lore(loreList);
                 item.setItemMeta(itemMeta);
             }
-
             gui.setItem(itemSlot, item);
             itemSlot++;
         }
@@ -387,6 +393,7 @@ public class Lobby {
         // Create magenta glazed terracotta to press when randomising
         ItemStack item = new ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA);
         ItemMeta itemMeta = item.getItemMeta();
+
         // Set item title
         Component itemTitle = Component.text("Randomise players into " + randomisingTeams + " teams").color(NamedTextColor.GREEN)
                 .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
@@ -409,30 +416,7 @@ public class Lobby {
             GamemodeOptions gamemodeVariables = gamemodeList.get(gamemode);
 
             ItemStack item = gamemodeVariables.getGamemodeIcon();
-            ItemMeta itemMeta = item.getItemMeta();
-            // Set item title
-            Component itemTitle = Component.text(gamemodeVariables.getGamemodeName()).color(gamemodeVariables.getColor())
-                    .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-            itemMeta.displayName(itemTitle);
-            Component itemLore;
-            if (gamemodeVariables.isTeamGamemode()) {
-                int minTeams = gamemodeVariables.getMinTeams();
-                int maxTeams = gamemodeVariables.getMaxTeams();
-                itemLore = Component.text(minTeams + "-" + maxTeams + " teams").color(NamedTextColor.DARK_GREEN)
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-            } else {
-                if (gamemodeVariables.getMinPlayers() > 1) {
-                    itemLore = Component.text("Free for all, " + gamemodeVariables.getMinPlayers() + "+ players").color(NamedTextColor.DARK_PURPLE)
-                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-                }
-                else {
-                    itemLore = Component.text("Free for all").color(NamedTextColor.DARK_PURPLE)
-                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-                }
-            }
-            List<Component> loreList = new ArrayList<>();
-            loreList.add(itemLore);
-            itemMeta.lore(loreList);
+            ItemMeta itemMeta = getGamemodeItemMeta(item, gamemodeVariables);
 
             item.setItemMeta(itemMeta);
 
@@ -446,6 +430,36 @@ public class Lobby {
             }
         }
         user.openInventory(gui);
+    }
+
+    private static @NotNull ItemMeta getGamemodeItemMeta(ItemStack item, GamemodeOptions gamemodeVariables) {
+
+        ItemMeta itemMeta = item.getItemMeta();
+        // Set item title
+        Component itemTitle = Component.text(gamemodeVariables.getGamemodeName()).color(gamemodeVariables.getColor())
+                .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+        itemMeta.displayName(itemTitle);
+        Component itemLore;
+        if (gamemodeVariables.isTeamGamemode()) {
+            int minTeams = gamemodeVariables.getMinTeams();
+            int maxTeams = gamemodeVariables.getMaxTeams();
+            itemLore = Component.text(minTeams + "-" + maxTeams + " teams").color(NamedTextColor.DARK_GREEN)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+        } else {
+            if (gamemodeVariables.getMinPlayers() > 1) {
+                itemLore = Component.text("Free for all, " + gamemodeVariables.getMinPlayers() + "+ players").color(NamedTextColor.DARK_PURPLE)
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+            }
+            else {
+                itemLore = Component.text("Free for all").color(NamedTextColor.DARK_PURPLE)
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+            }
+        }
+        List<Component> loreList = new ArrayList<>();
+        loreList.add(itemLore);
+        itemMeta.lore(loreList);
+        return itemMeta;
+
     }
 
     public void openMapMenu(Player user, CBCGamemode gamemode, GamemodeOptions gamemodeOptions) {
@@ -542,7 +556,7 @@ public class Lobby {
                                 Component.text().content(" has been selected!").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD,
                                         TextDecoration.State.FALSE)
                         ).build();
-        world.sendMessage(message);
+        gameManager.getWorld().sendMessage(message);
 
         // Update server sidebars
         updateServerSidebars();
@@ -801,7 +815,7 @@ public class Lobby {
         startingCountdown = new GameCountdownTask(gameManager, this, 15);
         startingCountdown.runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
 
-        world.sendMessage(
+        gameManager.getWorld().sendMessage(
                 Component.text("Game starting in ").color(NamedTextColor.GREEN)
                         .append(Component.text("15 seconds!").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD))
         );
@@ -824,8 +838,9 @@ public class Lobby {
 
         // Cancel countdown
         startingCountdown.cancel();
+
         // Clear titles for world
-        world.clearTitle();
+        gameManager.getWorld().clearTitle();
 
         for (Player player : gameManager.getWorld().getPlayers()) {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 100, 1);
@@ -1120,7 +1135,6 @@ public class Lobby {
             else {
                 playerLeaveTeam(lobbyPlayer, false);
             }
-
         }
     }
 }
