@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.gameobjects;
+package neonique.cbcplugin_new.weapons.presets;
 
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -8,7 +8,7 @@ public class CreeperPreset extends WeaponPreset {
 
     private double launchVelocityModifier; // Velocity multiplier -- default 1.15
     private double creeperAllyDamageRatio; // Amount of damage it does to allies compared to amount of damage it does to enemies -- default 0.2
-    private double creeperExplosionRadius; // Explosion radius of creeper -- default 3
+    private int creeperExplosionRadius; // Explosion radius of creeper -- default 3
 
     private double verticalKnockbackCoefficient;
     private double horizontalKnockbackCoefficient;
@@ -27,7 +27,7 @@ public class CreeperPreset extends WeaponPreset {
         setReloadTimer(4.0);
         launchVelocityModifier = 1.15;
         creeperAllyDamageRatio = 0.2;
-        creeperExplosionRadius = 3.0;
+        creeperExplosionRadius = 3;
 
         horizontalKnockbackCoefficient = 1.25;
         verticalKnockbackCoefficient = 0.42;
@@ -41,7 +41,7 @@ public class CreeperPreset extends WeaponPreset {
         double reloadTimer = section.getDouble("ReloadTimer", defaultPreset.getReloadTimer());
         double velocityModifier = section.getDouble("VelocityModifier", defaultPreset.getLaunchVelocityModifier());
         double creeperAllyDamageRatio = section.getDouble("AllyDamageRatio", defaultPreset.getCreeperAllyDamageRatio());
-        double creeperExplosionRadius = section.getDouble("CreeperExplosionRadius", defaultPreset.getCreeperExplosionRadius());
+        int creeperExplosionRadius = section.getInt("CreeperExplosionRadius", defaultPreset.getCreeperExplosionRadius());
 
         double horizontalKnockbackCoefficient = section.getDouble("HorizontalKnockbackCoefficient", defaultPreset.getHorizontalKnockbackCoefficient());
         double verticalKnockbackCoefficient = section.getDouble("VerticalKnockbackCoefficient", defaultPreset.getVerticalKnockbackCoefficient());
@@ -61,7 +61,7 @@ public class CreeperPreset extends WeaponPreset {
     }
 
     public void setAll (double reloadTimer, double velocityModifier, double creeperAllyDamageRatio,
-                        double creeperExplosionRadius, double horizontalKnockbackCoefficient, double verticalKnockbackCoefficient) {
+                        int creeperExplosionRadius, double horizontalKnockbackCoefficient, double verticalKnockbackCoefficient) {
 
         setReloadTimer(reloadTimer);
         this.launchVelocityModifier = velocityModifier;
@@ -81,7 +81,7 @@ public class CreeperPreset extends WeaponPreset {
         return creeperAllyDamageRatio;
     }
 
-    public double getCreeperExplosionRadius() {
+    public int getCreeperExplosionRadius() {
         return creeperExplosionRadius;
     }
 

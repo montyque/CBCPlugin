@@ -6,6 +6,7 @@ import neonique.cbcplugin_new.misc.imagemaps.ImageMap;
 import neonique.cbcplugin_new.misc.imagemaps.LobbyImageMapRenderer;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -45,6 +46,8 @@ public class LobbyImageMaps {
 
     public void createItemFrames() {
 
+        World world = lobby.getWorld();
+
         double startingX = -1072.5;
         double startingY = 128.5;
         double z = -1678.96875;
@@ -53,11 +56,11 @@ public class LobbyImageMaps {
             for (int y = 0; y > -4; y--) {
 
                 if (y == -3) {
-                    lobby.world.getBlockAt(new Location(lobby.world, startingX + (double) x - 0.5, startingY + (double) y, z)).setType(Material.AIR);
+                    world.getBlockAt(new Location(world, startingX + (double) x - 0.5, startingY + (double) y, z)).setType(Material.AIR);
                 }
 
-                ItemFrame frame = lobby.world.spawn(
-                        new Location(lobby.world, startingX + (double) x, startingY + (double) y, z),
+                ItemFrame frame = lobby.getWorld().spawn(
+                        new Location(world, startingX + (double) x, startingY + (double) y, z),
                         ItemFrame.class);
 
                 // Create item frames
@@ -71,7 +74,7 @@ public class LobbyImageMaps {
         }
 
         for (int x = 0; x < 7; x++) {
-            lobby.world.getBlockAt(new Location(lobby.world, -1073 + (double) x, 125, z)).setType(Material.SPRUCE_SLAB);
+            world.getBlockAt(new Location(world, -1073 + (double) x, 125, z)).setType(Material.SPRUCE_SLAB);
         }
     }
 
@@ -84,7 +87,7 @@ public class LobbyImageMaps {
         }
 
         // Remove any item frames 4 blocks nearby
-        for (Entity entity : new Location(lobby.world, -1070, 127, -1680).getNearbyEntitiesByType(ItemFrame.class, 4.0)) {
+        for (Entity entity : new Location(lobby.getWorld(), -1070, 127, -1680).getNearbyEntitiesByType(ItemFrame.class, 4.0)) {
             if (entity.getType() == EntityType.ITEM_FRAME) {
                 entity.remove();
             }

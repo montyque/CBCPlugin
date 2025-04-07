@@ -20,10 +20,10 @@ import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.gamemodes.tdm.MapRushTDMGame;
 import neonique.cbcplugin_new.gamemodes.tdm.TDMGame;
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownGame;
-import neonique.cbcplugin_new.gameobjects.CreeperPreset;
-import neonique.cbcplugin_new.gameobjects.FlamePreset;
+import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
+import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.gameobjects.GamemodeOptions;
-import neonique.cbcplugin_new.gameobjects.XbowPreset;
+import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.listeners.GameJoinListener;
 import neonique.cbcplugin_new.listeners.GameLeaveListener;
 import neonique.cbcplugin_new.lobby.Lobby;
@@ -835,5 +835,9 @@ public class GameManager {
 
     public GlobalKillsManager getGlobalKillsManager() {
         return globalKillsManager;
+    }
+
+    public CombatManager getCombatManager() {
+        return combatManager;
     }
 }

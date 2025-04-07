@@ -2,29 +2,30 @@ package neonique.cbcplugin_new.util;
 
 public class CosSineTable {
 
-    double[] cos = new double[361];
-    double[] sin = new double[361];
-    private static final CosSineTable table = new CosSineTable();
+    private final double[] sines;
+    private final double[] cosines;
+    private final int size;
 
-    private CosSineTable() {
-        for (int i = 0; i <= 360; i++) {
-            cos[i] = Math.cos(Math.toRadians(i));
-            sin[i] = Math.sin(Math.toRadians(i));
+    public CosSineTable(int size) {
+
+        this.size = size;
+        cosines = new double[size];
+        sines = new double[size];
+
+        for (int i = 0; i < size; i++) {
+            double degree = (Math.PI * 2) * ((double) i / (double) size);
+            cosines[i] = Math.cos(degree);
+            sines[i] = Math.sin(degree);
         }
+
     }
 
-    public double getSine(int angle) {
-        int angleCircle = angle % 360;
-        return sin[angleCircle];
+    public double getSin(int index) {
+        return sines[index % size];
     }
 
-    public double getCos(int angle) {
-        int angleCircle = angle % 360;
-        return cos[angleCircle];
-    }
-
-    public static CosSineTable getTable() {
-        return table;
+    public double getCos(int index) {
+        return cosines[index % size];
     }
 
 }

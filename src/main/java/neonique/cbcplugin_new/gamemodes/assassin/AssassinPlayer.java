@@ -259,7 +259,7 @@ public class AssassinPlayer extends CBCPlayer {
             // Find the amount of time that it takes for the players to respawn
             int timeToRespawn = 4;
             // Set up respawn timer
-            RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getWeaponManager(), this, timeToRespawn + 1);
+            RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
             respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
         }
 
@@ -273,7 +273,7 @@ public class AssassinPlayer extends CBCPlayer {
         Player playerEntity = getPlayer();
 
         if (game.getWinner() == null) {
-            new TempImmunityTask(getGameManager(), getWeaponManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
+            new TempImmunityTask(getGameManager(), getCombatManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
         }
         else {
             setImmune(true);
@@ -282,20 +282,11 @@ public class AssassinPlayer extends CBCPlayer {
         playerEntity.setLevel(0);
         playerEntity.setExp(0);
 
-        // Set player gamemode
-        resetPlayer();
-        for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-            if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-        }
-
         // Teleport player to spawn point
         teleportToSpawn(selectSpawn());
 
-        setAlive(true);
-        setRespawning(false);
-        loadout();
-
-        setReloadsBySecond(3);
+        playerSetup();
+        setReloadsBySecond(2);
 
     }
 
@@ -334,7 +325,7 @@ public class AssassinPlayer extends CBCPlayer {
         setAlive(true); // Set player's state to alive
         setImmune(true); // Make player immune
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
-        new TempImmunityTask(getGameManager(), getWeaponManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
+        new TempImmunityTask(getGameManager(), getCombatManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
         // Show title for player's target
         newTargetTitle();

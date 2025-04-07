@@ -2,10 +2,10 @@ package neonique.cbcplugin_new.commands.lobbysubcommands;
 
 import neonique.cbcplugin_new.commands.LobbyCommand;
 import neonique.cbcplugin_new.enums.WeaponType;
-import neonique.cbcplugin_new.gameobjects.CreeperPreset;
-import neonique.cbcplugin_new.gameobjects.FlamePreset;
+import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
+import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.gameobjects.OverallPreset;
-import neonique.cbcplugin_new.gameobjects.XbowPreset;
+import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameManager;

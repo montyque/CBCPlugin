@@ -84,18 +84,17 @@ public class TDMPlayer extends CBCPlayer {
             // Find the amount of time that it takes for the players to respawn
             int timeToRespawn = 4;
             // Set up respawn timer
-            RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getWeaponManager(), this, timeToRespawn + 1);
+            RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
             respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
         }
     }
 
     public void playerRefresh () {
-        resetPlayer();
-        setAlive(true);
-        setRespawning(false);
+
+        playerSetup();
         setReloadsBySecond(1);
-        loadout();
         setTempImmune(60);
+
         // Only add glowing if glowing is enabled
         if (game.isPlayerGlowingEnabled()) {
             getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
@@ -108,7 +107,7 @@ public class TDMPlayer extends CBCPlayer {
         if (!isOnline()) return;
 
         if (game.getWinner() == null) {
-            new TempImmunityTask(getGameManager(), getWeaponManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
+            new TempImmunityTask(getGameManager(), getCombatManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
         }
         else {
             setImmune(true);

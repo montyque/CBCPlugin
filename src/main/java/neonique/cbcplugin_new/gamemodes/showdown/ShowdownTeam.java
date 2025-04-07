@@ -31,7 +31,7 @@ public class ShowdownTeam extends CBCTeam {
 
     public void teleportPlayers (ShowdownSpawn spawn) {
         for (CBCPlayer player : getOnlinePlayers()) {
-            ((ShowdownPlayer) player).teleportPlayerToSpawn(spawn);
+            player.teleportPlayerToSpawn(spawn, showdownGame.getMap().getMapCentre());
             ((ShowdownPlayer) player).playerSetupRound();
         }
     }

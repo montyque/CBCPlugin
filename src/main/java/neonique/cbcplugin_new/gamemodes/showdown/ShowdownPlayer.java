@@ -9,11 +9,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import java.time.Duration;
 
@@ -63,15 +61,14 @@ public class ShowdownPlayer extends CBCPlayer {
         Player playerEntity = getPlayer();
 
         // Set gamemode of player to adventure and reset their stats
-        resetPlayer();
-        setAlive(true); // Set player's state to alive
-        setImmune(true); // Make player immune
+        playerSetup();
+        setReloadsBySecond(3);
+        setTempImmune(60);
 
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
         if (game.isPlayerGlowingEnabled()) {
             playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
         }
-        new TempImmunityTask(getGameManager(), getWeaponManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
     }
 

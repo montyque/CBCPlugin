@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.gameobjects;
+package neonique.cbcplugin_new.weapons.presets;
 
 public class WeaponPreset {
 

@@ -6,7 +6,10 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.weapons.projectiles.*;
+import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -32,16 +35,16 @@ public class EntityDamagePlayerListener implements Listener {
     @EventHandler
     public void onEntityDamagePlayer(EntityDamageByEntityEvent e) {
 
+        ProjectileManager projectileManager = combatManager.getProjectileManager();
+
         // Check if player died due to creeper
         Entity entity = e.getEntity();
-        Entity damager = e.getDamager();
+        Entity damageSource = e.getDamager();
 
         // Check if the entity damaged is a player
-        if (!(entity instanceof Player)) {
+        if (!(entity instanceof Player playerEntity)) {
             return;
         }
-
-        Player playerEntity = (Player) entity;
 
         // Check if the player damaged is in the game
         if (!(gameManager.hasPlayer(playerEntity))) {
@@ -56,40 +59,34 @@ public class EntityDamagePlayerListener implements Listener {
 
         // **********************************************************
         // CREEPER CHECKING
-        if (damager instanceof Creeper) {
+        if (damageSource instanceof Creeper creeper) {
 
-            Creeper creeper = (Creeper) damager;
-            if (!creeper.getScoreboardTags().contains("firedCreeper")) {
-                return;
-            }
-            // Find the creeper's player id
-            PersistentDataContainer creeperTags = creeper.getPersistentDataContainer();
-            Integer creeperId = creeperTags.get(new NamespacedKey(CBCPlugin.getPlugin(), "playerId"),
-                    PersistentDataType.INTEGER);
-            // Check if creeperId is null
-            if (creeperId == null) {
-                // Cancel damage done
+            Projectile projectile = projectileManager.getProjectile(creeper.getUniqueId());
+            if (projectile == null) {
                 e.setCancelled(true);
                 return;
             }
 
+            if (!(projectile instanceof CBCCreeper creeperProjectile)) {
+                e.setCancelled(true);
+                return;
+            }
+
+            CBCPlayer sourcePlayer = creeperProjectile.getSource();
             double finalDamage = e.getDamage() * CREEPER_DAMAGE_MULTIPLIER;
 
-            // Find player who fired creeper
-            CBCPlayer damagerPlayer = gameManager.getPlayerById(creeperId);
             // Check if this player is an ally
-            if (!player.isAlly(damagerPlayer)) {
+            if (!player.isAlly(sourcePlayer)) {
                 if (player.isImmune()) {
                     e.setCancelled(true);
                     return;
                 }
-
-                player.addPlayerDamaged(damagerPlayer);
-                player.setLastPlayerHitBy(damagerPlayer);
+                player.addPlayerDamaged(sourcePlayer);
+                player.setLastPlayerHitBy(sourcePlayer);
             } else {
                 // Change creeper damage if creeper fired by ally
                 finalDamage *= combatManager.getCreeperAllyDamageRatio();
-                if (!damagerPlayer.hasPlayerId(player.getPlayerId()) && player.isImmune()) {
+                if (!sourcePlayer.hasPlayerId(player.getPlayerId()) && player.isImmune()) {
                     e.setCancelled(true);
                     return;
                 }
@@ -99,7 +96,7 @@ public class EntityDamagePlayerListener implements Listener {
 
             // Check if this explosion kills the player
             if (e.getFinalDamage() >= playerEntity.getHealth()) {
-                if (player.isAlly(damagerPlayer)) {
+                if (player.isAlly(sourcePlayer)) {
                     // If the killing blow is from an ally, check if player has been hit in last 6 seconds
                     if (player.getLastPlayerHitBy() == null) {
                         combatManager.playerDeath(player, null, DeathCause.CREEPER, false);
@@ -108,7 +105,7 @@ public class EntityDamagePlayerListener implements Listener {
                     }
                 } else {
                     // The killing blow was from an enemy
-                    combatManager.playerDeath(player, damagerPlayer, DeathCause.CREEPER, true);
+                    combatManager.playerDeath(player, sourcePlayer, DeathCause.CREEPER, true);
                 }
             }
 
@@ -126,8 +123,8 @@ public class EntityDamagePlayerListener implements Listener {
                     playerEntity.setVelocity(velocity);
                 }
             }.runTaskLater(CBCPlugin.getPlugin(), 0);
-
             return;
+
         }
 
         // Check if player is immune
@@ -136,90 +133,65 @@ public class EntityDamagePlayerListener implements Listener {
             return;
         }
 
-        // **********************************************************
-        // X-BOW ARROW CHECKING
-        if (damager instanceof Arrow) {
+        if (damageSource instanceof Arrow) {
 
-            Arrow arrow = (Arrow) damager;
-            // Check if the arrow was fired by a player and if the arrow was shot by a crossbow
-            if (!((arrow.isShotFromCrossbow()))) {
-                return;
-            }
-
-            if (arrow.getShooter() instanceof Piglin) {
-                if (arrow.getScoreboardTags().contains("xbowArrowPiglin")) {
-                    // Run player death function
-                    combatManager.playerDeath(player, null, DeathCause.XBOW_PIGLIN, true);
-                }
-                return;
-            }
-
-            if (!(arrow.getShooter() instanceof Player)) {
-                return;
-            }
-
-            Player shooterEntity = (Player) arrow.getShooter();
-
-            // Check if the shooter and the player are not the same person
-            if (shooterEntity == playerEntity) {
-                // Prevent the player from taking damage
+            Projectile projectile = projectileManager.getProjectile(damageSource.getUniqueId());
+            if (projectile == null) {
                 e.setCancelled(true);
                 return;
             }
 
-            // Check if both player and shooter are in the game
-            if (!(gameManager.hasPlayer(shooterEntity))) {
+            if (!(projectile instanceof PlayerProjectile playerProjectile)) {
+                e.setCancelled(true);
                 return;
             }
-            CBCPlayer shooterPlayer = gameManager.getPlayer(shooterEntity);
+
+            CBCPlayer sourcePlayer = playerProjectile.getSource();
 
             // Check if the shooter and the player are not allied
-            if (player.isAlly(shooterPlayer) && player.getTeam() != shooterPlayer.getTeam()) {
+            if (player.isAlly(sourcePlayer) && player.getTeam() != sourcePlayer.getTeam()) {
                 // Prevent the player from taking damage
                 e.setCancelled(true);
                 return;
             }
 
-            // Check if arrow is an X-Bow arrow
-            if (arrow.getScoreboardTags().contains("xbowArrow")) {
+            if (playerProjectile instanceof XbowArrow) {
                 // Run player death function
-                player.addPlayerDamaged(shooterPlayer);
-                combatManager.playerDeath(player, shooterPlayer, DeathCause.XBOW, true);
+                player.addPlayerDamaged(sourcePlayer);
+                combatManager.playerDeath(player, sourcePlayer, DeathCause.XBOW, true);
             }
-            // Check if arrow is a Flame Zoner arrow
-            if (arrow.getScoreboardTags().contains("flameArrow")) {
-                player.addPlayerDamaged(shooterPlayer);
-
+            else if (playerProjectile instanceof FlameArrow) {
+                player.addPlayerDamaged(sourcePlayer);
                 if (e.getFinalDamage() >= playerEntity.getHealth()) {
-                    // Run player death function
-                    combatManager.playerDeath(player, shooterPlayer, DeathCause.FLAMEZONE, true);
+                    combatManager.playerDeath(player, sourcePlayer, DeathCause.FLAMEZONE, true);
                 }
             }
 
-        } else if (damager instanceof Player) {
+        } else if (damageSource instanceof Player) {
 
-            // Check if damager is in game
-            if (!gameManager.hasPlayer((Player) damager)) {
+            // Check if damage is in game
+            if (!gameManager.hasPlayer((Player) damageSource)) {
                 // Cancel damage
                 e.setCancelled(true);
                 return;
             }
 
             // Find player who damaged other player
-            CBCPlayer damagerPlayer = gameManager.getPlayer((Player) damager);
+            CBCPlayer sourcePlayer = gameManager.getPlayer((Player) damageSource);
 
             // See if players are allies
-            if (damagerPlayer.isAlly(player)) {
+            if (sourcePlayer.isAlly(player)) {
                 e.setCancelled(true);
                 return;
             }
 
-            player.setLastPlayerHitBy(damagerPlayer);
+            player.setLastPlayerHitBy(sourcePlayer);
             // Check if the hit kills the player
             if (e.getFinalDamage() > playerEntity.getHealth()) {
-                combatManager.playerDeath(player, damagerPlayer, DeathCause.MELEE, true);
+                combatManager.playerDeath(player, sourcePlayer, DeathCause.MELEE, true);
             }
-        } else if (damager instanceof Firework) {
+
+        } else if (damageSource instanceof Firework) {
             e.setCancelled(true);
         }
     }

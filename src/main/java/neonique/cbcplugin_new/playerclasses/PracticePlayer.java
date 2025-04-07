@@ -29,20 +29,16 @@ public class PracticePlayer extends CBCPlayer {
 
         if (!isOnline()) return;
 
-        resetPlayer();
-
         setImmune(true);
-        new TempImmunityTask(getGameManager(), getWeaponManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
+        new TempImmunityTask(getGameManager(), getCombatManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
 
         // Teleport player to spawn point
         teleportPlayer();
 
         getGameManager().getWorld().spawnParticle(Particle.INSTANT_EFFECT, getPlayer().getLocation(), 80, 0.25, 0.25, 0.25, 1, null, true);
-
-        setAlive(true);
-        setRespawning(false);
+        playerSetup();
         setReloadsBySecond(1);
-        loadout();
+
     }
 
     public void teleportPlayer() {

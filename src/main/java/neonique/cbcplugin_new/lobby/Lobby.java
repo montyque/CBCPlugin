@@ -15,6 +15,10 @@ import neonique.cbcplugin_new.cbcevents.CBCEventPlayer;
 import neonique.cbcplugin_new.tasks.lobbytasks.GameCountdownTask;
 import neonique.cbcplugin_new.tasks.lobbytasks.LobbySidebarManagerTask;
 import neonique.cbcplugin_new.tasks.lobbytasks.PlayerSafetyTask;
+import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
+import neonique.cbcplugin_new.weapons.presets.FlamePreset;
+import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
+import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -1137,4 +1141,9 @@ public class Lobby {
             }
         }
     }
+
+    public World getWorld () {
+        return gameManager.getWorld();
+    }
+
 }

@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.weapons.CrossbowWeapon;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
@@ -34,27 +35,24 @@ public class CrossbowFiredListener implements Listener {
     @EventHandler
     public void onBowFired(EntityShootBowEvent e) {
 
-        // Check if the weapon fired was a crossbow
         ItemStack itemFired = e.getBow();
+        Entity projectileFired = e.getProjectile();
+
         assert itemFired != null;
+
         if (itemFired.getType() != Material.CROSSBOW) {
             return;
         }
 
-        // Check if the entity who fired it was a piglin
+        if (!(projectileFired instanceof Arrow arrowFired)) {
+            return;
+        }
+
         Entity entityFired = e.getEntity();
-        if (entityFired instanceof Piglin) {
-            piglinFired(e);
+        if (!(entityFired instanceof Player playerFired)) {
             return;
         }
 
-        // Check if the entity who fired it was a player
-        if (!(entityFired instanceof Player)) {
-            return;
-        }
-
-        Player playerFired = (Player) entityFired;
-        // Check if player is in players list
         if (!(this.gameManager.hasPlayer(playerFired))) {
             return;
         }
@@ -64,41 +62,17 @@ public class CrossbowFiredListener implements Listener {
         // Check what weapon player fired from
         ItemMeta itemFiredMeta = itemFired.getItemMeta();
         PersistentDataContainer itemFiredTags = itemFiredMeta.getPersistentDataContainer();
-        String crossbowTypeString = itemFiredTags.get(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_crossbow"), PersistentDataType.STRING);
-        WeaponType crossbowType;
+        Integer playerWeaponId = itemFiredTags.get(
+                new NamespacedKey(CBCPlugin.getPlugin(), "cbc_weapon_id"),
+                PersistentDataType.INTEGER
+        );
 
-        if (Objects.equals(crossbowTypeString, "CREEPER")) {crossbowType = WeaponType.CREEPER;}
-        else if (Objects.equals(crossbowTypeString, "FLAME")) {crossbowType = WeaponType.FLAME;}
-        else if (Objects.equals(crossbowTypeString, "XBOW")) {crossbowType = WeaponType.XBOW;}
-        else {return;}
-
-        // Fire the weapon
-        combatManager.weaponFired(cbcPlayerFired, e, crossbowType);
+        CrossbowWeapon weaponFired = cbcPlayerFired.getWeaponFromId(playerWeaponId);
+        weaponFired.fireWeapon(arrowFired);
 
         // Play fired crossbow sound
         playerFired.playSound(playerFired.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 10, 2);
 
     }
 
-    public void piglinFired (EntityShootBowEvent e) {
-
-        ItemStack itemFired = e.getBow();
-        assert itemFired != null;
-
-        // Check what weapon player fired from
-        ItemMeta itemFiredMeta = itemFired.getItemMeta();
-        Component displayName = itemFiredMeta.displayName();
-
-        if (!(displayName instanceof TextComponent)) {
-            return;
-        }
-
-        TextComponent text = (TextComponent) displayName;
-
-        if (text.content().equals("X-Bow")) {
-            combatManager.fireXBowPiglin(e);
-        }
-
-
-    }
 }

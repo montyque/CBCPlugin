@@ -240,10 +240,9 @@ public class RendezvousGame extends TeamGame {
         for (RendezvousTeam team : teams) {
             for (CBCPlayer player : team.getOnlinePlayers()) {
                 RendezvousPlayer rdvPlayer = (RendezvousPlayer) player;
-                rdvPlayer.resetPlayer();
-                rdvPlayer.setAlive(true);
-                rdvPlayer.setReloadsBySecond(3);
-                rdvPlayer.loadout();
+
+                rdvPlayer.playerSetup();
+                rdvPlayer.setReloadsBySecond(1);
                 rdvPlayer.setTempImmune(60);
 
                 if (rdvPlayer.isPlayerRunner()) {

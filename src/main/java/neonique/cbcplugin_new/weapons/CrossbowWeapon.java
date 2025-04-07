@@ -1,52 +1,20 @@
 package neonique.cbcplugin_new.weapons;
 
-import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.weapons.projectiles.Projectile;
+import org.bukkit.entity.Arrow;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
+public interface CrossbowWeapon {
 
-public abstract class CrossbowWeapon {
+    void fireWeapon (Arrow arrowFired);
 
-    // Player holding weapon
-    private CBCPlayer player;
-    private CombatManager combatManager;
-    private WeaponManager weaponManager;
+    ItemStack getWeaponItem (int weaponId);
 
-    // Reloading variables
-    private boolean loaded;
-    private int reloadProgress;
-    private int reloadTime;
+    Projectile fireProjectile (Arrow arrowFired);
 
-    // Custom model data states
-    private int modelLoadedState;
-    private ArrayList<Integer> unloadedStates;
+    CBCPlayer getPlayer();
 
-    public CrossbowWeapon () {
-
-    }
-
-    public float getReloadPercentage () {
-        return (float) (reloadProgress / reloadTime);
-    }
-
-    public void updateReload () {
-        if (loaded) {
-
-        }
-        else {
-            // Add to reload progress
-            reloadProgress++;
-            // Check if weapon is fully loaded
-            if (reloadTime != reloadProgress) {
-                loaded = true;
-            }
-        }
-    }
-
-    public abstract void getWeaponItem ();
-
-    public abstract void weaponFired ();
-
-
+    WeaponReloader getWeaponReloader();
 
 }

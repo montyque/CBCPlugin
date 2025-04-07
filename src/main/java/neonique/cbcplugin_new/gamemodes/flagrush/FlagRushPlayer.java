@@ -52,7 +52,7 @@ public class FlagRushPlayer extends CTFPlayer {
 
         // Set player helmet back to normal
         setoverrideGlassHelmet(false);
-        loadout();
+        loadInventory();
         teamWithFlagPickedUp = null;
     }
 }

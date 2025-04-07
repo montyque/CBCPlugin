@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.managers;
 
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.weapons.CrossbowWeapon;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -18,10 +19,9 @@ public class CBCScoreboardManager {
     // Is scoreboard manager currently active
     private boolean active = false;
 
+    private static CBCScoreboardManager instance;
     private GameManager gameManager;
-
     private ScoreboardManager scoreboardManager;
-
     private Scoreboard mainScoreboard;
     private HashMap<UUID, Scoreboard> playerScoreboards;
 
@@ -36,6 +36,12 @@ public class CBCScoreboardManager {
 
         playerScoreboards = new HashMap<>();
 
+        instance = this;
+
+    }
+
+    public static CBCScoreboardManager getInstance() {
+        return instance;
     }
 
     public void activate () {
@@ -189,6 +195,15 @@ public class CBCScoreboardManager {
         try {
             newTeam.unregister();
         } catch (IllegalArgumentException ignored) {}
+    }
+
+    // Add entry to team for scoreboard
+    public void addTeamEntry (String entry, String teamId) {
+
+        Team team = mainScoreboard.getTeam(teamId);
+        if (team == null) return;
+        addTeamEntry(entry, team);
+
     }
 
     // Add entry to team for scoreboard

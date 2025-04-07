@@ -158,7 +158,7 @@ public class CTFPlayer extends CBCPlayer {
 
         // Set player helmet back to normal
         setoverrideGlassHelmet(false);
-        loadout();
+        loadInventory();
 
     }
 
@@ -182,7 +182,7 @@ public class CTFPlayer extends CBCPlayer {
         setoverrideGlassHelmet(false);
 
         if (isAlive()) {
-            loadout();
+            loadInventory();
         }
     }
 
@@ -245,7 +245,7 @@ public class CTFPlayer extends CBCPlayer {
                 // Find the amount of time that it takes for the players to respawn
                 int timeToRespawn = game.getRespawnTime(team.getOnlinePlayers().size());
                 // Set up respawn timer
-                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getWeaponManager(), this, timeToRespawn + 1);
+                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
                 respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
             } else {
                 // Player can no longer respawn
@@ -341,22 +341,15 @@ public class CTFPlayer extends CBCPlayer {
         if (!isOnline()) return;
 
         if (game.getWinner() == null) {
-            new TempImmunityTask(getGameManager(), getWeaponManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
+            new TempImmunityTask(getGameManager(), getCombatManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
         }
         else {
             setImmune(true);
         }
 
-        // Set player gamemode
-        resetPlayer();
-
-        // Teleport player to spawn point
         teleportPlayerToSpawn();
-
-        setAlive(true);
-        setRespawning(false);
+        playerSetup();
         setReloadsBySecond(3);
-        loadout();
 
         // Update sidebar
         game.getSidebarManager().updateServerBoard();

@@ -2,9 +2,9 @@ package neonique.cbcplugin_new.commands.practicesubcommands;
 
 import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.enums.WeaponType;
-import neonique.cbcplugin_new.gameobjects.CreeperPreset;
-import neonique.cbcplugin_new.gameobjects.FlamePreset;
-import neonique.cbcplugin_new.gameobjects.XbowPreset;
+import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
+import neonique.cbcplugin_new.weapons.presets.FlamePreset;
+import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import net.kyori.adventure.text.Component;

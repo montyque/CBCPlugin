@@ -2,19 +2,15 @@ package neonique.cbcplugin_new.managers;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
-import neonique.cbcplugin_new.gameobjects.CreeperPreset;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.*;
-import java.util.List;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.getDeathCauseIcon;
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;

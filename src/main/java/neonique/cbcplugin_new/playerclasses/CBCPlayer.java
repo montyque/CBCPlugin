@@ -5,13 +5,20 @@ import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownSpawn;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
-import neonique.cbcplugin_new.tasks.weapontasks.FlameZonerDamageTask;
 import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
 import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
+import neonique.cbcplugin_new.weapons.CreeperCannon;
+import neonique.cbcplugin_new.weapons.CrossbowWeapon;
+import neonique.cbcplugin_new.weapons.FlameZoner;
+import neonique.cbcplugin_new.weapons.XBow;
+import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
+import neonique.cbcplugin_new.weapons.presets.FlamePreset;
+import neonique.cbcplugin_new.weapons.presets.XbowPreset;
+import neonique.cbcplugin_new.weapons.projectiles.FlameArrow;
+import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -24,7 +31,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ArmorMeta;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
@@ -55,7 +61,7 @@ public class CBCPlayer {
 
     private final CombatManager combatManager;
 
-    public CombatManager getWeaponManager() {
+    public CombatManager getCombatManager() {
         return combatManager;
     }
 
@@ -81,18 +87,10 @@ public class CBCPlayer {
     private int lastPlayerHitByReset = 0;
     private HashMap<CBCPlayer, Integer> timeDamaged = new HashMap<>();
 
-    private int creeperCooldown = 0;
-    private int flameCooldown = 0;
-    private int xbowCooldown = 0;
-
-    private boolean creeperLoaded = false;
-    private boolean flameLoaded = false;
-    private boolean xbowLoaded = false;
+    private HashMap<Integer, CrossbowWeapon> weapons;
 
     // Important stats for fighting
-    public int flamezoneFireTicks = 0;
-    private CBCPlayer inFlameZoneOfPlayer = null;
-    private FlameZonerDamageTask flameZonerDamageTask;
+    private final FlameDamager flameDamager = new FlameDamager(this);
 
     // Other fields
 
@@ -105,7 +103,7 @@ public class CBCPlayer {
     private List<Component> playerListPrefixes;
     private List<Component> playerListSuffixes;
 
-    private static NamespacedKey playerIdNamespacedKey;
+    private static final NamespacedKey playerIdNamespacedKey;
 
     static {
         playerIdNamespacedKey = new NamespacedKey(CBCPlugin.getPlugin(), "playerId");
@@ -132,14 +130,9 @@ public class CBCPlayer {
         this.alive = alive;
     }
 
-    // Check if the given player Id belongs to this player
+    // Check if the given player id belongs to this player
     public boolean hasPlayerId (Integer id) {
         return (id == this.playerId);
-    }
-
-    // Check if the entity Player object given belongs to this player
-    public boolean isPlayer (Player player) {
-        return (player.getUniqueId() == playerUUID);
     }
 
     // Return true or false if this player is alive
@@ -190,6 +183,30 @@ public class CBCPlayer {
         return false;
     }
 
+    public boolean isPlayerEntityAliveEnemy (Player playerEntity) {
+        CBCPlayer player = gameManager.getPlayer(playerEntity);
+        if (player == null) {
+            return false;
+        }
+        if (!player.isAlive()) {
+            return false;
+        }
+        return !isAlly(player);
+    }
+
+    public boolean isPlayerEntityEnemy (Player playerEntity) {
+        CBCPlayer player = gameManager.getPlayer(playerEntity);
+        if (player == null) return false;
+        return !isAlly(player);
+    }
+
+    public boolean isPlayerEntityAlly (Player playerEntity) {
+        CBCPlayer player = gameManager.getPlayer(playerEntity);
+        if (player == null) return false;
+        return isAlly(player);
+    }
+
+
     // Use tags to find out if an entity (arrow, creeper) is allied with this player
     public boolean isEntityAlly (Entity entity) {
         PersistentDataContainer entityTags = entity.getPersistentDataContainer();
@@ -214,98 +231,57 @@ public class CBCPlayer {
         return team;
     }
 
-    public void startReload (WeaponType weaponType) {
-        if (weaponType == WeaponType.CREEPER) {
-            this.creeperCooldown = combatManager.getCreeperReloadTime(this);
-            creeperLoaded = false;
-            this.playerReload(false);
-        }
-        else if (weaponType == WeaponType.FLAME) {
-            flameLoaded = false;
-            this.flameCooldown = combatManager.getFlameReloadTime(this);
-            this.playerReload(false);
-        }
-        else if (weaponType == WeaponType.XBOW) {
-            xbowLoaded = false;
-            this.xbowCooldown = combatManager.getXbowReloadTime(this);
-            this.playerReload(false);
-        }
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////////////
     // PLAYER WEAPONS AND PLAYER RESET FUNCTIONS
     ////////////////////////////////////////////////////////////////////////////////////////////
 
+    public void playerSetup () {
+        setAlive(true);
+        setRespawning(false);
+        resetPlayer();
+        createWeapons();
+        loadInventory();
+    }
+
     public void resetPlayer() {
 
         if (!isOnline()) return;
-        Player player = getPlayer();
+        Player playerEntity = getPlayer();
 
         // Set exp levels to 0
-        getPlayer().setLevel(0);
-        getPlayer().setExp(0);
-
-        // Get max health of player and set player's health to max
-        double maxHealth = getMaxHealth();
-        player.setHealth(maxHealth);
-
-        // Set gamemode of player
-        player.setGameMode(GameMode.ADVENTURE);
-        player.getInventory().clear();
-        player.updateInventory();
-
+        playerEntity.setLevel(0);
+        playerEntity.setExp(0);
+        playerEntity.setGameMode(GameMode.ADVENTURE);
+        playerEntity.getInventory().clear();
+        playerEntity.updateInventory();
         resetAllAttributes();
-        setReloadsBySecond(2);
 
-        inFlameZoneOfPlayer = null;
-        flamezoneFireTicks = 0;
+        double maxHealth = getMaxHealth();
+        playerEntity.setHealth(maxHealth);
+
+        flameDamager.resetFlameDamager();
         setLastPlayerHitBy(null);
 
-        // Remove all effects from player
-        for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-            if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-            // Remove night vision effect if needed
-            if (combatManager.isNightVisionDisabled()) {
-                player.addScoreboardTag("NVDisable");
-                player.removePotionEffect(PotionEffectType.NIGHT_VISION);
-            }
-            else {
-                player.removeScoreboardTag("NVDisable");
+        if (alive) {
+            giveEffects();
+        } else {
+            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
+                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
             }
         }
-    }
-
-    public void teleportPlayerToSpawn (Location spawn, Location faceLocation) {
-
-        if (!isOnline()) return;
-        Player playerEntity = getPlayer();
-
-        // Teleport player to spawn
-        playerEntity.teleport(spawn);
-
-        // Make them face location
-        faceToLocation(faceLocation, true);
 
     }
 
-    public void faceToLocation (Location targetLocation, boolean eyeLevel) {
+    public void createWeapons() {
 
-        if (!isOnline()) return;
-        Player playerEntity = getPlayer();
-        Location targetLoc = targetLocation.clone();
-
-        // Make it so player faces forward, not upwards or downwards
-        if (eyeLevel) {
-            targetLoc.setY(playerEntity.getLocation().getY() + 2);
-        }
-
-        Vector dir = targetLocation.clone().subtract(getPlayer().getEyeLocation()).toVector();
-        Location loc = playerEntity.getLocation().setDirection(dir);
-        playerEntity.teleport(loc);
+        weapons = new HashMap<>();
+        weapons.put(0, new CreeperCannon(this, CreeperPreset.getDefaultPreset()));
+        weapons.put(1, new FlameZoner(this, FlamePreset.getDefaultPreset()));
+        weapons.put(2, new XBow(this, XbowPreset.getDefaultPreset()));
 
     }
 
-    public void loadout() {
+    public void loadInventory() {
 
         if (!isOnline()) return;
         Player player = getPlayer();
@@ -319,281 +295,131 @@ public class CBCPlayer {
 
         // Check if player has team
         if (team != null && !overrideGlassHelmet) {
-            chestplateMeta.displayName(Component.text(team.getTeamName() + " CBC Chestplate").color(team.getColor()));
             inventory.setHelmet(team.getGlassHead());
-
-            // Add trim to netherite chestplate
             TrimMaterial material = team.getTrimMaterial();
             TrimPattern pattern = plugin.getTrimManager().getCBCPlayerTrim(this);
-
             ArmorTrim armorTrim = new ArmorTrim(material, pattern);
             armorChestplateMeta.setTrim(armorTrim);
+
         }
 
         chestplateMeta.setUnbreakable(true);
         chestplate.setItemMeta(chestplateMeta);
-        // Set chestplate slot to item meta
         inventory.setChestplate(chestplate);
 
         // If beacon head is on, set player's head to beacon
         if (combatManager.isBeaconHeads() && !overrideGlassHelmet) {
             ItemStack beacon = new ItemStack(Material.BEACON);
             ItemMeta itemMeta = beacon.getItemMeta();
-            // Set item title
-            Component itemTitle = Component.text("CBC Lamp Head")
-                    .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-            itemMeta.displayName(itemTitle);
             itemMeta.addEnchant(Enchantment.BINDING_CURSE, 1, false);
             beacon.setItemMeta(itemMeta);
             inventory.setHelmet(beacon);
         }
 
+        updateAllWeaponItems();
         player.updateInventory();
+        giveEffects();
+
     }
 
-    public void playerReload (boolean decrement) {
-
-        if (!isOnline()) return;
-
-        boolean updateCreeper = false;
-        boolean updateFlame = false;
-        boolean updateXBow = false;
-
-        // Set numbers
-        if (creeperCooldown == 0) {
-            if (!creeperLoaded) {
-                updateCreeper = true;
-            }
-            creeperLoaded = true;
-        } else {
-            creeperLoaded = false;
-            if (decrement) {
-                creeperCooldown--;
-            }
-        }
-
-        if (flameCooldown == 0) {
-            if (!flameLoaded) {
-                updateFlame = true;
-            }
-            flameLoaded = true;
-        } else {
-            flameLoaded = false;
-            if (decrement) {
-                flameCooldown--;
-            }
-        }
-
-        if (xbowCooldown == 0) {
-            if (!xbowLoaded) {
-                updateXBow = true;
-            }
-            xbowLoaded = true;
-        } else {
-            xbowLoaded = false;
-            if (decrement) {
-                xbowCooldown--;
-            }
-        }
-
-        if (updateCreeper || updateFlame || updateXBow) {
-            playerReloadItems(updateCreeper, updateFlame, updateXBow);
-        }
-
-        // Update action bar if required
-        updateActionBarDisplay(true);
-    }
-
-    public void playerReloadItems (boolean creeperReload, boolean flameReload, boolean xbowReload) {
+    public void giveEffects () {
 
         if (!isOnline()) return;
         Player player = getPlayer();
 
-        PlayerInventory inventory = getPlayer().getInventory();
-
-        // Check if player is missing effects
         if (!player.hasPotionEffect(PotionEffectType.JUMP_BOOST)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 30000000, 4, false, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, 4, false, false, false));
         }
 
         if (!player.hasPotionEffect(PotionEffectType.SPEED)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30000000, 4, false, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 4, false, false, false));
         }
 
         if (!player.hasPotionEffect(PotionEffectType.DOLPHINS_GRACE)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 30000000, 0, false, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, 0, false, false, false));
         }
 
-        boolean invUpdateNeeded = false;
-
-        // Check if loadout of chestplate is needed
-        if (inventory.getChestplate() == null) {
-            loadout();
-        } else {
-            ItemStack chestplate = inventory.getChestplate();
-            if (chestplate.getType() != Material.NETHERITE_CHESTPLATE) {
-                loadout();
-            }
-        }
-
-        // Check if player is alive, and if so, reload
-        if (!alive) {
-            return;
-        }
-
-        // Check if player is in a team
-        List<Component> loreList = new ArrayList<>();
-        if (team != null) {
-            loreList.add(Component.text("Certified " + team.getTeamName() + " Team Crossbow"));
-        }
-
-        // Check if player's creeper is fully loaded
-        if (creeperReload) {
-            ItemStack ccLoaded = CombatManager.fetchWeapon(WeaponType.CREEPER, true);
-            if (creeperCooldown == 0) {
-                // Check if player does not have ccLoaded in their inventory, and if add it
-                if (!inventory.contains(ccLoaded)) {
-                    inventory.setItem(0, ccLoaded);
-                    invUpdateNeeded = true;
-                }
-            } else {
-                // Get an unloaded creeper cannon
-                ItemStack cc = CombatManager.fetchWeapon(WeaponType.CREEPER, false);
-                // Damage creeper cannon to show reloading
-                ItemMeta ccItemMeta = cc.getItemMeta();
-
-                ccItemMeta.lore(loreList);
-
-                float reloadPercentageLeft = (float) (creeperCooldown + 1) / (float) combatManager.getCreeperReloadTime(this);
-                int customModelData = 1;
-                ccItemMeta.setCustomModelData(customModelData + getAddedCustomModelData(reloadPercentageLeft));
-
-                if (ccItemMeta instanceof Damageable) {
-                    Damageable ccMetaDamage = (Damageable) ccItemMeta;
-                    ccMetaDamage.setDamage(Math.round(reloadPercentageLeft * 465.0f));
-                    cc.setItemMeta((ItemMeta) ccMetaDamage);
-                }
-                inventory.setItem(0, cc);
-                invUpdateNeeded = true;
-            }
-        }
-
-        // Check if player's flame zoner is fully loaded
-        if (flameReload) {
-            ItemStack fzLoaded = CombatManager.fetchWeapon(WeaponType.FLAME, true);
-            if (flameCooldown == 0) {
-                // Check if player does not have ccLoaded in their inventory, and if add it
-                if (!inventory.contains(fzLoaded)) {
-                    inventory.setItem(1, fzLoaded);
-                    invUpdateNeeded = true;
-                }
-            } else {
-                // Get an unloaded creeper cannon
-                ItemStack fz = CombatManager.fetchWeapon(WeaponType.FLAME, false);
-
-                // Damage creeper cannon to show reloading
-                ItemMeta fzItemMeta = fz.getItemMeta();
-
-                fzItemMeta.lore(loreList);
-
-                float reloadPercentageLeft = (float) (flameCooldown + 1) / (float) combatManager.getFlameReloadTime(this);
-                int customModelData = 5;
-                fzItemMeta.setCustomModelData(customModelData + getAddedCustomModelData(reloadPercentageLeft));
-
-                if (fzItemMeta instanceof Damageable) {
-
-                    Damageable fzMetaDamage = (Damageable) fzItemMeta;
-                    fzMetaDamage.setDamage(Math.round(reloadPercentageLeft * 465.0f));
-                    fz.setItemMeta((ItemMeta) fzMetaDamage);
-                }
-                inventory.setItem(1, fz);
-                invUpdateNeeded = true;
-            }
-        }
-
-        // Check if player's flame zoner is fully loaded
-        if (xbowReload) {
-            ItemStack xbLoaded = CombatManager.fetchWeapon(WeaponType.XBOW, true);
-            if (xbowCooldown == 0) {
-                // Check if player does not have ccLoaded in their inventory, and if add it
-                if (!inventory.contains(xbLoaded)) {
-                    inventory.setItem(2, xbLoaded);
-                    invUpdateNeeded = true;
-                }
-            } else {
-                // Get an unloaded creeper cannon
-                ItemStack xb = CombatManager.fetchWeapon(WeaponType.XBOW, false);
-                // Damage creeper cannon to show reloading
-                ItemMeta xbItemMeta = xb.getItemMeta();
-
-                xbItemMeta.lore(loreList);
-
-                float reloadPercentageLeft = (float) (xbowCooldown + 1) / (float) combatManager.getXbowReloadTime(this);
-                int customModelData = 9;
-                xbItemMeta.setCustomModelData(customModelData + getAddedCustomModelData(reloadPercentageLeft));
-
-                if (xbItemMeta instanceof Damageable) {
-                    Damageable xbMetaDamage = (Damageable) xbItemMeta;
-                    xbMetaDamage.setDamage(Math.round(reloadPercentageLeft * 465.0f));
-                    xb.setItemMeta((ItemMeta) xbMetaDamage);
-                }
-                inventory.setItem(2, xb);
-                invUpdateNeeded = true;
-            }
-        }
-
-        // Update exp bar to show weapon cooldown
-        player.setExp(0);
-
-        // Update inventory if required
-        if (invUpdateNeeded) {player.updateInventory();}
-
-    }
-
-    public int getAddedCustomModelData (float reloadPercentageLeft) {
-
-        if (reloadPercentageLeft < 0.3) {
-            return 3;
-        }
-        else if (reloadPercentageLeft < 0.6) {
-            return 2;
-        }
-        else if (reloadPercentageLeft < 0.9) {
-            return 1;
+        // Remove night vision effect if needed
+        if (combatManager.isNightVisionDisabled()) {
+            player.addScoreboardTag("NVDisable");
+            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
         }
         else {
-            return 0;
+            player.removeScoreboardTag("NVDisable");
         }
 
     }
 
-    public void resetReloads() {
-        this.creeperCooldown = combatManager.getCreeperReloadTime(this);
-        this.flameCooldown = combatManager.getFlameReloadTime(this);
-        this.xbowCooldown = combatManager.getXbowReloadTime(this);
-        updateActionBarDisplay(true);
-        playerReloadItems(true, true, true);
+    public void teleportPlayerToSpawn (Location spawn, Location faceLocation) {
+
+        if (!isOnline()) return;
+        Player playerEntity = getPlayer();
+        playerEntity.teleport(spawn);
+        faceToLocation(faceLocation, true);
+
     }
 
-    public void setReloadsBySecond(int seconds) {
-        this.creeperCooldown = seconds * 4;
-        this.flameCooldown = seconds * 4;
-        this.xbowCooldown = seconds * 4;
+    public void faceToLocation (Location targetLocation, boolean eyeLevel) {
 
-        if (creeperCooldown > combatManager.getCreeperReloadTime(this)) {
-            this.creeperCooldown = combatManager.getCreeperReloadTime(this);
+        if (!isOnline()) return;
+        Player playerEntity = getPlayer();
+        Location targetLoc = targetLocation.clone();
+
+        // Make it so player faces forward, not upwards or downwards
+        if (eyeLevel) {
+            targetLoc.setY(playerEntity.getLocation().getY() + 1.5);
         }
 
-        if (flameCooldown > combatManager.getCreeperReloadTime(this)) {
-            this.flameCooldown = combatManager.getFlameReloadTime(this);
-        }
+        Vector dir = targetLocation.clone().subtract(getPlayer().getEyeLocation()).toVector();
+        Location loc = playerEntity.getLocation().setDirection(dir);
+        playerEntity.teleport(loc);
 
-        if (flameCooldown > combatManager.getCreeperReloadTime(this)) {
-            this.flameCooldown = combatManager.getXbowReloadTime(this);
+    }
+
+    public void updateWeaponReloads() {
+
+        if (!isOnline()) return;
+        if (!isAlive()) return;
+
+        for (Integer id : weapons.keySet()) {
+            CrossbowWeapon weapon = weapons.get(id);
+            weapon.getWeaponReloader().updateReload();
         }
 
         updateActionBarDisplay(true);
-        playerReloadItems(true, true, true);
+
+    }
+
+    public void updateWeaponItem (int weaponId, CrossbowWeapon weapon) {
+
+        Player player = getPlayer();
+        PlayerInventory inventory = getPlayer().getInventory();
+
+        ItemStack weaponItem = weapon.getWeaponItem(weaponId);
+        inventory.setItem(weaponId, weaponItem);
+        player.updateInventory();
+
+    }
+
+    public void updateAllWeaponItems () {
+
+        for (Integer id : weapons.keySet()) {
+            CrossbowWeapon weapon = weapons.get(id);
+            updateWeaponItem(id, weapon);
+        }
+
+    }
+
+    public void setReloadsBySecond(double seconds) {
+
+        for (Integer id : weapons.keySet()) {
+            CrossbowWeapon weapon = weapons.get(id);
+            weapon.getWeaponReloader().setReloadBySecond(seconds);
+        }
+
+        updateAllWeaponItems();
+        updateActionBarDisplay(true);
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -612,13 +438,15 @@ public class CBCPlayer {
     }
 
     public void jumpPadOff () {
+
         onJumpPad = false;
 
         if (!isOnline()) return;
         Player player = getPlayer();
 
         player.removePotionEffect(PotionEffectType.JUMP_BOOST);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 10, 4, false, false, false));
+        giveEffects();
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -662,13 +490,10 @@ public class CBCPlayer {
         this.deaths++;
         this.alive = false;
         // Reset variables
-
         if (combatManager.isSwimTimerEnabled()) {
             this.swimTimer = combatManager.getSwimTimerLength();
         }
-
-        inFlameZoneOfPlayer = null;
-        flamezoneFireTicks = 0;
+        flameDamager.resetFlameDamager();
         lastPlayerHitBy = null;
         timeDamaged.clear();
         // Clear player inventory and effects
@@ -769,14 +594,8 @@ public class CBCPlayer {
         immune = true;
         new TempImmunityTask(gameManager, combatManager, this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
 
-        // Teleport player to spawn point
-        //FFASpawnpoint spawnpointSelected = gameManager.ffaSelectSpawn(this);
-        //player.teleport(spawnpointSelected);
+        playerSetup();
 
-        this.alive = true;
-        this.respawning = false;
-
-        loadout();
     }
 
     public void decrementLastPlayerHit() {
@@ -989,7 +808,7 @@ public class CBCPlayer {
     // Action bar display
     public void updateActionBarDisplay (boolean showIcon) {
 
-        if (!isOnline()) return;
+        /*if (!isOnline()) return;
 
         Player playerEntity = getPlayer();
         PlayerInventory inventory = getPlayer().getInventory();
@@ -1056,7 +875,7 @@ public class CBCPlayer {
         }
         else {
             playerEntity.sendActionBar(Component.text(""));
-        }
+        }*/
     }
 
     public Set<CBCPlayer> damagingPlayersInLastTime (int ticks) {
@@ -1096,10 +915,8 @@ public class CBCPlayer {
 
     public double getMaxHealth () {
         if (!isOnline()) return 20;
-
         Player playerEntity = getPlayer();
         AttributeInstance maxHealthAttribute = playerEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-
         if (maxHealthAttribute == null) return 20;
         return maxHealthAttribute.getValue();
     }
@@ -1116,18 +933,6 @@ public class CBCPlayer {
         gamePoints = pts;
     }
 
-    public boolean isInFlameZoner () {
-        return inFlameZoneOfPlayer != null;
-    }
-
-    public CBCPlayer getInFlameZoneOfPlayer () {
-        return inFlameZoneOfPlayer;
-    }
-
-    public void setFlameZonerDamageSource (CBCPlayer player) {
-        inFlameZoneOfPlayer = player;
-    }
-
     public String getLowercaseName () {
         return getName().toLowerCase();
     }
@@ -1140,5 +945,11 @@ public class CBCPlayer {
         return deathMessage;
     }
 
+    public CrossbowWeapon getWeaponFromId(Integer weaponId) {
+        return weapons.getOrDefault(weaponId, null);
+    }
 
+    public FlameDamager getFlameDamager() {
+        return flameDamager;
+    }
 }

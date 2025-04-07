@@ -4,7 +4,6 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.WeaponType;
-import neonique.cbcplugin_new.enums.WeaponsState;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.gameobjects.*;
@@ -12,17 +11,18 @@ import neonique.cbcplugin_new.listeners.combat.*;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 
 import neonique.cbcplugin_new.tasks.weapontasks.*;
+import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
+import neonique.cbcplugin_new.weapons.presets.FlamePreset;
+import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
+import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -30,20 +30,12 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
-import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.time.Duration;
@@ -53,25 +45,14 @@ public class CombatManager {
 
     // Weapons active
     private boolean active = false;
-
     private final GameManager gameManager;
+
     // Death message manager
     private final DeathMessageManager deathMessageManager;
-
-    // Crossbow templates
-    private static ItemStack creeperCannon;
-    private static ItemStack loadedCreeperCannon;
-
-    private static ItemStack flameZoner;
-    private static ItemStack loadedFlameZoner;
-
-    private static ItemStack xBow;
-    private static ItemStack loadedXBow;
 
     // Colors for glowing arrows
     private Team flameZoneArrowTeam;
     private Team xbowArrowTeam;
-    private Team healthPadItemTeam;
 
     // Weapon variables
     private CreeperPreset creeperWeaponVariables;
@@ -91,11 +72,6 @@ public class CombatManager {
     private HashMap<String, FlamePreset> flamePresets;
     private HashMap<String, XbowPreset> xbowPresets;
     private HashMap<String, OverallPreset> overallPresets;
-
-    // Set of current projectiles for game to keep track of
-    public Set<UUID> creeperProjectileSet = new HashSet<>();
-    public Set<UUID> flameZoneArrowSet = new HashSet<>();
-    public Set<UUID> xbowArrowSet = new HashSet<>();
 
     // Other weapon manager related stats
     private int healPadTimer = 10;
@@ -131,12 +107,9 @@ public class CombatManager {
     private final ArrowHitPlayerListener arrowHitPlayerListener;
     private final BlockInteractListener blockInteractListener;
 
-    // Tasks/Runnables used
+    // Tasks used
     private WeaponReloadTask weaponReloadTask;
-    private CreeperTrackingTask creeperTrackingTask;
-    private ArrowParticlesTask arrowParticlesTask;
-    private ArrowHitGroundTask arrowHitGroundTask;
-    private FlameZonerTask flameZonerTask;
+    private ProjectileUpdateTask projectileUpdateTask;
     private VoidTask voidTask;
     private HealPadDetectionTask healPadTask;
     private ResetPlayerLastHitTask resetPlayerLastHitTask;
@@ -149,6 +122,8 @@ public class CombatManager {
 
     // Time tracking variable
     private int timer;
+
+    private final ProjectileManager projectileManager = new ProjectileManager();
 
     public CombatManager(GameManager gameManager) {
 
@@ -175,94 +150,6 @@ public class CombatManager {
         playerJumpListener = new PlayerJumpListener(gameManager, this);
         arrowHitPlayerListener = new ArrowHitPlayerListener(gameManager, this);
         blockInteractListener = new BlockInteractListener(gameManager, this);
-
-        // CREATING WEAPON TEMPLATES TO COPY FOR EFFICIENCY
-        // ******************************************
-        // Creating creeper cannon as template
-        creeperCannon = new ItemStack(Material.CROSSBOW);
-        ItemMeta creeperCannonMeta = creeperCannon.getItemMeta();
-        Component creeperTitle = Component.text("Creeper Cannon").color(TextColor.color(91, 183, 34))
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-        creeperCannonMeta.displayName(creeperTitle);
-        creeperCannonMeta.addEnchant(Enchantment.QUICK_CHARGE, 10, true);
-        PersistentDataContainer creeperCannonTags = creeperCannonMeta.getPersistentDataContainer();
-        creeperCannonTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_crossbow"), PersistentDataType.STRING, "CREEPER");
-        creeperCannonTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 0);
-        creeperCannonMeta.setCustomModelData(1);
-        creeperCannon.setItemMeta(creeperCannonMeta);
-
-
-        // Creating loaded creeper cannon as template
-        loadedCreeperCannon = creeperCannon.clone();
-        CrossbowMeta loadedCreeperCannonMeta = (CrossbowMeta) loadedCreeperCannon.getItemMeta();
-        ItemStack ccProjectile = new ItemStack(Material.TIPPED_ARROW);
-        ItemMeta ccProjectileMeta = ccProjectile.getItemMeta();
-        PotionMeta ccPotionMeta = (PotionMeta) ccProjectileMeta;
-        ccPotionMeta.addCustomEffect(new PotionEffect(
-                PotionEffectType.INSTANT_DAMAGE, 30, 0), true);
-        ccPotionMeta.setColor(Color.GREEN);
-        ccProjectile.setItemMeta(ccPotionMeta);
-        loadedCreeperCannonMeta.addChargedProjectile(ccProjectile);
-        PersistentDataContainer loadedCreeperCannonTags = loadedCreeperCannonMeta.getPersistentDataContainer();
-        loadedCreeperCannonTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 1);
-        loadedCreeperCannonMeta.setCustomModelData(1);
-        loadedCreeperCannon.setItemMeta(loadedCreeperCannonMeta);
-
-        // ******************************************
-        // Creating flame zoner as template
-        flameZoner = new ItemStack(Material.CROSSBOW);
-        ItemMeta flameZoneMeta = flameZoner.getItemMeta();
-        Component flameTitle = Component.text("Flame Zoner").color(TextColor.color(232, 98, 58))
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-        flameZoneMeta.displayName(flameTitle);
-        flameZoneMeta.addEnchant(Enchantment.QUICK_CHARGE, 10, true);
-        PersistentDataContainer flameZonerTags = flameZoneMeta.getPersistentDataContainer();
-        flameZonerTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_crossbow"), PersistentDataType.STRING, "FLAME");
-        flameZonerTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 0);
-        flameZoneMeta.setCustomModelData(5);
-        flameZoner.setItemMeta(flameZoneMeta);
-
-
-        // Creating loaded flame zoner as template
-        loadedFlameZoner = flameZoner.clone();
-        CrossbowMeta loadedFlameZonerMeta = (CrossbowMeta) loadedFlameZoner.getItemMeta();
-        ItemStack fzProjectile = new ItemStack(Material.TIPPED_ARROW);
-        ItemMeta fzProjectileMeta = fzProjectile.getItemMeta();
-        PotionMeta fzPotionMeta = (PotionMeta) fzProjectileMeta;
-        fzPotionMeta.addCustomEffect(new PotionEffect(
-                PotionEffectType.FIRE_RESISTANCE, 30, 0), true);
-        fzPotionMeta.setColor(Color.RED);
-        fzProjectile.setItemMeta(fzPotionMeta);
-        loadedFlameZonerMeta.addChargedProjectile(fzProjectile);
-        PersistentDataContainer loadedFlameZonerTags = loadedFlameZonerMeta.getPersistentDataContainer();
-        loadedFlameZonerTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 1);
-        flameZoneMeta.setCustomModelData(5);
-        loadedFlameZoner.setItemMeta(loadedFlameZonerMeta);
-
-        // ******************************************
-        // Creating X-Bow as template
-        xBow = new ItemStack(Material.CROSSBOW);
-        ItemMeta xBowMeta = xBow.getItemMeta();
-        Component xbowTitle = Component.text("X-Bow").color(TextColor.color(124, 226, 226))
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-        flameZoneMeta.displayName(flameTitle);
-        xBowMeta.displayName(xbowTitle);
-        xBowMeta.addEnchant(Enchantment.QUICK_CHARGE, 10, true);
-        PersistentDataContainer xBowTags = xBowMeta.getPersistentDataContainer();
-        xBowTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_crossbow"), PersistentDataType.STRING, "XBOW");
-        xBowTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 0);
-        xBowMeta.setCustomModelData(9);
-        xBow.setItemMeta(xBowMeta);
-
-        // Creating loaded X Bow as template
-        loadedXBow = xBow.clone();
-        CrossbowMeta loadedXBowMeta = (CrossbowMeta) loadedXBow.getItemMeta();
-        ItemStack xbProjectile = new ItemStack(Material.ARROW);
-        loadedXBowMeta.addChargedProjectile(xbProjectile);
-        PersistentDataContainer loadedXBowTags = loadedXBowMeta.getPersistentDataContainer();
-        loadedXBowTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 1);
-        loadedXBowMeta.setCustomModelData(9);
-        loadedXBow.setItemMeta(loadedXBowMeta);
 
         // Load weapon presets
         loadWeaponPresets();
@@ -385,9 +272,7 @@ public class CombatManager {
 
     public void setFlameWeaponVariables(FlamePreset flameWeaponVariables) {
         this.flameWeaponVariables = flameWeaponVariables;
-        if (arrowParticlesTask != null) {
-            arrowParticlesTask.updateFlameRadius();
-        }
+
     }
 
     public void setXbowWeaponVariables(XbowPreset xbowWeaponVariables) {
@@ -429,163 +314,9 @@ public class CombatManager {
         return new ArrayList<>(overallPresets.keySet());
     }
 
-    public static ItemStack fetchWeapon(WeaponType weapon, boolean loaded) {
-        if (weapon == WeaponType.CREEPER) {if (loaded) {return loadedCreeperCannon;} else {return creeperCannon;}}
-        else if (weapon == WeaponType.FLAME) {if (loaded) {return loadedFlameZoner;} else {return flameZoner;}}
-        else {if (loaded) {return loadedXBow;} else {return xBow;}}
-    }
-
-    public void fireCreeper (CBCPlayer player, EntityShootBowEvent e) {
-
-        Entity projFired = e.getProjectile();
-        assert projFired instanceof Arrow;
-        Arrow arrowFired = (Arrow) projFired;
-        World world = arrowFired.getWorld();
-
-        arrowFired.setDamage(0);
-        Vector arrowVelocity = arrowFired.getVelocity();
-        Location creeperSpawnLocation = arrowFired.getLocation();
-        Entity creeperFired = world.spawnEntity(new Location(world, 0, 100, 0), EntityType.CREEPER, CreatureSpawnEvent.SpawnReason.COMMAND,
-                creeper -> {
-                    creeper.setVelocity(arrowVelocity.multiply(creeperWeaponVariables.getLaunchVelocityModifier()));
-                    creeper.setInvulnerable(true);
-                    }
-                );
-        Creeper creeperProjectile = (Creeper) creeperFired;
-        // Modify creeper projectile
-        creeperProjectile.setPowered(true);
-        creeperProjectile.setExplosionRadius((int) creeperWeaponVariables.getCreeperExplosionRadius());
-        PersistentDataContainer creeperTags = creeperProjectile.getPersistentDataContainer();
-        creeperTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "playerId"),
-                PersistentDataType.INTEGER, player.getPlayerId());
-        // Setting creeper team ID here - not yet done so
-        // Adding tag to identify it as a creeper
-        creeperProjectile.addScoreboardTag("firedCreeper");
-        // Adding creeper to list to track it
-        creeperProjectileSet.add(creeperProjectile.getUniqueId());
-        // Teleport creeper to arrow
-        creeperFired.teleport(creeperSpawnLocation);
-        // Remove the arrow
-        arrowFired.remove();
-
-        // Rename creeper depending on team
-        if (player.getTeam() != null) {
-            String teamName = player.getTeam().getTeamName();
-            creeperProjectile.customName(Component.text(teamName + "Creeper"));
-        }
-
-        // Add a timer before it can explode off walls
-        new CreeperWallTimerTask(creeperProjectile.getUniqueId()).runTaskLater(CBCPlugin.getPlugin(), 2L);
-
-    }
-
-    public void fireFlame (CBCPlayer player, EntityShootBowEvent e) {
-
-        Entity projFired = e.getProjectile();
-        assert projFired instanceof Arrow;
-        Arrow arrowFired = (Arrow) projFired;
-        arrowFired.addScoreboardTag("flameArrow");
-        arrowFired.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-        arrowFired.setInvulnerable(true);
-        arrowFired.setDamage(1);
-        arrowFired.setPierceLevel(20);
-
-        PersistentDataContainer arrowTags = arrowFired.getPersistentDataContainer();
-        arrowTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "playerId"),
-                PersistentDataType.INTEGER, player.getPlayerId());
-
-        flameZoneArrowTeam.addEntry(arrowFired.getUniqueId().toString());
-        gameManager.getCbcScoreboardManager().addTeamEntry(arrowFired.getUniqueId().toString(), flameZoneArrowTeam);
-        arrowFired.setGlowing(true);
-
-        // Adding arrow to list to track it
-        flameZoneArrowSet.add(arrowFired.getUniqueId());
-
-    }
-
-    public void fireXBow (CBCPlayer player, EntityShootBowEvent e) {
-        Entity projFired = e.getProjectile();
-        assert projFired instanceof Arrow;
-        Arrow arrowFired = (Arrow) projFired;
-        arrowFired.setVelocity(arrowFired.getVelocity().multiply(xbowWeaponVariables.getArrowVelocityModifier()));
-        arrowFired.addScoreboardTag("xbowArrow");
-        arrowFired.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-        arrowFired.setInvulnerable(true);
-        arrowFired.setDamage(1);
-        arrowFired.setPierceLevel(20);
-
-        xbowArrowTeam.addEntry(arrowFired.getUniqueId().toString());
-        gameManager.getCbcScoreboardManager().addTeamEntry(arrowFired.getUniqueId().toString(), xbowArrowTeam);
-        arrowFired.setGlowing(true);
-
-        // Adding arrow to list to track it
-        xbowArrowSet.add(arrowFired.getUniqueId());
-    }
-
-    public void fireXBowPiglin (EntityShootBowEvent e) {
-
-        // Xbow fired
-        Entity projFired = e.getProjectile();
-        assert projFired instanceof Arrow;
-        Arrow arrowFired = (Arrow) projFired;
-        arrowFired.setVelocity(arrowFired.getVelocity().multiply(xbowWeaponVariables.getArrowVelocityModifier()));
-        arrowFired.addScoreboardTag("xbowArrowPiglin");
-        arrowFired.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-        arrowFired.setInvulnerable(true);
-        arrowFired.setDamage(1);
-        arrowFired.setPierceLevel(20);
-
-        xbowArrowTeam.addEntry(arrowFired.getUniqueId().toString());
-        gameManager.getCbcScoreboardManager().addTeamEntry(arrowFired.getUniqueId().toString(), xbowArrowTeam);
-        arrowFired.setGlowing(true);
-
-        // Adding arrow to list to track it
-        xbowArrowSet.add(arrowFired.getUniqueId());
-    }
-
-    public void removeXbowArrow(Arrow arrow) {
-        xbowArrowSet.remove(arrow);
-        arrow.remove();
-    }
-
-    public void clearProjectiles() {
-        for (UUID creeperUUID : new HashSet<>(creeperProjectileSet)) {
-            Entity entity = gameManager.getWorld().getEntity(creeperUUID);
-            if (entity == null) continue;
-            entity.remove();
-        }
-        creeperProjectileSet.clear();
-
-        for (UUID arrowUUID : new HashSet<>(flameZoneArrowSet)) {
-            Entity entity = gameManager.getWorld().getEntity(arrowUUID);
-            if (entity == null) continue;
-            entity.remove();
-        }
-        flameZoneArrowSet.clear();
-
-        for (UUID arrowUUID : new HashSet<>(xbowArrowSet)) {
-            Entity entity = gameManager.getWorld().getEntity(arrowUUID);
-            if (entity == null) continue;
-            entity.remove();
-        }
-        xbowArrowSet.clear();
-    }
-
-    public void weaponFired (CBCPlayer player, EntityShootBowEvent e, WeaponType weapon) {
-        if (weapon == WeaponType.CREEPER) {this.fireCreeper(player, e);}
-        else if (weapon == WeaponType.FLAME) {this.fireFlame(player, e);}
-        else if (weapon == WeaponType.XBOW) {this.fireXBow(player, e);}
-        player.startReload(weapon);
-    }
-
     public void activateWeapons () {
 
         active = true;
-
-        // Setup any projectile sets
-        this.creeperProjectileSet = new HashSet<>();
-        this.flameZoneArrowSet = new HashSet<>();
-        this.xbowArrowSet = new HashSet<>();
 
         // Activate weapon listeners
         CBCPlugin plugin = CBCPlugin.getPlugin();
@@ -612,41 +343,37 @@ public class CombatManager {
         Scoreboard scoreboard = scoreboardManager.getMainScoreboard();
 
         // Create flame zone arrow color team
-        flameZoneArrowTeam = scoreboard.registerNewTeam("flameArrows");
+        flameZoneArrowTeam = scoreboard.getTeam("flameArrows");
+        if (flameZoneArrowTeam == null) {
+            flameZoneArrowTeam = scoreboard.registerNewTeam("flameArrows");
+        }
         flameZoneArrowTeam.color(NamedTextColor.GOLD); // Set team color
 
-        // Create heal pad color team
-        xbowArrowTeam = scoreboard.registerNewTeam("xbowArrows");
+        // Create xbow arrow color team
+        xbowArrowTeam = scoreboard.getTeam("xbowArrows");
+        if (xbowArrowTeam == null) {
+            xbowArrowTeam = scoreboard.registerNewTeam("xbowArrows");
+        }
         xbowArrowTeam.color(NamedTextColor.AQUA); // Set team color
-
-        // Create heal pad color team
-        healthPadItemTeam = scoreboard.registerNewTeam("healPadItemTeam");
-        healthPadItemTeam.color(NamedTextColor.GREEN); // Set team color
 
         if (gameManager.getCbcScoreboardManager().isActive()) {
             gameManager.getCbcScoreboardManager().registerTeamForAllClients(flameZoneArrowTeam);
             gameManager.getCbcScoreboardManager().registerTeamForAllClients(xbowArrowTeam);
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(healthPadItemTeam);
         }
 
         // Activate tasks
         weaponReloadTask = new WeaponReloadTask(gameManager, this);
-        creeperTrackingTask = new CreeperTrackingTask(gameManager, this);
-        arrowParticlesTask = new ArrowParticlesTask(gameManager, this);
-        arrowHitGroundTask = new ArrowHitGroundTask(this);
-        flameZonerTask = new FlameZonerTask(gameManager, this);
+        projectileUpdateTask = new ProjectileUpdateTask(gameManager, projectileManager);
         voidTask = new VoidTask(gameManager, this);
         healPadTask = new HealPadDetectionTask(gameManager, this);
         resetPlayerLastHitTask = new ResetPlayerLastHitTask(gameManager);
         weaponManagerTimerTask = new WeaponManagerTimerTask(this);
         playerParticlesTask = new PlayerParticlesTask(gameManager);
 
+
         weaponReloadTask.runTaskTimer(plugin, 0, reloadTaskPeriod);
-        creeperTrackingTask.runTaskTimer(plugin, 0, 1L);
-        arrowParticlesTask.runTaskTimer(plugin, 0, 3L);
-        arrowHitGroundTask.runTaskTimer(plugin, 0, 5L);
-        flameZonerTask.runTaskTimer(plugin, 0, 5L);
-        voidTask.runTaskTimer(plugin, 0, 4L);
+        projectileUpdateTask.runTaskTimer(plugin, 0, 1L);
+        voidTask.runTaskTimer(plugin, 0, 1L);
         healPadTask.runTaskTimer(plugin, 0, 2L);
         resetPlayerLastHitTask.runTaskTimer(plugin, 0, 20L);
         weaponManagerTimerTask.runTaskTimer(plugin, 0, 1L);
@@ -668,10 +395,8 @@ public class CombatManager {
 
         voidKill = true;
 
-        // Set any numbers
-        healPadTimer = 20;
-
         // Enable all heal pads
+        healPadTimer = 20;
         enableAllHealPads();
 
         timer = 0;
@@ -746,13 +471,10 @@ public class CombatManager {
 
         flameZoneArrowTeam.unregister();
         xbowArrowTeam.unregister();
-        healthPadItemTeam.unregister();
 
         // Disable tasks
         cancelTask(weaponReloadTask);
-        cancelTask(creeperTrackingTask);
-        cancelTask(arrowParticlesTask);
-        cancelTask(flameZonerTask);
+        cancelTask(projectileUpdateTask);
         cancelTask(voidTask);
         cancelTask(healPadTask);
         cancelTask(resetPlayerLastHitTask);
@@ -770,7 +492,7 @@ public class CombatManager {
         resetWeaponPresetsToDefault();
 
         // Clear all projectiles
-        clearProjectiles();
+        projectileManager.clearAllProjectiles();
 
         // Disable heal pads
         clearHealthPadList();
@@ -780,10 +502,10 @@ public class CombatManager {
         jumpPadsEnabled = false;
         swimTimerEnabled = false;
         dashPadsEnabled = false;
-
         beaconHeads = false;
         doDayCycle = false;
         nightVisionDisabled = false;
+
     }
 
     // Runs when a player takes fatal damage
@@ -1197,5 +919,9 @@ public class CombatManager {
 
     public boolean isActive () {
         return active;
+    }
+
+    public ProjectileManager getProjectileManager() {
+        return projectileManager;
     }
 }

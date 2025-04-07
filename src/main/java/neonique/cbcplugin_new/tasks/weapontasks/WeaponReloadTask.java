@@ -33,10 +33,9 @@ public class WeaponReloadTask extends BukkitRunnable {
 
         for (CBCPlayer player : players) {
             if (player.isAlive()) {
-                player.playerReload(true);
-                // Only reload decrementing items every other tick
+                player.updateWeaponReloads();
                 if (updateItems) {
-                    player.playerReloadItems(true, true, true);
+                    player.updateAllWeaponItems();
                 }
             } else {
                 player.updateActionBarDisplay(true);

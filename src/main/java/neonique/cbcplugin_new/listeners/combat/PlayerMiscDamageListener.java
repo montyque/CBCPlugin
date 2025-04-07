@@ -26,11 +26,10 @@ public class PlayerMiscDamageListener implements Listener {
 
             // Check if the entity who was damaged is a player
             Entity entityHurt = e.getEntity();
-            if (!(entityHurt instanceof Player)) {
+            if (!(entityHurt instanceof Player playerHurt)) {
                 return;
             }
 
-            Player playerHurt = (Player) entityHurt;
             // Check if player is in players list
             if (!(this.gameManager.hasPlayer(playerHurt))) {
                 return;

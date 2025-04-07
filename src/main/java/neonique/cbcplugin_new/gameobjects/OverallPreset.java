@@ -1,5 +1,9 @@
 package neonique.cbcplugin_new.gameobjects;
 
+import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
+import neonique.cbcplugin_new.weapons.presets.FlamePreset;
+import neonique.cbcplugin_new.weapons.presets.XbowPreset;
+
 public class OverallPreset {
 
     private final String id;

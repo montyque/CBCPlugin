@@ -193,7 +193,7 @@ public class CTFGame extends TeamGame {
         // Setup sudden death
         if (map.isSuddenDeathEnabled()) {
             suddenDeathBorder = new DeathBorder(
-                    this, map.getMapCentre(), map.getBorderShape(), map.getStartingBorderRadius(), map.getFinalBorderRadius(),
+                    getGameManager(), map.getMapCentre(), map.getBorderShape(), map.getStartingBorderRadius(), map.getFinalBorderRadius(),
                     map.getBorderTopY(), map.getBorderBottomY(), map.getBorderShrinkRate()
             );
         }
@@ -234,10 +234,9 @@ public class CTFGame extends TeamGame {
         for (CTFTeam team : teams) {
             for (CBCPlayer player : team.getPlayers()) {
                 CTFPlayer ctfPlayer = (CTFPlayer) player;
-                ctfPlayer.resetPlayer();
-                ctfPlayer.setAlive(true);
-                ctfPlayer.setReloadsBySecond(3);
-                ctfPlayer.loadout();
+
+                ctfPlayer.playerSetup();
+                ctfPlayer.setReloadsBySecond(1);
 
                 ctfPlayer.setTempImmune(60);
             }

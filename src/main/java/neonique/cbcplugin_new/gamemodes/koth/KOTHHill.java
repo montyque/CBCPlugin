@@ -31,7 +31,7 @@ public class KOTHHill {
     private static final CosSineTable cosSineTable;
 
     static {
-        cosSineTable = CosSineTable.getTable();
+        cosSineTable = new CosSineTable(360);
     }
 
     public KOTHHill (GameManager gameManager, Location zoneCenter, HillShape zoneShape,
@@ -137,7 +137,7 @@ public class KOTHHill {
                 // Choose a random angle of circle
                 int randAngle = rand.nextInt(360);
                 // Calculate particle x and particle z
-                particleOffsetX = cosSineTable.getSine(randAngle) * zoneRadius;
+                particleOffsetX = cosSineTable.getSin(randAngle) * zoneRadius;
                 particleOffsetZ = cosSineTable.getCos(randAngle) * zoneRadius;
             }
             else {
@@ -202,7 +202,7 @@ public class KOTHHill {
                 // Choose a random angle of circle
                 int randAngle = rand.nextInt(360);
                 // Calculate particle x and particle z
-                particleOffsetX = cosSineTable.getSine(randAngle) * zoneRadius;
+                particleOffsetX = cosSineTable.getSin(randAngle) * zoneRadius;
                 particleOffsetZ = cosSineTable.getCos(randAngle) * zoneRadius;
             }
             else {

@@ -228,19 +228,16 @@ public class RendezvousPlayer extends CBCPlayer {
         if (!isOnline()) return;
 
         if (game.getWinner() == null) {
-            new TempImmunityTask(getGameManager(), getWeaponManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
+            new TempImmunityTask(getGameManager(), getCombatManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
         }
         else {
             setImmune(true);
         }
 
-        resetPlayer();
+        playerSetup();
+        setReloadsBySecond(3);
 
         teleportPlayerToSpawn(selectSpawn());
-
-        setAlive(true);
-        setRespawning(false);
-        loadout();
 
         if (isPlayerRunner()) {
             getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000,
@@ -341,8 +338,9 @@ public class RendezvousPlayer extends CBCPlayer {
     }
 
     @Override
-    public void loadout() {
-        super.loadout();
+    public void loadInventory() {
+
+        super.loadInventory();
 
         if (!isOnline()) return;
         PlayerInventory inventory = getPlayer().getInventory();
@@ -385,7 +383,7 @@ public class RendezvousPlayer extends CBCPlayer {
                 // Find the amount of time that it takes for the players to respawn
                 int timeToRespawn = 4;
                 // Set up respawn timer
-                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getWeaponManager(), this, timeToRespawn + 1);
+                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
                 respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
             }
         }

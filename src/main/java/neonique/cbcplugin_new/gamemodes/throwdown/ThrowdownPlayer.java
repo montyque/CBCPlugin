@@ -17,8 +17,6 @@ import org.bukkit.util.Vector;
 
 import java.time.Duration;
 
-import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
-
 public class ThrowdownPlayer extends CBCPlayer {
 
     private final ThrowdownGame game;
@@ -71,13 +69,13 @@ public class ThrowdownPlayer extends CBCPlayer {
         Player playerEntity = getPlayer();
 
         // Set gamemode of player to adventure and reset their stats
-        resetPlayer();
-        setAlive(true); // Set player's state to alive
-        setImmune(true); // Make player immune
+        playerSetup();
+        setReloadsBySecond(3);
+        setTempImmune(60);
 
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
         playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
-        new TempImmunityTask(getGameManager(), getWeaponManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
+        new TempImmunityTask(getGameManager(), getCombatManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
     }
 

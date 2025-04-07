@@ -77,10 +77,10 @@ public class PlayerItemListener implements Listener {
 
         // Verify that the entity is a player
         Entity entity = e.getEntity();
-        if (!(entity instanceof Player)) {
+        if (!(entity instanceof Player player)) {
             return;
         }
-        Player player = (Player) entity;
+
         // Verify that player is in game
         if (!gameManager.hasPlayer(player)) {
             return;
@@ -101,19 +101,15 @@ public class PlayerItemListener implements Listener {
             return;
         }
 
-        if (e.getMainHandItem() != null) {
-            if (DISALLOWED_ITEM_DROPS.contains(e.getMainHandItem().getType())) {
-                // Cancel event
-                e.setCancelled(true);
-                return;
-            }
+        if (DISALLOWED_ITEM_DROPS.contains(e.getMainHandItem().getType())) {
+            // Cancel event
+            e.setCancelled(true);
+            return;
         }
 
-        if (e.getOffHandItem() != null) {
-            if (DISALLOWED_ITEM_DROPS.contains(e.getOffHandItem().getType())) {
-                // Cancel event
-                e.setCancelled(true);
-            }
+        if (DISALLOWED_ITEM_DROPS.contains(e.getOffHandItem().getType())) {
+            // Cancel event
+            e.setCancelled(true);
         }
     }
 
