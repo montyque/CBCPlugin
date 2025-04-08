@@ -118,11 +118,11 @@ public class FlameArrow extends PlayerProjectile {
         }
 
         for (Player p : playerFlames) {
-            p.spawnParticle(Particle.FLAME, arrowLocation, 1, 0.5F, 0.5F, 0.5F, 0.001);
+            p.spawnParticle(Particle.FLAME, arrowLocation, 1, 0.5F, 0.5F, 0.5F, 0.001, null, true);
         }
 
         for (Player p : playerSoulFlames) {
-            p.spawnParticle(Particle.SOUL_FIRE_FLAME, arrowLocation, 1, 0.5F, 0.5F, 0.5F, 0.001);
+            p.spawnParticle(Particle.SOUL_FIRE_FLAME, arrowLocation, 1, 0.5F, 0.5F, 0.5F, 0.001, null, true);
         }
 
     }
