@@ -3,7 +3,6 @@ package neonique.cbcplugin_new.weapons.projectiles;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -11,6 +10,8 @@ import org.bukkit.entity.Player;
 import java.util.Collection;
 
 public class CBCCreeper extends PlayerProjectile {
+
+    private int ticksAlive = 0;
 
     public CBCCreeper(CBCPlayer playerFired, Creeper creeper) {
         super(playerFired, creeper);
@@ -41,7 +42,11 @@ public class CBCCreeper extends PlayerProjectile {
     }
 
     public void update() {
+
+        if (markedForRemoval()) return;
         checkExplosion();
+        ticksAlive++;
+
     }
 
     /**
@@ -90,7 +95,7 @@ public class CBCCreeper extends PlayerProjectile {
             return;
         }
 
-        if (isHittingWall()) {
+        if (isHittingWall() && ticksAlive >= 2) {
             explode(false);
             return;
         }
