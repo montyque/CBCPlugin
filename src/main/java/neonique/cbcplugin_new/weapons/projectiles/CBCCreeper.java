@@ -1,10 +1,8 @@
 package neonique.cbcplugin_new.weapons.projectiles;
 
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
@@ -56,7 +54,8 @@ public class CBCCreeper extends PlayerProjectile {
         if (creeper == null) return;
 
         creeper.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, creeper.getLocation(), 1);
-        //creeper.getWorld().spawnParticle(Particle.DUST, creeper.getLocation(), 30, 1.5, 1.5, 1.5, 1, dustOptions, false);
+        creeper.getWorld().spawnParticle(Particle.DUST, creeper.getLocation(), 30, 1.5, 1.5,
+                1.5, 1, getParticleOptions(), false);
 
         // Creeper is going to explode
         creeper.explode();
@@ -82,6 +81,9 @@ public class CBCCreeper extends PlayerProjectile {
 
         Creeper creeper = getCreeper();
         if (creeper == null) return;
+
+        creeper.getWorld().spawnParticle(Particle.DUST, creeper.getLocation(), 1, 0.5, 0.5,
+                0.5, 1, getParticleOptions(), false);
 
         if (creeper.isOnGround()) {
             explode(false);
@@ -151,6 +153,18 @@ public class CBCCreeper extends PlayerProjectile {
 
         return false;
 
+    }
+
+    private Particle.DustOptions getParticleOptions () {
+
+        Color particleColor = Color.fromRGB(255, 255, 255);
+        if (getSource().getTeam() != null) {
+            NamedTextColor teamColor = getSource().getTeam().getColor();
+            particleColor = Color.fromRGB(teamColor.red(), teamColor.green(), teamColor.blue());
+        }
+
+        // Display particles
+        return new Particle.DustOptions(particleColor, 1.0F);
     }
 
 }

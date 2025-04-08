@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.weapons.projectiles;
 
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import org.bukkit.Particle;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 
@@ -16,7 +17,7 @@ public class XbowArrow extends PlayerProjectile {
         Arrow arrow = getArrow();
         if (arrow == null) return;
 
-        playParticleTrail();
+        playParticleTrail(arrow);
 
         if (arrow.isInBlock()) {
             markForRemoval();
@@ -43,9 +44,10 @@ public class XbowArrow extends PlayerProjectile {
 
     }
 
-    public void playParticleTrail () {
+    public void playParticleTrail (Arrow arrow) {
 
-
+        arrow.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, arrow.getLocation(), 1, 0, 0, 0,
+                0.05, null, true);
 
     }
 
