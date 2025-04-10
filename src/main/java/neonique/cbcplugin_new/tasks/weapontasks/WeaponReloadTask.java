@@ -37,8 +37,6 @@ public class WeaponReloadTask extends BukkitRunnable {
                 if (updateItems) {
                     player.updateAllWeaponItems();
                 }
-            } else {
-                player.updateActionBarDisplay(true);
             }
         }
      }

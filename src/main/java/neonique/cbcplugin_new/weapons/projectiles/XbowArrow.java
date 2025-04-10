@@ -21,6 +21,7 @@ public class XbowArrow extends PlayerProjectile {
 
         if (arrow.isInBlock()) {
             markForRemoval();
+            playHitParticles(arrow);
         }
 
     }
@@ -49,6 +50,11 @@ public class XbowArrow extends PlayerProjectile {
         arrow.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, arrow.getLocation(), 1, 0, 0, 0,
                 0.05, null, true);
 
+    }
+
+    public void playHitParticles (Arrow arrow) {
+        arrow.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, arrow.getLocation(), 8, 0.0, 0.0,
+                0.0, 0.4, null, true);
     }
 
 }

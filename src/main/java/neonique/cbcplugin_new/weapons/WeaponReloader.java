@@ -36,11 +36,16 @@ public class WeaponReloader {
     }
 
     /**
-     Gets the percentage
+     Gets the proportion of which the reload process has completed.
+     <p>If the time it takes the reload to weapon is 0, then this will always return 1.0.
      @return The proportion of which the weapon has reloaded
      */
     public float getReloadPercentage () {
-        return ((float) reloadProgress / (float) reloadTime);
+        if (reloadTime > 0) {
+            return ((float) reloadProgress / (float) reloadTime);
+        } else {
+            return 1;
+        }
     }
 
     public boolean isLoaded () {

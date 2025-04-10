@@ -6,7 +6,9 @@ import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.weapons.projectiles.FlameArrow;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
@@ -18,6 +20,8 @@ import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+
+import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowText;
 
 public class FlameZoner implements CrossbowWeapon {
 
@@ -122,6 +126,20 @@ public class FlameZoner implements CrossbowWeapon {
     public WeaponReloader getWeaponReloader() {
         return weaponReloader;
     }
+
+    @Override
+    public Component getXPBarComponent() {
+
+        int charNum = (int) Math.ceil(weaponReloader.getReloadPercentage() * 60.0) + 57600;
+        Component xpBarComponent = Component.text(
+                String.valueOf((char) charNum)).style(Style.style().font(Key.key("cbc_customfonts", "xpreloadbars"))
+        );
+
+        xpBarComponent = noShadowText(xpBarComponent);
+        return xpBarComponent;
+
+    }
+
 
 
 }

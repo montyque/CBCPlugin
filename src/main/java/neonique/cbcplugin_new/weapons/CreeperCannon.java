@@ -5,7 +5,9 @@ import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.projectiles.CBCCreeper;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
@@ -21,6 +23,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nullable;
+
+import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowText;
 
 public class CreeperCannon implements CrossbowWeapon {
 
@@ -135,5 +141,17 @@ public class CreeperCannon implements CrossbowWeapon {
         return weaponReloader;
     }
 
+    @Override
+    public Component getXPBarComponent() {
+
+        int charNum = Math.round(weaponReloader.getReloadPercentage() * 60.0f) + 57344;
+        Component xpBarComponent = Component.text(
+                String.valueOf((char) charNum)).style(Style.style().font(Key.key("cbc_customfonts", "xpreloadbars"))
+        );
+
+        xpBarComponent = noShadowText(xpBarComponent);
+        return xpBarComponent;
+
+    }
 
 }

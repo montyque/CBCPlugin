@@ -3,21 +3,15 @@ package neonique.cbcplugin_new.playerclasses;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
-import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
-import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
 import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
-import neonique.cbcplugin_new.weapons.CreeperCannon;
-import neonique.cbcplugin_new.weapons.CrossbowWeapon;
-import neonique.cbcplugin_new.weapons.FlameZoner;
-import neonique.cbcplugin_new.weapons.XBow;
+import neonique.cbcplugin_new.weapons.*;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
-import neonique.cbcplugin_new.weapons.projectiles.FlameArrow;
 import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -27,7 +21,6 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ArmorMeta;
@@ -36,8 +29,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -49,7 +40,7 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 
 public class CBCPlayer {
 
-    private CBCPlugin plugin;
+    private final CBCPlugin plugin;
 
     private final int playerId;
 
@@ -85,9 +76,9 @@ public class CBCPlayer {
     private boolean respawning = false;
     private CBCPlayer lastPlayerHitBy = null;
     private int lastPlayerHitByReset = 0;
-    private HashMap<CBCPlayer, Integer> timeDamaged = new HashMap<>();
+    private final HashMap<CBCPlayer, Integer> timeDamaged = new HashMap<>();
 
-    private HashMap<Integer, CrossbowWeapon> weapons;
+    private HashMap<Integer, CrossbowWeapon> weapons = new HashMap<>();
 
     // Important stats for fighting
     private final FlameDamager flameDamager = new FlameDamager(this);
@@ -100,14 +91,7 @@ public class CBCPlayer {
     private boolean overrideGlassHelmet = false;
 
     // Display in player list
-    private List<Component> playerListPrefixes;
     private List<Component> playerListSuffixes;
-
-    private static final NamespacedKey playerIdNamespacedKey;
-
-    static {
-        playerIdNamespacedKey = new NamespacedKey(CBCPlugin.getPlugin(), "playerId");
-    }
 
     public CBCPlayer(GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
         this.gameManager = gameManager;
@@ -115,7 +99,6 @@ public class CBCPlayer {
         this.playerUUID = player.getUniqueId();
         this.playerId = playerId;
 
-        playerListPrefixes = new ArrayList<>();
         playerListSuffixes = new ArrayList<>();
 
         this.plugin = CBCPlugin.getPlugin();
@@ -194,36 +177,10 @@ public class CBCPlayer {
         return !isAlly(player);
     }
 
-    public boolean isPlayerEntityEnemy (Player playerEntity) {
-        CBCPlayer player = gameManager.getPlayer(playerEntity);
-        if (player == null) return false;
-        return !isAlly(player);
-    }
-
     public boolean isPlayerEntityAlly (Player playerEntity) {
         CBCPlayer player = gameManager.getPlayer(playerEntity);
         if (player == null) return false;
         return isAlly(player);
-    }
-
-
-    // Use tags to find out if an entity (arrow, creeper) is allied with this player
-    public boolean isEntityAlly (Entity entity) {
-        PersistentDataContainer entityTags = entity.getPersistentDataContainer();
-        Integer entityPlayerId = entityTags.get(playerIdNamespacedKey, PersistentDataType.INTEGER);
-        if (entityPlayerId != null) {
-            if (entityPlayerId.equals(playerId)) {
-                return true;
-            } else {
-                if (team != null) {
-                    return team.isAllyPlayerId(entityPlayerId);
-                } else {
-                    return false;
-                }
-            }
-        } else {
-            return false;
-        }
     }
 
     // Get player's team
@@ -328,15 +285,15 @@ public class CBCPlayer {
         Player player = getPlayer();
 
         if (!player.hasPotionEffect(PotionEffectType.JUMP_BOOST)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, 4, false, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, -1, 4, false, false, false));
         }
 
         if (!player.hasPotionEffect(PotionEffectType.SPEED)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 4, false, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, -1, 4, false, false, false));
         }
 
         if (!player.hasPotionEffect(PotionEffectType.DOLPHINS_GRACE)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, 0, false, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, -1, 0, false, false, false));
         }
 
         // Remove night vision effect if needed
@@ -574,7 +531,7 @@ public class CBCPlayer {
         }
     }
 
-    // This is used to compound healing - eg if a player already has the effect make the duration last longer
+    // This is used to compound healing - e.g. if a player already has the effect make the duration last longer
     public void addHealing (int healthPoints) {
         if (isOnline() && alive) {
 
@@ -657,7 +614,7 @@ public class CBCPlayer {
         return maxKillStreak;
     }
 
-    public void setoverrideGlassHelmet(boolean b) {
+    public void setOverrideGlassHelmet(boolean b) {
         overrideGlassHelmet = b;
     }
 
@@ -762,11 +719,6 @@ public class CBCPlayer {
     public void updatePlayerListName () {
         Component playerListName = Component.text("");
 
-        for (Component prefix : playerListPrefixes) {
-            playerListName = playerListName.append(prefix);
-            playerListName = playerListName.append(Component.text(" "));
-        }
-
         playerListName = playerListName.append(getNameComponentWithTeamPrefix());
 
         for (Component suffix : playerListSuffixes) {
@@ -777,16 +729,6 @@ public class CBCPlayer {
         if (isOnline()) {
             getPlayer().playerListName(playerListName);
         }
-    }
-
-    public void setPlayerListPrefixes (List<Component> newPlayerListPrefixes) {
-        playerListPrefixes = newPlayerListPrefixes;
-        updatePlayerListName();
-    }
-
-    public void clearPlayerListPrefixes () {
-        playerListPrefixes.clear();
-        updatePlayerListName();
     }
 
     public void setPlayerListSuffixes (List<Component> newPlayerListSuffixes) {
@@ -808,7 +750,7 @@ public class CBCPlayer {
     // Action bar display
     public void updateActionBarDisplay (boolean showIcon) {
 
-        /*if (!isOnline()) return;
+        if (!isOnline()) return;
 
         Player playerEntity = getPlayer();
         PlayerInventory inventory = getPlayer().getInventory();
@@ -822,60 +764,30 @@ public class CBCPlayer {
         Component actionBarDisplay = null;
 
         if (isAlive()) {
+
             // Check which slot player is using
             int slot = inventory.getHeldItemSlot();
 
-            Component reloadBarComponent = null;
-
-            if (slot == 0) {
-                // Display creeper cannon cooldown
-                float progress = 1 - ((float) creeperCooldown / (float) combatManager.getCreeperReloadTime(this));
-                if (combatManager.getCreeperReloadTime(this) == 0) {
-                    progress = 1;
-                }
-                reloadBarComponent = ResourcePackManager.getReloadBarComponent(WeaponType.CREEPER, progress);
-            }
-            else if (slot == 1) {
-                // Display flame zoner cooldown
-                float progress = 1 - ((float) flameCooldown / (float) combatManager.getFlameReloadTime(this));
-                if (combatManager.getFlameReloadTime(this) == 0) {
-                    progress = 1;
-                }
-                reloadBarComponent = ResourcePackManager.getReloadBarComponent(WeaponType.FLAME, progress);
-            }
-            else if (slot == 2) {
-                // Display x bow cooldown
-                float progress = 1 - ((float) xbowCooldown / (float) combatManager.getXbowReloadTime(this));
-                if (combatManager.getXbowReloadTime(this) == 0) {
-                    progress = 1;
-                }
-                reloadBarComponent = ResourcePackManager.getReloadBarComponent(WeaponType.XBOW, progress);
+            if (weapons.containsKey(slot)) {
+                CrossbowWeapon weapon = weapons.get(slot);
+                actionBarDisplay = weapon.getXPBarComponent();
             }
 
-            if (reloadBarComponent != null) {
-                // Remove shadow from action bar
-                actionBarDisplay = noShadowText(reloadBarComponent);
-            }
         }
 
         // Show icon if needing to show icon
         if (showIcon) {
-            // Remove shadow from crossbow hotbar icon
+            // Remove shadow from crossbow hot bar icon
             Component hotbarIcon = noShadowText(getHotbarIcon(getTeam(), actionBarDisplay != null));
             if (actionBarDisplay == null) {
                 actionBarDisplay = hotbarIcon;
-            }
-            else {
+            } else {
                 actionBarDisplay = actionBarDisplay.append(hotbarIcon);
             }
         }
 
-        if (actionBarDisplay != null) {
-            playerEntity.sendActionBar(actionBarDisplay);
-        }
-        else {
-            playerEntity.sendActionBar(Component.text(""));
-        }*/
+        playerEntity.sendActionBar(Objects.requireNonNullElseGet(actionBarDisplay, () -> Component.text("")));
+
     }
 
     public Set<CBCPlayer> damagingPlayersInLastTime (int ticks) {
