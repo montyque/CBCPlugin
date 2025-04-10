@@ -1,9 +1,5 @@
 package neonique.cbcplugin_new.weapons;
 
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
-
 public class WeaponReloader {
 
     // Reloading variables
