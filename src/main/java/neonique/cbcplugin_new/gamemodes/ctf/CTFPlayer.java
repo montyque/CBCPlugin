@@ -71,7 +71,7 @@ public class CTFPlayer extends CBCPlayer {
         flagsPickedUp++;
 
         // Set player helmet to banner
-        setoverrideGlassHelmet(true);
+        setOverrideGlassHelmet(true);
         getPlayer().getInventory().setHelmet(flagTeam.getBannerItem());
         getPlayer().updateInventory();
 
@@ -157,7 +157,7 @@ public class CTFPlayer extends CBCPlayer {
         }
 
         // Set player helmet back to normal
-        setoverrideGlassHelmet(false);
+        setOverrideGlassHelmet(false);
         loadInventory();
 
     }
@@ -179,7 +179,7 @@ public class CTFPlayer extends CBCPlayer {
         );
 
         // Set player helmet back to normal
-        setoverrideGlassHelmet(false);
+        setOverrideGlassHelmet(false);
 
         if (isAlive()) {
             loadInventory();
@@ -411,7 +411,8 @@ public class CTFPlayer extends CBCPlayer {
 
         Set<Player> glowingPlayers = new HashSet<>();
         for (CBCPlayer player : getTeam().getAlivePlayers()) {
-            if (player.isOnline()) {
+            if (player == this) continue;
+            if (player.isAlive()) {
                 glowingPlayers.add(player.getPlayer());
             }
         }

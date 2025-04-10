@@ -11,14 +11,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -134,28 +132,15 @@ public class AssassinPlayer extends CBCPlayer {
         }
     }
 
-    public void teleportToSpawn(Location location) {
-        getPlayer().teleport(location);
+    public void playerKilledTarget () {
 
-        Vector dir = game.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
-        Location loc = getPlayer().getLocation().setDirection(dir);
-        getPlayer().teleport(loc);
-    }
-
-
-    public void playerKilledTarget (CBCPlayer playerKilled) {
-
-        // Take away 1 from targets left
         targetsLeft--;
         targetsKilled++;
         Player playerEntity = getPlayer();
 
         // Play sound to player
         playerEntity.playSound(playerEntity.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 200, 2);
-
         currentTarget.killedAsTarget();
-
-        // Remove target
         currentTarget = null;
 
         // Check if the game has not ended yet with this target kill
@@ -184,28 +169,20 @@ public class AssassinPlayer extends CBCPlayer {
             }.runTaskLater(CBCPlugin.getPlugin(), 60);
         }
         else {
-            // Player has won game
             game.playerWonGame(this);
         }
 
-        // Update placements
         game.updatePlacements();
-
-        // Update sidebar manager
         game.updateServerSidebar();
 
     }
 
     public void decrementTargetChangeTimer() {
 
-        // Only decrement timer if they are online
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
 
-        // Only decrement if player currently has a target
         if (currentTarget == null) return;
-
-        // Decrement target change timer
         targetTimer--;
 
         // If target timer is 0, change target
@@ -234,7 +211,7 @@ public class AssassinPlayer extends CBCPlayer {
     public void playerAfterKill (CBCPlayer playerKilled) {
         // Check if player has killed target
         if (playerKilled == currentTarget) {
-            playerKilledTarget(playerKilled);
+            playerKilledTarget();
         }
 
         if (isOnline()) {
@@ -261,16 +238,17 @@ public class AssassinPlayer extends CBCPlayer {
             // Set up respawn timer
             RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
             respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
+
         }
 
         game.getBossbarManager().update();
+
     }
 
     @Override
     public void playerSpawn () {
 
         if (!isOnline()) return;
-        Player playerEntity = getPlayer();
 
         if (game.getWinner() == null) {
             new TempImmunityTask(getGameManager(), getCombatManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
@@ -279,56 +257,51 @@ public class AssassinPlayer extends CBCPlayer {
             setImmune(true);
         }
 
-        playerEntity.setLevel(0);
-        playerEntity.setExp(0);
-
-        // Teleport player to spawn point
-        teleportToSpawn(selectSpawn());
-
         playerSetup();
         setReloadsBySecond(2);
+        teleportOnRespawn();
+
+    }
+
+    public void teleportOnRespawn() {
+
+        // Teleport player to spawn point
+        AssassinSpawn spawn = selectSpawn();
+        Location lookTo = game.getMap().getMapCentre();
+
+        // If their target is alive, spawn them orientated towards the target
+        // Otherwise, spawn them facing the map's center
+        if (currentTarget != null) {
+            if (currentTarget.isAlive()) {
+                lookTo = currentTarget.getPlayer().getLocation();
+            }
+        }
+
+        teleportPlayerToSpawn(spawn, lookTo);
 
     }
 
     // Runs when the game is being set up
     public void playerSetupGame () {
 
-        // Do not start the round for this player if the player is offline
         if (!isOnline()) return;
-        Player playerEntity = getPlayer();
-        // Set gamemode of player to adventure and reset their stats
-        getPlayer().setLevel(0);
-        getPlayer().setExp(0);
-        setAlive(false); // Set player's alive state to false
-        playerEntity.setHealth(20);
-        playerEntity.setGameMode(GameMode.ADVENTURE);
-        playerEntity.getInventory().clear();
-        playerEntity.updateInventory();
-        // Manage player effects
-        playerEntity.removePotionEffect(PotionEffectType.GLOWING);
-        playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 800000, 0, false, false, false));
+        resetPlayer();
+        getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 800000, 0, false, false, false));
         setReloadsBySecond(3); // Reset player's reloading timers
+
     }
 
     // Runs when the game countdown timer stops
     public void playerStartGame () {
 
-        // Do not start the round for this player if the player is offline
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
-
-        // Set gamemode of player to adventure and reset their stats
-        playerEntity.setHealth(20);
-        playerEntity.getInventory().clear();
-        playerEntity.updateInventory();
-        setReloadsBySecond(3); // Reset player's reloading timers
-        setAlive(true); // Set player's state to alive
-        setImmune(true); // Make player immune
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
-        new TempImmunityTask(getGameManager(), getCombatManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
+        playerSetup();
 
         // Show title for player's target
         newTargetTitle();
+
     }
 
     // Selecting spawn
@@ -367,7 +340,7 @@ public class AssassinPlayer extends CBCPlayer {
             }
         }
 
-        if (noEnemyNearbySpawns.size() > 0) {
+        if (!noEnemyNearbySpawns.isEmpty()) {
             return noEnemyNearbySpawns.get(0);
         }
         else {
@@ -383,6 +356,7 @@ public class AssassinPlayer extends CBCPlayer {
     public int getPlacement() {
         return placement;
     }
+
     public boolean isTied() {
         return tied;
     }

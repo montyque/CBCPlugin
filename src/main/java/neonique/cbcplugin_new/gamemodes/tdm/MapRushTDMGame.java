@@ -11,14 +11,12 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
-import neonique.cbcplugin_new.tasks.gamemodetasks.UpdateBossbarsTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.tdm.MapRushTDMGameTimerTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.tdm.MapRushTDMStartMapTimer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 

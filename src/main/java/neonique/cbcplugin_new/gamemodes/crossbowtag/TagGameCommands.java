@@ -151,7 +151,7 @@ public class TagGameCommands extends BaseTeamGameCommands {
                     // Setup player round and teleport them to tagger spawn
                     tagPlayer.setCanMove(true);
                     tagPlayer.playerSetupRound();
-                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn());
+                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn(), game.getMap().getMapCentre());
                     tagPlayer.setCanMove(false);
                 }
             }
@@ -161,7 +161,7 @@ public class TagGameCommands extends BaseTeamGameCommands {
                     // Setup player round and teleport them to tagger spawn
                     tagPlayer.setCanMove(true);
                     tagPlayer.playerSetupRound();
-                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomEvaderSpawn());
+                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomEvaderSpawn(), game.getMap().getMapCentre());
                     tagPlayer.setCanMove(false);
                 }
             }
@@ -212,11 +212,11 @@ public class TagGameCommands extends BaseTeamGameCommands {
 
         if (tagPlayer.isTagger()) {
             // Teleport player to tagger spawn
-            tagPlayer.teleportPlayerToSpawn(team.getRandomTaggerSpawn());
+            tagPlayer.teleportPlayerToSpawn(team.getRandomTaggerSpawn(), game.getMap().getMapCentre());
         }
         else {
             // Teleport player to evader spawn
-            tagPlayer.teleportPlayerToSpawn(team.getRandomEvaderSpawn());
+            tagPlayer.teleportPlayerToSpawn(team.getRandomEvaderSpawn(), game.getMap().getMapCentre());
             tagPlayer.setEliminated(false);
         }
 

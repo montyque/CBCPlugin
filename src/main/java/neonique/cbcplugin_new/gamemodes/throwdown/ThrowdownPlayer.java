@@ -9,11 +9,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import java.time.Duration;
 
@@ -34,13 +32,6 @@ public class ThrowdownPlayer extends CBCPlayer {
     public ThrowdownPlayer(ThrowdownGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
         super(gameManager, combatManager, player, playerId);
         this.game = game;
-    }
-
-    public void teleportToSpawn(Location location) {
-        getPlayer().teleport(location);
-        Vector dir = game.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
-        Location loc = getPlayer().getLocation().setDirection(dir);
-        getPlayer().teleport(loc);
     }
 
     // Runs for every player when a round is being setup

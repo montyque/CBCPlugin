@@ -108,7 +108,7 @@ public class RendezvousPlayer extends CBCPlayer {
         getPlayer().showTitle(title);
 
         healToFull();
-        team.checkpointCleared(this);
+        team.checkpointCleared();
 
         if (team.getScore() == 0) {
             addGamePoints(FINAL_CHECKPOINT_CAPTURE);

@@ -15,7 +15,6 @@ import neonique.cbcplugin_new.tasks.gamemodetasks.kmation.KMationCycleTimerTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.kmation.KMationSidebarUpdate;
 import neonique.cbcplugin_new.tasks.gamemodetasks.kmation.KMationStartGameTimer;
 import neonique.cbcplugin_new.util.StringUtil;
-import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;

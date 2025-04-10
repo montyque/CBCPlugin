@@ -1,22 +1,15 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-
 import java.util.*;
 
 public class TagTeam extends CBCTeam {
 
     private final TagGame game;
-    private final GameManager gameManager;
 
     // Team start spawns
     private Set<Location> evaderSpawns;
@@ -24,14 +17,12 @@ public class TagTeam extends CBCTeam {
 
     // Scores
     private float score = 0;
-    private float survivalMultiplier = 0;
 
     // Placement
     int placement = 1;
     boolean tied = true;
 
     // Statistics
-    private int eliminationBonusPoints = 0;
     private float evaderPoints = 0;
     private float taggerPoints = 0;
 
@@ -40,7 +31,7 @@ public class TagTeam extends CBCTeam {
         super(teamId, teamIdNum, teamName, teamColor, prefix, item, glassHead);
 
         this.game = game;
-        this.gameManager = game.getGameManager();
+
     }
 
     public void setupRound () {
@@ -67,7 +58,7 @@ public class TagTeam extends CBCTeam {
 
             tagPlayer.playerSetupRound();
             // Spawns players in different spawnpoints - reason playerinc is used
-            tagPlayer.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()));
+            tagPlayer.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()), game.getMap().getMapCentre());
             playerinc++;
         }
     }
@@ -104,7 +95,6 @@ public class TagTeam extends CBCTeam {
         // Add points to team
         score += pointsEarned;
         taggerPoints += pointsEarned;
-        eliminationBonusPoints += pointsEarned;
         game.updatePlacements();
 
     }
@@ -134,10 +124,6 @@ public class TagTeam extends CBCTeam {
         this.tied = tied;
     }
 
-    public int getEliminationBonusPoints () {
-        return eliminationBonusPoints;
-    }
-
     public int getIntTaggerPoints () {
         return Math.round(taggerPoints);
     }
@@ -165,4 +151,5 @@ public class TagTeam extends CBCTeam {
         }
         return inGamePlayers;
     }
+
 }

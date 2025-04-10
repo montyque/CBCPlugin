@@ -207,7 +207,7 @@ public class HTGPlayer extends CBCPlayer {
         playerEntity.playSound(getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 300, 2);
 
         // Set player helmet to gold block
-        setoverrideGlassHelmet(true);
+        setOverrideGlassHelmet(true);
         playerEntity.getInventory().setHelmet(game.getGoldHead());
         playerEntity.updateInventory();
 
@@ -225,7 +225,7 @@ public class HTGPlayer extends CBCPlayer {
 
     public void dropGold() {
         isHoldingGold = false;
-        setoverrideGlassHelmet(false);
+        setOverrideGlassHelmet(false);
         game.playerDropGold();
     }
 

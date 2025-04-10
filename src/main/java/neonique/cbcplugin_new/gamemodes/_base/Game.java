@@ -4,7 +4,6 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.CBCGamemode;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
-import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
@@ -44,7 +43,7 @@ public abstract class Game {
     private int newestPlayerId;
     private BaseGameCommands gameCommands;
 
-    private HashMap<UUID, CBCPlayer> playerList = new HashMap<>();
+    private final HashMap<UUID, CBCPlayer> playerList = new HashMap<>();
     private boolean gameOver = false;
     private boolean nightVisionDisabled = false;
     private int gameLength = 0;

@@ -43,7 +43,6 @@ public class AssassinGame extends FFAGame {
 
     // Listeners and tasks
     private PlayerNoMove noMoveListener;
-    private AssassinTargetChangeTimer targetChangeTimerTask;
 
     // Glow manager for making one player glow
     private AssassinGlowManager glowManager;
@@ -94,7 +93,7 @@ public class AssassinGame extends FFAGame {
         int spawnNum = 0;
         for (AssassinPlayer player : shuffledPlayers) {
             if (!player.isOnline()) continue;
-            player.teleportToSpawn(gameStartSpawns.get(spawnNum));
+            player.teleportPlayerToSpawn(gameStartSpawns.get(spawnNum), map.getMapCentre());
             player.playerSetupGame();
             spawnNum++;
         }
@@ -174,7 +173,7 @@ public class AssassinGame extends FFAGame {
         new IncrementGameTimeTask(this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
 
         // Timer that changes target of players if they fail to kill their target within a certain time period
-        targetChangeTimerTask = new AssassinTargetChangeTimer(this);
+        AssassinTargetChangeTimer targetChangeTimerTask = new AssassinTargetChangeTimer(this);
         targetChangeTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
     }
 
@@ -354,7 +353,7 @@ public class AssassinGame extends FFAGame {
     }
 
     public double getTargetSpawnDistance() {
-        return (double) targetSpawnDistance;
+        return targetSpawnDistance;
     }
 
     public AssassinGlowManager getGlowManager () {

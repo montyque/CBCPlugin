@@ -416,7 +416,7 @@ public class RendezvousTeam extends CBCTeam {
 
     public void resetCheckpointProgress () {
         if (onFinalCheckpoint()) {
-            targetProgress = Math.min(20, targetProgress);
+            targetProgress = Math.max(20, targetProgress);
         }
         else {
             // Reset checkpoint capture progress to progressMax
@@ -463,7 +463,7 @@ public class RendezvousTeam extends CBCTeam {
         }
     }
 
-    public void checkpointCleared (RendezvousPlayer runner) {
+    public void checkpointCleared () {
 
         // Team has scored
         score--;

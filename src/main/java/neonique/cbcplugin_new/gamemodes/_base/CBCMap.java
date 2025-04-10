@@ -74,8 +74,8 @@ public class CBCMap {
     private final HashMap<DeathCause, DeathMessageGenerator> deathMessageOverrides;
 
     // Firework variables
-    private int fireworkSpawnRadius;
-    private int fireworkSpawnHeight; // This is relative to the center
+    private final int fireworkSpawnRadius;
+    private final int fireworkSpawnHeight; // This is relative to the center
 
     private int voidPlane = 0;
     private final boolean instakillLava;
@@ -425,7 +425,7 @@ public class CBCMap {
         return mapName;
     }
 
-    public Location getMapCentre () {
+    public Location getMapCentre() {
 
         return new Location(getWorld(), centreCoordinates.getX(), centreCoordinates.getY(), centreCoordinates.getZ());
 

@@ -7,7 +7,6 @@ import neonique.cbcplugin_new.listeners.gamemodes.TagNoMove;
 import neonique.cbcplugin_new.listeners.gamemodes.TagTeleportListener;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
-import neonique.cbcplugin_new.managers.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
@@ -43,7 +42,6 @@ public class TagGame extends TeamGame {
     private final List<TagTeam> teams = new ArrayList<>();
 
     // Game variables
-    private boolean finalRoundEnabled = false;
     private int roundLength = 150; // Round length in seconds
     private int roundsPerTeam = 1; // Amount of rounds each team gets to be tagger
 
@@ -111,7 +109,6 @@ public class TagGame extends TeamGame {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
-        final World world = getWorld();
 
         // Setup map
         setupMap(mapChosen);
@@ -132,7 +129,6 @@ public class TagGame extends TeamGame {
         this.roundLength = intVars.getOrDefault("roundLength", 150);
         this.roundsPerTeam = intVars.getOrDefault("roundsPerTeam", 1);
         this.taggerRespawnTimer = intVars.getOrDefault("taggerRespawnTimer", 4);
-        this.finalRoundEnabled = boolVars.getOrDefault("finalRoundEnabled", false);
 
         // Setup point game variables
         this.MAX_POINTS_FOR_SURVIVAL = intVars.getOrDefault("MAX_POINTS_FOR_SURVIVAL", 150);
@@ -888,7 +884,7 @@ public class TagGame extends TeamGame {
                 if (taggerReleaseTimer > 0) {
                     // Setup player round and teleport them to tagger spawn
                     tagPlayer.playerSetupRound();
-                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn());
+                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn(), map.getMapCentre());
                     tagPlayer.setCanMove(false);
                 }
             }
@@ -897,7 +893,7 @@ public class TagGame extends TeamGame {
                 if (!roundInPlay && taggerReleaseTimer > 0) {
                     // Setup player round and teleport them to tagger spawn
                     tagPlayer.playerSetupRound();
-                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomEvaderSpawn());
+                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomEvaderSpawn(), map.getMapCentre());
                     tagPlayer.setCanMove(false);
                 }
             }

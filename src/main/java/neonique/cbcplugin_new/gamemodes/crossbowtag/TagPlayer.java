@@ -5,16 +5,13 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
-import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -83,7 +80,7 @@ public class TagPlayer extends CBCPlayer {
         playerSetup();
 
         playerEntity.removePotionEffect(PotionEffectType.BLINDNESS);
-        new TempImmunityTask(getGameManager(), getCombatManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
+        setTempImmune(60);
 
         if (isTagger()) {
             getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
@@ -98,32 +95,20 @@ public class TagPlayer extends CBCPlayer {
 
         setImmune(true);
         if (game.isRoundInPlay()) {
-            new TempImmunityTask(getGameManager(), getCombatManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
+            setTempImmune(60);
         }
 
         // Teleport player back to tagger spawn
         TagTeam tagTeam = (TagTeam) getTeam();
-        teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn());
+        teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn(), game.getMap().getMapCentre());
 
         playerSetup();
         setReloadsBySecond(1);
 
         if (isTagger()) {
-            getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
+            getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 0, false, false, false));
         }
-        setReloadsBySecond(3);
-    }
 
-    public void teleportPlayerToSpawn (Location spawn) {
-
-        if (!isOnline()) return;
-        Player playerEntity = getPlayer();
-
-        playerEntity.teleport(spawn);
-
-        Vector dir = game.getMap().getMapCentre().clone().subtract(playerEntity.getEyeLocation()).toVector();
-        Location loc = playerEntity.getLocation().setDirection(dir);
-        playerEntity.teleport(loc);
     }
 
     @Override
@@ -283,10 +268,6 @@ public class TagPlayer extends CBCPlayer {
 
     public int getRoundsSurvived() {
         return roundsSurvived;
-    }
-
-    public boolean isAlreadyEliminated() {
-        return alreadyEliminated;
     }
 
     public void setEliminated (boolean b) {

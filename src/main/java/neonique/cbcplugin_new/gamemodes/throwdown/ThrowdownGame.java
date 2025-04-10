@@ -178,10 +178,8 @@ public class ThrowdownGame extends FFAGame {
             player.playerSetupRound();
         }
 
-        // Setup spawns
+        // Select each player's spawn randomly
         List<Location> spawnOrder = sortSpawns();
-
-        // Randomise player list
         List<ThrowdownPlayer> randomPlayerList = getThrowdownPlayers();
         Collections.shuffle(randomPlayerList);
 
@@ -189,7 +187,7 @@ public class ThrowdownGame extends FFAGame {
         for (ThrowdownPlayer player : randomPlayerList) {
 
             if (!player.isOnline()) continue;
-            player.teleportToSpawn(spawnOrder.get(spawnNum));
+            player.teleportPlayerToSpawn(spawnOrder.get(spawnNum), map.getMapCentre());
             getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), getAliveTeam());
             spawnNum++;
 
@@ -206,9 +204,6 @@ public class ThrowdownGame extends FFAGame {
         // Enable heal pads
         getCombatManager().enableAllHealPads();
         roundWinner = null;
-
-        // Play sound to all players
-        getGameManager().playGlobalSound(Sound.ENTITY_PLAYER_LEVELUP, 200, 1);
 
         // Start countdown for next round
         if (roundNumber == 1) {
@@ -539,14 +534,6 @@ public class ThrowdownGame extends FFAGame {
         if (roundInPlay) {
             gameInRoundTime++;
         }
-    }
-
-    public List<ThrowdownPlayer> getSortedPlayers() {
-        List<ThrowdownPlayer> playerList = getThrowdownPlayers();
-        playerList.sort(Comparator.comparingInt(ThrowdownPlayer::getRoundsWon)
-                .thenComparing(ThrowdownPlayer::getKills)
-                .thenComparing(ThrowdownPlayer::getPlayerSecondsAlive).reversed());
-        return playerList;
     }
 
     public List<ThrowdownPlayer> getSortedPlayersIncludingEliminated() {

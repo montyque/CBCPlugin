@@ -5,10 +5,7 @@ import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 public class ShowdownTeam extends CBCTeam {
 

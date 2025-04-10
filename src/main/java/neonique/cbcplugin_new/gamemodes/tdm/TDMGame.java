@@ -71,6 +71,7 @@ public class TDMGame extends TeamGame {
 
         // Setup map
         setupMap(mapChosen);
+
         // Setup default game variables
         setupDefaultGameVars(boolVars, intVars, stringVars);
 
@@ -97,7 +98,6 @@ public class TDMGame extends TeamGame {
         // Setup game commands
         setGameCommands(new TDMGameCommands(gameManager, combatManager, this));
 
-        // Create teams and players
         createTeams(teams);
         teleportSpectators();
 
@@ -108,21 +108,19 @@ public class TDMGame extends TeamGame {
             List<Location> teamSpawnList = new ArrayList<>(team.getSpawns());
             Collections.shuffle(teamSpawnList);
 
-            int playerinc = 0; // Increments every time we teleport a player
+            // Spawn each player in the team in different spawnpoints
+            int playerinc = 0;
             for (CBCPlayer player : team.getPlayers()) {
                 TDMPlayer tdmPlayer = (TDMPlayer) player;
                 tdmPlayer.resetPlayer();
-                // Spawns players in different spawnpoints - reason playerinc is used
                 tdmPlayer.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()));
                 playerinc++;
             }
 
             // Update player placements
             team.updateWithinTeamPlacements();
-        }
 
-        // Play sound to all players
-        gameManager.playGlobalSound(Sound.ENTITY_PLAYER_LEVELUP, 200, 1);
+        }
 
         // Prevent movement from players - they should still be able to turn their heads
         playerNoMoveListener = new PlayerNoMove(gameManager);
@@ -141,6 +139,7 @@ public class TDMGame extends TeamGame {
         // Start countdown for the game
         startGameTimer = new TDMStartGameTimer(gameManager, this, 11);
         startGameTimer.runTaskTimer(CBCPlugin.getPlugin(), 0, 20);
+
     }
 
     public CBCTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
@@ -481,10 +480,6 @@ public class TDMGame extends TeamGame {
 
     public String timerToText() {
         return String.format("%d:%02d", timer / 60, timer % 60);
-    }
-
-    public int getKillsToWin() {
-        return killsToWin;
     }
 
     public int getTimer() {
