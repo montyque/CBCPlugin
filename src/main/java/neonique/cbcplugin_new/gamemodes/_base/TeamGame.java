@@ -109,11 +109,8 @@ public abstract class TeamGame extends Game {
         gameManager.playGlobalSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 100, 1);
 
         // Set all alive players to immune
-        for (CBCPlayer player : getPlayers().values()) {
-            if (player.isAlive()) {
-                player.setImmune(true);
-            }
-        }
+        getCombatManager().setAllPlayersImmune(true);
+        getCombatManager().setVoidKill(false);
 
         // Play fireworks
         playVictoryFireworks(team);

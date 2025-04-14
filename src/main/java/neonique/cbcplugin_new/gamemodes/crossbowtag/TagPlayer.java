@@ -78,6 +78,7 @@ public class TagPlayer extends CBCPlayer {
 
         // Set gamemode of player to adventure and reset their stats
         playerSetup();
+        setReloadsBySecond(2);
 
         playerEntity.removePotionEffect(PotionEffectType.BLINDNESS);
         setTempImmune(60);
@@ -93,17 +94,13 @@ public class TagPlayer extends CBCPlayer {
 
         if (!isOnline()) return;
 
-        setImmune(true);
-        if (game.isRoundInPlay()) {
-            setTempImmune(60);
-        }
+        playerSetup();
+        setReloadsBySecond(2);
+        setTempImmune(60);
 
         // Teleport player back to tagger spawn
         TagTeam tagTeam = (TagTeam) getTeam();
         teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn(), game.getMap().getMapCentre());
-
-        playerSetup();
-        setReloadsBySecond(1);
 
         if (isTagger()) {
             getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 0, false, false, false));
@@ -186,11 +183,8 @@ public class TagPlayer extends CBCPlayer {
 
         }
 
-        // Update kill counts
         game.updateTopKillsList();
         game.getSidebarManager().updateServerBoard();
-
-        // Update bossbar
         game.getBossbarManager().update();
 
     }

@@ -218,7 +218,7 @@ public class ShowdownGame extends TeamGame {
         suddenDeathBorder = null;
         suddenDeathTimer = suddenDeathMaxTimer;
 
-        // Enable heal pads
+        getCombatManager().setAllPlayersImmune(false);
         getCombatManager().enableAllHealPads();
 
         // Reset team variables
@@ -380,6 +380,7 @@ public class ShowdownGame extends TeamGame {
         cancelTask(sdTimerTask);
 
         // Make the void do nothing
+        getCombatManager().setAllPlayersImmune(true);
         getCombatManager().setVoidKill(false);
 
         // Turn off heal pads

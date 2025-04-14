@@ -35,9 +35,8 @@ public abstract class FFAGame extends Game {
         winningPlayer = player;
 
         // Set all alive players to immune
-        for (CBCPlayer plr : gameManager.getAlivePlayers()) {
-            plr.setImmune(true);
-        }
+        getCombatManager().setAllPlayersImmune(true);
+        getCombatManager().setVoidKill(false);
 
         // Display title of game win
         Component titleToDisplay = Component.text("GAME OVER")

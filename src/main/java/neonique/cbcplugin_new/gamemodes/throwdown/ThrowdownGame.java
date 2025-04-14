@@ -203,6 +203,8 @@ public class ThrowdownGame extends FFAGame {
 
         // Enable heal pads
         getCombatManager().enableAllHealPads();
+        getCombatManager().setAllPlayersImmune(false);
+
         roundWinner = null;
 
         // Start countdown for next round
@@ -228,7 +230,7 @@ public class ThrowdownGame extends FFAGame {
         }
 
         roundInPlay = true;
-        getCombatManager().setVoidKill(true);
+        getCombatManager().setVoidKill(false);
 
         // Release players so they can move
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
@@ -333,6 +335,7 @@ public class ThrowdownGame extends FFAGame {
         cancelTask(sdTimerTask);
 
         // Make the void do nothing
+        getCombatManager().setAllPlayersImmune(true);
         getCombatManager().setVoidKill(false);
 
         // Turn off heal pads

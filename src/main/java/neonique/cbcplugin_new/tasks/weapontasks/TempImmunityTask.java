@@ -26,6 +26,12 @@ public class TempImmunityTask extends BukkitRunnable {
 
         if (!player.isOnline()) return;
 
+        // If all players are immune, make sure player is permanently immune
+        if (combatManager.isAllPlayersImmune()) {
+            this.cancel();
+            return;
+        }
+
         // Make sure player is still alive
         if (!player.isAlive()) {
             player.setImmune(false);

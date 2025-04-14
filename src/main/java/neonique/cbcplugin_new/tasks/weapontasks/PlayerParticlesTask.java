@@ -34,7 +34,7 @@ public class PlayerParticlesTask extends BukkitRunnable {
             // If player is immune
             if (player.isImmune()) {
                 world.spawnParticle(Particle.TOTEM_OF_UNDYING, player.getPlayer().getLocation().add(0, 2, 0),
-                        5, 0.5, 0.5, 0.5, 0);
+                        1, 0.5, 0.5, 0.5, 0);
             }
 
             // If player is healing

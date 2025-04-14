@@ -254,6 +254,7 @@ public class TagGame extends TeamGame {
 
         // Enable heal pads
         getCombatManager().enableAllHealPads();
+        getCombatManager().setAllPlayersImmune(false);
 
         // Randomise evader spawns if evader spawns are random
         if (map.isEvaderSpawnsRandom()) {
@@ -328,6 +329,7 @@ public class TagGame extends TeamGame {
         // Round is now in play
         roundInPlay = true;
         startRoundTimer = false;
+
         getCombatManager().setVoidKill(true);
 
         // Make it so evaders can move and make them alive
@@ -335,15 +337,12 @@ public class TagGame extends TeamGame {
         for (CBCPlayer player : getPlayers().values()) {
             TagPlayer tagPlayer = (TagPlayer) player;
             if (player.getTeam() != taggers) {
-                if (player.isOnline()) {
-                    tagPlayer.playerStartRound();
+                if (!player.isOnline()) {
+                    if (!tagPlayer.isInGame()) continue;
+                    tagPlayer.automaticElimination();
+                    continue;
                 }
-                else {
-                    // Automatically eliminate player
-                    if (tagPlayer.isInGame()) {
-                        tagPlayer.automaticElimination();
-                    }
-                }
+                tagPlayer.playerStartRound();
             }
         }
 
@@ -353,7 +352,6 @@ public class TagGame extends TeamGame {
             // Start timer to release taggers
             taggerReleaseTimerTask = new TaggerReleaseTimer(this);
             taggerReleaseTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
-
             if (roundNumber == 1) {
                 new IncrementGameTimeTask(this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
             }
@@ -379,7 +377,6 @@ public class TagGame extends TeamGame {
                 player.clearTitle();
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 100, 2);
             }
-
             releaseTaggers();
             // Cancel timer
             cancelTask(taggerReleaseTimerTask);
@@ -567,15 +564,8 @@ public class TagGame extends TeamGame {
 
         roundInPlay = false;
 
-        // Set all alive players to immune
-        for (CBCPlayer player : getGameManager().getAlivePlayers()) {
-            player.setImmune(true);
-        }
-
-        // Make the void do nothing
+        getCombatManager().setAllPlayersImmune(true);
         getCombatManager().setVoidKill(false);
-
-        // Turn off heal pads
         getCombatManager().disableAllHealPads();
 
         // Display title of round being over

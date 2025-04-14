@@ -20,24 +20,22 @@ public class VoidTask extends BukkitRunnable {
 
     @Override
     public void run() {
-
         if (!combatManager.voidEnabled()) return;
-        if (!combatManager.isVoidKill()) return;
-
         Set<CBCPlayer> playerSet = gameManager.getAlivePlayers();
-        double voidPlane = combatManager.getVoidPlane();
         for (CBCPlayer player : playerSet) {
-
             if (!player.isOnline()) continue;
+            checkPlayerVoid(player);
+        }
+    }
 
-            // Check if player is below void line
-            if (player.getPlayer().getLocation().getY() < voidPlane) {
-                // Kill player
-                if (player.getLastPlayerHitBy() != null) {
-                    combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.VOID, false);
-                } else {
-                    combatManager.playerDeath(player, null, DeathCause.VOID, false);
-                }
+    public void checkPlayerVoid (CBCPlayer player) {
+        double voidPlane = combatManager.getVoidPlane();
+        // Check if player is below void line
+        if (player.getPlayer().getLocation().getY() < voidPlane) {
+            if (combatManager.isVoidKill()) {
+                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.VOID, false);
+            } else {
+                player.getPlayer().teleport(combatManager.getVoidTeleport());
             }
         }
     }
