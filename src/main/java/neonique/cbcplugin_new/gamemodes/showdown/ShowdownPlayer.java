@@ -62,7 +62,7 @@ public class ShowdownPlayer extends CBCPlayer {
 
         // Set gamemode of player to adventure and reset their stats
         playerSetup();
-        setReloadsBySecond(3);
+        setReloadsBySecond(2);
         setTempImmune(60);
 
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);

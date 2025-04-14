@@ -212,9 +212,7 @@ public class CBCPlayer {
         playerEntity.getInventory().clear();
         playerEntity.updateInventory();
         resetAllAttributes();
-
-        double maxHealth = getMaxHealth();
-        playerEntity.setHealth(maxHealth);
+        healToFull();
 
         flameDamager.resetFlameDamager();
         setLastPlayerHitBy(null);
@@ -225,6 +223,7 @@ public class CBCPlayer {
             for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
                 if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
             }
+            checkNightVision();
         }
 
     }
@@ -297,6 +296,13 @@ public class CBCPlayer {
         }
 
         // Remove night vision effect if needed
+        checkNightVision();
+
+    }
+
+    public void checkNightVision () {
+
+        Player player = getPlayer();
         if (combatManager.isNightVisionDisabled()) {
             player.addScoreboardTag("NVDisable");
             player.removePotionEffect(PotionEffectType.NIGHT_VISION);

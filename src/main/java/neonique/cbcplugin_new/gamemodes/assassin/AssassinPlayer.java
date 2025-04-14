@@ -287,7 +287,6 @@ public class AssassinPlayer extends CBCPlayer {
         if (!isOnline()) return;
         resetPlayer();
         getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 800000, 0, false, false, false));
-        setReloadsBySecond(3); // Reset player's reloading timers
 
     }
 
@@ -298,6 +297,7 @@ public class AssassinPlayer extends CBCPlayer {
         Player playerEntity = getPlayer();
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
         playerSetup();
+        setReloadsBySecond(2);
 
         // Show title for player's target
         newTargetTitle();

@@ -179,7 +179,7 @@ public class HTGPlayer extends CBCPlayer {
 
         // Teleport player to spawn point
         teleportPlayerToSpawn();
-        setReloadsBySecond(1);
+        setReloadsBySecond(2);
 
     }
 

@@ -502,8 +502,7 @@ public class GameManager {
         gameCommands = null;
 
         // Restore teams if the game is a team game
-        if (game instanceof TeamGame) {
-            TeamGame teamGame = (TeamGame) game;
+        if (game instanceof TeamGame teamGame) {
             // Check if teams should be restored
             if (teamGame.isRestoreTeamsAfterGame()) {
 
@@ -710,24 +709,6 @@ public class GameManager {
             for (Player player : audience) {
                 player.playSound(loc, sound, volume, pitch);
             }
-        }
-    }
-
-    public void showGlobalBossbar(BossBar bossBar) {
-        if (audience == null) {
-            for (Player player : getWorld().getPlayers()) {
-                player.showBossBar(bossBar);
-            }
-        } else {
-            for (Player player : audience) {
-                player.showBossBar(bossBar);
-            }
-        }
-    }
-
-    public void hideGlobalBossbar(BossBar bossBar) {
-        for (Player player : getWorld().getPlayers()) {
-            player.hideBossBar(bossBar);
         }
     }
 

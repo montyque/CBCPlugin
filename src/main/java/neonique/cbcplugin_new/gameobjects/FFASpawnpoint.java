@@ -8,7 +8,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Collection;
 
-// Used for setting spawnpoints in free forr alls
+// Used for setting spawnpoints in free for alls
 public class FFASpawnpoint extends Location {
 
     GameManager gameManager;
@@ -45,7 +45,7 @@ public class FFASpawnpoint extends Location {
                 continue;
             }
 
-            // Checj if player is alive
+            // Check if player is alive
             if (!gameManager.getPlayer(player).isAlive()) {
                 continue;
             }

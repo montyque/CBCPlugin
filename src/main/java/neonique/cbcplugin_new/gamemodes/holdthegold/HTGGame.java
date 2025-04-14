@@ -161,7 +161,7 @@ public class HTGGame extends TeamGame {
                 player.playerSetup();
                 player.setAlive(true);
                 player.setRespawning(false);
-                player.setReloadsBySecond(1);
+                player.setReloadsBySecond(2);
                 player.setTempImmune(60);
                 player.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
             }

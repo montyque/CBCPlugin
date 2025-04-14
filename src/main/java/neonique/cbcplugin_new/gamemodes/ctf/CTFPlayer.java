@@ -349,7 +349,7 @@ public class CTFPlayer extends CBCPlayer {
 
         teleportPlayerToSpawn();
         playerSetup();
-        setReloadsBySecond(3);
+        setReloadsBySecond(2);
 
         // Update sidebar
         game.getSidebarManager().updateServerBoard();

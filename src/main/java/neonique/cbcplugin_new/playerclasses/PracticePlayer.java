@@ -37,7 +37,7 @@ public class PracticePlayer extends CBCPlayer {
 
         getGameManager().getWorld().spawnParticle(Particle.INSTANT_EFFECT, getPlayer().getLocation(), 80, 0.25, 0.25, 0.25, 1, null, true);
         playerSetup();
-        setReloadsBySecond(1);
+        setReloadsBySecond(2);
 
     }
 
@@ -54,10 +54,7 @@ public class PracticePlayer extends CBCPlayer {
         spawns.sort(Comparator.comparingDouble(FFASpawnpoint::getNearestPlayerRange));
         Collections.reverse(spawns);
 
-        getPlayer().teleport(spawns.get(0));
-        Vector dir = practiceManager.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
-        Location loc = getPlayer().getLocation().setDirection(dir);
-        getPlayer().teleport(loc);
+        teleportPlayerToSpawn(spawns.get(0), practiceManager.getMap().getMapCentre());
 
     }
 }

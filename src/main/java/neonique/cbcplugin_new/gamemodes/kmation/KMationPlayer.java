@@ -112,7 +112,7 @@ public class KMationPlayer extends CBCPlayer {
         teleportToSpawn(selectSpawn());
 
         playerSetup();
-        setReloadsBySecond(1);
+        setReloadsBySecond(2);
 
         getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
 

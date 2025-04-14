@@ -236,7 +236,7 @@ public class CTFGame extends TeamGame {
                 CTFPlayer ctfPlayer = (CTFPlayer) player;
 
                 ctfPlayer.playerSetup();
-                ctfPlayer.setReloadsBySecond(1);
+                ctfPlayer.setReloadsBySecond(2);
 
                 ctfPlayer.setTempImmune(60);
             }
@@ -418,28 +418,15 @@ public class CTFGame extends TeamGame {
 
         super.gameWon(team);
 
-        // Add bonus points for winning
         for (CBCPlayer player : team.getPlayers()) {
             player.addGamePoints(40);
         }
 
-        // Set all alive players to immune
-        for (CBCPlayer player : getPlayers().values()) {
-            CTFPlayer ctfPlayer = (CTFPlayer) player;
-            if (!ctfPlayer.isEliminated()) {
-                ctfPlayer.setImmune(true);
-            }
-        }
-
-        // Make the void do nothing
-        getCombatManager().setVoidKill(false);
-
-        // Players can no longer capture or take
         canCaptureOrTake = false;
-
         if (suddenDeathBorder != null) {
             suddenDeathBorder.deactivateBorder();
         }
+
     }
 
     public void resetGame() {

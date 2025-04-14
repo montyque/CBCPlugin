@@ -92,7 +92,7 @@ public class TDMPlayer extends CBCPlayer {
     public void playerRefresh () {
 
         playerSetup();
-        setReloadsBySecond(1);
+        setReloadsBySecond(2);
         setTempImmune(60);
 
         // Only add glowing if glowing is enabled

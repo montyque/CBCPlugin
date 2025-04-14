@@ -161,9 +161,6 @@ public class KMationGame extends FFAGame {
         noMoveListener = new PlayerNoMove(gameManager);
         plugin.getServer().getPluginManager().registerEvents(noMoveListener, plugin);
 
-        // Play sound to all players
-        gameManager.playGlobalSound(Sound.ENTITY_PLAYER_LEVELUP, 200, 1);
-
         // Start countdown timer
         new KMationStartGameTimer(gameManager, this, 11).runTaskTimer(plugin, 0, 20);
     }
@@ -429,20 +426,6 @@ public class KMationGame extends FFAGame {
                         .append(Component.text(" wins the game!").color(NamedTextColor.WHITE))
                         .append(Component.newline())
         );
-    }
-
-    @Override
-    public void playerWonGame (CBCPlayer player) {
-
-        super.playerWonGame(player);
-
-        // Make the void do nothing
-        getCombatManager().setVoidKill(false);
-
-        // Set all alive players to immune
-        for (CBCPlayer plr : getGameManager().getAlivePlayers()) {
-            player.setImmune(true);
-        }
     }
 
     public void resetGame() {

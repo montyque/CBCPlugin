@@ -4,7 +4,6 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.WeaponType;
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.gameobjects.*;
 import neonique.cbcplugin_new.listeners.combat.*;
@@ -46,6 +45,7 @@ public class CombatManager {
     // Weapons active
     private boolean active = false;
     private final GameManager gameManager;
+    private final ProjectileManager projectileManager = new ProjectileManager();
 
     // Death message manager
     private final DeathMessageManager deathMessageManager;
@@ -75,6 +75,7 @@ public class CombatManager {
 
     // Other weapon manager related stats
     private int healPadTimer = 10;
+    private boolean allPlayersImmune = false;
 
     // Game mechanic options
     private double voidPlane = 0; // If set to zero, there is no void plane
@@ -90,6 +91,7 @@ public class CombatManager {
     private boolean nightVisionDisabled = false;
 
     // Map variables
+    private Location voidTeleport = null;
     private Set<HealthPad> healthPadList = new HashSet<>();
     private boolean jumpPadsEnabled = false;
     private Set<JumpPad> jumpPadList = new HashSet<>();
@@ -122,8 +124,6 @@ public class CombatManager {
 
     // Time tracking variable
     private int timer;
-
-    private final ProjectileManager projectileManager = new ProjectileManager();
 
     public CombatManager(GameManager gameManager) {
 
@@ -317,6 +317,7 @@ public class CombatManager {
     public void activateWeapons () {
 
         active = true;
+        allPlayersImmune = false;
 
         // Activate weapon listeners
         CBCPlugin plugin = CBCPlugin.getPlugin();
@@ -444,6 +445,7 @@ public class CombatManager {
             lavaInstaKill = true;
         }
 
+        voidTeleport = map.getMapCentre();
         nightVisionDisabled = map.isNightVisionAlwaysDisabled();
         canTrapdoorsOpen = map.isTrapdoorsOpening();
         deathMessageManager.setOverrides(map.getDeathMessageOverrides());
@@ -630,7 +632,7 @@ public class CombatManager {
 
         // Set gamemode of player to adventure and reset their stats
         playerEntity.setGameMode(GameMode.ADVENTURE);
-        playerEntity.setHealth(20);
+        playerRespawning.healToFull();
         playerRespawning.setAlive(true); // Set player's state to alive
 
         // Show respawned title
@@ -827,50 +829,6 @@ public class CombatManager {
         return creeperWeaponVariables.getVerticalKnockbackCoefficient();
     }
 
-    public double getFlameRadius () {
-        return flameWeaponVariables.getZoneRadius();
-    }
-
-    public double getFlameZoneLife () {
-        return flameWeaponVariables.getZoneLife();
-    }
-
-    public int getCreeperReloadTime (CBCPlayer player) {
-        return (int) Math.round(getCreeperWeaponVariables(player).getReloadTimer() * reloadTaskFrequency);
-    }
-
-    public int getFlameReloadTime (CBCPlayer player) {
-        return (int) Math.round(getFlameWeaponVariables(player).getReloadTimer() * reloadTaskFrequency);
-    }
-
-    public int getXbowReloadTime (CBCPlayer player) {
-        return (int) Math.round(getXbowWeaponVariables(player).getReloadTimer() * reloadTaskFrequency);
-    }
-
-    public CreeperPreset getCreeperWeaponVariables(CBCPlayer player) {
-        CBCTeam team = player.getTeam();
-        if (team != null) {
-            return creeperPresetTeamOverrides.getOrDefault(team.getTeamId(), creeperWeaponVariables);
-        }
-        return creeperWeaponVariables;
-    }
-
-    public FlamePreset getFlameWeaponVariables(CBCPlayer player) {
-        CBCTeam team = player.getTeam();
-        if (team != null) {
-            return flamePresetTeamOverrides.getOrDefault(team.getTeamId(), flameWeaponVariables);
-        }
-        return flameWeaponVariables;
-    }
-
-    public XbowPreset getXbowWeaponVariables(CBCPlayer player) {
-        CBCTeam team = player.getTeam();
-        if (team != null) {
-            return xbowPresetTeamOverrides.getOrDefault(team.getTeamId(), xbowWeaponVariables);
-        }
-        return xbowWeaponVariables;
-    }
-
     public WeaponPreset getWeaponVariables (WeaponType weaponType) {
         if (weaponType == WeaponType.CREEPER) {
             return creeperWeaponVariables;
@@ -923,5 +881,20 @@ public class CombatManager {
 
     public ProjectileManager getProjectileManager() {
         return projectileManager;
+    }
+
+    public void setAllPlayersImmune (boolean b) {
+        allPlayersImmune = b;
+        for (CBCPlayer player : gameManager.getAlivePlayers()) {
+            player.setImmune(allPlayersImmune);
+        }
+    }
+
+    public boolean isAllPlayersImmune () {
+        return allPlayersImmune;
+    }
+
+    public Location getVoidTeleport () {
+        return voidTeleport;
     }
 }
