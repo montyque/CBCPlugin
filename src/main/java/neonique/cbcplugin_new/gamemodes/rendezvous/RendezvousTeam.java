@@ -218,20 +218,17 @@ public class RendezvousTeam extends CBCTeam {
 
     public void setRunner (RendezvousPlayer runner) {
 
+        RendezvousPlayer oldRunner = this.runner;
+
         if (runner == null) return;
         boolean newCheckpoint = false;
 
-        if (this.runner != null) {
-            if (this.runner != runner) {
-                newCheckpoint = true;
-                changeInRunner();
-            }
-        }
-        else {
+        this.runner = runner;
+        if (oldRunner != runner) {
             newCheckpoint = true;
+            changeInRunner();
         }
 
-        this.runner = runner;
         PlayerInventory inventory = runner.getPlayer().getInventory();
         runner.giveRunnerCompass(inventory);
 
@@ -260,8 +257,10 @@ public class RendezvousTeam extends CBCTeam {
     public void changeInRunner () {
 
         for (RendezvousPlayer player : getRendezvousPlayers()) {
-            if (player.isOnline()) break;
+
+            if (!player.isOnline()) break;
             Player playerEntity = player.getPlayer();
+
             if (player.isPlayerRunner()) {
 
                 // Play title to the runner
@@ -276,17 +275,6 @@ public class RendezvousTeam extends CBCTeam {
 
                 playerEntity.showTitle(title);
 
-                // Send message
-                gameManager.sendGlobalMessage(
-                        Component.text("RUNNER SWAP > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
-                                .append(player.getNameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
-                                .append(Component.text(" is the new runner for ").color(NamedTextColor.WHITE)
-                                        .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
-                                .append(Component.text(getTeamName()).color(getColor())
-                                        .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
-                                .append(Component.text("!").color(NamedTextColor.WHITE)
-                                        .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
-                );
             }
             else {
                 // Play title to all non runners
@@ -304,6 +292,18 @@ public class RendezvousTeam extends CBCTeam {
                 playerEntity.updateInventory();
             }
         }
+
+        // Send message
+        gameManager.sendGlobalMessage(
+                Component.text("RUNNER SWAP > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+                        .append(runner.getNameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                        .append(Component.text(" is the new runner for ").color(NamedTextColor.WHITE)
+                                .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                        .append(Component.text(getTeamName()).color(getColor())
+                                .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                        .append(Component.text("!").color(NamedTextColor.WHITE)
+                                .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+        );
 
 
     }

@@ -146,6 +146,7 @@ public class RendezvousPlayer extends CBCPlayer {
 
         // Give morale boost
         if (checkMoraleBoost(playerKilled)) {
+
             RendezvousPlayer teamRunner = getRendezvousTeam().getRunner();
 
             teamRunner.addHealing(6);
@@ -165,6 +166,7 @@ public class RendezvousPlayer extends CBCPlayer {
 
             // Give points for morale boost
             killPts += MBOOST_KILL_PTS;
+
         }
 
         game.updateTopKillsList();
@@ -188,13 +190,13 @@ public class RendezvousPlayer extends CBCPlayer {
 
         RendezvousPlayer teamRunner = getRendezvousTeam().getRunner();
         if (teamRunner == null) return false;
-        if (teamRunner.isAlive()) return false;
+        if (!teamRunner.isAlive()) return false;
 
         RendezvousCheckpoint currentCheckpoint = getRendezvousTeam().getTargetCheckpoint();
         if (currentCheckpoint == null) return false;
 
-        // Check if the runner has been damaged in the last 6 seconds by the player who was killed
-        if (teamRunner.damagingPlayersInLastTime(120).contains(playerKilled)) {
+        // Check if the runner has been damaged in the last 8 seconds by the player who was killed
+        if (teamRunner.damagingPlayersInLastTime(160).contains(playerKilled)) {
             return true;
         }
 
@@ -203,12 +205,14 @@ public class RendezvousPlayer extends CBCPlayer {
         Location teamRunnerLocation = teamRunner.getPlayer().getLocation();
 
         // Check if player killed is nearby the checkpoint
-        if (currentCheckpoint.distanceSquared(playerKilledLocation) <= 15 * 15) {
+        double maxDistanceSquared = 20 * 20;
+
+        if (currentCheckpoint.distanceSquared(playerKilledLocation) <= maxDistanceSquared) {
             return true;
         }
 
         // Check if player killed is nearby the checkpoint
-        return teamRunnerLocation.distanceSquared(teamRunnerLocation) <= 15 * 15;
+        return teamRunnerLocation.distanceSquared(playerKilledLocation) <= maxDistanceSquared;
 
     }
 
@@ -227,24 +231,15 @@ public class RendezvousPlayer extends CBCPlayer {
 
         if (!isOnline()) return;
 
-        if (game.getWinner() == null) {
-            new TempImmunityTask(getGameManager(), getCombatManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
-        }
-        else {
-            setImmune(true);
-        }
-
         playerSetup();
-        setReloadsBySecond(3);
-
+        setTempImmune(60);
+        setReloadsBySecond(2);
         teleportPlayerToSpawn(selectSpawn());
 
         if (isPlayerRunner()) {
             getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000,
                     0, false, false, false));
         }
-
-        setReloadsBySecond(3);
 
         if (getRendezvousTeam() != null) {
             getRendezvousTeam().setPlayerListFooterForPlayer(getPlayer());
