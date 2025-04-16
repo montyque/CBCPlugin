@@ -28,7 +28,6 @@ import neonique.cbcplugin_new.listeners.GameJoinListener;
 import neonique.cbcplugin_new.listeners.GameLeaveListener;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -805,7 +804,7 @@ public class GameManager {
         return (eventManager != null);
     }
 
-    public boolean isThisGameCBCGame () {
+    public boolean isEventGame() {
         if (eventManager == null) return false;
         else return (eventManager.getNextGameNum() < 5);
     }

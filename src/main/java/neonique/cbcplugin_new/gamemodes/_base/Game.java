@@ -87,7 +87,7 @@ public abstract class Game {
 
     public void createUIManagers () {
         baseSidebarManager = createSidebarManager();
-        baseSidebarManager.setupSidebar();
+        baseSidebarManager.setupSidebar(world.getPlayers());
         baseSidebarManager.updateServerBoard();
 
         baseBossBarManager = createBossbarManager();
@@ -135,7 +135,7 @@ public abstract class Game {
 
         String firstPart = "Crossbow Champions: ";
 
-        if (gameManager.isThisGameCBCGame()) {
+        if (gameManager.isEventGame()) {
             CBCEventManager eventManager = gameManager.getEventManager();
             firstPart = eventManager.getEventName() + ": " + eventManager.getGameName() + " - ";
         }

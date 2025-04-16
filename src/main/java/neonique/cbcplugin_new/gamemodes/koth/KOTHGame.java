@@ -71,13 +71,6 @@ public class KOTHGame extends TeamGame {
     private int teamsWon = 0;
     private KOTHTeam originalWinningTeam = null;
 
-    // Current leaderboards
-    private List<PlayerStatObject> topGameScore = new ArrayList<>();
-    private List<PlayerStatObject> topKills = new ArrayList<>();
-    private List<PlayerStatObject> topHillCaptures = new ArrayList<>();
-    private List<PlayerStatObject> topPointsDefended = new ArrayList<>();
-    private List<PlayerStatObject> topTimeInHill = new ArrayList<>();
-
     public KOTHGame(GameManager gameManager, CombatManager combatManager) {
         super(gameManager, combatManager);
     }
@@ -189,7 +182,7 @@ public class KOTHGame extends TeamGame {
     }
 
     public GameSidebarManager createSidebarManager() {
-        return new KOTHSidebarManager(getGameManager(), getCombatManager(), this);
+        return new KOTHSidebarManager(this);
     }
 
     @Override
@@ -291,9 +284,6 @@ public class KOTHGame extends TeamGame {
         // Start scoring
         scoreTask = new KOTHScoreTask(this);
         scoreTask.runTaskTimer(CBCPlugin.getPlugin(), ticksToScore, ticksToScore);
-
-        // Update leaderboards
-        updateTopHillCapturesList();
 
         // Update sidebar manager
         updateServerSidebar();
@@ -422,7 +412,6 @@ public class KOTHGame extends TeamGame {
         }
 
         // Update sidebar manager
-        updateTopPointsDefendedList();
         updatePlacements();
         updateServerSidebar();
         updateBossbarManager();
@@ -527,81 +516,6 @@ public class KOTHGame extends TeamGame {
 
     public float getCapturingPlayerPercentage() {
         return capturingPlayerPercentage;
-    }
-
-    public void updateTopKillsList () {
-        // Create new top kills list
-        topKills = new ArrayList<>();
-        for (KOTHPlayer player : getKOTHPlayers()) {
-            // Add player's kills to the list
-            topKills.add(new PlayerStatObject(player, player.getKills()));
-        }
-        // Sort list
-        sortPlayerStatList(topKills, true);
-    }
-
-    public List<PlayerStatObject> getTopKillsList () {
-        return topKills;
-    }
-
-    public void updateTopGameScoreList () {
-        // Create new top game score list
-        topGameScore = new ArrayList<>();
-        for (KOTHPlayer player : getKOTHPlayers()) {
-            // Add player's game score to the list
-            topGameScore.add(new PlayerStatObject(player, player.getGamePoints()));
-        }
-        // Sort list
-        sortPlayerStatList(topGameScore, true);
-    }
-
-    public List<PlayerStatObject> getTopGameScoreList () {
-        return topGameScore;
-    }
-
-    public void updateTopHillCapturesList () {
-        // Create new top gold score list
-        topHillCaptures = new ArrayList<>();
-        for (KOTHPlayer player : getKOTHPlayers()) {
-            // Add player's gold score to the list
-            topHillCaptures.add(new PlayerStatObject(player, player.getHillCaptures()));
-        }
-        // Sort list
-        sortPlayerStatList(topHillCaptures, true);
-    }
-
-    public List<PlayerStatObject> getTopHillCapturesList () {
-        return topHillCaptures;
-    }
-
-    public void updateTopPointsDefendedList () {
-        // Create new top gold score list
-        topPointsDefended = new ArrayList<>();
-        for (KOTHPlayer player : getKOTHPlayers()) {
-            // Add player's gold score to the list
-            topPointsDefended.add(new PlayerStatObject(player, player.getPointsDefended()));
-        }
-        // Sort list
-        sortPlayerStatList(topHillCaptures, true);
-    }
-
-    public List<PlayerStatObject> getTopPointsDefendedList () {
-        return topPointsDefended;
-    }
-
-    public void updateTopTimeInHillList () {
-        // Create new top gold score list
-        topTimeInHill = new ArrayList<>();
-        for (KOTHPlayer player : getKOTHPlayers()) {
-            // Add player's gold score to the list
-            topTimeInHill.add(new PlayerStatObject(player, player.getSecondsInHill()));
-        }
-        // Sort list
-        sortPlayerStatList(topHillCaptures, true);
-    }
-
-    public List<PlayerStatObject> getTopTimeInHillList () {
-        return topTimeInHill;
     }
 
     public Set<KOTHPlayer> getKOTHPlayers () {

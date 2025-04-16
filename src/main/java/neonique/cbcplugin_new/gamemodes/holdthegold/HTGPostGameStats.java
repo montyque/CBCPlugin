@@ -50,7 +50,7 @@ public class HTGPostGameStats extends PostGameStats {
                 // Add player's kills
                 playersByKills.add(new PlayerStatObject(player, player.getKills()));
                 // Add player's gold score
-                playersByGoldScore.add(new PlayerStatObject(player, player.getPointsScored()));
+                playersByGoldScore.add(new PlayerStatObject(player, player.getGoldScore()));
             }
 
             // Sort players by kills and time alive
@@ -134,7 +134,7 @@ public class HTGPostGameStats extends PostGameStats {
         Collections.reverse(teamPlayersByKills);
 
         List<HTGPlayer> teamPlayersByGoldScore = new ArrayList<>(teamPlayersList);
-        teamPlayersByGoldScore.sort(Comparator.comparingInt(HTGPlayer::getPointsScored));
+        teamPlayersByGoldScore.sort(Comparator.comparingInt(HTGPlayer::getGoldScore));
         Collections.reverse(teamPlayersByGoldScore);
 
         // Add team most kills and team most time alive
@@ -146,7 +146,7 @@ public class HTGPostGameStats extends PostGameStats {
             // Add team most kills and team most time alive
             HTGPlayer mostGoldScorePlayer = teamPlayersByGoldScore.get(0);
             addLoreField(teamLoreList, "Most Gold Score", mostGoldScorePlayer.getName()
-                    + " (" + mostGoldScorePlayer.getPointsScored() + ")", NamedTextColor.GREEN);
+                    + " (" + mostGoldScorePlayer.getGoldScore() + ")", NamedTextColor.GREEN);
         }
 
         // Set the item lore and the item meta then add item to inventory
@@ -190,7 +190,7 @@ public class HTGPostGameStats extends PostGameStats {
 
         int positionInGoldScore = playerGoldScore.getPlacement();
         if (positionInGoldScore > 0) {
-            addLoreField(playerLoreList, "Gold Score", player.getPointsScored() +
+            addLoreField(playerLoreList, "Gold Score", player.getGoldScore() +
                     " (#" + positionInGoldScore + ")", NamedTextColor.GREEN);
         }
 

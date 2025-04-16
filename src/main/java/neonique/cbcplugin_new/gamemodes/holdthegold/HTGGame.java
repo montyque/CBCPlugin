@@ -29,8 +29,6 @@ import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
-import static neonique.cbcplugin_new.util.StatsUtil.sortPlayerStatList;
-
 public class HTGGame extends TeamGame {
 
     private final List<HTGTeam> teams = new ArrayList<>();
@@ -59,11 +57,6 @@ public class HTGGame extends TeamGame {
     private HTGPlayerTrackingTask goldTrackingTask;
     private HTGScoreTask scoreTask;
 
-    // Current leaderboards
-    private List<PlayerStatObject> topGameScore;
-    private List<PlayerStatObject> topKills;
-    private List<PlayerStatObject> topGoldScore;
-
     public HTGGame(GameManager gameManager, CombatManager combatManager) {
         super(gameManager, combatManager);
     }
@@ -74,7 +67,6 @@ public class HTGGame extends TeamGame {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
-        final World world = getWorld();
 
         // Setup map
         setupMap(mapChosen);
@@ -123,13 +115,8 @@ public class HTGGame extends TeamGame {
             }
         }
 
-        // Update leaderboards
-        updateTopGoldScoreList();
-        updateTopGameScoreList();
-        updateTopKillsList();
-
         // Create gold team
-        goldTeam = CBCPlugin.getPlugin().getServer().getScoreboardManager().getMainScoreboard().registerNewTeam("goldcolor");
+        goldTeam = CBCPlugin.getPlugin().getServer().getScoreboardManager().getMainScoreboard().registerNewTeam("goldColor");
         goldTeam.color(NamedTextColor.GOLD);
 
         if (gameManager.getCbcScoreboardManager().isActive()) {
@@ -376,8 +363,6 @@ public class HTGGame extends TeamGame {
         }
 
         updatePlacements();
-        updateTopGoldScoreList();
-        updateTopGameScoreList();
         updateServerSidebar();
         updateBossbarManager();
     }
@@ -518,51 +503,6 @@ public class HTGGame extends TeamGame {
 
     public List<HTGTeam> getTeams() {
         return teams;
-    }
-
-    public void updateTopKillsList () {
-        // Create new top kills list
-        topKills = new ArrayList<>();
-        for (HTGPlayer player : getHTGPlayers()) {
-            // Add player's kills to the list
-            topKills.add(new PlayerStatObject(player, player.getKills()));
-        }
-        // Sort list
-        sortPlayerStatList(topKills, true);
-    }
-
-    public List<PlayerStatObject> getTopKillsList () {
-        return topKills;
-    }
-
-    public void updateTopGameScoreList () {
-        // Create new top game score list
-        topGameScore = new ArrayList<>();
-        for (HTGPlayer player : getHTGPlayers()) {
-            // Add player's game score to the list
-            topGameScore.add(new PlayerStatObject(player, player.getGamePoints()));
-        }
-        // Sort list
-        sortPlayerStatList(topGameScore, true);
-    }
-
-    public List<PlayerStatObject> getTopGameScoreList () {
-        return topGameScore;
-    }
-
-    public void updateTopGoldScoreList () {
-        // Create new top gold score list
-        topGoldScore = new ArrayList<>();
-        for (HTGPlayer player : getHTGPlayers()) {
-            // Add player's gold score to the list
-            topGoldScore.add(new PlayerStatObject(player, player.getPointsScored()));
-        }
-        // Sort list
-        sortPlayerStatList(topGoldScore, true);
-    }
-
-    public List<PlayerStatObject> getTopGoldScoreList () {
-        return topGoldScore;
     }
 
     public Set<HTGPlayer> getHTGPlayers () {

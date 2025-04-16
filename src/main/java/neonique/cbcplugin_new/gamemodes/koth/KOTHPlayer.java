@@ -60,19 +60,7 @@ public class KOTHPlayer extends CBCPlayer {
 
         // Add game points for kill
         addGamePoints(killPts);
-
-        // Update leaderboards
-        game.updateTopKillsList();
-        game.updateTopGameScoreList();
-
-        // Update leaderboards
-        // game.updateTopKillsList();
-        // game.updateTopGameScoreList();
-
-        // Update sidebar manager
-        if (isOnline()) {
-            game.getSidebarManager().updateClientBoard(getPlayer());
-        }
+        game.updateServerSidebar();
 
     }
 
@@ -168,11 +156,7 @@ public class KOTHPlayer extends CBCPlayer {
         if (getSecondsInHill() > timeInHillLast) {
             addGamePoints(TIME_IN_HILL_PTS * (getSecondsInHill() - timeInHillLast));
             timeInHillLast = getSecondsInHill();
-            game.updateTopTimeInHillList();
-        }
-
-        if (isOnline()) {
-            game.getSidebarManager().updateClientBoard(getPlayer());
+            game.updateServerSidebar();
         }
     }
 
@@ -187,16 +171,10 @@ public class KOTHPlayer extends CBCPlayer {
     public void addPointDefended () {
         pointsDefended++;
         addGamePoints(DEFEND_HILL_PTS);
-        if (isOnline()) {
-            game.getSidebarManager().updateClientBoard(getPlayer());
-        }
     }
 
     public void addHillCapture() {
         hillCaptures++;
         addGamePoints(CAPTURE_HILL_PTS);
-        if (isOnline()) {
-            game.getSidebarManager().updateClientBoard(getPlayer());
-        }
     }
 }

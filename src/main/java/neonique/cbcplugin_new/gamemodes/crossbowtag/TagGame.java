@@ -23,7 +23,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -34,7 +33,6 @@ import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
-import static neonique.cbcplugin_new.util.StatsUtil.sortPlayerStatList;
 import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
 
 public class TagGame extends TeamGame {
@@ -91,11 +89,6 @@ public class TagGame extends TeamGame {
 
     Component footerComponent;
 
-    // Current leaderboards
-    private List<PlayerStatObject> topGameScore;
-    private List<PlayerStatObject> topTimeSurvived;
-    private List<PlayerStatObject> topEvaderKills;
-    private List<PlayerStatObject> topKills;
 
     // !!! Add radar locations maybe?
 
@@ -170,13 +163,6 @@ public class TagGame extends TeamGame {
         taggerOrder = new ArrayList<>(getTeams());
         Collections.shuffle(taggerOrder);
 
-        // Update stat leaderboards
-        updateTopGameScoreList();
-        updateTopTimeSurvivedList();
-        updateTopEvaderKillsList();
-        updateTopKillsList();
-
-        // Make players unable to move
         noMoveListener = new TagNoMove(gameManager, this);
 
         // Make taggers unable to teleport
@@ -205,7 +191,7 @@ public class TagGame extends TeamGame {
     }
 
     public GameSidebarManager createSidebarManager() {
-        return new TagSidebarManager(getGameManager(), getCombatManager(), this);
+        return new TagSidebarManager(getGameManager(), this);
     }
 
     @Override
@@ -462,7 +448,6 @@ public class TagGame extends TeamGame {
 
         survivorPointsAdded = newSurvivorPointsAdded;
 
-        updateTopTimeSurvivedList();
         updatePlacements();
 
         // Check if round is over by timer
@@ -892,66 +877,6 @@ public class TagGame extends TeamGame {
 
     public int getMaxScorePerSecond() {
         return maxScorePerSecond;
-    }
-
-    public void updateTopKillsList () {
-        // Create new top kills list
-        topKills = new ArrayList<>();
-        for (TagPlayer player : getTagPlayers()) {
-            // Add player's kills to the list
-            topKills.add(new PlayerStatObject(player, player.getKills()));
-        }
-        // Sort list
-        sortPlayerStatList(topKills, true);
-    }
-
-    public List<PlayerStatObject> getTopKillsList () {
-        return topKills;
-    }
-
-    public void updateTopGameScoreList () {
-        // Create new top game score list
-        topGameScore = new ArrayList<>();
-        for (TagPlayer player : getTagPlayers()) {
-            // Add player's game score to the list
-            topGameScore.add(new PlayerStatObject(player, player.getGamePoints()));
-        }
-        // Sort list
-        sortPlayerStatList(topGameScore, true);
-    }
-
-    public List<PlayerStatObject> getTopGameScoreList () {
-        return topGameScore;
-    }
-
-    public void updateTopTimeSurvivedList () {
-        // Create new top time survived list
-        topTimeSurvived = new ArrayList<>();
-        for (TagPlayer player : getTagPlayers()) {
-            // Add player's time survived to the list
-            topTimeSurvived.add(new PlayerStatObject(player, player.getSecondsSurvived()));
-        }
-        // Sort list
-        sortPlayerStatList(topTimeSurvived, true);
-    }
-
-    public List<PlayerStatObject> getTopTimeSurvivedList () {
-        return topTimeSurvived;
-    }
-
-    public void updateTopEvaderKillsList () {
-        // Create new top evader kills list
-        topEvaderKills = new ArrayList<>();
-        for (TagPlayer player : getTagPlayers()) {
-            // Add player's evader kills to the list
-            topEvaderKills.add(new PlayerStatObject(player, player.getEvadersKilled()));
-        }
-        // Sort list
-        sortPlayerStatList(topEvaderKills, true);
-    }
-
-    public List<PlayerStatObject> getTopEvaderKillsList () {
-        return topEvaderKills;
     }
 
     public int getTaggerRespawnTimer () {

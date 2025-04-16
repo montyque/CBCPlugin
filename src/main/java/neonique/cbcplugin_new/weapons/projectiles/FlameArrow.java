@@ -112,7 +112,7 @@ public class FlameArrow extends PlayerProjectile {
         Vector circleParticleVector = new Vector(circleParticleX, 0, circleParticleZ);
         spawnFireParticle(arrowLocation, playerFlames, playerSoulFlames, circleParticleVector);
 
-        int randomParticleAmount = Math.max(1, (int) Math.round(flameRadius));
+        int randomParticleAmount = Math.max(1, (int) Math.round(flameRadius * (2.0 / 3.0)));
         for (int i = 0; i < randomParticleAmount; i++) {
             spawnFireParticle(arrowLocation, playerFlames, playerSoulFlames, getRandomParticleVector());
         }
@@ -151,12 +151,12 @@ public class FlameArrow extends PlayerProjectile {
 
         for (Player player : nonAllies) {
             player.spawnParticle(Particle.FLAME, particleX, particleY, particleZ, 1,
-                    0F, 0F, 0F, 0.001);
+                    0F, 0F, 0F, 0.001, null, true);
         }
 
         for (Player player : allies) {
             player.spawnParticle(Particle.SOUL_FIRE_FLAME, particleX, particleY, particleZ, 1,
-                    0F, 0F, 0F, 0.001);
+                    0F, 0F, 0F, 0.001, null, true);
         }
 
     }

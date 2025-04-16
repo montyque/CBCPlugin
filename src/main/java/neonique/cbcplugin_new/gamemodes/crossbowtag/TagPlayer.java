@@ -183,17 +183,9 @@ public class TagPlayer extends CBCPlayer {
 
         }
 
-        game.updateTopKillsList();
         game.getSidebarManager().updateServerBoard();
         game.getBossbarManager().update();
 
-    }
-
-    @Override
-    public void playerAfterKill (CBCPlayer playerKilled) {
-        game.updateTopKillsList();
-        game.updateTopEvaderKillsList();
-        game.getSidebarManager().updateServerBoard();
     }
 
     private void addEvaderKill() {
@@ -300,7 +292,7 @@ public class TagPlayer extends CBCPlayer {
     @Override
     public void setGamePoints (int points) {
         super.setGamePoints(points + bonusGameScore);
-        game.updateTopGameScoreList();
+        game.updateServerSidebar();
     }
 
     public void setBonusGameScore (int points) {

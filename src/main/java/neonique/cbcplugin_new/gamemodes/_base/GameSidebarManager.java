@@ -6,6 +6,7 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -15,6 +16,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -22,42 +24,37 @@ import static neonique.cbcplugin_new.util.TextUtil.getComponentSpaceOfLength;
 
 public abstract class GameSidebarManager {
 
-    protected GameManager gameManager;
-    protected CombatManager combatManager;
-    protected World world;
+    private final CBCScoreboardManager scoreboardManager;
 
-    protected CBCScoreboardManager scoreboardManager;
-
-    protected HashMap<UUID, ClientSidebar> clientSidebars;
+    private final HashMap<UUID, ClientSidebar> clientSidebars;
+    private final String sidebarObjectiveName;
     private Component sidebarTitle;
-    private String sidebarObjectiveName;
+    private boolean active = false;
 
-    protected boolean active = false;
-    protected boolean showGamePoints = false;
+    public GameSidebarManager (GameManager gameManager, String sidebarObjectiveName) {
 
-    public GameSidebarManager (GameManager gameManager, CombatManager combatManager, String sidebarObjectiveName) {
-
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
         this.sidebarObjectiveName = sidebarObjectiveName;
-        this.world = gameManager.getWorld();
-
         this.scoreboardManager = gameManager.getCbcScoreboardManager();
 
-        sidebarTitle = Component.text("");
+        this.sidebarTitle = Component.space();
         clientSidebars = new HashMap<>();
 
-        if (gameManager.isThisGameCBCGame()) {
-            showGamePoints = true;
-        }
     }
 
-    public void setupSidebar () {
 
+    public GameSidebarManager (GameManager gameManager, String sidebarObjectiveName, Component sidebarTitle) {
+
+        this.sidebarObjectiveName = sidebarObjectiveName;
+        this.scoreboardManager = gameManager.getCbcScoreboardManager();
+
+        this.sidebarTitle = sidebarTitle;
+        clientSidebars = new HashMap<>();
+
+    }
+
+    public void setupSidebar (Collection<Player> players) {
         active = true;
-
-        // Create sidebars for all online players
-        for (Player player : world.getPlayers()) {
+        for (Player player : players) {
             addPlayerSidebar(player);
         }
     }
@@ -93,14 +90,11 @@ public abstract class GameSidebarManager {
     }
 
     public void removePlayerSidebar (Player player) {
-
-        ClientSidebar playerSidebar = clientSidebars.getOrDefault(player.getUniqueId(), null);
-
         clientSidebars.remove(player.getUniqueId());
-
     }
 
     public void updateServerBoard () {}
+
     public void updateClientBoard (Player player) {}
 
     public void updateAllClientBoards () {
@@ -111,20 +105,12 @@ public abstract class GameSidebarManager {
         }
     }
 
-    public void setSidebarVisible (Objective objective) {
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-    }
-
     public boolean isActive() {
         return active;
     }
 
     public void setSidebarTitle (Component newSidebarTitle) {
         this.sidebarTitle = newSidebarTitle;
-    }
-
-    public void setSidebarObjectiveName (String sidebarObjectiveName) {
-        this.sidebarObjectiveName = sidebarObjectiveName;
     }
 
     public Component generateGameScoreComponent(CBCGamemode gamemode, CBCPlayer player, Component startingComponent) {
@@ -148,10 +134,6 @@ public abstract class GameSidebarManager {
 
     }
 
-    public boolean isShowGamePoints() {
-        return showGamePoints;
-    }
-
     public Component addLeadingSpaceForNumber (Component component, int num, int digits) {
         Component newComponent = component;
         if (num < 1000 && digits >= 4) {
@@ -164,5 +146,9 @@ public abstract class GameSidebarManager {
             newComponent = newComponent.append(getComponentSpaceOfLength(7));
         }
         return newComponent;
+    }
+
+    public ClientSidebar getPlayerSidebar (Player player) {
+        return clientSidebars.get(player.getUniqueId());
     }
 }

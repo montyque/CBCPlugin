@@ -1,9 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.tdm;
 
-import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
-import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
+import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
@@ -13,7 +10,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -29,17 +25,14 @@ public class TDMSidebarManager extends GameSidebarManager {
 
     private final HashMap<CBCTeam, Integer> teamOrderOnSidebar = new HashMap<>();
 
-    // Timer numbers - for spectator leaderboard during cbc events - all numbers are in ticks
-    private String currentDisplay = "KILLS";
-    private BukkitRunnable changeTask = null;
-
-    private final List<Component> spectatorLeaderboardComponents = new ArrayList<>();
+    private SidebarStatCycle<TDMPlayer> statCycle;
+    private List<Component> spectatorLeaderboardComponents = new ArrayList<>();
 
     public TDMSidebarManager(GameManager gameManager, CombatManager combatManager, TDMGame game) {
-        super(gameManager, combatManager, "tdmSidebar");
+        super(gameManager, "tdmSidebar");
         String before = "CBC: ";
 
-        if (gameManager.isThisGameCBCGame()) {
+        if (gameManager.isEventGame()) {
             before = gameManager.getEventManager().getEventNameShorthand() + " " + gameManager.getEventManager().getGameNameShorthand() + ": ";
         }
 
@@ -49,29 +42,38 @@ public class TDMSidebarManager extends GameSidebarManager {
                 )
         );
 
-        this.gameManager = gameManager;
         this.game = game;
-        this.world = gameManager.getWorld();
 
         // Start stat change timer
-        if (showGamePoints) {
-            createLbChangeTimer();
+        if (game.getGameManager().isEventGame()) {
+            createSpectatorStats();
         }
+    }
+
+    public void createSpectatorStats () {
+
+        // The expression below adds extra space if there are more than 5 flags
+        int playerNameMaxLength = 101;
+        statCycle = new SidebarStatCycle<>(game, this, playerNameMaxLength);
+        statCycle.addCycleState(new PlayerStatList<>("Game Score", TDMPlayer::getGamePoints, false));
+        statCycle.addCycleState(new PlayerStatList<>("Kills", TDMPlayer::getKills, false));
+        statCycle.startCycle(200);
+
     }
 
     public Component getTeamRow (TDMTeam team, boolean isOwnTeam) {
 
-        Component teamComponent = getComponentSpaceOfLength(5);
+        Component teamComponent = getComponentSpaceOfLength(4);
 
         if (isOwnTeam) {
             teamComponent = teamComponent
                     .append(Component.text("\uE880").color(NamedTextColor.YELLOW))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
         else {
             teamComponent = teamComponent
                     .append(getComponentSpaceOfLength(5))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
 
         // Adding rank of team
@@ -88,17 +90,18 @@ public class TDMSidebarManager extends GameSidebarManager {
         );
 
         // Adding team name to team string
-        int teamNameLength = TextUtil.getPixelLengthOfText(team.getTeamName() + " Team");
+        String teamName = team.getTeamName() + " Team";
+        int teamNameLength = TextUtil.getPixelLengthOfText(teamName);
 
         teamComponent = teamComponent.append(
-                Component.text(team.getTeamName() + " Team").color(team.getColor())
+                Component.text(teamName).color(team.getColor())
         );
 
         // Add space to make teams even
-        teamComponent = teamComponent.append(getComponentSpaceOfLength(80 - teamNameLength));
+        teamComponent = teamComponent.append(getComponentSpaceOfLength(90 - teamNameLength));
 
         int teamKills = team.getKills();
-        teamComponent = addLeadingSpaceForNumber(teamComponent, teamKills, 4);
+        teamComponent = TextUtil.addLeadingSpaceForNumber(teamComponent, teamKills, 4);
 
         if (isOwnTeam) {
             teamComponent = teamComponent.append(Component.text(teamKills).color(NamedTextColor.YELLOW));
@@ -126,8 +129,8 @@ public class TDMSidebarManager extends GameSidebarManager {
 
         displayToEveryone.add(blankComponent());
 
-        if (showGamePoints) {
-            updateSpecLbComponents();
+        if (game.getGameManager().isEventGame()) {
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getTDMPlayers());
         }
 
         updateAllClientBoards();
@@ -152,24 +155,23 @@ public class TDMSidebarManager extends GameSidebarManager {
             char swordChar = team.getSwordChar(true);
 
             List<CBCPlayer> playersByKills = team.sortPlayersByKills();
-
-            clientStringList.add(getComponentSpaceOfLength(13).append(smallText("TEAMMATE KILLS:").color(NamedTextColor.AQUA)));
+            clientStringList.add(getComponentSpaceOfLength(11).append(smallText("TEAMMATE KILLS:").color(NamedTextColor.AQUA)));
 
             for (CBCPlayer teammate : playersByKills) {
 
                 boolean isPlayer = Objects.equals(tdmPlayer.getPlayerId(), teammate.getPlayerId());
 
-                Component playerComponent = getComponentSpaceOfLength(5);
+                Component playerComponent = getComponentSpaceOfLength(4);
 
                 if (isPlayer) {
                     playerComponent = playerComponent
                             .append(Component.text("\uE880").color(NamedTextColor.YELLOW))
-                            .append(getComponentSpaceOfLength(5));
+                            .append(getComponentSpaceOfLength(4));
                 }
                 else {
                     playerComponent = playerComponent
                             .append(getComponentSpaceOfLength(5))
-                            .append(getComponentSpaceOfLength(5));
+                            .append(getComponentSpaceOfLength(4));
                 }
 
                 TDMPlayer tdmTeammate = (TDMPlayer) teammate;
@@ -189,11 +191,11 @@ public class TDMSidebarManager extends GameSidebarManager {
 
                 // Add space to make names even
                 int playerNameLength = TextUtil.getPixelLengthOfText(playerName);
-                playerComponent = playerComponent.append(getComponentSpaceOfLength(92 - playerNameLength));
+                playerComponent = playerComponent.append(getComponentSpaceOfLength(102 - playerNameLength));
 
                 // Add team kills
                 int playerKills = teammate.getKills();
-                playerComponent = addLeadingSpaceForNumber(playerComponent, playerKills, 4);
+                playerComponent = TextUtil.addLeadingSpaceForNumber(playerComponent, playerKills, 4);
 
                 if (isPlayer) {
                     playerComponent = playerComponent.append(Component.text(playerKills).color(NamedTextColor.YELLOW));
@@ -209,15 +211,15 @@ public class TDMSidebarManager extends GameSidebarManager {
             clientStringList.add(blankComponent());
 
             // Add game score on sidebar if showing
-            if (showGamePoints) {
-                clientStringList.add(generateGameScoreComponent(game.getGamemode(), tdmPlayer, getComponentSpaceOfLength(13)));
+            if (game.getGameManager().isEventGame()) {
+                clientStringList.add(generateGameScoreComponent(game.getGamemode(), tdmPlayer, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
         }
         else if (!spectatorLeaderboardComponents.isEmpty()) {
 
             // Add current leaderboard title
-            clientStringList.add(getComponentSpaceOfLength(13).append(smallText("TOP " + currentDisplay + ":").color(NamedTextColor.AQUA)));
+            clientStringList.add(getComponentSpaceOfLength(11).append(statCycle.getCurrentStatTitle()));
 
             // Show top 5 in list from spectator leaderboard components list
             clientStringList.addAll(spectatorLeaderboardComponents);
@@ -225,100 +227,7 @@ public class TDMSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = clientSidebars.get(player.getUniqueId());
+        ClientSidebar clientSidebar = getPlayerSidebar(player);
         clientSidebar.setSidebarComponents(clientStringList);
-    }
-
-    public void updateSpecLbComponents () {
-        // Update leaderboard components
-        spectatorLeaderboardComponents.clear();
-
-        // Player is a spectator, show leaderboard
-        List<PlayerStatObject> currentLeaderboard = null;
-        if (currentDisplay.equals("KILLS")) {
-            currentLeaderboard = game.getTopKillsList();
-        }
-        else if (currentDisplay.equals("GAME SCORE")) {
-            currentLeaderboard = game.getTopGameScoreList();
-        }
-
-        // Only generate components if leaderboard exists
-        if (currentLeaderboard != null) {
-            int i = 0;
-            // Generate leaderboard components
-            for (PlayerStatObject playerStat : currentLeaderboard) {
-                spectatorLeaderboardComponents.add(getLeaderboardRow(playerStat));
-                i++;
-                // Only add 5 players at the most
-                if (i == 5) break;
-            }
-        }
-    }
-
-    public Component getLeaderboardRow (PlayerStatObject playerStat) {
-        Component playerComponent = getComponentSpaceOfLength(5);
-
-        playerComponent = playerComponent
-                .append(getComponentSpaceOfLength(5))
-                .append(getComponentSpaceOfLength(5));
-
-        CBCPlayer player = playerStat.getPlayer();
-
-        // Add placement
-        String placementString = playerStat.getPlacement() + ". ";
-        playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.WHITE));
-
-        String playerName = player.getName();
-
-        // Add player name
-        playerComponent = playerComponent.append(player.getNameComponent());
-
-        // Add space to make names even
-        int playerNameLength = TextUtil.getPixelLengthOfText(playerName);
-        playerComponent = playerComponent.append(getComponentSpaceOfLength(92 - playerNameLength));
-
-        // Add number
-        int value = playerStat.getValue();
-        playerComponent = addLeadingSpaceForNumber(playerComponent, value, 4);
-        playerComponent = playerComponent.append(Component.text(value).color(NamedTextColor.WHITE));
-        return playerComponent;
-    }
-
-    public void changeLeaderboardStat () {
-
-        // Change around the statistics in loop
-        // Kills -> Game Score -> (loop)
-        if (Objects.equals(currentDisplay, "KILLS")) {currentDisplay = "GAME SCORE";}
-        else if (Objects.equals(currentDisplay, "GAME SCORE")) {currentDisplay = "KILLS";}
-
-        // Update server board
-        updateServerBoard();
-
-        // Start loop again
-        createLbChangeTimer();
-
-    }
-
-    public void createLbChangeTimer () {
-
-        // Cancel current task
-        if (changeTask != null) {
-            if (!changeTask.isCancelled()) {
-                changeTask.cancel();
-            }
-        }
-
-        // Create new task
-        changeTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (game.isGameOver()) {
-                    cancel();
-                    return;
-                }
-                changeLeaderboardStat();
-            }
-        };
-        changeTask.runTaskLater(CBCPlugin.getPlugin(), 400);
     }
 }

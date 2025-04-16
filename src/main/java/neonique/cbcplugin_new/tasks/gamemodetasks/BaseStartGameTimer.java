@@ -51,7 +51,7 @@ public abstract class BaseStartGameTimer extends BukkitRunnable {
     public void decrementTimer() {
 
         // Check if event is happening
-        if (gameManager.isThisGameCBCGame() && eventCountdownTimer > 0 && countdownTimer > 10) {
+        if (gameManager.isEventGame() && eventCountdownTimer > 0 && countdownTimer > 10) {
 
             World world = gameManager.getWorld();
             CBCEventManager eventManager = gameManager.getEventManager();

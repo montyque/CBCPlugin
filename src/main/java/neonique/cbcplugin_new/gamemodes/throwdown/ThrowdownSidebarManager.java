@@ -24,7 +24,7 @@ public class ThrowdownSidebarManager extends GameSidebarManager {
     private List<ThrowdownPlayer> topPlayers = new ArrayList<>();
 
     public ThrowdownSidebarManager (GameManager gameManager, CombatManager combatManager, ThrowdownGame game) {
-        super(gameManager, combatManager, "tdSidebar");
+        super(gameManager, "tdSidebar");
 
         setSidebarTitle(
                 smallText("CBC: ").color(NamedTextColor.AQUA).append(
@@ -32,9 +32,7 @@ public class ThrowdownSidebarManager extends GameSidebarManager {
                 )
         );
 
-        this.gameManager = gameManager;
         this.game = game;
-        this.world = gameManager.getWorld();
 
         displayToEveryone.add(blankComponent());
 
@@ -159,7 +157,7 @@ public class ThrowdownSidebarManager extends GameSidebarManager {
 
         clientStringList.add(blankComponent());
 
-        ClientSidebar clientSidebar = clientSidebars.get(player.getUniqueId());
+        ClientSidebar clientSidebar = getPlayerSidebar(player);
         clientSidebar.setSidebarComponents(clientStringList);
     }
 }

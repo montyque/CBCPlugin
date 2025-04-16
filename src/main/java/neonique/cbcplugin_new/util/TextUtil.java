@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
+import org.w3c.dom.Text;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -53,6 +54,8 @@ public class TextUtil {
         lengthsForSpaces.put(512, "\uF82E");
         lengthsForSpaces.put(1024, "\uF82F");
     }
+
+    private TextUtil () {}
 
     public static int getPixelLengthOfText (String string) {
 
@@ -121,4 +124,18 @@ public class TextUtil {
                 Duration.ofMillis(fadeOutMilli)
         );
     }
+
+    public static Component addLeadingSpaceForNumber (Component component, int num, int digits) {
+
+        Component newComponent = component;
+        for (int i = digits; i >= 2; i--) {
+            if (num < Math.pow(10, i - 1)) {
+                newComponent = newComponent.append(getComponentSpaceOfLength(7));
+            }
+        }
+
+        return newComponent;
+
+    }
+
 }

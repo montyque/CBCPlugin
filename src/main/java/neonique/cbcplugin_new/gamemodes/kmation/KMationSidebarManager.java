@@ -25,7 +25,7 @@ public class KMationSidebarManager extends GameSidebarManager {
     private List<KMationPlayer> playersInLast = new ArrayList<>();
 
     public KMationSidebarManager (GameManager gameManager, CombatManager combatManager, KMationGame game) {
-        super(gameManager, combatManager, "kmationSidebar");
+        super(gameManager, "kmationSidebar");
 
         setSidebarTitle(
                 smallText("CBC: ").color(NamedTextColor.AQUA).append(
@@ -33,9 +33,7 @@ public class KMationSidebarManager extends GameSidebarManager {
                 )
         );
 
-        this.gameManager = gameManager;
         this.game = game;
-        this.world = gameManager.getWorld();
 
         displayToEveryone.add(blankComponent());
 
@@ -173,7 +171,7 @@ public class KMationSidebarManager extends GameSidebarManager {
             clientStringList.add(blankComponent());
         }
 
-        ClientSidebar clientSidebar = clientSidebars.get(player.getUniqueId());
+        ClientSidebar clientSidebar = getPlayerSidebar(player);
         clientSidebar.setSidebarComponents(clientStringList);
     }
 

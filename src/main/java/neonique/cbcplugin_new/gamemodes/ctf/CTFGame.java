@@ -28,8 +28,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import java.time.Duration;
 import java.util.*;
 
-import static neonique.cbcplugin_new.util.StatsUtil.sortPlayerStatList;
-
 public class CTFGame extends TeamGame {
 
     protected final List<CTFTeam> teams = new ArrayList<>();
@@ -66,12 +64,6 @@ public class CTFGame extends TeamGame {
     private CTFTeleportListener teleportListener;
 
     protected CTFGlowManager glowManager;
-
-    // Current leaderboards
-    private List<PlayerStatObject> topKills;
-    private List<PlayerStatObject> topGameScore;
-    private List<PlayerStatObject> topCaptures;
-    private List<PlayerStatObject> topDKills;
 
     public CTFGame(GameManager gameManager, CombatManager combatManager) {
         super(gameManager, combatManager);
@@ -138,12 +130,6 @@ public class CTFGame extends TeamGame {
 
             teamNum++;
         }
-
-        // Update stat leaderboards
-        updateTopKillsList();
-        updateTopGameScoreList();
-        updateTopCapturesList();
-        updateTopDKillsList();
 
         if (!map.isCanMoveAtGameStart()) {
             playerNoMoveListener = new PlayerNoMove(gameManager);
@@ -213,7 +199,7 @@ public class CTFGame extends TeamGame {
     }
 
     public GameSidebarManager createSidebarManager() {
-        return new CTFSidebarManager(getGameManager(), getCombatManager(), this);
+        return new CTFSidebarManager(this);
     }
 
     @Override
@@ -514,66 +500,6 @@ public class CTFGame extends TeamGame {
 
     public int getBorderDiameter() {
         return (int) Math.round(suddenDeathBorder.getCurrentRadius() * 2);
-    }
-
-    public void updateTopKillsList () {
-        // Create new top kills list
-        topKills = new ArrayList<>();
-        for (CTFPlayer player : getCTFPlayers()) {
-            // Add player's kills to the list
-            topKills.add(new PlayerStatObject(player, player.getKills()));
-        }
-        // Sort list
-        sortPlayerStatList(topKills, true);
-    }
-
-    public List<PlayerStatObject> getTopKillsList () {
-        return topKills;
-    }
-
-    public void updateTopGameScoreList () {
-        // Create new top game score list
-        topGameScore = new ArrayList<>();
-        for (CTFPlayer player : getCTFPlayers()) {
-            // Add player's game score to the list
-            topGameScore.add(new PlayerStatObject(player, player.getGamePoints()));
-        }
-        // Sort list
-        sortPlayerStatList(topGameScore, true);
-    }
-
-    public List<PlayerStatObject> getTopGameScoreList () {
-        return topGameScore;
-    }
-
-    public void updateTopCapturesList () {
-        // Create new top flag captures list
-        topCaptures = new ArrayList<>();
-        for (CTFPlayer player : getCTFPlayers()) {
-            // Add player's flag captures to the list
-            topCaptures.add(new PlayerStatObject(player, player.getFlagsCaptured()));
-        }
-        // Sort list
-        sortPlayerStatList(topCaptures, true);
-    }
-
-    public List<PlayerStatObject> getTopCapturesList () {
-        return topCaptures;
-    }
-
-    public void updateTopDKillsList () {
-        // Create new top defensive kills list
-        topDKills = new ArrayList<>();
-        for (CTFPlayer player : getCTFPlayers()) {
-            // Add player's defensive kills to the list
-            topDKills.add(new PlayerStatObject(player, player.getDefensiveKills()));
-        }
-        // Sort list
-        sortPlayerStatList(topDKills, true);
-    }
-
-    public List<PlayerStatObject> getTopDKills () {
-        return topDKills;
     }
 
     public List<CTFPlayer> getCTFPlayers () {

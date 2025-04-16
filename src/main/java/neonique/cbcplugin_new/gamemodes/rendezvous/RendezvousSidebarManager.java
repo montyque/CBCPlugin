@@ -2,25 +2,20 @@ package neonique.cbcplugin_new.gamemodes.rendezvous;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.PlayerHeadType;
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
-import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
+import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
@@ -35,18 +30,15 @@ public class RendezvousSidebarManager extends GameSidebarManager {
 
     private final ResourcePackManager packManager;
 
-    // Timer numbers - for spectator leaderboard during cbc events - all numbers are in ticks
-    private String currentDisplay = "KILLS";
-    private BukkitRunnable changeTask = null;
-
-    private final List<Component> spectatorLeaderboardComponents = new ArrayList<>();
+    private SidebarStatCycle<RendezvousPlayer> statCycle;
+    private List<Component> spectatorLeaderboardComponents = new ArrayList<>();
 
     public RendezvousSidebarManager (GameManager gameManager, CombatManager combatManager, RendezvousGame game) {
 
-        super(gameManager, combatManager, "rdvGame");
+        super(gameManager, "rdvGame");
         String before = "CBC: ";
 
-        if (gameManager.isThisGameCBCGame()) {
+        if (gameManager.isEventGame()) {
             before = gameManager.getEventManager().getEventNameShorthand() + " " + gameManager.getEventManager().getGameNameShorthand() + ": ";
         }
 
@@ -56,31 +48,41 @@ public class RendezvousSidebarManager extends GameSidebarManager {
                 )
         );
 
-        this.gameManager = gameManager;
         this.game = game;
-        this.world = gameManager.getWorld();
-
         packManager = CBCPlugin.getResourcePackManager();
 
         // Start stat change timer
-        if (showGamePoints) {
-            createLbChangeTimer();
+        if (game.getGameManager().isEventGame()) {
+            createSpectatorStats();
         }
+    }
+
+    public void createSpectatorStats () {
+
+        // The expression below adds extra space if there are more than 5 flags
+        statCycle = new SidebarStatCycle<>(game, this, 101);
+        statCycle.addCycleState(new PlayerStatList<>("Game Score", RendezvousPlayer::getGamePoints, false));
+        statCycle.addCycleState(new PlayerStatList<>("Total Kills", RendezvousPlayer::getKills, false));
+        statCycle.addCycleState(new PlayerStatList<>("Runner Kills", RendezvousPlayer::getEnemyRunnersKilled, false));
+        statCycle.addCycleState(new PlayerStatList<>("Checkpoints Captured", RendezvousPlayer::getCheckpointsCleared, false));
+        statCycle.addCycleState(new PlayerStatList<>("Morale Boosts Given", RendezvousPlayer::getMoraleBoostsGiven, false));
+        statCycle.startCycle(200);
+
     }
 
     public Component getTeamRow (RendezvousTeam team, boolean isOwnTeam) {
 
-        Component teamComponent = getComponentSpaceOfLength(5);
+        Component teamComponent = getComponentSpaceOfLength(4);
 
         if (isOwnTeam) {
             teamComponent = teamComponent
                     .append(Component.text("\uE880").color(NamedTextColor.YELLOW))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
         else {
             teamComponent = teamComponent
                     .append(getComponentSpaceOfLength(5))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
 
         // Adding rank of team
@@ -97,23 +99,19 @@ public class RendezvousSidebarManager extends GameSidebarManager {
         );
 
         // Adding team name to team string
-        int teamNameLength = TextUtil.getPixelLengthOfText(team.getTeamName());
+        String teamName = team.getTeamName() + " Team";
+        int teamNameLength = TextUtil.getPixelLengthOfText(teamName);
 
         teamComponent = teamComponent.append(
-                Component.text(team.getTeamName()).color(team.getColor())
+                Component.text(teamName).color(team.getColor())
         );
 
         // Add space to make teams even
-        teamComponent = teamComponent.append(getComponentSpaceOfLength(60 - teamNameLength));
+        teamComponent = teamComponent.append(getComponentSpaceOfLength(94 - teamNameLength));
 
         // Adding team's score - adding whitespace to display it evenly on the sidebar
         int teamScore = team.getScore();
-        if (teamScore < 10) {
-            teamComponent = teamComponent.append(getComponentSpaceOfLength(12));
-        }
-        else if (teamScore < 100) {
-            teamComponent = teamComponent.append(getComponentSpaceOfLength(6));
-        }
+        teamComponent = TextUtil.addLeadingSpaceForNumber(teamComponent, teamScore, 3);
 
         if (isOwnTeam) {
             teamComponent = teamComponent.append(Component.text(teamScore).color(NamedTextColor.YELLOW));
@@ -149,8 +147,8 @@ public class RendezvousSidebarManager extends GameSidebarManager {
 
         displayToEveryone.add(blankComponent());
 
-        if (showGamePoints) {
-            updateSpecLbComponents();
+        if (game.getGameManager().isEventGame()) {
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getRendezvousPlayers());
         }
 
         updateAllClientBoards();
@@ -194,14 +192,14 @@ public class RendezvousSidebarManager extends GameSidebarManager {
             clientStringList.add(blankComponent());
 
             // Add game score
-            if (showGamePoints) {
+            if (game.getGameManager().isEventGame()) {
                 clientStringList.add(generateGameScoreComponent(game.getGamemode(), rdvPlayer, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
         } else if (!spectatorLeaderboardComponents.isEmpty()) {
 
             // Add current leaderboard title
-            clientStringList.add(getComponentSpaceOfLength(13).append(smallText("TOP " + currentDisplay + ":").color(NamedTextColor.AQUA)));
+            clientStringList.add(getComponentSpaceOfLength(11).append(statCycle.getCurrentStatTitle()));
 
             // Show top 5 in list from spectator leaderboard components list
             clientStringList.addAll(spectatorLeaderboardComponents);
@@ -209,104 +207,8 @@ public class RendezvousSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = clientSidebars.get(player.getUniqueId());
+        ClientSidebar clientSidebar = getPlayerSidebar(player);
         clientSidebar.setSidebarComponents(clientStringList);
-    }
-
-    public void updateSpecLbComponents () {
-        // Update leaderboard components
-        spectatorLeaderboardComponents.clear();
-
-        // Player is a spectator, show leaderboard
-        List<PlayerStatObject> currentLeaderboard = switch (currentDisplay) {
-            case "KILLS" -> game.getTopKillsList();
-            case "GAME SCORE" -> game.getTopGameScoreList();
-            case "CHECKPOINTS" -> game.getTopCheckpointsList();
-            case "RUNNER KILLS" -> game.getTopRunnerKills();
-            default -> null;
-        };
-
-
-        // Only generate components if leaderboard exists
-        if (currentLeaderboard != null) {
-            int i = 0;
-            // Generate leaderboard components
-            for (PlayerStatObject playerStat : currentLeaderboard) {
-                spectatorLeaderboardComponents.add(getLeaderboardRow(playerStat));
-                i++;
-                // Only add 5 players at the most
-                if (i == 5) break;
-            }
-        }
-    }
-
-    public Component getLeaderboardRow (PlayerStatObject playerStat) {
-        Component playerComponent = getComponentSpaceOfLength(5);
-
-        playerComponent = playerComponent
-                .append(getComponentSpaceOfLength(5))
-                .append(getComponentSpaceOfLength(5));
-
-        CBCPlayer player = playerStat.getPlayer();
-
-        // Add placement
-        String placementString = playerStat.getPlacement() + ". ";
-        playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.WHITE));
-
-        String playerName = player.getName();
-
-        // Add player name
-        playerComponent = playerComponent.append(player.getNameComponent());
-
-        // Add space to make names even
-        int playerNameLength = TextUtil.getPixelLengthOfText(playerName);
-        playerComponent = playerComponent.append(getComponentSpaceOfLength(92 - playerNameLength));
-
-        // Add number
-        int value = playerStat.getValue();
-        playerComponent = addLeadingSpaceForNumber(playerComponent, value, 4);
-        playerComponent = playerComponent.append(Component.text(value).color(NamedTextColor.WHITE));
-        return playerComponent;
-    }
-
-    public void changeLeaderboardStat () {
-
-        // Change around the statistics in loop
-        // Kills -> Game Score -> Checkpoints -> Runner Kills (loop)
-        if (Objects.equals(currentDisplay, "KILLS")) {currentDisplay = "GAME SCORE";}
-        else if (Objects.equals(currentDisplay, "GAME SCORE")) {currentDisplay = "CHECKPOINTS";}
-        else if (Objects.equals(currentDisplay, "CHECKPOINTS")) {currentDisplay = "RUNNER KILLS";}
-        else if (Objects.equals(currentDisplay, "RUNNER KILLS")) {currentDisplay = "KILLS";}
-
-        // Update server board
-        updateServerBoard();
-
-        // Start loop again
-        createLbChangeTimer();
-
-    }
-
-    public void createLbChangeTimer () {
-
-        // Cancel current task
-        if (changeTask != null) {
-            if (!changeTask.isCancelled()) {
-                changeTask.cancel();
-            }
-        }
-
-        // Create new task
-        changeTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (game.isGameOver()) {
-                    cancel();
-                    return;
-                }
-                changeLeaderboardStat();
-            }
-        };
-        changeTask.runTaskLater(CBCPlugin.getPlugin(), 300);
     }
 
 }

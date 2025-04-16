@@ -144,9 +144,6 @@ public class CTFPlayer extends CBCPlayer {
         // Increment stats
         flagsCaptured++;
 
-        // Update flags captured leaderboard
-        game.updateTopCapturesList();
-
         // Add game points
         addGamePoints(FLAGCAPTURE_PTS);
 
@@ -313,14 +310,8 @@ public class CTFPlayer extends CBCPlayer {
 
         // Add points to player
         addGamePoints(killPoints);
+        game.getSidebarManager().updateServerBoard();
 
-        // Update top kills list
-        game.updateTopKillsList();
-
-        if (isOnline()) {
-            // Update sidebar
-            game.getSidebarManager().updateClientBoard(getPlayer());
-        }
     }
 
     public void eliminatePlayer() {
@@ -358,9 +349,7 @@ public class CTFPlayer extends CBCPlayer {
     public void teleportPlayerToSpawn() {
 
         if (getTeam() == null) return;
-        if (!(getTeam() instanceof CTFTeam)) return;
-
-        CTFTeam team = (CTFTeam) getTeam();
+        if (!(getTeam() instanceof CTFTeam team)) return;
 
         getPlayer().teleport(team.getPlayerSpawn());
 
@@ -378,9 +367,6 @@ public class CTFPlayer extends CBCPlayer {
         getPlayer().sendMessage(
                 Component.text("+1 Defensive Kills").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD).decorate(TextDecoration.ITALIC)
         );
-
-        // Update defensive kills
-        game.updateTopDKillsList();
 
         // Give points
         addGamePoints(DKILL_PTS);
@@ -473,16 +459,5 @@ public class CTFPlayer extends CBCPlayer {
             toBaseLaser = new Laser.GuardianLaser(team.getFlagLocation().clone().add(0, 0.5, 0), getPlayer(), -1, 300);
             toBaseLaser.start(CBCPlugin.getPlugin(), getPlayer());
         }*/
-    }
-
-    @Override
-    public void addGamePoints (int points) {
-        super.addGamePoints(points);
-        game.updateTopGameScoreList();
-        if (game.getSidebarManager().isShowGamePoints()) {
-            if (isOnline()) {
-                game.getSidebarManager().updateClientBoard(getPlayer());
-            }
-        }
     }
 }

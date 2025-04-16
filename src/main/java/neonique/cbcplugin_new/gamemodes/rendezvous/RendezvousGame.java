@@ -28,8 +28,6 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static neonique.cbcplugin_new.util.StatsUtil.sortPlayerStatList;
-
 public class RendezvousGame extends TeamGame {
 
     // Team list
@@ -65,12 +63,6 @@ public class RendezvousGame extends TeamGame {
     private RendezvousStartTimer startGameTimer;
     private RendezvousCheckpointTask checkpointTracking;
     private PlayerNoMove playerNoMoveListener;
-
-    // Current leaderboards
-    private List<PlayerStatObject> topKills;
-    private List<PlayerStatObject> topGameScore;
-    private List<PlayerStatObject> topCheckpoints;
-    private List<PlayerStatObject> topRunnerKills;
 
     public RendezvousGame(GameManager gameManager, CombatManager combatManager) {
         super(gameManager, combatManager);
@@ -160,12 +152,6 @@ public class RendezvousGame extends TeamGame {
             // Set team capture time
             team.setProgressMax(timeToCaptureCheckpoint);
         }
-
-        // Update leaderboards
-        updateTopKillsList();
-        updateTopRunnerKillsList();
-        updateTopCheckpointsList();
-        updateTopGameScoreList();
 
         // Setup sidebar and bossbar
         createUIManagers();
@@ -501,66 +487,6 @@ public class RendezvousGame extends TeamGame {
         }
 
         return aliveRunners;
-    }
-
-    public void updateTopKillsList () {
-        // Create new top kills list
-        topKills = new ArrayList<>();
-        for (RendezvousPlayer player : getRendezvousPlayers()) {
-            // Add player's kills to the list
-            topKills.add(new PlayerStatObject(player, player.getKills()));
-        }
-        // Sort list
-        sortPlayerStatList(topKills, true);
-    }
-
-    public List<PlayerStatObject> getTopKillsList () {
-        return topKills;
-    }
-
-    public void updateTopGameScoreList () {
-        // Create new top game score list
-        topGameScore = new ArrayList<>();
-        for (RendezvousPlayer player : getRendezvousPlayers()) {
-            // Add player's game score to the list
-            topGameScore.add(new PlayerStatObject(player, player.getGamePoints()));
-        }
-        // Sort list
-        sortPlayerStatList(topGameScore, true);
-    }
-
-    public List<PlayerStatObject> getTopGameScoreList () {
-        return topGameScore;
-    }
-
-    public void updateTopCheckpointsList () {
-        // Create new top checkpoints list
-        topCheckpoints = new ArrayList<>();
-        for (RendezvousPlayer player : getRendezvousPlayers()) {
-            // Add player's checkpoints to the list
-            topCheckpoints.add(new PlayerStatObject(player, player.getCheckpointsCleared()));
-        }
-        // Sort list
-        sortPlayerStatList(topCheckpoints, true);
-    }
-
-    public List<PlayerStatObject> getTopCheckpointsList () {
-        return topCheckpoints;
-    }
-
-    public void updateTopRunnerKillsList () {
-        // Create new top runner kills list
-        topRunnerKills = new ArrayList<>();
-        for (RendezvousPlayer player : getRendezvousPlayers()) {
-            // Add player's runner kills to the list
-            topRunnerKills.add(new PlayerStatObject(player, player.getEnemyRunnersKilled()));
-        }
-        // Sort list
-        sortPlayerStatList(topRunnerKills, true);
-    }
-
-    public List<PlayerStatObject> getTopRunnerKills () {
-        return topRunnerKills;
     }
 
     public List<RendezvousPlayer> getRendezvousPlayers () {

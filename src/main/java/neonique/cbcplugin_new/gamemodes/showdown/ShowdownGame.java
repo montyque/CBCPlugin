@@ -22,8 +22,6 @@ import org.bukkit.entity.Player;
 import java.time.Duration;
 import java.util.*;
 
-import static neonique.cbcplugin_new.util.StatsUtil.sortPlayerStatList;
-
 public class ShowdownGame extends TeamGame {
 
     // Create list of teams
@@ -66,11 +64,6 @@ public class ShowdownGame extends TeamGame {
     // Other game variables
     private boolean playersGlow = true;
 
-    // Current leaderboards
-    private List<PlayerStatObject> topKills;
-    private List<PlayerStatObject> topGameScore;
-    private List<PlayerStatObject> topTimeAlive;
-
     public ShowdownGame (GameManager gameManager, CombatManager combatManager) {
         super(gameManager, combatManager);
     }
@@ -112,11 +105,6 @@ public class ShowdownGame extends TeamGame {
         // Create teams and players
         createTeams(teams);
         teleportSpectators();
-
-        // Update leaderboards
-        updateTopKillsList();
-        updateTopGameScoreList();
-        updateTopTimeAliveList();
 
         // Create bossbar and sidebar displays
         createUIManagers();
@@ -648,51 +636,6 @@ public class ShowdownGame extends TeamGame {
 
     public int getTotalPlayers () {
         return getPlayers().size();
-    }
-
-    public void updateTopKillsList () {
-        // Create new top kills list
-        topKills = new ArrayList<>();
-        for (ShowdownPlayer player : getShowdownPlayers()) {
-            // Add player's kills to the list
-            topKills.add(new PlayerStatObject(player, player.getKills()));
-        }
-        // Sort list
-        sortPlayerStatList(topKills, true);
-    }
-
-    public List<PlayerStatObject> getTopKillsList () {
-        return topKills;
-    }
-
-    public void updateTopGameScoreList () {
-        // Create new top game score list
-        topGameScore = new ArrayList<>();
-        for (ShowdownPlayer player : getShowdownPlayers()) {
-            // Add player's game score to the list
-            topGameScore.add(new PlayerStatObject(player, player.getGamePoints()));
-        }
-        // Sort list
-        sortPlayerStatList(topGameScore, true);
-    }
-
-    public List<PlayerStatObject> getTopGameScoreList () {
-        return topGameScore;
-    }
-
-    public void updateTopTimeAliveList () {
-        // Create new top flag captures list
-        topTimeAlive = new ArrayList<>();
-        for (ShowdownPlayer player : getShowdownPlayers()) {
-            // Add player's flag captures to the list
-            topTimeAlive.add(new PlayerStatObject(player, player.getPlayerSecondsAlive()));
-        }
-        // Sort list
-        sortPlayerStatList(topTimeAlive, true);
-    }
-
-    public List<PlayerStatObject> getTopTimeAliveList () {
-        return topTimeAlive;
     }
 
     public List<ShowdownPlayer> getShowdownPlayers () {

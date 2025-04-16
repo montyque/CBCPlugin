@@ -5,7 +5,6 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
-import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -32,13 +31,15 @@ public class RendezvousPlayer extends CBCPlayer {
     // Player game stats
     private int checkpointsCleared = 0;
     private int enemyRunnersKilled = 0;
+    private int moraleBoostsGiven = 0;
 
     // Constants for giving players game score
-    private static int MBOOST_KILL_PTS = 20; // Extra points for giving a morale boost to a teammate runner
-    private static int RUNNER_KILL_PTS = 10; // Extra points for killing a runner
-    private static int AS_RUNNER_KILL_PTS = 10; // Extra points for killing someone as a runner
-    private static int CHECKPOINT_CAPTURE = 80; // Points for capturing a checkpoint
-    private static int FINAL_CHECKPOINT_CAPTURE = 60; // Extra points for capturing the final checkpoint
+    private static final int KILL_PTS = 2; // Points for killing a player
+    private static final int MORALE_BOOST_KILL_PTS = 15; // Extra points for giving a morale boost to a teammate runner
+    private static final int RUNNER_KILL_PTS = 10; // Extra points for killing a runner
+    private static final int AS_RUNNER_KILL_PTS = 15; // Extra points for killing someone as a runner
+    private static final int CHECKPOINT_CAPTURE = 90; // Points for capturing a checkpoint
+    private static final int FINAL_CHECKPOINT_CAPTURE = 60; // Extra points for capturing the final checkpoint
 
     public RendezvousPlayer(RendezvousGame game, GameManager gameManager, CombatManager combatManager,
                             Player player, Integer playerId) {
@@ -96,7 +97,6 @@ public class RendezvousPlayer extends CBCPlayer {
         // Update statistics
         checkpointsCleared++;
         addGamePoints(CHECKPOINT_CAPTURE);
-        game.updateTopCheckpointsList();
 
         // Show title to player
         NamedTextColor color = team.getColor();
@@ -119,7 +119,6 @@ public class RendezvousPlayer extends CBCPlayer {
     @Override
     public void playerAfterKill (CBCPlayer playerKilled) {
 
-        int KILL_PTS = 1;
         int killPts = KILL_PTS;
 
         // Check if player killed was a runner
@@ -136,8 +135,6 @@ public class RendezvousPlayer extends CBCPlayer {
             // Give points for killing runner
             killPts += RUNNER_KILL_PTS;
 
-            // Update leaderboard
-            game.updateTopRunnerKillsList();
         }
 
         if (isPlayerRunner()) {
@@ -165,11 +162,11 @@ public class RendezvousPlayer extends CBCPlayer {
             );
 
             // Give points for morale boost
-            killPts += MBOOST_KILL_PTS;
+            killPts += MORALE_BOOST_KILL_PTS;
+            moraleBoostsGiven++;
 
         }
 
-        game.updateTopKillsList();
         addGamePoints(killPts);
 
         if (!isOnline()) return;
@@ -432,11 +429,10 @@ public class RendezvousPlayer extends CBCPlayer {
     @Override
     public void addGamePoints (int points) {
         super.addGamePoints(points);
-        game.updateTopGameScoreList();
-        if (game.getSidebarManager().isShowGamePoints()) {
-            if (isOnline()) {
-                game.getSidebarManager().updateClientBoard(getPlayer());
-            }
-        }
+        game.getSidebarManager().updateServerBoard();
+    }
+
+    public int getMoraleBoostsGiven() {
+        return moraleBoostsGiven;
     }
 }

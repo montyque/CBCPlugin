@@ -1,8 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.assassin;
 
 import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
@@ -25,10 +23,8 @@ public class AssassinSidebarManager extends GameSidebarManager {
     private List<Component> displayToEveryone = new ArrayList<>();
     private List<AssassinPlayer> topPlayers = new ArrayList<>();
 
-    public AssassinSidebarManager (GameManager gameManager, CombatManager combatManager, AssassinGame game) {
-        super(gameManager, combatManager, "assSidebar");
-
-        setSidebarTitle(
+    public AssassinSidebarManager (AssassinGame game) {
+        super(game.getGameManager(), "asSidebar",
                 smallText("CBC: ").color(NamedTextColor.AQUA).append(
                         smallText("ASSASSIN").color(NamedTextColor.YELLOW)
                 )
@@ -36,7 +32,6 @@ public class AssassinSidebarManager extends GameSidebarManager {
 
         this.game = game;
         displayToEveryone.add(blankComponent());
-
     }
 
     public Component getPlayerRow (AssassinPlayer player, boolean isOwnPlayer) {
@@ -101,7 +96,7 @@ public class AssassinSidebarManager extends GameSidebarManager {
 
         displayToEveryone = new ArrayList<>(Collections.singletonList(blankComponent()));
 
-        // Get bottom 5 players
+        // Get the top 8 players
         topPlayers = game.getPlayersByTargets();
         if (topPlayers.size() > 8) {
             topPlayers = topPlayers
@@ -157,7 +152,7 @@ public class AssassinSidebarManager extends GameSidebarManager {
 
         clientStringList.add(blankComponent());
 
-        ClientSidebar clientSidebar = clientSidebars.get(player.getUniqueId());
+        ClientSidebar clientSidebar = getPlayerSidebar(player);
         clientSidebar.setSidebarComponents(clientStringList);
 
     }

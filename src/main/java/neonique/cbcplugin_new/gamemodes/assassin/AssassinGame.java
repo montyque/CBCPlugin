@@ -148,7 +148,7 @@ public class AssassinGame extends FFAGame {
     }
 
     public GameSidebarManager createSidebarManager() {
-        return new AssassinSidebarManager(getGameManager(), getCombatManager(), this);
+        return new AssassinSidebarManager(this);
     }
 
     @Override

@@ -81,9 +81,8 @@ public class HTGPlayer extends CBCPlayer {
         addGamePoints(killPts);
 
         // Update leaderboards
-        game.updateTopKillsList();
-        game.updateTopGameScoreList();
         game.getSidebarManager().updateServerBoard();
+
     }
 
     @Override
@@ -251,7 +250,7 @@ public class HTGPlayer extends CBCPlayer {
         addGamePoints(goldPts);
     }
 
-    public int getPointsScored() {
+    public int getGoldScore() {
         return pointsScored;
     }
 

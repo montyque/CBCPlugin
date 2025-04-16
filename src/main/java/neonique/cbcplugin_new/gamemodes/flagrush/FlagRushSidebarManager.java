@@ -30,10 +30,10 @@ public class FlagRushSidebarManager extends GameSidebarManager {
 
     public FlagRushSidebarManager(GameManager gameManager, CombatManager combatManager, FlagRushGame game) {
 
-        super(gameManager, combatManager, "flrGame");
+        super(gameManager, "flrGame");
         String before = "CBC: ";
 
-        if (gameManager.isThisGameCBCGame()) {
+        if (gameManager.isEventGame()) {
             before = gameManager.getEventManager().getEventNameShorthand() + " " + gameManager.getEventManager().getGameNameShorthand() + ": ";
         }
 
@@ -43,9 +43,7 @@ public class FlagRushSidebarManager extends GameSidebarManager {
                 )
         );
 
-        this.gameManager = gameManager;
         this.game = game;
-        this.world = gameManager.getWorld();
     }
 
     public Component getTeamRow (FlagRushTeam team, boolean isOwnTeam) {
@@ -194,13 +192,13 @@ public class FlagRushSidebarManager extends GameSidebarManager {
             clientStringList.add(blankComponent());
 
             // Add game score
-            if (showGamePoints) {
+            if (game.getGameManager().isEventGame()) {
                 clientStringList.add(generateGameScoreComponent(game.getGamemode(), flrPlayer, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
         }
 
-        ClientSidebar clientSidebar = clientSidebars.get(player.getUniqueId());
+        ClientSidebar clientSidebar = getPlayerSidebar(player);
         clientSidebar.setSidebarComponents(clientStringList);
 
     }

@@ -23,8 +23,8 @@ public class TDMPlayer extends CBCPlayer {
     private boolean tied = false;
 
     // Constants for game points
-    private static int KILL_PTS = 20; // Points you gain for kills
-    private static int CLUTCHKILL_PTS = 15; // Extra points you gain for getting a kill in the clutch
+    private final static int KILL_PTS = 20; // Points you gain for kills
+    private final static int CLUTCH_KILL_PTS = 15; // Extra points you gain for getting a kill in the clutch
 
     public TDMPlayer(TDMGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
         super(gameManager, combatManager, player, playerId);
@@ -51,7 +51,7 @@ public class TDMPlayer extends CBCPlayer {
         // Check if team is in clutch
         if (game.getTimer() < 120) {
             if (team.isTeamInClutch()) {
-                killPts += CLUTCHKILL_PTS;
+                killPts += CLUTCH_KILL_PTS;
             }
         }
 
@@ -59,10 +59,6 @@ public class TDMPlayer extends CBCPlayer {
         addGamePoints(killPts);
 
         team.onPlayerKill();
-
-        // Update game score and kill leaderboards
-        game.updateTopGameScoreList();
-        game.updateTopKillsList();
 
         game.updateServerSidebar();
 
@@ -162,13 +158,4 @@ public class TDMPlayer extends CBCPlayer {
         return withinTeamPlacement;
     }
 
-    @Override
-    public void addGamePoints (int points) {
-        super.addGamePoints(points);
-        if (game.getSidebarManager().isShowGamePoints()) {
-            if (isOnline()) {
-                game.getSidebarManager().updateClientBoard(getPlayer());
-            }
-        }
-    }
 }

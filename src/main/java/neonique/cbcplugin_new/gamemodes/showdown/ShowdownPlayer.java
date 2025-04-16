@@ -24,11 +24,11 @@ public class ShowdownPlayer extends CBCPlayer {
     private int secondsAlive = 0;
 
     // Constants for game points
-    private static int KILL_PTS = 30; // Points you gain for kills
-    private static int CLUTCH_KILL_PTS = 10; // Extra points you gain for killing a player when less than half of players are alive
-    private static int WINNING_KILL = 40; // Extra points you gain for getting a kill that wins your team a round
-    private static int ROUND_SURVIVAL_PTS = 30; // Points you gain for surviving a round
-    private static int TIME_ALIVE_PTS = 5; // Points you gain every 30 seconds you are alive
+    private final static int KILL_PTS = 30; // Points you gain for kills
+    private final static int CLUTCH_KILL_PTS = 10; // Extra points you gain for killing a player when less than half of players are alive
+    private final static int WINNING_KILL = 40; // Extra points you gain for getting a kill that wins your team a round
+    private final static int ROUND_SURVIVAL_PTS = 30; // Points you gain for surviving a round
+    private final static int TIME_ALIVE_PTS = 5; // Points you gain every 30 seconds you are alive
 
     public ShowdownPlayer(ShowdownGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
         super(gameManager, combatManager, player, playerId);
@@ -116,7 +116,6 @@ public class ShowdownPlayer extends CBCPlayer {
         addGamePoints(killPts);
 
         playerRoundKills++;
-        game.updateTopKillsList();
         game.updateServerSidebar();
     }
 
@@ -129,7 +128,6 @@ public class ShowdownPlayer extends CBCPlayer {
         if (secondsAlive % 30 == 0) {
             addGamePoints(TIME_ALIVE_PTS);
         }
-        game.updateTopTimeAliveList();
     }
 
     public int getPlayerSecondsAlive () {
@@ -143,7 +141,6 @@ public class ShowdownPlayer extends CBCPlayer {
     @Override
     public void addGamePoints (int points) {
         super.addGamePoints(points);
-        game.updateTopGameScoreList();
         game.getSidebarManager().updateServerBoard();
     }
 }

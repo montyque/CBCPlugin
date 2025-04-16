@@ -1,19 +1,14 @@
 package neonique.cbcplugin_new.gamemodes.holdthegold;
 
-import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
-import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
+import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -28,16 +23,14 @@ public class HTGSidebarManager extends GameSidebarManager {
     private final List<Component> displayToEveryone = new ArrayList<>();
     private final HashMap<CBCTeam, Integer> teamOrderOnSidebar = new HashMap<>();
 
-    private String currentDisplay = "GAME SCORE";
-    private BukkitRunnable changeTask = null;
-
-    private final List<Component> spectatorLeaderboardComponents = new ArrayList<>();
+    private SidebarStatCycle<HTGPlayer> statCycle;
+    private List<Component> spectatorLeaderboardComponents = new ArrayList<>();
 
     public HTGSidebarManager (GameManager gameManager, CombatManager combatManager, HTGGame game) {
-        super(gameManager, combatManager, "htgSidebar");
+        super(gameManager, "htgSidebar");
         String before = "CBC: ";
 
-        if (gameManager.isThisGameCBCGame()) {
+        if (gameManager.isEventGame()) {
             before = gameManager.getEventManager().getEventNameShorthand() + " " + gameManager.getEventManager().getGameNameShorthand() + ": ";
         }
 
@@ -48,14 +41,21 @@ public class HTGSidebarManager extends GameSidebarManager {
         );
 
 
-        this.gameManager = gameManager;
         this.game = game;
-        this.world = gameManager.getWorld();
 
         // Start stat change timer
-        if (showGamePoints) {
-            createLbChangeTimer();
+        if (game.getGameManager().isEventGame()) {
+            createSpectatorStats();
         }
+    }
+
+    public void createSpectatorStats () {
+
+        statCycle = new SidebarStatCycle<>(game, this, 101);
+        statCycle.addCycleState(new PlayerStatList<>("Game Score", HTGPlayer::getGamePoints, false));
+        statCycle.addCycleState(new PlayerStatList<>("Kills", HTGPlayer::getKills, false));
+        statCycle.addCycleState(new PlayerStatList<>("Gold Score", HTGPlayer::getGoldScore, false));
+        statCycle.startCycle(200);
 
     }
 
@@ -88,23 +88,17 @@ public class HTGSidebarManager extends GameSidebarManager {
         );
 
         // Adding team name to team string
-        int teamNameLength = TextUtil.getPixelLengthOfText(team.getTeamName() + " Team");
-
+        String teamName = team.getTeamName() + " Team";
+        int teamNameLength = TextUtil.getPixelLengthOfText(teamName);
         teamComponent = teamComponent.append(
-                Component.text(team.getTeamName() + " Team").color(team.getColor())
+                Component.text(teamName).color(team.getColor())
         );
 
         // Add space to make teams even
-        teamComponent = teamComponent.append(getComponentSpaceOfLength(80 - teamNameLength));
+        teamComponent = teamComponent.append(getComponentSpaceOfLength(91 - teamNameLength));
 
         int teamGoldScore = team.getScore();
-        if (teamGoldScore < 10) {
-            teamComponent = teamComponent.append(getComponentSpaceOfLength(12));
-        }
-        else if (teamGoldScore < 100) {
-            teamComponent = teamComponent.append(getComponentSpaceOfLength(6));
-        }
-
+        teamComponent = TextUtil.addLeadingSpaceForNumber(teamComponent, teamGoldScore, 4);
         if (isOwnTeam) {
             teamComponent = teamComponent.append(Component.text(teamGoldScore).color(NamedTextColor.YELLOW));
         } else {
@@ -140,8 +134,8 @@ public class HTGSidebarManager extends GameSidebarManager {
             teamOrderOnSidebar.put(team, displayToEveryone.size() - 1);
         }
 
-        if (showGamePoints) {
-            updateSpecLbComponents();
+        if (game.getGameManager().isEventGame()) {
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getHTGPlayers());
         }
 
         displayToEveryone.add(blankComponent());
@@ -174,20 +168,20 @@ public class HTGSidebarManager extends GameSidebarManager {
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Gold Score: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(htgPlayer.getPointsScored()).color(NamedTextColor.YELLOW))
+                    Component.text(htgPlayer.getGoldScore()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(blankComponent());
 
             // Add game score
-            if (showGamePoints) {
+            if (game.getGameManager().isEventGame()) {
                 clientStringList.add(generateGameScoreComponent(game.getGamemode(), htgPlayer, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
         } else if (!spectatorLeaderboardComponents.isEmpty()) {
 
             // Add current leaderboard title
-            clientStringList.add(getComponentSpaceOfLength(11).append(smallText("TOP " + currentDisplay + ":").color(NamedTextColor.AQUA)));
+            clientStringList.add(getComponentSpaceOfLength(11).append(statCycle.getCurrentStatTitle()));
 
             // Show top 5 in list from spectator leaderboard components list
             clientStringList.addAll(spectatorLeaderboardComponents);
@@ -195,98 +189,8 @@ public class HTGSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = clientSidebars.get(player.getUniqueId());
+        ClientSidebar clientSidebar = getPlayerSidebar(player);
         clientSidebar.setSidebarComponents(clientStringList);
-    }
-
-    public void updateSpecLbComponents () {
-        // Update leaderboard components
-        spectatorLeaderboardComponents.clear();
-
-        // Player is a spectator, show leaderboard
-        List<PlayerStatObject> currentLeaderboard = switch (currentDisplay) {
-            case "GAME SCORE" -> game.getTopGameScoreList();
-            case "KILLS" -> game.getTopKillsList();
-            case "GOLD SCORE" -> game.getTopGoldScoreList();
-            default -> null;
-        };
-
-
-        // Only generate components if leaderboard exists
-        if (currentLeaderboard != null) {
-            int i = 0;
-            // Generate leaderboard components
-            for (PlayerStatObject playerStat : currentLeaderboard) {
-                spectatorLeaderboardComponents.add(getLeaderboardRow(playerStat));
-                i++;
-                // Only add 5 players at the most
-                if (i == 5) break;
-            }
-        }
-    }
-
-    public Component getLeaderboardRow (PlayerStatObject playerStat) {
-        Component playerComponent = getComponentSpaceOfLength(11);
-
-        CBCPlayer player = playerStat.getPlayer();
-
-        // Add placement
-        String placementString = playerStat.getPlacement() + ". ";
-        playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.WHITE));
-
-        String playerName = player.getName();
-
-        // Add player name
-        playerComponent = playerComponent.append(player.getNameComponent());
-
-        // Add space to make names even
-        int playerNameLength = TextUtil.getPixelLengthOfText(playerName);
-        playerComponent = playerComponent.append(getComponentSpaceOfLength(92 - playerNameLength));
-
-        // Add number
-        int value = playerStat.getValue();
-        playerComponent = addLeadingSpaceForNumber(playerComponent, value, 4);
-        playerComponent = playerComponent.append(Component.text(value).color(NamedTextColor.WHITE));
-        return playerComponent;
-    }
-
-    public void changeLeaderboardStat () {
-
-        // Change around the statistics in loop
-        // Game Score -> Kills -> Gold Score
-        if (Objects.equals(currentDisplay, "GAME SCORE")) {currentDisplay = "KILLS";}
-        else if (Objects.equals(currentDisplay, "KILLS")) {currentDisplay = "GOLD SCORE";}
-        else if (Objects.equals(currentDisplay, "GOLD SCORE")) {currentDisplay = "GAME SCORE";}
-
-        // Update server board
-        updateServerBoard();
-
-        // Start loop again
-        createLbChangeTimer();
-
-    }
-
-    public void createLbChangeTimer () {
-
-        // Cancel current task
-        if (changeTask != null) {
-            if (!changeTask.isCancelled()) {
-                changeTask.cancel();
-            }
-        }
-
-        // Create new task
-        changeTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (game.isGameOver()) {
-                    cancel();
-                    return;
-                }
-                changeLeaderboardStat();
-            }
-        };
-        changeTask.runTaskLater(CBCPlugin.getPlugin(), 300);
     }
 
 }
