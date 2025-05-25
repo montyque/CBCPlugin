@@ -22,9 +22,9 @@ public class KOTHPlayer extends CBCPlayer {
     private int pointsDefended = 0;
 
     // Constants for game points
-    private static final int KILL_PTS = 4; // Points you gain for kills
-    private static final int HILL_KILL_PTS = 2; // Extra points you gain for kills on players in the hill
-    private static final int HOLDER_KILL_PTS = 2; // Extra points you gain for kills on players holding the point
+    private static final int KILL_PTS = 5; // Points you gain for kills
+    private static final int HILL_KILL_PTS = 3; // Extra points you gain for kills on players in the hill
+    private static final int HOLDER_KILL_PTS = 3; // Extra points you gain for kills on players holding the point
     private static final int DEFEND_HILL_PTS = 10; // Points you gain for defending a point in the hill
     private static final int CAPTURE_HILL_PTS = 10; // Points you gain for capture the hill
     private static final int TIME_IN_HILL_PTS = 0; // Points you get for every second in the hill

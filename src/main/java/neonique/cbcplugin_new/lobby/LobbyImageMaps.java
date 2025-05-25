@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.lobby;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.misc.Tuple;
 import neonique.cbcplugin_new.misc.imagemaps.ImageMap;
-import neonique.cbcplugin_new.misc.imagemaps.LobbyImageMapRenderer;
+import neonique.cbcplugin_new.misc.imagemaps.ImageMapRenderer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -158,7 +158,7 @@ public class LobbyImageMaps {
 
         MapView map = getServer().createMap(getServer().getWorlds().get(0));
         map.getRenderers().forEach(map::removeRenderer);
-        map.addRenderer(new LobbyImageMapRenderer(CBCPlugin.getPlugin(), image, x, y, getScale(image, size)));
+        map.addRenderer(new ImageMapRenderer(CBCPlugin.getPlugin(), image, x, y, getScale(image, size)));
         map.setTrackingPosition(false);
 
         MapMeta meta = ((MapMeta) item.getItemMeta());

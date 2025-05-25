@@ -223,8 +223,8 @@ public class CTFGame extends TeamGame {
 
                 ctfPlayer.playerSetup();
                 ctfPlayer.setReloadsBySecond(2);
-
                 ctfPlayer.setTempImmune(60);
+
             }
         }
 

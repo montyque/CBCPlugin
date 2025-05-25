@@ -7,12 +7,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
-public class LobbyImageMapRenderer extends MapRenderer {
+public class ImageMapRenderer extends MapRenderer {
 
     private final CBCPlugin plugin;
     private BufferedImage image = null;
@@ -22,7 +24,7 @@ public class LobbyImageMapRenderer extends MapRenderer {
     private final int y;
     private final double scale;
 
-    public LobbyImageMapRenderer(CBCPlugin plugin, BufferedImage image, int x, int y, double scale) {
+    public ImageMapRenderer(CBCPlugin plugin, BufferedImage image, int x, int y, double scale) {
         this.plugin = plugin;
         this.x = x;
         this.y = y;
@@ -47,22 +49,31 @@ public class LobbyImageMapRenderer extends MapRenderer {
         this.image = input.getSubimage(x1, y1, x2 - x1, y2 - y1);
 
         if (scale != 1D) {
+
             BufferedImage resized = new BufferedImage(LobbyImageMaps.MAP_WIDTH, LobbyImageMaps.MAP_HEIGHT,
                     input.getType() == 0 ? image.getType() : input.getType());
             AffineTransform at = new AffineTransform();
+
             at.scale(scale, scale);
             AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
             this.image = scaleOp.filter(this.image, resized);
+
         }
 
         first = true;
     }
 
     @Override
-    public void render(MapView view, MapCanvas canvas, Player player) {
+    public void render(@NotNull MapView view, @NotNull MapCanvas canvas, @NotNull Player player) {
+
         if (image != null && first) {
-            new LambdaRunnable(() -> canvas.drawImage(0, 0, image)).runTaskLater(plugin, System.nanoTime() % 60);
-            // spread out pseudo randomly in a very naive way
+            new BukkitRunnable() {
+                @Override
+                public void run () {
+                    canvas.drawImage(0, 0, image);
+                }
+            }.runTaskLater(plugin, System.nanoTime() % 60);
+
             first = false;
         }
     }

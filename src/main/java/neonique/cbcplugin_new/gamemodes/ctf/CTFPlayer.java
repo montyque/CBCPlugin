@@ -36,11 +36,11 @@ public class CTFPlayer extends CBCPlayer {
 
     // Constants for game points
     private static int KILL_PTS = 5; // Points you gain for kills
-    private static int DKILL_PTS = 10; // Extra points you gain for defensive kills
+    private static int DKILL_PTS = 15; // Extra points you gain for defensive kills
     private static int FLAGHOLDER_KILL_PTS = 5; // Extra points you gain for killing a flag holder
-    private static int MBOOST_KILL_PTS = 15; // Extra points for giving a morale boost to a teammate
-    private static int FINAL_KILL_PTS = 35; // Extra points for getting a final kill
-    private static int FLAGCAPTURE_PTS = 150; // Points for capturing a flag
+    private static int MBOOST_KILL_PTS = 20; // Extra points for giving a morale boost to a teammate
+    private static int FINAL_KILL_PTS = 30; // Extra points for getting a final kill
+    private static int FLAGCAPTURE_PTS = 120; // Points for capturing a flag
 
     public CTFPlayer(CTFGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
         super(gameManager, combatManager, player, playerId);
@@ -57,7 +57,7 @@ public class CTFPlayer extends CBCPlayer {
 
         teamWithFlagPickedUp = flagTeam;
         // Heal player and give player absorption hearts
-        getPlayer().setHealth(20);
+        healToFull();
         getPlayer().addPotionEffect(
                 new PotionEffect(PotionEffectType.ABSORPTION, 3000000, 0, false, false, false)
         );
@@ -148,7 +148,7 @@ public class CTFPlayer extends CBCPlayer {
         addGamePoints(FLAGCAPTURE_PTS);
 
         // Reset player's health and effects
-        getPlayer().setHealth(20);
+        healToFull();
         for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
             if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
         }
@@ -198,7 +198,7 @@ public class CTFPlayer extends CBCPlayer {
         if (ctfPlayerKiller != null) {
             if (isOnline()) {
                 for (Player playerNearby : ((CTFTeam) playerKiller.getTeam()).getFlagLocation().getNearbyPlayers(game.getDefensiveKillRadius())) {
-                    if (playerNearby == getPlayer() && ((CTFTeam) playerKiller.getTeam()).isFlagAtBase()) {
+                    if (playerNearby == getPlayer()) {
                         defensiveKillGive = true;
                         break;
                     }
@@ -216,7 +216,6 @@ public class CTFPlayer extends CBCPlayer {
                     playerKiller.addGamePoints(FLAGHOLDER_KILL_PTS);
                 }
             }
-
             teamWithFlagPickedUp.flagReset();
             playerDropFlag();
         }
@@ -331,16 +330,10 @@ public class CTFPlayer extends CBCPlayer {
 
         if (!isOnline()) return;
 
-        if (game.getWinner() == null) {
-            new TempImmunityTask(getGameManager(), getCombatManager(), this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
-        }
-        else {
-            setImmune(true);
-        }
-
         teleportPlayerToSpawn();
         playerSetup();
         setReloadsBySecond(2);
+        setTempImmune(60);
 
         // Update sidebar
         game.getSidebarManager().updateServerBoard();

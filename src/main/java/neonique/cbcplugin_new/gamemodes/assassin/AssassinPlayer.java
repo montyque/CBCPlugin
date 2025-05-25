@@ -296,6 +296,7 @@ public class AssassinPlayer extends CBCPlayer {
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
+
         playerSetup();
         setReloadsBySecond(2);
 

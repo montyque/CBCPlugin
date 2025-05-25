@@ -37,11 +37,11 @@ public class HTGPlayer extends CBCPlayer {
 
     // Constants for game points
     private static int KILL_PTS = 10; // Points you gain for kills
-    private static int GOLDHOLDER_KILL_PTS = 35; // Extra points you gain for killing the gold holder
-    private static int KILL_WITH_TEAMMATE_GOLD_PTS = 10; // Extra points you gain for killing an enemy while your teammate has the gold
+    private static int GOLDHOLDER_KILL_PTS = 20; // Extra points you gain for killing the gold holder
+    private static int KILL_WITH_TEAMMATE_GOLD_PTS = 5; // Extra points you gain for killing an enemy while your teammate has the gold
     private static int GOLD_SCORE_PTS = 10; // Points you gain for scoring a point with the gold
     private static int GOLD_SCORE_WITHIN_7_PTS = 5; // Extra points for scoring a point with the gold while within 7
-    private static int WINNING_GOLD_RUN_PTS = 100; // Points you gain for getting a winning gold run
+    private static int WINNING_GOLD_RUN_PTS = 50; // Points you gain for getting a winning gold run
 
     public HTGPlayer(HTGGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
         super(gameManager, combatManager, player, playerId);
@@ -175,10 +175,11 @@ public class HTGPlayer extends CBCPlayer {
         }
 
         playerSetup();
+        setReloadsBySecond(2);
+        setTempImmune(60);
 
         // Teleport player to spawn point
         teleportPlayerToSpawn();
-        setReloadsBySecond(2);
 
     }
 

@@ -26,8 +26,8 @@ public class ShowdownPlayer extends CBCPlayer {
     // Constants for game points
     private final static int KILL_PTS = 30; // Points you gain for kills
     private final static int CLUTCH_KILL_PTS = 10; // Extra points you gain for killing a player when less than half of players are alive
-    private final static int WINNING_KILL = 40; // Extra points you gain for getting a kill that wins your team a round
-    private final static int ROUND_SURVIVAL_PTS = 30; // Points you gain for surviving a round
+    private final static int WINNING_KILL = 15; // Extra points you gain for getting a kill that wins your team a round
+    private final static int ROUND_SURVIVAL_PTS = 20; // Points you gain for surviving a round
     private final static int TIME_ALIVE_PTS = 5; // Points you gain every 30 seconds you are alive
 
     public ShowdownPlayer(ShowdownGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
