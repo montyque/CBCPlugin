@@ -230,7 +230,7 @@ public class ThrowdownGame extends FFAGame {
         }
 
         roundInPlay = true;
-        getCombatManager().setVoidKill(false);
+        getCombatManager().setVoidKill(true);
 
         // Release players so they can move
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
@@ -504,15 +504,10 @@ public class ThrowdownGame extends FFAGame {
 
         // If sudden death border is enabled
         if (suddenDeathBorderEnabled) {
-
-            suddenDeathBorder = new DeathBorder(
-                    getGameManager(), map.getMapCentre(), map.getSuddenDeathBorderShape(), map.getSuddenDeathBorderStartRadius(),
-                    map.getSuddenDeathBorderRadiusLimit(), map.getSuddenDeathBorderUpwardsLimit(),
-                    map.getSuddenDeathBorderDownwardsLimit(), map.getSuddenDeathBorderShrinkRate()
-            );
+            suddenDeathBorder = map.getSuddenDeathBorder();
             suddenDeathBorder.activateBorder();
-
         }
+
     }
 
     public boolean isSuddenDeath() {

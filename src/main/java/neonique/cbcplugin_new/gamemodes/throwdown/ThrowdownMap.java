@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.gamemodes.throwdown;
 
 import neonique.cbcplugin_new.enums.DeathBorderShape;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
+import neonique.cbcplugin_new.gameobjects.DeathBorder;
 import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
@@ -75,35 +76,19 @@ public class ThrowdownMap extends CBCMap {
         if (suddenDeathEnabled) return suddenDeathTimer; else return null;
     }
 
-    public Integer getSuddenDeathBorderStartRadius() {
-        if (suddenDeathBorderEnabled) return suddenDeathBorderStartRadius; else return null;
-    }
-
-    public Integer getSuddenDeathBorderShrinkRate () {
-        if (suddenDeathBorderEnabled) return suddenDeathBorderShrinkRate; else return null;
-    }
-
-    public DeathBorderShape getSuddenDeathBorderShape () {
-        if (suddenDeathBorderEnabled) return suddenDeathBorderShape; else return null;
-    }
-
-    public int getSuddenDeathBorderUpwardsLimit() {
-        return suddenDeathBorderUpwardsLimit;
-    }
-
-    public int getSuddenDeathBorderDownwardsLimit() {
-        return suddenDeathBorderDownwardsLimit;
-    }
-
-    public int getSuddenDeathBorderRadiusLimit() {
-        return suddenDeathBorderRadiusLimit;
-    }
-
     public List<FFASpawnpoint> getOverrideSpawns() {
         List<FFASpawnpoint> spawnpoints = new ArrayList<>();
         for (Vector spawnpoint : spawnOverrideSet) {
             spawnpoints.add(new FFASpawnpoint(getGameManager(), spawnpoint));
         }
         return spawnpoints;
+    }
+
+    public DeathBorder getSuddenDeathBorder() {
+        return new DeathBorder(
+                getGameManager(), getMapCentre(), suddenDeathBorderShape, suddenDeathBorderStartRadius,
+                suddenDeathBorderRadiusLimit, suddenDeathBorderUpwardsLimit,
+                suddenDeathBorderDownwardsLimit, suddenDeathBorderShrinkRate
+        );
     }
 }
