@@ -20,14 +20,15 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
-import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 import static neonique.cbcplugin_new.util.TextUtil.*;
@@ -36,6 +37,8 @@ public class CBCEventManager {
 
     private final GameManager gameManager;
     private final Lobby lobby;
+
+    private final CBCEventImageMapBoard imageMapBoard;
 
     private boolean active;
 
@@ -50,10 +53,10 @@ public class CBCEventManager {
     private int nextGameNum = 1;
 
     // Display variables
-    private final String eventName = "The Crossbow Championship 13";
-    private final String eventNameShorthand = "CBC 13";
-    private final String eventTagline = "THE EXPERIMENT";
-    private final String eventTime = "March 9 2025 00:00 UTC";
+    private final String eventName = "The Crossbow Championship 14";
+    private final String eventNameShorthand = "CBC 14";
+    private final String eventTagline = "BACK TO BASICS";
+    private final String eventTime = "April 20 2025 20:30 UTC";
 
     private final char eventLogoUnicode = 0xE900;
 
@@ -96,10 +99,10 @@ public class CBCEventManager {
         winnerTeleportLocation = new Location(world, -1051.00, 126.00, -1644.00);
 
         // Set hologram locations
-        hologramLocations.add(new Location(world, -1051.00, 126.20, -1649.00));
-        hologramLocations.add(new Location(world, -1051.00, 125.60, -1649.00));
-        hologramLocations.add(new Location(world, -1051.00, 125.20, -1649.00));
-        hologramLocations.add(new Location(world, -1051.00, 124.80, -1649.00));
+        hologramLocations.add(new Location(world, -1051.00, 126.20, -1649.50));
+        hologramLocations.add(new Location(world, -1051.00, 125.60, -1649.50));
+        hologramLocations.add(new Location(world, -1051.00, 125.20, -1649.50));
+        hologramLocations.add(new Location(world, -1051.00, 124.80, -1649.50));
 
         // Create holograms
         recreateHolograms();
@@ -121,20 +124,29 @@ public class CBCEventManager {
         beaconAltGlassBlock.put(NamedTextColor.YELLOW, Material.RED_STAINED_GLASS);
 
         // Game 1
-        gamemodeList.add(CBCGamemode.CBCTAG);
-        mapNameList.add("Marbury Mansion");
-
-        // Game 2
         gamemodeList.add(CBCGamemode.KOTH);
         mapNameList.add("Volcanic Rift");
 
+        // Game 2
+        gamemodeList.add(CBCGamemode.CTF);
+        mapNameList.add("Ruined Jungle");
+
         // Game 3
-        gamemodeList.add(CBCGamemode.RENDEZVOUS);
-        mapNameList.add("Garden of Eeshol");
+        gamemodeList.add(CBCGamemode.SHOWDOWN);
+        mapNameList.add("Savanna Dome");
 
         // Final -- BY DEFAULT
-        gamemodeList.add(CBCGamemode.SHOWDOWN);
-        mapNameList.add("Champions Crossroads");
+        gamemodeList.add(CBCGamemode.HOLDTHEGOLD);
+        mapNameList.add("Astrozapper");
+
+        imageMapBoard = new CBCEventImageMapBoard(this, BlockFace.WEST, new Location(world, -1043, 129, -1657));
+
+        try {
+            imageMapBoard.placeItemFrames();
+            imageMapBoard.reloadAllRows();
+        } catch (Exception e) {
+            CBCPlugin.getPlugin().getLogger().warning(e.toString());
+        }
 
 
     }
@@ -336,6 +348,20 @@ public class CBCEventManager {
         if (eventWinner == null) {
             sendNextGameMessage();
         }
+
+        try {
+            imageMapBoard.reloadRow(nextGameNum - 2);
+
+            if (eventScoresForGames.size() >= nextGameNum - 1) {
+                if (!eventScoresForGames.get(nextGameNum - 2).isEmpty()){
+                    imageMapBoard.setMVPHead(eventScoresForGames.get(nextGameNum - 2).entrySet().iterator().next().getKey().getOfflinePlayer(), nextGameNum - 2);
+                }
+            }
+
+        } catch (Exception e) {
+            CBCPlugin.getPlugin().getLogger().warning(e.toString());
+        }
+
     }
 
     // Send game winner message
@@ -584,8 +610,8 @@ public class CBCEventManager {
 
         // Play fireworks
         try {
-            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1051.00, 133.00, -1639.00)).runTaskTimer(CBCPlugin.getPlugin(), 20, 15);
-            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1051.00, 133.00, -1639.00)).runTaskTimer(CBCPlugin.getPlugin(), 60, 10);
+            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1051.00, 136.00, -1639.00)).runTaskTimer(CBCPlugin.getPlugin(), 20, 15);
+            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1051.00, 136.00, -1639.00)).runTaskTimer(CBCPlugin.getPlugin(), 60, 10);
         } catch (Exception ignored) {}
 
         // Change holograms
@@ -953,12 +979,6 @@ public class CBCEventManager {
         }
     }
 
-    public CBCEventPlayer createPlayer (Player playerEntity) {
-        CBCEventPlayer player = new CBCEventPlayer(playerEntity);
-        players.put(playerEntity.getUniqueId(), player);
-        return player;
-    }
-
     public boolean hasPlayer (UUID playerUUID) {
         return getPlayer(playerUUID) != null;
     }
@@ -1017,6 +1037,28 @@ public class CBCEventManager {
         // Update lobby sidebar if active
         if (lobby.isActive()) {
             lobby.updateServerSidebars();
+        }
+
+        try {
+            imageMapBoard.reloadRow(gameNum - 1);
+        } catch (Exception e) {
+            CBCPlugin.getPlugin().getLogger().warning(e.toString());
+        }
+    }
+
+    public void setMapName(String mapName, int gameNum) {
+
+        mapNameList.set(gameNum - 1, mapName);
+
+        // Update lobby sidebar if active
+        if (lobby.isActive()) {
+            lobby.updateServerSidebars();
+        }
+
+        try {
+            imageMapBoard.reloadRow(gameNum - 1);
+        } catch (Exception e) {
+            CBCPlugin.getPlugin().getLogger().warning(e.toString());
         }
     }
 
@@ -1151,18 +1193,34 @@ public class CBCEventManager {
     }
 
     public List<String> getAllTeamIds () {
-        List<String> teamIds = new ArrayList<>();
-        for (CBCEventTeam team : getTeams()) {
-            teamIds.add(team.getTeamId());
-        }
-        return teamIds;
+        return getTeams()
+                .stream()
+                .map(CBCEventTeam::getTeamId)
+                .collect(Collectors.toList());
     }
 
     public List<String> getUnusedTeamIds () {
-        List<String> teamIds = CBCEventTeam.getAllTeamIds();
-        for (CBCEventTeam team : getTeams()) {
-            teamIds.remove(team.getTeamId());
-        }
-        return teamIds;
+        List<String> usedTeamIds = getAllTeamIds();
+        return CBCEventTeam.getAllTeamIds()
+                .stream()
+                .filter(team -> !usedTeamIds.contains(team))
+                .toList();
     }
+
+    public CBCGamemode getGamemodeNameForGame (int gameNum) {
+        try {
+            return gamemodeList.get(gameNum - 1);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    public String getMapNameForGame (int gameNum) {
+        try {
+            return mapNameList.get(gameNum - 1);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
 }

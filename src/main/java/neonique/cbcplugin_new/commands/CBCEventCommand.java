@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CBCEventCommand extends _BaseCommand {
@@ -168,6 +169,35 @@ public class CBCEventCommand extends _BaseCommand {
                     eventManager.setGamemode(gamemode, gameNum);
                     user.sendMessage("Set gamemode for game " + gameNum + " to '" + gamemodeString + "'.");
                 }
+                case "setmapname" -> {
+                    if (checkIfPerms(user, perms, 2)) return true;
+
+                    if (level == 1) {
+                        user.sendMessage(Component.text("You must put '1', '2', '3' or '4' for one of the games.").color(NamedTextColor.YELLOW));
+                        return true;
+                    }
+
+                    String game = args[1].toLowerCase();
+                    int gameNum;
+                    try {
+                        gameNum = Integer.parseInt(game);
+                        if (gameNum < 1 || gameNum > 4) {
+                            throw new NumberFormatException();
+                        }
+                    } catch (NumberFormatException e) {
+                        user.sendMessage(Component.text("Invalid number! You must choose '1', '2', '3' or '4'.").color(NamedTextColor.YELLOW));
+                        return true;
+                    }
+
+                    if (level == 2) {
+                        user.sendMessage(Component.text("You must include a map name!").color(NamedTextColor.YELLOW));
+                        return true;
+                    }
+
+                    String mapName = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+                    eventManager.setMapName(mapName, gameNum);
+                    user.sendMessage("Set gamemode for game " + gameNum + " to '" + mapName + "'.");
+                }
                 case "gamestats" -> {
 
                     if (level == 1) {
@@ -297,14 +327,14 @@ public class CBCEventCommand extends _BaseCommand {
                     tabCompleters.add("4");
                 }
             }
-            if (subcommand.equals("setgamemode")) {
+            if (subcommand.equals("setgamemode") || subcommand.equals("setmapname")) {
                 if (level == 2) {
                     tabCompleters.add("1");
                     tabCompleters.add("2");
                     tabCompleters.add("3");
                     tabCompleters.add("4");
                 }
-                else if (level == 3) {
+                else if (level == 3 && subcommand.equals("setgamemode")) {
                     tabCompleters.addAll(CBCGamemode.getGamemodeIds());
                 }
             }
