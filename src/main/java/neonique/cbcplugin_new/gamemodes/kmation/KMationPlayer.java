@@ -121,50 +121,33 @@ public class KMationPlayer extends CBCPlayer {
     // Runs when the game is being set up
     public void playerSetupGame () {
 
-        // Do not start the round for this player if the player is offline
         if (!isOnline()) return;
-        Player playerEntity = getPlayer();
-        eliminated = false;
-        // Set gamemode of player to adventure and reset their stats
-        getPlayer().setLevel(0);
-        getPlayer().setExp(0);
-        setAlive(false); // Set player's alive state to false
-        playerCycleKills = 0;
-        playerEntity.setHealth(20);
-        playerEntity.setGameMode(GameMode.ADVENTURE);
-        playerEntity.getInventory().clear();
-        playerEntity.updateInventory();
-        // Manage player effects
-        playerEntity.removePotionEffect(PotionEffectType.GLOWING);
-        playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 800000, 0, false, false, false));
-        setReloadsBySecond(3); // Reset player's reloading timers
+        resetPlayer();
+        getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 800000, 0, false, false, false));
+
     }
 
     // Runs when the game countdown timer stops
     public void playerStartGame () {
 
-        // Do not start the round for this player if the player is offline
-        if (!isOnline()) return;
         Player playerEntity = getPlayer();
 
         // Set gamemode of player to adventure and reset their stats
-        playerEntity.setHealth(20);
-        playerEntity.getInventory().clear();
-        playerEntity.updateInventory();
-        setReloadsBySecond(3); // Reset player's reloading timers
-        setAlive(true); // Set player's state to alive
-        setImmune(true); // Make player immune
+        playerSetup();
+        setReloadsBySecond(2);
+        setTempImmune(60);
+
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
         playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
         new TempImmunityTask(getGameManager(), getCombatManager(), this, 6).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
+
     }
 
     // Eliminate player
     public void eliminatePlayer() {
         this.eliminated = true;
-        // Kill player if still alive
+
         if (isAlive()) {
-            // Set player unalive
             setAlive(false);
         }
 

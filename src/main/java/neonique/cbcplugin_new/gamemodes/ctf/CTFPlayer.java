@@ -335,8 +335,12 @@ public class CTFPlayer extends CBCPlayer {
         setReloadsBySecond(2);
         setTempImmune(60);
 
+        // If the player has been revived, un-eliminate the player
+        eliminated = false;
+
         // Update sidebar
         game.getSidebarManager().updateServerBoard();
+
     }
 
     public void teleportPlayerToSpawn() {

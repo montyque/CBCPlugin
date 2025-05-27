@@ -59,8 +59,6 @@ public class KMationGame extends FFAGame {
 
     // Listeners and tasks
     private KMationCycleTimerTask cycleTimerTask;
-    private KMationSidebarUpdate sidebarUpdateTask;
-
     private PlayerNoMove noMoveListener;
 
     ////////////////////////////////////////////////////////////////////
@@ -75,7 +73,6 @@ public class KMationGame extends FFAGame {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
-        final World world = getWorld();
 
         // Setup map
         setupMap(mapChosen);
@@ -436,7 +433,6 @@ public class KMationGame extends FFAGame {
 
         // Cancel tasks
         cancelTask(cycleTimerTask);
-        cancelTask(sidebarUpdateTask);
 
         // Unregister teams
         CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(safeTeam.getName());
