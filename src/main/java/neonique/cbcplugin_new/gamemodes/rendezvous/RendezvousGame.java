@@ -195,13 +195,8 @@ public class RendezvousGame extends TeamGame {
         super.setupMap(generalMap);
         this.map = (RendezvousMap) generalMap;
 
-        // Get team start spawns
         teamStartSpawns = this.map.getTeamStartSpawns();
-
-        // Get spawns
         spawns = this.map.getRandomSpawns();
-
-        // Get checkpoints
         checkpoints = this.map.getCheckpoints();
 
         // Get min and max checkpoint distance
@@ -219,22 +214,23 @@ public class RendezvousGame extends TeamGame {
 
         map.fillBlocksAtEnd();
 
+        // Allow players to move
         PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);
         playerNoMoveListener = null;
 
         // Initialise all players
         for (RendezvousTeam team : teams) {
             for (CBCPlayer player : team.getOnlinePlayers()) {
-                RendezvousPlayer rdvPlayer = (RendezvousPlayer) player;
 
+                RendezvousPlayer rdvPlayer = (RendezvousPlayer) player;
                 rdvPlayer.playerSetup();
                 rdvPlayer.setReloadsBySecond(1);
                 rdvPlayer.setTempImmune(60);
-
                 if (rdvPlayer.isPlayerRunner()) {
-                    rdvPlayer.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000,
+                    rdvPlayer.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1,
                             0, false, false, false));
                 }
+
             }
         }
 
@@ -393,6 +389,9 @@ public class RendezvousGame extends TeamGame {
 
         // Send message and play sound
         getGameManager().playGlobalSound(Sound.BLOCK_BEACON_POWER_SELECT, 200, 2);
+
+        updateServerSidebar();
+        updateBossbarManager();
 
     }
 

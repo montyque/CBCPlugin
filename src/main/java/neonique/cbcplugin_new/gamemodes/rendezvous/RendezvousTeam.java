@@ -210,6 +210,7 @@ public class RendezvousTeam extends CBCTeam {
             if (!player.isOnline()) continue;
             player.getPlayer().sendPlayerListFooter(footerQueueComponent);
         }
+
     }
 
     public void setPlayerListFooterForPlayer (Player player) {
@@ -233,17 +234,22 @@ public class RendezvousTeam extends CBCTeam {
         runner.giveRunnerCompass(inventory);
 
         if (newCheckpoint) {
-            if (onFinalCheckpoint() && runner.isAlive()) {
-                runner.finalCheckpointTeleport();
+            if (onFinalCheckpoint()) {
+
+                // Teleport the runner away from the checkpoint
+                if (runner.isAlive()) {
+                    runner.finalCheckpointTeleport();
+                }
             } else {
                 selectNewCheckpoint();
             }
         }
 
+        // Make the runner glow
         for (RendezvousPlayer player : getRendezvousPlayers()) {
             if (!player.isAlive()) continue;
             if (player.isPlayerRunner()) {
-                player.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000,
+                player.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1,
                         0, false, false, false));
             }
             else {
@@ -251,7 +257,6 @@ public class RendezvousTeam extends CBCTeam {
             }
         }
 
-        game.updateServerSidebar();
     }
 
     public void changeInRunner () {
@@ -676,6 +681,7 @@ public class RendezvousTeam extends CBCTeam {
 
         // Check if team does not have a runner right now
         if (runner == null) {
+
             // Change runner to player
             setRunnerNextPlayerInQueue();
             for (CBCPlayer plr : getOnlinePlayers()) {
@@ -687,6 +693,9 @@ public class RendezvousTeam extends CBCTeam {
 
         // Update team footer to show correct order
         setFooterQueueComponent();
+
+        game.updateServerSidebar();
+        game.updateBossbarManager();
     }
 
     @Override
@@ -698,8 +707,10 @@ public class RendezvousTeam extends CBCTeam {
 
         // Check if player is runner
         if (runner == rdvPlayer) {
+
             // Change runner to the next online player in the queue
             setRunnerNextPlayerInQueue();
+            game.updateServerSidebar();
 
             // Send message to team
             for (CBCPlayer plr : getOnlinePlayers()) {
@@ -714,6 +725,9 @@ public class RendezvousTeam extends CBCTeam {
 
         // Update team footer to show correct order
         setFooterQueueComponent();
+
+        game.updateServerSidebar();
+        game.updateBossbarManager();
 
     }
 }
