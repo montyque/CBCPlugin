@@ -41,7 +41,7 @@ public class HTGPostGameStats extends PostGameStats {
             }
         }
 
-        if (playersList.size() > 0) {
+        if (!playersList.isEmpty()) {
 
             playersByKills = new ArrayList<>();
             playersByGoldScore = new ArrayList<>();
@@ -76,11 +76,9 @@ public class HTGPostGameStats extends PostGameStats {
         Component finalScore = Component.text("Final Score: ").color(NamedTextColor.GRAY);
         List<HTGTeam> teamsByScore = new ArrayList<>(game.getTeams());
         teamsByScore.sort(Comparator.comparingInt(HTGTeam::getScore));
-        System.out.println(teamsByScore);
         int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
         for (HTGTeam team : teamsByScore) {
             finalScore = finalScore.append(Component.text(team.getScore()).color(team.getColor()));
-            System.out.println(finalScore);
             i++;
             if (i != teamsByScore.size()) {
                 finalScore = finalScore.append(Component.text(" - ").color(NamedTextColor.WHITE));
@@ -97,7 +95,7 @@ public class HTGPostGameStats extends PostGameStats {
         gameSummaryItem.setItemMeta(gameSummaryMeta);
 
         return gameSummaryItem;
-    };
+    }
 
     public ItemStack generateTeamItem (CBCTeam rawTeam) {
         HTGTeam team = (HTGTeam) rawTeam;
@@ -138,7 +136,7 @@ public class HTGPostGameStats extends PostGameStats {
         Collections.reverse(teamPlayersByGoldScore);
 
         // Add team most kills and team most time alive
-        if (teamPlayersList.size() > 0) {
+        if (!teamPlayersList.isEmpty()) {
             HTGPlayer mostKillsPlayer = teamPlayersByKills.get(0);
             addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.getName()
                     + " (" + mostKillsPlayer.getKills() + ")", NamedTextColor.GREEN);
@@ -154,7 +152,7 @@ public class HTGPostGameStats extends PostGameStats {
         teamItem.setItemMeta(teamItemMeta);
         return teamItem;
 
-    };
+    }
 
     public ItemStack generatePlayerItem (CBCPlayer rawPlayer) {
 
@@ -201,7 +199,7 @@ public class HTGPostGameStats extends PostGameStats {
         playerItemMeta.lore(playerLoreList);
         playerItem.setItemMeta(playerItemMeta);
         return playerItem;
-    };
+    }
 
     @Override
     public void sendPostGameSummary(Audience audience) {
@@ -211,8 +209,7 @@ public class HTGPostGameStats extends PostGameStats {
 
         audience.sendMessage(
                 Component.text("Game Length: ").color(NamedTextColor.WHITE)
-                        .append(Component.text(String.format("%d:%02d", game.getGameLength() / 60, game.getGameLength() & 60)).color(NamedTextColor.GREEN))
-        );
+                        .append(Component.text(getTimeFormat(game.getGameLength()))).color(NamedTextColor.GREEN));
 
         // Get final score
         Component finalScore = Component.text("Final Score: ").color(NamedTextColor.WHITE);

@@ -4,7 +4,6 @@ import neonique.cbcplugin_new.gamemodes.koth.KOTHGame;
 import neonique.cbcplugin_new.gamemodes.koth.KOTHHill;
 import neonique.cbcplugin_new.gamemodes.koth.KOTHPlayer;
 import neonique.cbcplugin_new.gamemodes.koth.KOTHTeam;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -16,7 +15,7 @@ public class KOTHHillTask extends BukkitRunnable {
     private final KOTHGame game;
     private final KOTHHill hill;
 
-    private float detectionPeriod;
+    private final float detectionPeriod;
 
     public KOTHHillTask (KOTHGame game, KOTHHill hill, float detectionFrequency) {
         this.game = game;
@@ -68,7 +67,6 @@ public class KOTHHillTask extends BukkitRunnable {
                 if (peopleInHill > 0) {
                     // Check if any player on the point controlling team is still in the hill
                     Set<KOTHPlayer> playersInHill = teamPlayersInHill.get(pointControlTeam);
-                    System.out.println(playersInHill);
                     if (playersInHill.isEmpty()) {
                         // Reduce capture status of hill
                         game.uncapturingPoint();
