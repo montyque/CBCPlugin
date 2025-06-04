@@ -499,7 +499,7 @@ public class ThrowdownGame extends FFAGame {
         // Heal all players
         for (CBCPlayer player : getGameManager().getAlivePlayers()) {
             if (!player.isOnline()) continue;
-            player.getPlayer().setHealth(player.getMaxHealth());
+            player.healToFull();
         }
 
         // If sudden death border is enabled
