@@ -10,13 +10,10 @@ import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.projectiles.*;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -25,7 +22,7 @@ public class EntityDamagePlayerListener implements Listener {
     private final GameManager gameManager;
     private final CombatManager combatManager;
 
-    private final double CREEPER_DAMAGE_MULTIPLIER = 0.22;
+    private final static double CREEPER_DAMAGE_MULTIPLIER = 0.22;
 
     public EntityDamagePlayerListener(GameManager gameManager, CombatManager combatManager) {
         this.gameManager = gameManager;
@@ -86,9 +83,11 @@ public class EntityDamagePlayerListener implements Listener {
             } else {
                 // Change creeper damage if creeper fired by ally
                 finalDamage *= combatManager.getCreeperAllyDamageRatio();
-                if (!sourcePlayer.hasPlayerId(player.getPlayerId()) && player.isImmune()) {
-                    e.setCancelled(true);
-                    return;
+                if (sourcePlayer != player) {
+                    if (player.isImmune() || !player.isInSameTeam(sourcePlayer)) {
+                        e.setCancelled(true);
+                        return;
+                    }
                 }
             }
 

@@ -166,6 +166,10 @@ public class CBCPlayer {
         return false;
     }
 
+    public boolean isInSameTeam (CBCPlayer player) {
+        return (player.getTeam() != null && player.getTeam() == this.team);
+    }
+
     public boolean isPlayerEntityAliveEnemy (Player playerEntity) {
         CBCPlayer player = gameManager.getPlayer(playerEntity);
         if (player == null) {

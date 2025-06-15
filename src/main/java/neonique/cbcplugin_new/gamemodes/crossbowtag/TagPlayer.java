@@ -26,7 +26,7 @@ public class TagPlayer extends CBCPlayer {
     private boolean alreadyEliminated = false;
     private boolean canMove = true;
 
-    private Set<Integer> roundsEvaderIn = new HashSet<>();
+    private final Set<Integer> roundsEvaderIn = new HashSet<>();
 
     // Statistics
     private int evadersKilled = 0;
@@ -84,7 +84,7 @@ public class TagPlayer extends CBCPlayer {
         playerEntity.removePotionEffect(PotionEffectType.BLINDNESS);
 
         if (isTagger()) {
-            getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
+            getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 0, false, false, false));
         }
 
     }
