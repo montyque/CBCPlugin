@@ -36,6 +36,7 @@ public class HTGGame extends TeamGame {
     // Game related variables
     private int pointsStart = 40;
     private int ticksToScore = 40; // Every ticksToScore ticks (20 ticks = 1 second) someone holds the gold, they score
+    private int finalRunLength = 7;
 
     private HTGPlayer goldHolder = null;
     private boolean playerScored = false;
@@ -88,6 +89,7 @@ public class HTGGame extends TeamGame {
         this.pointsStart = intVars.getOrDefault("pointsStart", 40);
         this.ticksToScore = intVars.getOrDefault("ticksToScore", 40);
         this.teamsToWin = intVars.getOrDefault("teamsToWin", 1);
+        this.finalRunLength = Math.min(intVars.getOrDefault("finalRunLength", 7), pointsStart);
 
         // Setup game commands
         setGameCommands(new HTGGameCommands(gameManager, combatManager, this));
@@ -254,12 +256,12 @@ public class HTGGame extends TeamGame {
     public void playerDropGold() {
 
         HTGTeam gTeam = (HTGTeam) goldHolder.getTeam();
-        // Reset team score to 7 if they got below 7
+        // Reset team score to finalRunLength if they got below 7
         if (!gTeam.isOutOfGame()) {
-            if (gTeam.getScore() <= 7) {
-                gTeam.setScore(7);
+            if (gTeam.getScore() <= finalRunLength) {
+                gTeam.setScore(finalRunLength);
                 getGameManager().sendGlobalMessage(
-                        Component.text(gTeam.getTeamName() + "'s score has been reset to 7!").color(gTeam.getColor()).decorate(TextDecoration.BOLD)
+                        Component.text(gTeam.getTeamName() + "'s score has been reset to " + finalRunLength + "!").color(gTeam.getColor()).decorate(TextDecoration.BOLD)
                 );
             } else {
                 if (playerScored) {
@@ -304,7 +306,7 @@ public class HTGGame extends TeamGame {
         HTGTeam teamScoring = (HTGTeam) playerScoring.getTeam();
         teamScoring.score();
 
-        if (teamScoring.getScore() > 7) {
+        if (teamScoring.getScore() > finalRunLength) {
             getGameManager().playGlobalSound(Sound.BLOCK_NOTE_BLOCK_BIT, 100, 1);
         } else if (teamScoring.getScore() > 0 ){
             getGameManager().playGlobalSound(Sound.BLOCK_NOTE_BLOCK_BIT, 100, 2);

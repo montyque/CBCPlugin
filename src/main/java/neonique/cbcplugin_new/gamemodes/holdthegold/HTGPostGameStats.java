@@ -29,7 +29,6 @@ public class HTGPostGameStats extends PostGameStats {
     List<PlayerStatObject> playersByKills;
     List<PlayerStatObject> playersByGoldScore;
 
-
     public HTGPostGameStats (HTGGame HTGGame) {
         this.game = HTGGame;
 

@@ -36,12 +36,12 @@ public class HTGPlayer extends CBCPlayer {
     private int goldHoldersKilled = 0;
 
     // Constants for game points
-    private static int KILL_PTS = 10; // Points you gain for kills
-    private static int GOLDHOLDER_KILL_PTS = 20; // Extra points you gain for killing the gold holder
-    private static int KILL_WITH_TEAMMATE_GOLD_PTS = 5; // Extra points you gain for killing an enemy while your teammate has the gold
-    private static int GOLD_SCORE_PTS = 10; // Points you gain for scoring a point with the gold
-    private static int GOLD_SCORE_WITHIN_7_PTS = 5; // Extra points for scoring a point with the gold while within 7
-    private static int WINNING_GOLD_RUN_PTS = 50; // Points you gain for getting a winning gold run
+    private final static int KILL_PTS = 10; // Points you gain for kills
+    private final static int GOLD_HOLDER_KILL_PTS = 20; // Extra points you gain for killing the gold holder
+    private final static int KILL_WITH_TEAMMATE_GOLD_PTS = 5; // Extra points you gain for killing an enemy while your teammate has the gold
+    private final static int GOLD_SCORE_PTS = 10; // Points you gain for scoring a point with the gold
+    private final static int GOLD_SCORE_WITHIN_7_PTS = 5; // Extra points for scoring a point with the gold while within 7
+    private final static int WINNING_GOLD_RUN_PTS = 50; // Points you gain for getting a winning gold run
 
     public HTGPlayer(HTGGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
         super(gameManager, combatManager, player, playerId);
@@ -112,6 +112,7 @@ public class HTGPlayer extends CBCPlayer {
                 // Set up respawn timer
                 RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
                 respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
+
             }
         }
 
@@ -215,7 +216,7 @@ public class HTGPlayer extends CBCPlayer {
         Component titleComponent = Component.text("You have the gold!").decorate(TextDecoration.BOLD).color(NamedTextColor.GOLD);
         Component subtitleComponent = Component.text("Survive to score points!");
 
-        Title title = Title.title(titleComponent, subtitleComponent, TextUtil.titleTimes(200, 800, 300));
+        Title title = Title.title(titleComponent, subtitleComponent, TextUtil.titleTimes(100, 500, 100));
 
         playerEntity.showTitle(title);
 
@@ -232,7 +233,7 @@ public class HTGPlayer extends CBCPlayer {
     public void killedGoldHolder() {
         goldHoldersKilled++;
         // Add points
-        addGamePoints(GOLDHOLDER_KILL_PTS);
+        addGamePoints(GOLD_HOLDER_KILL_PTS);
     }
 
     public void addPointsScored() {
