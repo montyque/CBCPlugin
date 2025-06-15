@@ -86,7 +86,7 @@ public class RendezvousPostGameStats extends PostGameStats {
 
         audience.sendMessage(finalScore);
 
-        if (playersList.size() > 0) {
+        if (!playersList.isEmpty()) {
 
             // Show which players were in first for kills
             int mostKillsValue = playersByKills.get(0).getValue();
@@ -200,7 +200,7 @@ public class RendezvousPostGameStats extends PostGameStats {
         List<RendezvousPlayer> teamPlayersByEnemyRunnersKilled = new ArrayList<>(teamPlayersList);
         teamPlayersByEnemyRunnersKilled.sort(Comparator.comparingInt(RendezvousPlayer::getEnemyRunnersKilled).reversed());
 
-        if (teamPlayersList.size() > 0) {
+        if (!teamPlayersList.isEmpty()) {
             // Add team most kills and team most time alive
             RendezvousPlayer mostKillsPlayer = teamPlayersByKills.get(0);
             addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.getName()

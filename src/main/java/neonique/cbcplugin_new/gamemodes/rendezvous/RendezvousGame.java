@@ -134,10 +134,12 @@ public class RendezvousGame extends TeamGame {
 
             int playerinc = 0; // Increments every time we teleport a player
             for (CBCPlayer player : team.getPlayers()) {
+
                 RendezvousPlayer rdvPlayer = (RendezvousPlayer) player;
                 rdvPlayer.resetPlayer();
+
                 // Spawns players in different spawnpoints - reason playerinc is used
-                rdvPlayer.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()));
+                rdvPlayer.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()), map.getMapCentre());
 
                 playerinc++;
             }

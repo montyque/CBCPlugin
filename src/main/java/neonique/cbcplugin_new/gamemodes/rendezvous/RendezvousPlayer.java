@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
+import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -16,7 +17,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import java.time.Duration;
 import java.util.*;
@@ -41,6 +41,11 @@ public class RendezvousPlayer extends CBCPlayer {
     private static final int CHECKPOINT_CAPTURE = 80; // Points for capturing a checkpoint
     private static final int FINAL_CHECKPOINT_CAPTURE = 60; // Extra points for capturing the final checkpoint
 
+    // When selecting a runner spawn, prioritise spawns with no enemy inside this radius
+    private static final int RUNNER_SPAWN_ENEMY_RADIUS = 30;
+    // When selecting a runner spawn, prioritise spawns with no checkpoint inside this radius
+    private static final int RUNNER_SPAWN_CHECKPOINT_RADIUS = 30;
+
     public RendezvousPlayer(RendezvousGame game, GameManager gameManager, CombatManager combatManager,
                             Player player, Integer playerId) {
         super(gameManager, combatManager, player, playerId);
@@ -52,13 +57,13 @@ public class RendezvousPlayer extends CBCPlayer {
         if (!isAlive()) return;
         if (getTeam() == null) return;
 
-        final String title = "CAPTURING CHECKPOINT";
+        String title = "CAPTURING CHECKPOINT";
 
-        final int length = title.length();
-        final int lengthOfColor = (int) (progress * (float) length);
+        int length = title.length();
+        int lengthOfColor = (int) (progress * (float) length);
 
-        final StringBuilder coloredTitle = new StringBuilder();
-        final StringBuilder whiteTitle = new StringBuilder();
+        StringBuilder coloredTitle = new StringBuilder();
+        StringBuilder whiteTitle = new StringBuilder();
 
         for (int i = 0; i < length; i++) {
             if (i < lengthOfColor) {
@@ -103,7 +108,7 @@ public class RendezvousPlayer extends CBCPlayer {
         Title title =  Title.title(
                 Component.text("Checkpoint cleared!").color(color).decorate(TextDecoration.BOLD),
                 Component.text("+1 Checkpoints").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD).decorate(TextDecoration.ITALIC),
-                Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(1000), Duration.ofMillis(500))
+                TextUtil.titleTimes(0, 500, 250)
         );
         getPlayer().showTitle(title);
 
@@ -182,7 +187,6 @@ public class RendezvousPlayer extends CBCPlayer {
      */
     public boolean checkMoraleBoost (CBCPlayer playerKilled) {
 
-        // Check if player killed was morale boost
         if (isPlayerRunner()) return false;
 
         RendezvousPlayer teamRunner = getRendezvousTeam().getRunner();
@@ -201,14 +205,20 @@ public class RendezvousPlayer extends CBCPlayer {
         Location playerKilledLocation = playerKilled.getPlayer().getLocation();
         Location teamRunnerLocation = teamRunner.getPlayer().getLocation();
 
-        // Check if player killed is nearby the checkpoint
-        double maxDistanceSquared = 20 * 20;
-
+        // Check if player killed is near the checkpoint
+        double maxDistanceSquared = 30 * 30;
         if (currentCheckpoint.distanceSquared(playerKilledLocation) <= maxDistanceSquared) {
             return true;
         }
 
-        // Check if player killed is nearby the checkpoint
+        // Check if the player credited with the kill is nearby the checkpoint
+        if (isAlive()) {
+            if (currentCheckpoint.distanceSquared(getPlayer().getLocation()) <= maxDistanceSquared) {
+                return true;
+            }
+        }
+
+        // Check if the runner is 30 blocks away from the player who was killed
         return teamRunnerLocation.distanceSquared(playerKilledLocation) <= maxDistanceSquared;
 
     }
@@ -231,16 +241,24 @@ public class RendezvousPlayer extends CBCPlayer {
         playerSetup();
         setTempImmune(60);
         setReloadsBySecond(2);
-        teleportPlayerToSpawn(selectSpawn());
+
+        RendezvousSpawn selectedSpawn = selectSpawn();
+        Location lookLocation = game.getMap().getMapCentre();
 
         if (isPlayerRunner()) {
             getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000,
                     0, false, false, false));
+            if (getTeamCheckpoint() != null) {
+                lookLocation = getTeamCheckpoint();
+            }
         }
+
+        teleportPlayerToSpawn(selectedSpawn, lookLocation);
 
         if (getRendezvousTeam() != null) {
             getRendezvousTeam().setPlayerListFooterForPlayer(getPlayer());
         }
+
     }
 
     public RendezvousSpawn selectSpawn () {
@@ -256,25 +274,26 @@ public class RendezvousPlayer extends CBCPlayer {
             Set<RendezvousCheckpoint> inPlayCheckpoints = game.getInPlayCheckpoints();
 
             for (RendezvousSpawn spawn : spawns) {
+
                 boolean nearbyCheckpoint = false;
                 for (RendezvousCheckpoint checkpoint : inPlayCheckpoints) {
-                    if (spawn.distanceSquared(checkpoint) < 25 * 25) {
+                    if (spawn.distanceSquared(checkpoint) < 30 * 30) {
                         nearbyCheckpoint = true;
                         break;
                     }
                 }
-                if (!nearbyCheckpoint) {
-                    boolean nearbyRunner = false;
-                    for (RendezvousPlayer runner : game.getCurrentAliveRunners()) {
-                        if (spawn.distanceSquared(runner.getPlayer().getLocation()) < 20 * 20) {
-                            nearbyRunner = true;
-                            break;
-                        }
-                    }
-                    if (!nearbyRunner) {
-                        return spawn;
+
+                if (nearbyCheckpoint) continue;
+                boolean nearbyRunner = false;
+                for (RendezvousPlayer runner : game.getCurrentAliveRunners()) {
+                    if (spawn.distanceSquared(runner.getPlayer().getLocation()) < 30 * 30) {
+                        nearbyRunner = true;
+                        break;
                     }
                 }
+
+                if (nearbyRunner) continue;
+                return spawn;
             }
             return spawns.get(0);
         }
@@ -289,7 +308,7 @@ public class RendezvousPlayer extends CBCPlayer {
         Collections.shuffle(spawns);
 
         RendezvousSpawn closestSpawn = null;
-        double smallestDif = 2000000000;
+        double smallestDif = Double.POSITIVE_INFINITY;
 
         Set<RendezvousCheckpoint> inPlayCheckpoints = game.getInPlayCheckpoints();
 
@@ -303,29 +322,33 @@ public class RendezvousPlayer extends CBCPlayer {
                 smallestDif = difference;
             }
 
-            if (!spawn.isEnemyNearby(this, 20)) {
-                if (difference < 10) {
-                    boolean nearbyCheckpoint = false;
-                    for (RendezvousCheckpoint inPlayCheckpoint : inPlayCheckpoints) {
-                        if (spawn.distanceSquared(inPlayCheckpoint) < 15 * 15) {
-                            nearbyCheckpoint = true;
-                            break;
-                        }
-                    }
-                    if (!nearbyCheckpoint) {
-                        break;
-                    }
+            // Check the error in distance is less than 20
+            if (difference > 20) continue;
+
+            // Check if there is an enemy nearby the spawn
+            if (spawn.isEnemyNearby(this, RUNNER_SPAWN_ENEMY_RADIUS)) continue;
+
+            // Check if there is an enemy checkpoint nearby the spawn
+            boolean nearbyCheckpoint = false;
+            for (RendezvousCheckpoint inPlayCheckpoint : inPlayCheckpoints) {
+                if (spawn.distanceSquared(inPlayCheckpoint) < RUNNER_SPAWN_CHECKPOINT_RADIUS * RUNNER_SPAWN_CHECKPOINT_RADIUS) {
+                    nearbyCheckpoint = true;
+                    break;
                 }
             }
+
+            if (nearbyCheckpoint) continue;
+
+            // If all prior conditions are satisfied, select this as the spawn
+            return spawn;
+
         }
 
         if (closestSpawn == null) {
             return spawns.get(0);
-        }
-        else {
+        } else {
             return closestSpawn;
         }
-
 
     }
 
@@ -339,13 +362,10 @@ public class RendezvousPlayer extends CBCPlayer {
 
         // Create compass for runner
         if (isPlayerRunner() && getTeamCheckpoint() != null) {
-            if (!inventory.contains(Material.COMPASS)) {
-                giveRunnerCompass(inventory);
-            }
-        }
-        else {
+            giveRunnerCompass(inventory);
+        } else {
             if (inventory.contains(Material.COMPASS)) {
-                inventory.setItemInOffHand(null);
+                inventory.setItem(8, null);
             }
         }
     }
@@ -388,14 +408,6 @@ public class RendezvousPlayer extends CBCPlayer {
 
         // Update bossbar
         game.updateBossbarManager();
-    }
-
-    public void teleportPlayerToSpawn(Location spawn) {
-
-        getPlayer().teleport(spawn);
-        Vector dir = game.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
-        Location loc = getPlayer().getLocation().setDirection(dir);
-        getPlayer().teleport(loc);
 
     }
 
@@ -404,10 +416,10 @@ public class RendezvousPlayer extends CBCPlayer {
         if (!isOnline()) return;
 
         RendezvousSpawn spawn = selectSpawnForRunner();
-        teleportPlayerToSpawn(spawn);
+        teleportPlayerToSpawn(spawn, getTeamCheckpoint());
 
-        // Send message to player
         getPlayer().sendMessage(Component.text("You have been teleported away from your checkpoint.").color(NamedTextColor.YELLOW));
+
     }
 
     public RendezvousTeam getRendezvousTeam () {

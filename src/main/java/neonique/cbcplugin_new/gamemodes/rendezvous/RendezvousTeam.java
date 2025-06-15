@@ -327,9 +327,7 @@ public class RendezvousTeam extends CBCTeam {
             setProgressMax(70);
         }
         else {
-
             int targetDistances = game.getTargetDistancesSize();
-
             if (targetDistances <= checkpointsCleared) {
                 targetCheckpoint = selectCheckpoint(game.getRandomCheckpointDistance(), 10);
                 currentCheckpointTargetDistance = targetCheckpoint.distance(runner.getPlayer().getLocation());
