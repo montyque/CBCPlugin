@@ -124,7 +124,6 @@ public class ShowdownGame extends TeamGame {
         randomSpawns = map.isRandomTeamSpawns();
         if (randomSpawns) {
             randomTeamSpawns = map.getTeamSpawns();
-            System.out.println(randomTeamSpawns.size() + " spawns");
             randomTeamSpawns = sortSpawns();
         } else {
             nonRandomTeamSpawns = map.getTeamSpawnsWithKeys();
@@ -221,7 +220,7 @@ public class ShowdownGame extends TeamGame {
             new ShowdownStartRoundTimer(getGameManager(), this, 6, false).runTaskTimer(CBCPlugin.getPlugin(), 0, 20);
         }
 
-        // Update bossbar and sidebar
+        // Update UI elements
         updateBossbarManager();
         updateServerSidebar();
     }
@@ -263,7 +262,7 @@ public class ShowdownGame extends TeamGame {
             new IncrementGameTimeTask(this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
         }
 
-        // Update sidebar
+        // Update UI elements
         updateServerSidebar();
     }
 
@@ -350,7 +349,6 @@ public class ShowdownGame extends TeamGame {
         // Set all alive players to immune
         for (CBCPlayer player : getGameManager().getAlivePlayers()) {
             player.setImmune(true);
-            // Give points to alive players who survived
             if (player instanceof ShowdownPlayer) {
                 ((ShowdownPlayer) player).playerSurvivedRound();
             }
@@ -488,18 +486,15 @@ public class ShowdownGame extends TeamGame {
                 Component.space(), Component.text("Sudden Death has started!").color(NamedTextColor.RED),
                 Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(1500), Duration.ofMillis(500))
         );
+
         getGameManager().sendGlobalTitle(title);
-
-        // Play sound to everyone
         getGameManager().playGlobalSound(Sound.ENTITY_WITHER_DEATH, 200, 1);
-
-        // Disable all health pads
         getCombatManager().disableAllHealPads();
 
         // Heal all players
         for (CBCPlayer player : getGameManager().getAlivePlayers()) {
             if (!player.isOnline()) continue;
-            player.getPlayer().setHealth(player.getMaxHealth());
+            player.healToFull();
         }
 
         // If sudden death border is enabled activate the border

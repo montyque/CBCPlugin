@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 public class ShowdownTeam extends CBCTeam {
 
     // Set variables relating to showdown game
-    private final ShowdownGame showdownGame;
+    private final ShowdownGame game;
     private int roundsWon;
     private int playersLeftAlive;
     private boolean teamAlive;
@@ -19,7 +19,7 @@ public class ShowdownTeam extends CBCTeam {
     public ShowdownTeam(ShowdownGame showdownGame, String teamId, String teamName, String teamNumId, NamedTextColor teamColor,
                         String prefix, ItemStack item, ItemStack glassHead) {
         super(teamId, teamName, teamNumId, teamColor, prefix, item, glassHead);
-        this.showdownGame = showdownGame;
+        this.game = showdownGame;
         roundsWon = 0;
         teamAlive = false;
     }
@@ -28,7 +28,7 @@ public class ShowdownTeam extends CBCTeam {
 
     public void teleportPlayers (ShowdownSpawn spawn) {
         for (CBCPlayer player : getOnlinePlayers()) {
-            player.teleportPlayerToSpawn(spawn, showdownGame.getMap().getMapCentre());
+            player.teleportPlayerToSpawn(spawn, game.getMap().getMapCentre());
             ((ShowdownPlayer) player).playerSetupRound();
         }
     }
@@ -51,7 +51,7 @@ public class ShowdownTeam extends CBCTeam {
 
         teamAlive = false;
         // Send message
-        showdownGame.getGameManager().sendGlobalMessage(
+        game.getGameManager().sendGlobalMessage(
                 Component.text("TEAM ELIMINATED > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
                         .append(Component.text(getTeamName()).decorate(TextDecoration.BOLD).color(getColor()))
                         .append(Component.text(" has been eliminated!").decoration(TextDecoration.BOLD, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
@@ -62,7 +62,7 @@ public class ShowdownTeam extends CBCTeam {
 
         teamAlive = true;
         // Send message
-        showdownGame.getGameManager().sendGlobalMessage(
+        game.getGameManager().sendGlobalMessage(
                 Component.text("TEAM REVIVED > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
                         .append(Component.text(getTeamName()).decorate(TextDecoration.BOLD).color(getColor()))
                         .append(Component.text(" has been revived as at least one member is back alive!").decoration(TextDecoration.BOLD, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
