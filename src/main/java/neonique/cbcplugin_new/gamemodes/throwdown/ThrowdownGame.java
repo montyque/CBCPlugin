@@ -236,6 +236,8 @@ public class ThrowdownGame extends FFAGame {
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
         roundStartCountdown = false;
 
+        new ThrowdownTimeAliveTask(this.getGameManager(), this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
+
         // Start sudden death mechanisms
         if (suddenDeathEnabled) {
             sdTimerTask = new ThrowdownSDTimer(getGameManager(), this);

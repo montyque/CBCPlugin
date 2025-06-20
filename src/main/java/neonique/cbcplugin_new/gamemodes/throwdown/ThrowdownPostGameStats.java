@@ -42,6 +42,7 @@ public class ThrowdownPostGameStats extends PostGameStats {
 
             playersByKills = new ArrayList<>();
             playersByTimeAlive = new ArrayList<>();
+            playersByRoundsWon = new ArrayList<>();
 
             for (ThrowdownPlayer player : playersList) {
                 playersByKills.add(new PlayerStatObject(player, player.getKills()));
@@ -134,7 +135,7 @@ public class ThrowdownPostGameStats extends PostGameStats {
 
         int positionInRoundsWon = playerRoundsWon.getPlacement();
         if (positionInRoundsWon > 0) {
-            addLoreField(playerLoreList, "Time Alive", playerRoundsWon.getValue() +
+            addLoreField(playerLoreList, "Rounds Won", playerRoundsWon.getValue() +
                     " (#" + positionInRoundsWon + ")", NamedTextColor.GREEN);
         }
 
