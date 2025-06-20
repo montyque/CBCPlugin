@@ -84,6 +84,7 @@ public class GamemodeOptions {
                 defaultGameInts.put("pointsStart", 40);
                 defaultGameInts.put("ticksToScore", 40);
                 defaultGameInts.put("teamsToWin", 1);
+                defaultGameInts.put("finalRunLength", 7);
                 break;
             case "tdm":
                 defaultGameBools.put("gameByTimer", true);

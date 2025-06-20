@@ -162,12 +162,12 @@ public class HTGSidebarManager extends GameSidebarManager {
             }
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
-                    Component.text("Kills: " ).color(NamedTextColor.GREEN)).append(
+                    Component.text("Kills: ").color(NamedTextColor.GREEN)).append(
                     Component.text(htgPlayer.getKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
-                    Component.text("Gold Score: " ).color(NamedTextColor.GREEN)).append(
+                    Component.text("Gold Score: ").color(NamedTextColor.GREEN)).append(
                     Component.text(htgPlayer.getGoldScore()).color(NamedTextColor.YELLOW))
             );
 

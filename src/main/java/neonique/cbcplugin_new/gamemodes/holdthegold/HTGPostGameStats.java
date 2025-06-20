@@ -208,7 +208,7 @@ public class HTGPostGameStats extends PostGameStats {
 
         audience.sendMessage(
                 Component.text("Game Length: ").color(NamedTextColor.WHITE)
-                        .append(Component.text(getTimeFormat(game.getGameLength()))).color(NamedTextColor.GREEN));
+                        .append(Component.text(getTimeFormat(game.getGameLength())).color(NamedTextColor.GREEN)));
 
         // Get final score
         Component finalScore = Component.text("Final Score: ").color(NamedTextColor.WHITE);
