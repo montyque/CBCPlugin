@@ -268,7 +268,7 @@ public class CTFPostGameStats extends PostGameStats {
             addLoreField(playerLoreList, "Capture Success %", captureSuccessPercentage + "%", NamedTextColor.GREEN);
         }
 
-        addLoreField(playerLoreList, "Morale Boosts Given", String.valueOf(player.getmBoostsGiven()), NamedTextColor.GREEN);
+        addLoreField(playerLoreList, "Morale Boosts Given", String.valueOf(player.getMoraleBoostsGiven()), NamedTextColor.GREEN);
 
         // Set the item lore and the item meta then add item to inventory
         playerItemMeta.lore(playerLoreList);

@@ -59,7 +59,6 @@ public class CTFGame extends TeamGame {
     protected CTFStartGameTimer startGameTimer;
     protected CTFPlayersNearbyFlags playersNearbyFlagsTask;
     protected CTFGlowManagerTask updateGlowTask;
-    protected CTFPlayerTrackingTask playerTrackingTask;
     protected PlayerNoMove playerNoMoveListener;
     private CTFTeleportListener teleportListener;
 
@@ -125,7 +124,7 @@ public class CTFGame extends TeamGame {
             for (CBCPlayer player : team.getPlayers()) {
                 CTFPlayer ctfPlayer = (CTFPlayer) player;
                 ctfPlayer.resetPlayer();
-                ctfPlayer.teleportPlayerToSpawn();
+                ctfPlayer.teleportPlayerToSpawn(team.getPlayerSpawn(), map.getMapCentre());
             }
 
             teamNum++;
@@ -148,9 +147,6 @@ public class CTFGame extends TeamGame {
 
         updateGlowTask = new CTFGlowManagerTask(this);
         updateGlowTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 15);
-
-        playerTrackingTask = new CTFPlayerTrackingTask(this);
-        playerTrackingTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 6);
 
         // Start countdown for the game
         startGameTimer = new CTFStartGameTimer(gameManager, this, 11);
@@ -293,12 +289,10 @@ public class CTFGame extends TeamGame {
 
     public void removeFlagsFromTeams () {
 
-        // Remove flags from teams
+        // Remove one flag from each team that still has more than 0 flags
         for (CTFTeam team : teams) {
-            // Check if team has any flags left
             if (team.getFlagsLeft() > 0) {
-                // Remove a flag from their team
-                team.removeFlag();
+                team.removeFlag(null);
             }
         }
 
@@ -323,7 +317,7 @@ public class CTFGame extends TeamGame {
             }
         }
 
-        // Check if game should be sent to sudden death
+        // Check if sudden death should begin
         if (!allFlagsTaken && !flagsRemaining) {
             if (map.isSuddenDeathEnabled()) {
                 startSuddenDeath();
@@ -433,7 +427,6 @@ public class CTFGame extends TeamGame {
         // Cancel all tasks
         cancelTask(playersNearbyFlagsTask);
         cancelTask(updateGlowTask);
-        cancelTask(playerTrackingTask);
 
         // Disable glow manager
         glowManager.deactivate();

@@ -27,7 +27,7 @@ import java.util.*;
 public class CTFTeam extends CBCTeam {
 
     // Set variables relating to game
-    private final CTFGame ctfGame;
+    private final CTFGame game;
 
     // General variables
     private boolean teamEliminated = false;
@@ -50,7 +50,7 @@ public class CTFTeam extends CBCTeam {
     public CTFTeam(CTFGame game, String teamId, String teamIdNum, String teamName, NamedTextColor teamColor,
                    String prefix, ItemStack item, ItemStack glassHead) {
         super(teamId, teamIdNum, teamName, teamColor, prefix, item, glassHead);
-        ctfGame = game;
+        this.game = game;
         flagsLeft = game.getFlagsStart();
     }
 
@@ -59,7 +59,7 @@ public class CTFTeam extends CBCTeam {
             return null;
         } else {
             try {
-                return (ArmorStand) ctfGame.getWorld().getEntity(hologramUUID);
+                return (ArmorStand) game.getWorld().getEntity(hologramUUID);
             } catch (ClassCastException e) {
                 return null;
             }
@@ -78,10 +78,10 @@ public class CTFTeam extends CBCTeam {
         this.flagLocation = flagLocation;
         this.teamSpawns = teamSpawns;
 
-        this.flagLocation.setYaw(getAngle(new Vector(flagLocation.getX(), 0, flagLocation.getZ()), ctfGame.getMap().getMapCentre().toVector()));
+        this.flagLocation.setYaw(getAngle(new Vector(flagLocation.getX(), 0, flagLocation.getZ()), game.getMap().getMapCentre().toVector()));
         setBannerBlock();
 
-        ArmorStand hg = (ArmorStand) ctfGame.getWorld().spawnEntity(flagLocation, EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.COMMAND,
+        ArmorStand hg = (ArmorStand) game.getWorld().spawnEntity(flagLocation, EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.COMMAND,
                 hologram -> {
                     hologram.setGravity(false);
                     hologram.setInvulnerable(true);
@@ -97,10 +97,6 @@ public class CTFTeam extends CBCTeam {
 
         flagHolder = player;
 
-        // Set flag block to air
-        Block block = flagLocation.getBlock();
-        block.setType(Material.AIR);
-
         // Play sound and title to all players on team
         Title title = Title.title(
                 Component.text("Your flag was picked up!").color(getColor()).decorate(TextDecoration.BOLD),
@@ -109,97 +105,53 @@ public class CTFTeam extends CBCTeam {
                 Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1000), Duration.ofMillis(150))
         );
 
-        for (CBCPlayer teamplr : getPlayers()) {
-            if (teamplr.isOnline()) {
+        for (CBCPlayer teamPlayer : getPlayers()) {
+            if (teamPlayer.isOnline()) {
 
-                CTFPlayer ctfPlayerObj = (CTFPlayer) teamplr;
+                CTFPlayer ctfPlayerObj = (CTFPlayer) teamPlayer;
                 Set<Player> glowingPlayers = ctfPlayerObj.getGlowingPlayers();
-                ctfGame.getGlowManager().updateGlowingList(teamplr.getPlayer(), glowingPlayers);
+                game.getGlowManager().updateGlowingList(teamPlayer.getPlayer(), glowingPlayers);
 
-                teamplr.getPlayer().playSound(teamplr.getPlayer().getLocation(), Sound.ITEM_CHORUS_FRUIT_TELEPORT, 100, 0);
-                teamplr.getPlayer().showTitle(title);
+                teamPlayer.getPlayer().playSound(teamPlayer.getPlayer().getLocation(), Sound.ITEM_CHORUS_FRUIT_TELEPORT, 100, 0);
+                teamPlayer.getPlayer().showTitle(title);
+
             }
         }
 
         timesFlagPickedUp++;
         getHologram().setCustomNameVisible(false);
+        flagLocation.getBlock().setType(Material.AIR);
 
-        for (CBCPlayer cplayer : getOnlinePlayers()) {
-
-            Set<Player> glowingPlayers = ((CTFPlayer) cplayer).getGlowingPlayers();
-            ctfGame.getGlowManager().updateGlowingList(cplayer.getPlayer(), glowingPlayers);
-
-            try {
-                ((CTFPlayer) cplayer).updateFlagHolderLaser();
-            } catch (ReflectiveOperationException ignored) {}
-        }
-
-        ctfGame.getSidebarManager().updateServerBoard();
+        game.getSidebarManager().updateServerBoard();
     }
 
     public void flagCaptured() {
 
-        flagsLeft--;
-
-        Component title;
-        Component subtitle;
-
-        if (flagsLeft == 0) {
-            playersRespawn = false;
-            title = Component.text("Your flags are gone!").color(getColor()).decorate(TextDecoration.BOLD);
-            subtitle = Component.text("Captured by ").color(NamedTextColor.WHITE)
-                    .append(flagHolder.getNameComponent())
-                    .append(Component.text(" - no more respawning!").color(NamedTextColor.WHITE));
-        }
-        else {
-            title = Component.text("Your flag was captured!").color(getColor()).decorate(TextDecoration.BOLD);
-            subtitle = Component.text("Captured by ").color(NamedTextColor.WHITE)
-                    .append(flagHolder.getNameComponent())
-                    .append(Component.text(" - " + flagsLeft + " ⚑ left").color(NamedTextColor.WHITE));
-        }
-
-        for (CBCPlayer teamplr : getOnlinePlayers()) {
-            if (teamplr.isOnline()) {
-
-                teamplr.getPlayer().showTitle(
-                        Title.title(title, subtitle, Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1000), Duration.ofMillis(150)))
-                );
-            }
-        }
-
-        // Eliminate all offline players
-        if (flagsLeft == 0) {
-            for (CBCPlayer teamplr : getPlayers()) {
-                if (!teamplr.isOnline()) {
-                    ((CTFPlayer) teamplr).eliminatePlayer();
-                }
-            }
-        }
-
         timesFlagCaptured++;
+        removeFlag(flagHolder);
         flagReset();
+        game.checkIfFlagsLeft();
 
-        ctfGame.checkIfFlagsLeft();
     }
 
     public void flagReset() {
+
         flagHolder = null;
+
         if (flagsLeft > 0) {
             getHologram().setCustomNameVisible(true);
             setBannerBlock();
+        } else {
+            getHologram().setCustomNameVisible(false);
+            flagLocation.getBlock().setType(Material.AIR);
         }
 
         for (CBCPlayer player : getOnlinePlayers()) {
-
             Set<Player> glowingPlayers = ((CTFPlayer) player).getGlowingPlayers();
-            ctfGame.getGlowManager().updateGlowingList(player.getPlayer(), glowingPlayers);
-
-            try {
-                ((CTFPlayer) player).updateFlagHolderLaser();
-            } catch (ReflectiveOperationException ignored) {}
+            game.getGlowManager().updateGlowingList(player.getPlayer(), glowingPlayers);
         }
 
-        ctfGame.getSidebarManager().updateServerBoard();
+        game.getSidebarManager().updateServerBoard();
     }
 
     public Location getFlagLocation() {
@@ -212,7 +164,7 @@ public class CTFTeam extends CBCTeam {
         for (Location spawn : teamSpawns) {
             boolean validSpawn = true;
             for (Player player : spawn.getNearbyEntitiesByType(Player.class, 0.3)) {
-                if (ctfGame.getPlayer(player) != null) {
+                if (game.getPlayer(player) != null) {
                     validSpawn = false;
                     break;
                 }
@@ -222,7 +174,7 @@ public class CTFTeam extends CBCTeam {
             }
         }
 
-        if (validSpawns.size() == 0) {
+        if (validSpawns.isEmpty()) {
             validSpawns = new ArrayList<>(teamSpawns);
         }
 
@@ -357,15 +309,33 @@ public class CTFTeam extends CBCTeam {
     }
 
     public void eliminateTeam() {
+
         teamEliminated = true;
+
         // Send message
-        ctfGame.getGameManager().sendGlobalMessage(
+        game.getGameManager().sendGlobalMessage(
                 Component.newline().append(Component.text("TEAM ELIMINATED > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
                         .append(Component.text(getTeamName() + " Team").color(getColor()))
                         .append(Component.text(" has been eliminated!").color(NamedTextColor.WHITE)).append(Component.newline())
         );
+
         // Check if game can end
-        ctfGame.checkIfWinner();
+        game.checkIfWinner();
+    }
+
+    public void reviveTeam() {
+
+        teamEliminated = false;
+
+        // Send message
+        game.getGameManager().sendGlobalMessage(
+                Component.newline().append(Component.text("TEAM REVIVED > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
+                        .append(Component.text(getTeamName() + " Team").color(getColor()))
+                        .append(Component.text(" has been revived!").color(NamedTextColor.WHITE)).append(Component.newline())
+        );
+
+        // Check if game can end
+        game.checkIfWinner();
     }
 
     public boolean isTeamEliminated() {
@@ -385,6 +355,7 @@ public class CTFTeam extends CBCTeam {
         if (nonEliminatedPlayers == 0 && !teamEliminated) {
             eliminateTeam();
         }
+
         return nonEliminatedPlayers;
     }
 
@@ -397,8 +368,8 @@ public class CTFTeam extends CBCTeam {
                 flagReset();
             }
         }
-        ctfGame.checkIfFlagsLeft();
-        ctfGame.getSidebarManager().updateServerBoard();
+        game.checkIfFlagsLeft();
+        game.getSidebarManager().updateServerBoard();
     }
 
     public int getFlagsLeft() {
@@ -434,7 +405,7 @@ public class CTFTeam extends CBCTeam {
         }
     }
 
-    public void removeFlag() {
+    public void removeFlag (CTFPlayer flagCapturer) {
 
         flagsLeft--;
 
@@ -444,41 +415,46 @@ public class CTFTeam extends CBCTeam {
         if (flagsLeft <= 0) {
             playersRespawn = false;
             title = Component.text("Your flags are gone!").color(getColor()).decorate(TextDecoration.BOLD);
-            subtitle = Component.text("Flag removed by timer").color(NamedTextColor.WHITE)
-                    .append(Component.text(" - no more respawning!").color(NamedTextColor.WHITE));
-            // If a player currently has the flag, drop it
-            if (flagHolder != null) {
-                flagHolder.playerDropFlag();
-                flagReset();
+
+            if (flagCapturer != null) {
+                subtitle = Component.text("Captured by ").color(NamedTextColor.WHITE)
+                        .append(flagCapturer.getNameComponent())
+                        .append(Component.text(" - no more respawning!").color(NamedTextColor.WHITE));
+            } else {
+                subtitle = Component.text("Flag removed by timer").color(NamedTextColor.WHITE)
+                        .append(Component.text(" - no more respawning!").color(NamedTextColor.WHITE));
+
+                // If a player currently has this team's flag, drop it
+                if (flagHolder != null) {
+                    flagHolder.playerDropFlag();
+                    flagReset();
+                }
             }
         }
         else {
-            title = Component.text("Flags decreased!").color(getColor()).decorate(TextDecoration.BOLD);
-            subtitle = Component.text("Flag removed by timer ").color(NamedTextColor.WHITE)
-                    .append(Component.text(" - " + flagsLeft + " ⚑ left").color(NamedTextColor.WHITE));
+            if (flagCapturer != null) {
+                title = Component.text("Your flag was captured!").color(getColor()).decorate(TextDecoration.BOLD);
+                subtitle = Component.text("Captured by ").color(NamedTextColor.WHITE)
+                        .append(flagCapturer.getNameComponent())
+                        .append(Component.text(" - " + flagsLeft + " ⚑ left").color(NamedTextColor.WHITE));
+            } else {
+                title = Component.text("Flag lost!").color(getColor()).decorate(TextDecoration.BOLD);
+                subtitle = Component.text("Flag removed by timer ").color(NamedTextColor.WHITE)
+                        .append(Component.text(" - " + flagsLeft + " ⚑ left").color(NamedTextColor.WHITE));
+            }
         }
 
-        for (CBCPlayer teamplr : getOnlinePlayers()) {
-            if (teamplr.isOnline()) {
-                Player entity = teamplr.getPlayer();
+        for (CBCPlayer teamPlayer : getPlayers()) {
+            if (teamPlayer.isOnline()) {
+                Player entity = teamPlayer.getPlayer();
                 entity.playSound(entity.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 200, 1);
                 entity.showTitle(
                         Title.title(title, subtitle, Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1000), Duration.ofMillis(150)))
                 );
+            } else if (flagsLeft == 0) {
+                // Eliminate any players offline if no flags are remaining
+                ((CTFPlayer) teamPlayer).eliminatePlayer();
             }
-        }
-
-        // Eliminate all offline players
-        if (flagsLeft == 0) {
-            for (CBCPlayer teamplr : getPlayers()) {
-                if (!teamplr.isOnline()) {
-                    ((CTFPlayer) teamplr).eliminatePlayer();
-                }
-            }
-            // Remove hologram and set banner to air
-            getHologram().setCustomNameVisible(false);
-            Block block = flagLocation.getBlock();
-            block.setType(Material.AIR);
         }
     }
 }

@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class CTFPlayersNearbyFlags extends BukkitRunnable {
 
-    private CTFGame game;
+    private final CTFGame game;
 
     public CTFPlayersNearbyFlags (CTFGame game) {
         this.game = game;
@@ -20,49 +20,53 @@ public class CTFPlayersNearbyFlags extends BukkitRunnable {
     @Override
     public void run() {
 
-        if (this.game.isGameOver()) return;
+        if (this.game.isGameOver()) {
+            this.cancel();
+            return;
+        }
+
         if (!this.game.canCaptureOrTake()) return;
 
-        // Go through all teams and their flag locations
         for (CTFTeam team : game.getTeams()) {
 
-            Location flagLocation = team.getFlagLocation().clone().add(0, 1, 0);
+            Location flagLocation = team.getFlagLocation();
 
-            for (Player player : flagLocation.getNearbyEntitiesByType(Player.class, 2)) {
+            // Find all players within a radius of 2
+            for (Player playerEntity : flagLocation.getNearbyEntitiesByType(Player.class, 2)) {
 
-                if (game.getPlayer(player) != null) {
+                if (game.getPlayer(playerEntity) == null) continue;
+                CTFPlayer player = (CTFPlayer) game.getPlayer(playerEntity);
+                if (!player.isAlive()) continue;
 
-                    CTFPlayer playerObj = (CTFPlayer) game.getPlayer(player);
-                    // Check if the player is alive
-                    if (!playerObj.isAlive()) continue;
+                // Make sure player isn't one block or more below the flag
+                if (playerEntity.getLocation().getY() - flagLocation.getY() < -1) continue;
 
-                    // Check if the player is an enemy player
-                    if (!Objects.equals(playerObj.getTeam().getTeamName(), team.getTeamName())) {
+                // Check if the player is picking up an enemy flag or capturing a flag at their own base
+                if (player.getTeam() != team) {
 
-                        // Check if player is not holding a flag
-                        if (playerObj.getFlagHeld() != null) continue;
+                    // Check if this team has a flag that can be picked up
+                    if (!team.isFlagAtBase()) continue;
 
-                        // Check if team has a flag at their base
-                        if (!team.isFlagAtBase()) continue;
+                    // Check if player is already holding a flag
+                    if (player.getFlagHeld() != null) continue;
 
-                        // Let the player pick up the flag
-                        playerObj.playerPickupFlag(team);
-                        team.flagPickedUp(playerObj);
-                    }
-                    // The player is an allied player
-                    else {
+                    // Player picks up the enemy flag
+                    player.playerPickupFlag(team);
+                    team.flagPickedUp(player);
 
-                        // Check if player is holding a flag
-                        if (playerObj.getFlagHeld() == null) continue;
+                } else {
 
-                        // Capture the flag
-                        CTFTeam teamHeldFlag = playerObj.getFlagHeld();
-                        playerObj.playerCaptureFlag();
-                        teamHeldFlag.flagCaptured();
-                    }
+                    // Check if player is holding a flag
+                    if (player.getFlagHeld() == null) continue;
+
+                    // Capture the flag
+                    CTFTeam teamHeldFlag = player.getFlagHeld();
+                    player.playerCaptureFlag();
+                    teamHeldFlag.flagCaptured();
+
                 }
-
             }
         }
     }
+
 }

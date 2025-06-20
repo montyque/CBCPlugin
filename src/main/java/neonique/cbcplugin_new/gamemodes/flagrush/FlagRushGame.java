@@ -15,7 +15,6 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.ctf.CTFGlowManagerTask;
-import neonique.cbcplugin_new.tasks.gamemodetasks.ctf.CTFPlayerTrackingTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.ctf.CTFStartGameTimer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.flagrush.FlagRushGameTimerTask;
 import net.kyori.adventure.text.Component;
@@ -111,7 +110,7 @@ public class FlagRushGame extends CTFGame {
             for (CBCPlayer player : team.getPlayers()) {
                 FlagRushPlayer ctfPlayer = (FlagRushPlayer) player;
                 ctfPlayer.resetPlayer();
-                ctfPlayer.teleportPlayerToSpawn();
+                ctfPlayer.teleportPlayerToSpawn(team.getPlayerSpawn(), map.getMapCentre());
             }
 
             teamNum++;
@@ -128,9 +127,6 @@ public class FlagRushGame extends CTFGame {
 
         updateGlowTask = new CTFGlowManagerTask(this);
         updateGlowTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 15);
-
-        playerTrackingTask = new CTFPlayerTrackingTask(this);
-        playerTrackingTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 6);
 
         // Start countdown for the game
         startGameTimer = new CTFStartGameTimer(gameManager, this, 11);
