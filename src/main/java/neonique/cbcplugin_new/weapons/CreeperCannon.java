@@ -124,6 +124,11 @@ public class CreeperCannon implements CrossbowWeapon {
         creeperFired.teleport(creeperSpawnLocation);
         arrowFired.remove();
 
+        // Change name of creeper depending on team name
+        if (owner.getTeam() != null) {
+            creeperFired.customName(Component.text(owner.getTeam().getTeamName() + "Creeper"));
+        }
+
         return new CBCCreeper(owner, creeperFired);
 
     }
