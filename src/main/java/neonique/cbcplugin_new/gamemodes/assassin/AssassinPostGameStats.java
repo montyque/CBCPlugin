@@ -34,7 +34,7 @@ public class AssassinPostGameStats extends PostGameStats {
         // Sort players on statistics
         List<AssassinPlayer> playersList = new ArrayList<>(game.getAssassinPlayers());
 
-        if (playersList.size() > 0) {
+        if (!playersList.isEmpty()) {
 
             playersByKills = new ArrayList<>();
             playersByTargetsKilled = new ArrayList<>();
@@ -53,6 +53,7 @@ public class AssassinPostGameStats extends PostGameStats {
             playersByKills = sortPlayerStatList(playersByKills, true);
             playersByTargetsKilled = sortPlayerStatList(playersByTargetsKilled, true);
             playersByTargetDeaths = sortPlayerStatList(playersByTargetDeaths, false);
+
         }
     }
 
@@ -70,7 +71,7 @@ public class AssassinPostGameStats extends PostGameStats {
         // Sort players on statistics
         List<AssassinPlayer> playersList = new ArrayList<>(game.getAssassinPlayers());
 
-        if (playersList.size() > 0) {
+        if (!playersList.isEmpty()) {
 
             // Show which players were in first for target kills
             int mostTargetKillsValue = playersByTargetsKilled.get(0).getValue();

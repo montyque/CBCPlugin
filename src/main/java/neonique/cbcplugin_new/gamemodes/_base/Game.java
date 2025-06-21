@@ -253,13 +253,11 @@ public abstract class Game {
         if (baseBossBarManager != null) {
             baseBossBarManager.addPlayer(player);
         }
-
         getSidebarManager().addPlayerSidebar(player);
     }
 
     public void playerLeaveServer(Player player) {
         UUID offlinePlayerId = player.getUniqueId();
-
         // Check if player is a player
         for (Player playerEntity : gameManager.getPlayerEntities()) {
             if (playerEntity.getUniqueId().equals(offlinePlayerId)) {
@@ -279,7 +277,6 @@ public abstract class Game {
                 return;
             }
         }
-
         getSidebarManager().removePlayerSidebar(player);
     }
 
