@@ -2,7 +2,10 @@ package neonique.cbcplugin_new.listeners.combat;
 
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.weapons.projectiles.*;
+import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,13 +26,26 @@ public class ArrowHitPlayerListener implements Listener {
     @EventHandler
     public void onArrowHit(ProjectileHitEvent e) {
 
+        ProjectileManager projectileManager = combatManager.getProjectileManager();
+
         // Check if it was an arrow that hit
-        Projectile projectile = e.getEntity();
-        if (!(projectile instanceof Arrow)) {
+        Entity projectileEntity = e.getEntity();
+        if (!(projectileEntity instanceof Arrow)) {
             return;
         }
 
-        Arrow arrow = (Arrow) projectile;
+        Projectile projectile = projectileManager.getProjectile(projectileEntity.getUniqueId());
+        if (projectile == null) {
+            return;
+        }
+
+        if (!(projectile instanceof PlayerProjectile playerProjectile)) {
+            return;
+        }
+
+        if (!(playerProjectile instanceof XbowArrow) && !(playerProjectile instanceof FlameArrow)) {
+            return;
+        }
 
         // Check if arrow hit block
         if (e.getHitEntity() == null) {
@@ -58,26 +74,13 @@ public class ArrowHitPlayerListener implements Listener {
             return;
         }
 
-        // Check if the arrow was fired by a player and if the arrow was shot by a crossbow
-        if (!((arrow.getShooter() instanceof Player && arrow.isShotFromCrossbow()))) {
-            return;
-        }
+        CBCPlayer arrowSource = playerProjectile.getSource();
 
-        Player shooterEntity = (Player) arrow.getShooter();
         // Check if the shooter and the player are not the same person
-        if (shooterEntity == hitPlayer) {
-            return;
-        }
-        // Check if both player and shooter are in the game
-        if (!(gameManager.hasPlayer(shooterEntity))) {
+        if (arrowSource == player) {
             return;
         }
 
-        // Check if arrow is an X-Bow arrow
-        if (arrow.getScoreboardTags().contains("xbowArrow") || arrow.getScoreboardTags().contains("xbowArrowPiglin")
-                || arrow.getScoreboardTags().contains("flameArrow")) {
-            // Set no damage ticks so that player will be tagged
-            hitPlayer.setNoDamageTicks(0);
-        }
+        hitPlayer.setNoDamageTicks(0);
     }
 }
