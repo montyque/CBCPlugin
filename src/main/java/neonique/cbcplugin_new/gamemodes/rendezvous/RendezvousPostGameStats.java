@@ -27,6 +27,7 @@ public class RendezvousPostGameStats extends PostGameStats {
     List<PlayerStatObject> playersByKills;
     List<PlayerStatObject> playersByCheckpoints;
     List<PlayerStatObject> playersByRunnersKilled;
+    List<PlayerStatObject> playersByMoraleBoostsGiven;
 
     public RendezvousPostGameStats (RendezvousGame game) {
         this.game = game;
@@ -44,6 +45,7 @@ public class RendezvousPostGameStats extends PostGameStats {
             playersByKills = new ArrayList<>();
             playersByCheckpoints = new ArrayList<>();
             playersByRunnersKilled = new ArrayList<>();
+            playersByMoraleBoostsGiven = new ArrayList<>();
 
             for (RendezvousPlayer player : playersList) {
                 // Add player's kills
@@ -52,12 +54,16 @@ public class RendezvousPostGameStats extends PostGameStats {
                 playersByCheckpoints.add(new PlayerStatObject(player, player.getCheckpointsCleared()));
                 // Add player's enemy runners killed
                 playersByRunnersKilled.add(new PlayerStatObject(player, player.getEnemyRunnersKilled()));
+                // Add player's morale boosts given
+                playersByMoraleBoostsGiven.add(new PlayerStatObject(player, player.getMoraleBoostsGiven()));
             }
 
             // Sort players by kills
             playersByKills = sortPlayerStatList(playersByKills, true);
             playersByCheckpoints = sortPlayerStatList(playersByCheckpoints, true);
             playersByRunnersKilled = sortPlayerStatList(playersByRunnersKilled, true);
+            playersByMoraleBoostsGiven = sortPlayerStatList(playersByMoraleBoostsGiven, true);
+
         }
     }
 
@@ -106,13 +112,20 @@ public class RendezvousPostGameStats extends PostGameStats {
                             .append(Component.text(" (" + mostCheckpointsValue + ")").color(NamedTextColor.WHITE))
             );
 
-            // Show which players were in first for time alive
+            // Show which players were in first for runner kills
             int mostRunnersKilledValue = playersByRunnersKilled.get(0).getValue();
-
             audience.sendMessage(
                     Component.text("Most Runner Kills: ").color(NamedTextColor.WHITE)
                             .append(getFirstPlaceComponent(playersByRunnersKilled))
                             .append(Component.text(" (" + mostRunnersKilledValue + ")").color(NamedTextColor.WHITE))
+            );
+
+            // Show which players were in first for morale boosts given
+            int mostMoraleBoostsGivenValue = playersByMoraleBoostsGiven.get(0).getValue();
+            audience.sendMessage(
+                    Component.text("Most Morale Boosts Given: ").color(NamedTextColor.WHITE)
+                            .append(getFirstPlaceComponent(playersByMoraleBoostsGiven))
+                            .append(Component.text(" (" + mostMoraleBoostsGivenValue + ")").color(NamedTextColor.WHITE))
             );
         }
 
@@ -172,14 +185,17 @@ public class RendezvousPostGameStats extends PostGameStats {
 
         int teamTotalKills = 0;
         int teamTotalEnemyRunnersKilled = 0;
+        int teamTotalMoraleBoostsGiven = 0;
         for (CBCPlayer player : team.getPlayers()) {
             teamTotalKills += player.getKills();
             teamTotalEnemyRunnersKilled += ((RendezvousPlayer) player).getEnemyRunnersKilled();
+            teamTotalMoraleBoostsGiven += ((RendezvousPlayer) player).getMoraleBoostsGiven();
         }
 
         // Add team statistics
         addLoreField(teamLoreList, "Total Kills", String.valueOf(teamTotalKills), NamedTextColor.GREEN);
         addLoreField(teamLoreList, "Total Enemy Runner Kills", String.valueOf(teamTotalEnemyRunnersKilled), NamedTextColor.GREEN);
+        addLoreField(teamLoreList, "Total Morale Boosts Given", String.valueOf(teamTotalMoraleBoostsGiven), NamedTextColor.GREEN);
         addLoreBlankLine(teamLoreList);
 
         addLoreField(teamLoreList, "Checkpoints Cleared", String.valueOf(team.getCheckpointsCleared()), NamedTextColor.GREEN);
@@ -243,6 +259,7 @@ public class RendezvousPostGameStats extends PostGameStats {
         PlayerStatObject playerKills = getPlayerStatObject(player, playersByKills);
         PlayerStatObject playerCheckpoints = getPlayerStatObject(player, playersByCheckpoints);
         PlayerStatObject playerEnemyRunnersKilled = getPlayerStatObject(player, playersByRunnersKilled);
+        PlayerStatObject playerMoraleBoostsGiven = getPlayerStatObject(player, playersByMoraleBoostsGiven);
 
         int positionInKills = playerKills.getPlacement();
         if (positionInKills > 0) {
@@ -267,6 +284,12 @@ public class RendezvousPostGameStats extends PostGameStats {
         if (positionInEnemyRunnersKilled > 0) {
             addLoreField(playerLoreList, "Enemy Runners Killed", player.getEnemyRunnersKilled() +
                     " (#" + positionInEnemyRunnersKilled + ")", NamedTextColor.GREEN);
+        }
+
+        int positionInMoraleBoostsGiven = playerMoraleBoostsGiven.getPlacement();
+        if (positionInMoraleBoostsGiven > 0) {
+            addLoreField(playerLoreList, "Morale Boosts Given", playerMoraleBoostsGiven.getValue() +
+                    " (#" + positionInMoraleBoostsGiven + ")", NamedTextColor.GREEN);
         }
 
         // Set the item lore and the item meta then add item to inventory

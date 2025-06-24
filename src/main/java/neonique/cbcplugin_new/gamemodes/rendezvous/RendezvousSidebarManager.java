@@ -175,18 +175,23 @@ public class RendezvousSidebarManager extends GameSidebarManager {
             }
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
-                    Component.text("Total Kills: " ).color(NamedTextColor.GREEN)).append(
+                    Component.text("Total Kills: ").color(NamedTextColor.GREEN)).append(
                     Component.text(rdvPlayer.getKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
-                    Component.text("Checkpoints: " ).color(NamedTextColor.GREEN)).append(
+                    Component.text("Checkpoints: ").color(NamedTextColor.GREEN)).append(
                     Component.text(rdvPlayer.getCheckpointsCleared()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
-                    Component.text("Runners Killed: " ).color(NamedTextColor.GREEN)).append(
+                    Component.text("Runners Killed: ").color(NamedTextColor.GREEN)).append(
                     Component.text(rdvPlayer.getEnemyRunnersKilled()).color(NamedTextColor.YELLOW))
+            );
+
+            clientStringList.add(getComponentSpaceOfLength(11).append(
+                    Component.text("Morale Boosts Given: ").color(NamedTextColor.GREEN)).append(
+                    Component.text(rdvPlayer.getMoraleBoostsGiven()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(blankComponent());
