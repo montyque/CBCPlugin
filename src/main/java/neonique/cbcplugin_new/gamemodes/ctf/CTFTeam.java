@@ -13,10 +13,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.block.data.Rotatable;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.util.Vector;
@@ -54,12 +53,12 @@ public class CTFTeam extends CBCTeam {
         flagsLeft = game.getFlagsStart();
     }
 
-    public ArmorStand getHologram () {
+    public AreaEffectCloud getHologram () {
         if (hologramUUID == null) {
             return null;
         } else {
             try {
-                return (ArmorStand) game.getWorld().getEntity(hologramUUID);
+                return (AreaEffectCloud) game.getWorld().getEntity(hologramUUID);
             } catch (ClassCastException e) {
                 return null;
             }
@@ -69,7 +68,8 @@ public class CTFTeam extends CBCTeam {
     @Override
     public void removeTeam () {
         super.removeTeam();
-        if (hologramUUID != null) {
+        AreaEffectCloud hg = getHologram();
+        if (hg != null) {
             getHologram().remove();
         }
     }
@@ -81,16 +81,38 @@ public class CTFTeam extends CBCTeam {
         this.flagLocation.setYaw(getAngle(new Vector(flagLocation.getX(), 0, flagLocation.getZ()), game.getMap().getMapCentre().toVector()));
         setBannerBlock();
 
-        ArmorStand hg = (ArmorStand) game.getWorld().spawnEntity(flagLocation, EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.COMMAND,
+        /*AreaEffectCloud hg = (AreaEffectCloud) game.getWorld().spawnEntity(flagLocation, EntityType.AREA_EFFECT_CLOUD, CreatureSpawnEvent.SpawnReason.COMMAND,
                 hologram -> {
                     hologram.setGravity(false);
                     hologram.setInvulnerable(true);
                     hologram.setCustomNameVisible(true);
                     hologram.customName(Component.text("⚑ " + getTeamName() + " Flag ⚑").color(getColor()).decorate(TextDecoration.BOLD));
                 }
-        );
-        hg.setInvisible(true);
-        hologramUUID = hg.getUniqueId();
+        );*/
+
+        createFlagHologram(this.flagLocation.clone().add(0, 2, 0));
+
+    }
+
+    public void createFlagHologram(Location hologramLocation) {
+
+        // Delete any nearby holograms
+        Collection<AreaEffectCloud> nearbyHolograms = hologramLocation.getNearbyEntitiesByType(AreaEffectCloud.class, 0.1);
+        for (AreaEffectCloud h : nearbyHolograms) {
+            if (!h.isDead()) {
+                h.remove();
+            }
+        }
+
+        AreaEffectCloud hologram = (AreaEffectCloud) hologramLocation.getWorld().spawnEntity(hologramLocation, EntityType.AREA_EFFECT_CLOUD);
+        hologram.clearCustomEffects();
+        hologram.setRadius(0);
+        hologram.setDuration(30000000);
+        hologramUUID = hologram.getUniqueId();
+
+        hologram.setCustomNameVisible(true);
+        hologram.customName(Component.text("⚑ " + getTeamName() + " Flag ⚑").color(getColor()).decorate(TextDecoration.BOLD));
+
     }
 
     public void flagPickedUp(CTFPlayer player) {
@@ -365,8 +387,8 @@ public class CTFTeam extends CBCTeam {
             // If a player currently has the flag, drop it
             if (flagHolder != null) {
                 flagHolder.playerDropFlag();
-                flagReset();
             }
+            flagReset();
         }
         game.checkIfFlagsLeft();
         game.getSidebarManager().updateServerBoard();
@@ -412,7 +434,7 @@ public class CTFTeam extends CBCTeam {
         Component title;
         Component subtitle;
 
-        if (flagsLeft <= 0) {
+        if (flagsLeft == 0) {
             playersRespawn = false;
             title = Component.text("Your flags are gone!").color(getColor()).decorate(TextDecoration.BOLD);
 
@@ -427,8 +449,8 @@ public class CTFTeam extends CBCTeam {
                 // If a player currently has this team's flag, drop it
                 if (flagHolder != null) {
                     flagHolder.playerDropFlag();
-                    flagReset();
                 }
+                flagReset();
             }
         }
         else {
