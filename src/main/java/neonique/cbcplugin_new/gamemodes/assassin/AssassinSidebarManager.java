@@ -1,7 +1,10 @@
 package neonique.cbcplugin_new.gamemodes.assassin;
 
+import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.enums.PlayerHeadType;
 import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
+import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -19,6 +22,7 @@ import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
 public class AssassinSidebarManager extends GameSidebarManager {
 
     private final AssassinGame game;
+    private final ResourcePackManager resourcePackManager;
 
     private List<Component> displayToEveryone = new ArrayList<>();
     private List<AssassinPlayer> topPlayers = new ArrayList<>();
@@ -32,62 +36,61 @@ public class AssassinSidebarManager extends GameSidebarManager {
 
         this.game = game;
         displayToEveryone.add(blankComponent());
+
+        resourcePackManager = CBCPlugin.getResourcePackManager();
     }
 
     public Component getPlayerRow (AssassinPlayer player, boolean isOwnPlayer) {
 
-        Component playerComponent = getComponentSpaceOfLength(5);
+        Component playerComponent = getComponentSpaceOfLength(4);
+
+        NamedTextColor colorChange = NamedTextColor.WHITE;
+        if (isOwnPlayer) {
+            colorChange = NamedTextColor.YELLOW;
+        }
 
         if (isOwnPlayer) {
             playerComponent = playerComponent
                     .append(Component.text("\uE880").color(NamedTextColor.YELLOW))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
         else {
             playerComponent = playerComponent
                     .append(getComponentSpaceOfLength(5))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
 
-        // Adding rank of player
-        String placementString;
-        if (player.getPlacement() < 10) {
-            placementString = getSpaceOfLength(6) + player.getPlacement() + ". ";
-        }
-        else {
-            placementString = player.getPlacement() + ". ";
-        }
-        if (isOwnPlayer) {
-            playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.YELLOW));
-        } else {
-            playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.WHITE));
-        }
+        // Add placement
+        int playerPlacement = player.getPlacement();
+        String placementString = player.getPlacement() + ". ";
 
-        // Adding player name
-        int teamNameLength = TextUtil.getPixelLengthOfText(player.getName());
+        playerComponent = TextUtil.addLeadingSpaceForNumber(playerComponent, playerPlacement, 2);
+        playerComponent = playerComponent.append(Component.text(placementString).color(colorChange));
 
+        // Add player head
+        Component playerHeadComponent = resourcePackManager.getPlayerHeadComponent(PlayerHeadType.NORMAL, player.getOfflinePlayer());
+        playerComponent = playerComponent.append(playerHeadComponent);
+        playerComponent = playerComponent.append(getComponentSpaceOfLength(4));
+
+        // Add player name
         NamedTextColor nameColor = NamedTextColor.AQUA;
         if (isOwnPlayer) {
             nameColor = NamedTextColor.YELLOW;
         }
-
         playerComponent = playerComponent.append(
                 Component.text(player.getName()).color(nameColor)
         );
 
-        // Add space to make player names even
-        playerComponent = playerComponent.append(getComponentSpaceOfLength(95 - teamNameLength));
+        // Add space to make names even
+        int playerNameMaxLength = 100;
+        int playerNameLength = TextUtil.getPixelLengthOfText(player.getName());
+        playerComponent = playerComponent.append(getComponentSpaceOfLength(playerNameMaxLength - playerNameLength));
+
 
         // Add targets left
         int targetsLeft = player.getTargetsLeft();
-        if (targetsLeft < 10) {
-            playerComponent = playerComponent.append(getComponentSpaceOfLength(6));
-        }
-        if (isOwnPlayer) {
-            playerComponent = playerComponent.append(Component.text(targetsLeft).color(NamedTextColor.YELLOW));
-        } else {
-            playerComponent = playerComponent.append(Component.text(targetsLeft).color(NamedTextColor.WHITE));
-        }
+        playerComponent = TextUtil.addLeadingSpaceForNumber(playerComponent, targetsLeft, 2);
+        playerComponent = playerComponent.append(Component.text(targetsLeft).color(colorChange));
 
         return playerComponent;
     }
@@ -139,13 +142,13 @@ public class AssassinSidebarManager extends GameSidebarManager {
 
             clientStringList.add(blankComponent());
 
-            clientStringList.add(getComponentSpaceOfLength(13).append(
-                    Component.text("Kills: " ).color(NamedTextColor.GREEN)).append(
+            clientStringList.add(getComponentSpaceOfLength(11).append(
+                    Component.text("Kills: ").color(NamedTextColor.GREEN)).append(
                     Component.text(assassinPlayer.getKills()).color(NamedTextColor.YELLOW))
             );
 
-            clientStringList.add(getComponentSpaceOfLength(13).append(
-                    Component.text("Deaths as Target: " ).color(NamedTextColor.GREEN)).append(
+            clientStringList.add(getComponentSpaceOfLength(11).append(
+                    Component.text("Deaths as Target: ").color(NamedTextColor.GREEN)).append(
                     Component.text(assassinPlayer.getTargetDeaths()).color(NamedTextColor.YELLOW))
             );
         }

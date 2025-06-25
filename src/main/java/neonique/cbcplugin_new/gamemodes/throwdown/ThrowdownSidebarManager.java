@@ -1,9 +1,12 @@
 package neonique.cbcplugin_new.gamemodes.throwdown;
 
+import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.enums.PlayerHeadType;
 import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
+import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,6 +21,7 @@ import static neonique.cbcplugin_new.util.TextUtil.*;
 public class ThrowdownSidebarManager extends GameSidebarManager {
 
     private final ThrowdownGame game;
+    private final ResourcePackManager resourcePackManager;
 
     private List<Component> displayToEveryone = new ArrayList<>();
 
@@ -36,40 +40,43 @@ public class ThrowdownSidebarManager extends GameSidebarManager {
 
         displayToEveryone.add(blankComponent());
 
+        resourcePackManager = CBCPlugin.getResourcePackManager();
+
     }
 
     public Component getPlayerRow (ThrowdownPlayer player, boolean isOwnPlayer) {
 
-        Component playerComponent = getComponentSpaceOfLength(5);
+        Component playerComponent = getComponentSpaceOfLength(4);
 
         if (isOwnPlayer) {
             playerComponent = playerComponent
                     .append(Component.text("\uE880").color(NamedTextColor.YELLOW))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
         else {
             playerComponent = playerComponent
                     .append(getComponentSpaceOfLength(5))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
 
-        // Adding player name
-        int teamNameLength = TextUtil.getPixelLengthOfText(player.getName());
+        // Add player head
+        Component playerHeadComponent = resourcePackManager.getPlayerHeadComponent(PlayerHeadType.NORMAL, player.getOfflinePlayer());
+        playerComponent = playerComponent.append(playerHeadComponent);
+        playerComponent = playerComponent.append(getComponentSpaceOfLength(4));
 
-        NamedTextColor nameColor;
+        // Add player name
+        NamedTextColor nameColor = NamedTextColor.GREEN;
         if (player.isEliminated()) {
             nameColor = NamedTextColor.RED;
         }
-        else {
-            nameColor = NamedTextColor.GREEN;
-        }
-
         playerComponent = playerComponent.append(
                 Component.text(player.getName()).color(nameColor)
         );
 
-        // Add space to make player names even
-        playerComponent = playerComponent.append(getComponentSpaceOfLength(95 - teamNameLength));
+        // Add space to make names even
+        int playerNameMaxLength = 100;
+        int playerNameLength = TextUtil.getPixelLengthOfText(player.getName());
+        playerComponent = playerComponent.append(getComponentSpaceOfLength(playerNameMaxLength - playerNameLength));
 
         // Add rounds won
         int roundsWon = player.getRoundsWon();
@@ -118,9 +125,9 @@ public class ThrowdownSidebarManager extends GameSidebarManager {
             // If player cannot be seen on top players list, show
             if (!topPlayers.isEmpty()) {
                 if (!topPlayers.contains(throwdownPlayer)) {
-                    if (topPlayers.get(topPlayers.size() - 1).isEliminated()) clientStringList.add(getComponentSpaceOfLength(13)
+                    if (topPlayers.get(topPlayers.size() - 1).isEliminated()) clientStringList.add(getComponentSpaceOfLength(11)
                             .append(Component.text("...").color(NamedTextColor.RED)));
-                    else clientStringList.add(getComponentSpaceOfLength(13).append(Component.text("...").color(NamedTextColor.GREEN)));
+                    else clientStringList.add(getComponentSpaceOfLength(11).append(Component.text("...").color(NamedTextColor.GREEN)));
                     // Add player string
                     clientStringList.add(getPlayerRow(throwdownPlayer, true));
                 }
@@ -134,23 +141,19 @@ public class ThrowdownSidebarManager extends GameSidebarManager {
 
             clientStringList.add(blankComponent());
 
-            clientStringList.add(getComponentSpaceOfLength(13).append(
-                    Component.text("Round Kills: " ).color(NamedTextColor.GREEN)).append(
+            clientStringList.add(getComponentSpaceOfLength(11).append(
+                    Component.text("Round Kills: ").color(NamedTextColor.GREEN)).append(
                     Component.text(throwdownPlayer.getPlayerRoundKills()).color(NamedTextColor.YELLOW))
             );
 
-            clientStringList.add(getComponentSpaceOfLength(13).append(
-                    Component.text("Game Kills: " ).color(NamedTextColor.GREEN)).append(
+            clientStringList.add(getComponentSpaceOfLength(11).append(
+                    Component.text("Game Kills: ").color(NamedTextColor.GREEN)).append(
                     Component.text(throwdownPlayer.getKills()).color(NamedTextColor.YELLOW))
             );
 
-            int secondsAlive = throwdownPlayer.getPlayerSecondsAlive();
-            int minutes = secondsAlive / 60;
-            int seconds = secondsAlive % 60;
-
-            clientStringList.add(getComponentSpaceOfLength(13).append(
-                    Component.text("Time Alive: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(String.format("%d:%02d", minutes, seconds)).color(NamedTextColor.YELLOW))
+            clientStringList.add(getComponentSpaceOfLength(11).append(
+                    Component.text("Time Alive: ").color(NamedTextColor.GREEN)).append(
+                    Component.text(timerToText(throwdownPlayer.getPlayerSecondsAlive())).color(NamedTextColor.YELLOW))
             );
 
         }

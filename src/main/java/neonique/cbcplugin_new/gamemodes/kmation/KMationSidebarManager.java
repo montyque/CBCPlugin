@@ -1,9 +1,12 @@
 package neonique.cbcplugin_new.gamemodes.kmation;
 
+import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.enums.PlayerHeadType;
 import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
+import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,6 +21,7 @@ import static neonique.cbcplugin_new.util.TextUtil.*;
 public class KMationSidebarManager extends GameSidebarManager {
 
     private final KMationGame game;
+    private final ResourcePackManager resourcePackManager;
 
     private List<Component> displayToEveryone = new ArrayList<>();
 
@@ -37,40 +41,43 @@ public class KMationSidebarManager extends GameSidebarManager {
 
         displayToEveryone.add(blankComponent());
 
+        resourcePackManager = CBCPlugin.getResourcePackManager();
+
     }
 
     public Component getPlayerRow (KMationPlayer player, boolean isOwnPlayer) {
 
-        Component playerComponent = getComponentSpaceOfLength(5);
+        Component playerComponent = getComponentSpaceOfLength(4);
+
+        NamedTextColor colorChange = NamedTextColor.WHITE;
+        if (isOwnPlayer) {
+            colorChange = NamedTextColor.YELLOW;
+        }
 
         if (isOwnPlayer) {
             playerComponent = playerComponent
                     .append(Component.text("\uE880").color(NamedTextColor.YELLOW))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
         else {
             playerComponent = playerComponent
                     .append(getComponentSpaceOfLength(5))
-                    .append(getComponentSpaceOfLength(5));
+                    .append(getComponentSpaceOfLength(4));
         }
 
-        // Adding rank of player
-        String placementString;
-        if (player.getPlacement() < 10) {
-            placementString = getSpaceOfLength(6) + player.getPlacement() + ". ";
-        }
-        else {
-            placementString = player.getPlacement() + ". ";
-        }
-        if (isOwnPlayer) {
-            playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.YELLOW));
-        } else {
-            playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.WHITE));
-        }
+        // Add placement
+        int playerPlacement = player.getPlacement();
+        String placementString = player.getPlacement() + ". ";
 
-        // Adding player name
-        int teamNameLength = TextUtil.getPixelLengthOfText(player.getName());
+        playerComponent = TextUtil.addLeadingSpaceForNumber(playerComponent, playerPlacement, 2);
+        playerComponent = playerComponent.append(Component.text(placementString).color(colorChange));
 
+        // Add player head
+        Component playerHeadComponent = resourcePackManager.getPlayerHeadComponent(PlayerHeadType.NORMAL, player.getOfflinePlayer());
+        playerComponent = playerComponent.append(playerHeadComponent);
+        playerComponent = playerComponent.append(getComponentSpaceOfLength(4));
+
+        // Add player name
         NamedTextColor nameColor;
         if (player.isEliminated()) {
             nameColor = NamedTextColor.RED;
@@ -81,25 +88,20 @@ public class KMationSidebarManager extends GameSidebarManager {
         else {
             nameColor = NamedTextColor.GREEN;
         }
+        String playerName = player.getName();
+        playerComponent = playerComponent.append(player.getNameComponent().color(nameColor));
 
-        playerComponent = playerComponent.append(
-                Component.text(player.getName()).color(nameColor)
-        );
-
-        // Add space to make player names even
-        playerComponent = playerComponent.append(getComponentSpaceOfLength(95 - teamNameLength));
+        // Add space to make names even
+        int playerNameMaxLength = 100;
+        int playerNameLength = TextUtil.getPixelLengthOfText(playerName);
+        playerComponent = playerComponent.append(getComponentSpaceOfLength(playerNameMaxLength - playerNameLength));
 
         if (!player.isEliminated()) {
             // Add player kills if player is still alive
             int playerKills = player.getCycleKills();
-            if (playerKills < 10) {
-                playerComponent = playerComponent.append(getComponentSpaceOfLength(6));
-            }
-            if (isOwnPlayer) {
-                playerComponent = playerComponent.append(Component.text(playerKills).color(NamedTextColor.YELLOW));
-            } else {
-                playerComponent = playerComponent.append(Component.text(playerKills).color(NamedTextColor.WHITE));
-            }
+            playerComponent = TextUtil.addLeadingSpaceForNumber(playerComponent, playerKills, 2);
+            playerComponent = playerComponent.append(Component.text(playerKills).color(colorChange));
+
 
             playerComponent = playerComponent.append(Component.text("\uF822\uE449"));
         }
@@ -163,7 +165,7 @@ public class KMationSidebarManager extends GameSidebarManager {
             // Add stats
             clientStringList.add(blankComponent());
 
-            clientStringList.add(getComponentSpaceOfLength(13).append(
+            clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Game Kills: " ).color(NamedTextColor.GREEN)).append(
                     Component.text(kMationPlayer.getKills()).color(NamedTextColor.YELLOW))
             );
