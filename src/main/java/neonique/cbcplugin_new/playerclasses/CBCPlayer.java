@@ -3,6 +3,7 @@ package neonique.cbcplugin_new.playerclasses;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
+import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
@@ -235,9 +236,9 @@ public class CBCPlayer {
     public void createWeapons() {
 
         weapons = new HashMap<>();
-        weapons.put(0, new CreeperCannon(this, CreeperPreset.getDefaultPreset()));
-        weapons.put(1, new FlameZoner(this, FlamePreset.getDefaultPreset()));
-        weapons.put(2, new XBow(this, XbowPreset.getDefaultPreset()));
+        weapons.put(0, new CreeperCannon(this, (CreeperPreset) combatManager.getWeaponVariables(WeaponType.CREEPER)));
+        weapons.put(1, new FlameZoner(this, (FlamePreset) combatManager.getWeaponVariables(WeaponType.FLAME)));
+        weapons.put(2, new XBow(this, (XbowPreset) combatManager.getWeaponVariables(WeaponType.XBOW)));
 
     }
 
@@ -651,6 +652,8 @@ public class CBCPlayer {
                         player.getLocation(), Sound.ENTITY_PLAYER_HURT_DROWN, 1, 1
                 );
 
+                player.getWorld().spawnParticle(Particle.BUBBLE, player.getLocation(), 10, null);
+
                 // Damage player
                 if (player.getHealth() <= 1) {
                     if (lastPlayerHitBy != null) {
@@ -673,7 +676,7 @@ public class CBCPlayer {
         if (swimTimer < combatManager.getSwimTimerLength()) {
             swimTimer += 2;
             updateSwimTimerBubbles();
-            if (swimTimer < combatManager.getSwimTimerLength()) {
+            if (swimTimer > combatManager.getSwimTimerLength()) {
                 swimTimer = combatManager.getSwimTimerLength();
             }
         }
