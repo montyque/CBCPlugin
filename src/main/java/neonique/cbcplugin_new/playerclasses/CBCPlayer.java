@@ -824,9 +824,14 @@ public class CBCPlayer {
         Player playerEntity = getPlayer();
         if (playerEntity == null) return;
 
-        AttributeInstance attr = playerEntity.getAttribute(Attribute.GENERIC_SCALE);
-        if (attr != null) {
-            attr.setBaseValue(1.0);
+        AttributeInstance scaleAttr = playerEntity.getAttribute(Attribute.GENERIC_SCALE);
+        if (scaleAttr != null) {
+            scaleAttr.setBaseValue(1.0);
+        }
+
+        AttributeInstance jumpAttr = playerEntity.getAttribute(Attribute.GENERIC_JUMP_STRENGTH);
+        if (jumpAttr != null) {
+            jumpAttr.setBaseValue(0.42);
         }
     }
 
