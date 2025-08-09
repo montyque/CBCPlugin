@@ -39,7 +39,8 @@ public class HTGPlayer extends CBCPlayer {
     private final static int KILL_PTS = 10; // Points you gain for kills
     private final static int GOLD_HOLDER_KILL_PTS = 20; // Extra points you gain for killing the gold holder
     private final static int KILL_WITH_TEAMMATE_GOLD_PTS = 5; // Extra points you gain for killing an enemy while your teammate has the gold
-    private final static int GOLD_SCORE_PTS = 10; // Points you gain for scoring a point with the gold
+    private final static int KILL_WITH_GOLD_PTS = 5; // Extra points you gain for killing an enemy while you have the gold
+    private final static int GOLD_SCORE_PTS = 20; // Points you gain for scoring a point with the gold
     private final static int GOLD_SCORE_WITHIN_7_PTS = 5; // Extra points for scoring a point with the gold while within 7
     private final static int WINNING_GOLD_RUN_PTS = 50; // Points you gain for getting a winning gold run
 
@@ -73,8 +74,12 @@ public class HTGPlayer extends CBCPlayer {
 
         // Check if player killed someone while their teammate has the gold
         if (game.getGoldHolder() != null) {
-            if (game.getGoldHolder().getTeam() == getTeam() && game.getGoldHolder() != this) {
-                killPts += KILL_WITH_TEAMMATE_GOLD_PTS;
+            if (game.getGoldHolder().getTeam() == getTeam()) {
+                if (game.getGoldHolder() == this) {
+                    killPts += KILL_WITH_GOLD_PTS;
+                } else {
+                    killPts += KILL_WITH_TEAMMATE_GOLD_PTS;
+                }
             }
         }
 

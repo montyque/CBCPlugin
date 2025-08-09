@@ -34,12 +34,12 @@ public class RendezvousPlayer extends CBCPlayer {
     private int moraleBoostsGiven = 0;
 
     // Constants for giving players game score
-    private static final int KILL_PTS = 2; // Points for killing a player
+    private static final int KILL_PTS = 5; // Points for killing a player
     private static final int MORALE_BOOST_KILL_PTS = 10; // Extra points for giving a morale boost to a teammate runner
     private static final int RUNNER_KILL_PTS = 10; // Extra points for killing a runner
-    private static final int AS_RUNNER_KILL_PTS = 10; // Extra points for killing someone as a runner
-    private static final int CHECKPOINT_CAPTURE = 80; // Points for capturing a checkpoint
-    private static final int FINAL_CHECKPOINT_CAPTURE = 60; // Extra points for capturing the final checkpoint
+    private static final int AS_RUNNER_KILL_PTS = 5; // Extra points for killing someone as a runner
+    private static final int CHECKPOINT_CAPTURE = 60; // Points for capturing a checkpoint
+    private static final int FINAL_CHECKPOINT_CAPTURE = 20; // Extra points for capturing the final checkpoint
 
     // When selecting a runner spawn, prioritise spawns with no enemy inside this radius
     private static final int RUNNER_SPAWN_ENEMY_RADIUS = 30;

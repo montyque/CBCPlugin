@@ -33,11 +33,12 @@ public class CTFPlayer extends CBCPlayer {
 
     // Constants for game points
     private final static int KILL_PTS = 5; // Points you gain for kills
-    private final static int DKILL_PTS = 15; // Extra points you gain for defensive kills
-    private final static int FLAGHOLDER_KILL_PTS = 5; // Extra points you gain for killing a flag holder
+    private final static int DKILL_PTS = 5; // Extra points you gain for defensive kills
+    private final static int FLAGHOLDER_KILL_PTS = 10; // Extra points you gain for killing a flag holder
+    private final static int HOLDING_FLAG_KILL_PTS = 10; // Extra points you gain for killing someone while holding a flag
     private final static int MBOOST_KILL_PTS = 20; // Extra points for giving a morale boost to a teammate
-    private final static int FINAL_KILL_PTS = 30; // Extra points for getting a final kill
-    private final static int FLAGCAPTURE_PTS = 120; // Points for capturing a flag
+    private final static int FINAL_KILL_PTS = 15; // Extra points for getting a final kill
+    private final static int FLAGCAPTURE_PTS = 135; // Points for capturing a flag
 
     public CTFPlayer(CTFGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
         super(gameManager, combatManager, player, playerId);
@@ -269,6 +270,10 @@ public class CTFPlayer extends CBCPlayer {
 
         CTFPlayer ctfPlayerKilled = (CTFPlayer) playerKilled;
 
+        if (teamWithFlagPickedUp != null) {
+            killPoints += HOLDING_FLAG_KILL_PTS;
+        }
+
         // Morale boosts
         // Check if teammate is currently holding a flag
         for (CBCPlayer teammate : getTeam().getAlivePlayers()) {
@@ -278,13 +283,13 @@ public class CTFPlayer extends CBCPlayer {
             if (ctfTeammate.getFlagHeld() != ctfPlayerKilled.getTeam()) continue;
             if (!ctfTeammate.isOnline()) continue;
 
-            ctfTeammate.addHealing(3);
+            ctfTeammate.addHealing(4);
 
             if (isOnline()) {
                 getPlayer().sendMessage(
                         Component.text("Morale Boost given to ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
                                 .append(Component.text(ctfTeammate.getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
-                                .append(Component.text("! (Teammate receives + 1.5 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                                .append(Component.text("! (Teammate receives +2 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                 );
             }
 
@@ -292,7 +297,7 @@ public class CTFPlayer extends CBCPlayer {
             ctfTeammate.getPlayer().sendMessage(
                     Component.text("Morale Boost received from ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
                             .append(Component.text(getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
-                            .append(Component.text("! ( + 1.5 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                            .append(Component.text("! ( +2 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
             );
 
             // Add points for morale boost

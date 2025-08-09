@@ -53,10 +53,10 @@ public class CBCEventManager {
     private int nextGameNum = 1;
 
     // Display variables
-    private final String eventName = "The Crossbow Championship 14";
-    private final String eventNameShorthand = "CBC 14";
-    private final String eventTagline = "BACK TO BASICS";
-    private final String eventTime = "April 20 2025 20:30 UTC";
+    private final String eventName = "The Crossbow Championship 15";
+    private final String eventNameShorthand = "CBC 15";
+    private final String eventTagline = "MAKE A SPLASH";
+    private final String eventTime = "June 28 2025 23:00 UTC";
 
     private final char eventLogoUnicode = 0xE900;
 
@@ -124,16 +124,16 @@ public class CBCEventManager {
         beaconAltGlassBlock.put(NamedTextColor.YELLOW, Material.RED_STAINED_GLASS);
 
         // Game 1
-        gamemodeList.add(CBCGamemode.KOTH);
-        mapNameList.add("Volcanic Rift");
+        gamemodeList.add(CBCGamemode.RENDEZVOUS);
+        mapNameList.add("Pearl");
 
         // Game 2
         gamemodeList.add(CBCGamemode.CTF);
-        mapNameList.add("Ruined Jungle");
+        mapNameList.add("The Six Seas");
 
         // Game 3
         gamemodeList.add(CBCGamemode.SHOWDOWN);
-        mapNameList.add("Savanna Dome");
+        mapNameList.add("Highrise");
 
         // Final -- BY DEFAULT
         gamemodeList.add(CBCGamemode.HOLDTHEGOLD);
