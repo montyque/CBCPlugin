@@ -134,7 +134,7 @@ public class CBCEventCommand extends _BaseCommand {
                     if (checkIfPerms(user, perms, 2)) return true;
 
                     if (level == 1) {
-                        user.sendMessage(Component.text("You must put '1', '2', '3' or '4' for one of the games.").color(NamedTextColor.YELLOW));
+                        user.sendMessage(Component.text("You must put a game number!").color(NamedTextColor.YELLOW));
                         return true;
                     }
 
@@ -142,11 +142,11 @@ public class CBCEventCommand extends _BaseCommand {
                     int gameNum;
                     try {
                         gameNum = Integer.parseInt(game);
-                        if (gameNum < 1 || gameNum > 4) {
+                        if (gameNum < 1 || gameNum > CBCEventManager.getGameAmount() + 1) {
                             throw new NumberFormatException();
                         }
                     } catch (NumberFormatException e) {
-                        user.sendMessage(Component.text("Invalid number! You must choose '1', '2', '3' or '4'.").color(NamedTextColor.YELLOW));
+                        user.sendMessage(Component.text("Invalid number!").color(NamedTextColor.YELLOW));
                         return true;
                     }
 
@@ -173,7 +173,7 @@ public class CBCEventCommand extends _BaseCommand {
                     if (checkIfPerms(user, perms, 2)) return true;
 
                     if (level == 1) {
-                        user.sendMessage(Component.text("You must put '1', '2', '3' or '4' for one of the games.").color(NamedTextColor.YELLOW));
+                        user.sendMessage(Component.text("You must put a game number!").color(NamedTextColor.YELLOW));
                         return true;
                     }
 
@@ -181,11 +181,11 @@ public class CBCEventCommand extends _BaseCommand {
                     int gameNum;
                     try {
                         gameNum = Integer.parseInt(game);
-                        if (gameNum < 1 || gameNum > 4) {
+                        if (gameNum < 1 || gameNum > CBCEventManager.getGameAmount() + 1) {
                             throw new NumberFormatException();
                         }
                     } catch (NumberFormatException e) {
-                        user.sendMessage(Component.text("Invalid number! You must choose '1', '2', '3' or '4'.").color(NamedTextColor.YELLOW));
+                        user.sendMessage(Component.text("Invalid number!").color(NamedTextColor.YELLOW));
                         return true;
                     }
 
@@ -201,7 +201,7 @@ public class CBCEventCommand extends _BaseCommand {
                 case "gamestats" -> {
 
                     if (level == 1) {
-                        user.sendMessage(Component.text("You must put '1', '2', '3' or '4' for one of the games. (4 is the final)").color(NamedTextColor.YELLOW));
+                        user.sendMessage(Component.text("You must put a game number!").color(NamedTextColor.YELLOW));
                         return true;
                     }
 
@@ -209,11 +209,11 @@ public class CBCEventCommand extends _BaseCommand {
                     int gameNum;
                     try {
                         gameNum = Integer.parseInt(game);
-                        if (gameNum < 1 || gameNum > 4) {
+                        if (gameNum < 1 || gameNum > CBCEventManager.getGameAmount() + 1) {
                             throw new NumberFormatException();
                         }
                     } catch (NumberFormatException e) {
-                        user.sendMessage(Component.text("Invalid number! You must choose '1', '2', '3' or '4'.").color(NamedTextColor.YELLOW));
+                        user.sendMessage(Component.text("Invalid number!").color(NamedTextColor.YELLOW));
                         return true;
                     }
 
@@ -321,18 +321,12 @@ public class CBCEventCommand extends _BaseCommand {
             }
             if (subcommand.equals("gamestats")) {
                 if (level == 2) {
-                    tabCompleters.add("1");
-                    tabCompleters.add("2");
-                    tabCompleters.add("3");
-                    tabCompleters.add("4");
+                    for (int i = 1; i <= CBCEventManager.getGameAmount() + 1; i++) tabCompleters.add(i + "");
                 }
             }
             if (subcommand.equals("setgamemode") || subcommand.equals("setmapname")) {
                 if (level == 2) {
-                    tabCompleters.add("1");
-                    tabCompleters.add("2");
-                    tabCompleters.add("3");
-                    tabCompleters.add("4");
+                    for (int i = 1; i <= CBCEventManager.getGameAmount() + 1; i++) tabCompleters.add(i + "");
                 }
                 else if (level == 3 && subcommand.equals("setgamemode")) {
                     tabCompleters.addAll(CBCGamemode.getGamemodeIds());

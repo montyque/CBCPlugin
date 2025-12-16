@@ -806,7 +806,7 @@ public class GameManager {
 
     public boolean isEventGame() {
         if (eventManager == null) return false;
-        else return (eventManager.getNextGameNum() < 5);
+        else return (eventManager.getNextGameNum() <= CBCEventManager.getGameAmount() + 1);
     }
 
     public Game getLastGame() {

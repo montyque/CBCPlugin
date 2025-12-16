@@ -85,21 +85,6 @@ public class KOTHHill {
 
     }
 
-    public Set<CBCPlayer> getPlayersInHill() {
-
-        // Get all players within the detection zone of the hill
-        Set<CBCPlayer> playersInHill = new HashSet<>();
-
-        for (CBCPlayer player : gameManager.getAlivePlayers()) {
-            Location playerLocation = player.getPlayer().getLocation();
-            if (inZone(playerLocation)) {
-                playersInHill.add(player);
-            }
-        }
-
-        return playersInHill;
-
-    }
 
     public boolean isPlayerInHill (CBCPlayer player) {
 

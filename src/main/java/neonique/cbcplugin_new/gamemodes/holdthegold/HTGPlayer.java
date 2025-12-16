@@ -153,21 +153,6 @@ public class HTGPlayer extends CBCPlayer {
         }
     }
 
-    public void teleportPlayerToSpawn () {
-        getPlayer().teleport(selectSpawn());
-        Vector dir = game.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
-        Location loc = getPlayer().getLocation().setDirection(dir);
-        getPlayer().teleport(loc);
-    }
-
-    public void teleportPlayerToSpawn (Location spawnLoc) {
-        getPlayer().teleport(spawnLoc);
-        Vector dir = game.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
-        Location loc = getPlayer().getLocation().setDirection(dir);
-        getPlayer().teleport(loc);
-    }
-
-
     @Override
     public void playerSpawn() {
 
@@ -185,7 +170,7 @@ public class HTGPlayer extends CBCPlayer {
         setTempImmune(60);
 
         // Teleport player to spawn point
-        teleportPlayerToSpawn();
+        teleportPlayerToSpawn(selectSpawn(), game.getGoldLocation());
 
     }
 

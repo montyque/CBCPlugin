@@ -193,9 +193,9 @@ public class ResourcePackManager {
         uuidString = uuidString.replace("-", "");
 
         try {
-            playerHeadUrl = new URL("https://crafatar.com/avatars/" + uuidString + "?overlay");
+            playerHeadUrl = new URL("https://mc-heads.net/avatar/" + uuidString);
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            return false;
         }
 
         HashMap<String, String> env = new HashMap<>();
@@ -207,7 +207,7 @@ public class ResourcePackManager {
         try (InputStream in = playerHeadUrl.openStream()){
             playerHeadImg = ImageIO.read(in);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return false;
         }
 
         // Resize the image to be 8 by 8
@@ -355,30 +355,19 @@ public class ResourcePackManager {
 
     public void createPlayerHeadComponent (UUID playerUUID, boolean oneCharacterHead, int slot, boolean wasNotInPack) {
 
-        String uuidString = playerUUID.toString();
-        URL playerHeadUrl;
-
-
         if (!oneCharacterHead) {
-            try {
-                playerHeadUrl = new URL("https://mc-heads.net/avatar/" + uuidString);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
 
             // Create a BufferedImage object
-            BufferedImage playerHeadImg;
-            try (InputStream in = playerHeadUrl.openStream()){
-                playerHeadImg = ImageIO.read(in);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            BufferedImage playerHeadImg = loadHeadImage(playerUUID);
+            if (playerHeadImg != null) {
+
+                // Resize the player head and create a new player head object
+                BufferedImage resizedHead = resizePlayerHead(playerHeadImg, 8);
+                PlayerHead newPlayerHead = new PlayerHead(playerUUID);
+                newPlayerHead.setHead(resizedHead);
+                multicharPlayerHeads.put(playerUUID, newPlayerHead);
+
             }
-
-            BufferedImage resizedHead = resizePlayerHead(playerHeadImg, 8);
-
-            PlayerHead newPlayerHead = new PlayerHead(playerUUID);
-            newPlayerHead.setHead(resizedHead);
-            multicharPlayerHeads.put(playerUUID, newPlayerHead);
 
         }
 
@@ -390,6 +379,29 @@ public class ResourcePackManager {
         }
 
         singlePlayerHeads.put(playerUUID, singleCharPlayerHead);
+
+    }
+
+    public BufferedImage loadHeadImage (UUID playerUUID) {
+
+        String uuidString = playerUUID.toString();
+        URL playerHeadUrl;
+
+        try {
+            playerHeadUrl = new URL("https://crafatar.com/avatars/" + uuidString + "?size=8&overlay");
+        } catch (MalformedURLException e) {
+            return null;
+        }
+
+        // Create a BufferedImage object
+        BufferedImage playerHeadImg;
+        try (InputStream in = playerHeadUrl.openStream()){
+            playerHeadImg = ImageIO.read(in);
+        } catch (IOException e) {
+            return null;
+        }
+
+        return playerHeadImg;
 
     }
 

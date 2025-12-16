@@ -49,29 +49,12 @@ public class CBCEventImageGenerator {
             return null;
         }
 
-        File backgroundFile;
-        File gameNumberFile;
+        File backgroundFile = new File(cbcEventImagesFolder, "game" + gameNumber + "map.png");;
+        File gameNumberFile = new File(cbcEventImagesFolder, "game" + gameNumber + "number.png");;
 
-        switch (gameNumber) {
-            case 1:
-                backgroundFile = new File(cbcEventImagesFolder, "game1map.png");
-                gameNumberFile = new File(cbcEventImagesFolder, "game1number.png");
-                break;
-            case 2:
-                backgroundFile = new File(cbcEventImagesFolder, "game2map.png");
-                gameNumberFile = new File(cbcEventImagesFolder, "game2number.png");
-                break;
-            case 3:
-                backgroundFile = new File(cbcEventImagesFolder, "game3map.png");
-                gameNumberFile = new File(cbcEventImagesFolder, "game3number.png");
-                break;
-            case 4:
-                backgroundFile = new File(cbcEventImagesFolder, "finalmap.png");
-                gameNumberFile = new File(cbcEventImagesFolder, "finalnumber.png");
-                break;
-            default:
-                CBCPlugin.getPlugin().getLogger().warning("Invalid input for game number");
-                return null;
+        if (gameNumber > CBCEventManager.getGameAmount()) {
+            backgroundFile = new File(cbcEventImagesFolder, "finalmap.png");
+            gameNumberFile = new File(cbcEventImagesFolder, "finalnumber.png");
         }
 
         BufferedImage mainImage = convertToARGB(getImageFromFile(backgroundFile));

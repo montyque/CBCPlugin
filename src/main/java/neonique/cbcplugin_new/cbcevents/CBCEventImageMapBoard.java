@@ -24,14 +24,16 @@ import java.util.Collection;
 
 public class CBCEventImageMapBoard {
 
+    private final static int mapStartingId = 69509;
     private final static int[][] mapIds = {
             {69509, 69510, 69511, 69512, 69513, 69514},
             {69655, 69656, 69657, 69658, 69659, 69660},
             {69661, 69662, 69663, 69664, 69665, 69666},
-            {69667, 69668, 69669, 69670, 69671, 69672}
+            {69667, 69668, 69669, 69670, 69671, 69672},
+            {69673, 69674, 69675, 69676, 69677, 69678},
     };
 
-    private final static int[] size = {6, 4};
+    private final int[] size;
 
     private final CBCEventManager eventManager;
 
@@ -40,13 +42,15 @@ public class CBCEventImageMapBoard {
 
     private final CBCEventImageGenerator imageGenerator;
 
-    public CBCEventImageMapBoard (CBCEventManager eventManager, BlockFace directionFacing, Location topLeftBlock) {
+    public CBCEventImageMapBoard (CBCEventManager eventManager, BlockFace directionFacing, Location topLeftBlock, int rows) {
 
         this.eventManager = eventManager;
         this.directionFacing = directionFacing;
         this.topLeft = topLeftBlock;
 
         this.imageGenerator = new CBCEventImageGenerator();
+
+        size = new int[]{6, rows};
 
     }
 

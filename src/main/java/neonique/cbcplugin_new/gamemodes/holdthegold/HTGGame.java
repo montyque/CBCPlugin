@@ -113,7 +113,7 @@ public class HTGGame extends TeamGame {
             for (CBCPlayer player : team.getPlayers()) {
                 HTGPlayer htgPlayer = (HTGPlayer) player;
                 htgPlayer.resetPlayer();
-                htgPlayer.teleportPlayerToSpawn(spawn);
+                htgPlayer.teleportPlayerToSpawn(spawn, map.getGoldSpawn());
             }
         }
 
@@ -206,6 +206,7 @@ public class HTGGame extends TeamGame {
         goldArmorStand.addPotionEffect(
             new PotionEffect(PotionEffectType.GLOWING, 1000000, 0, false, false, false)
         );
+
     }
 
     public void setupMap (CBCMap generalMap) {
@@ -285,7 +286,6 @@ public class HTGGame extends TeamGame {
 
         cancelTask(scoreTask);
         scoreTask = null;
-
         goldHolder = null;
 
         updatePlacements();
@@ -308,7 +308,7 @@ public class HTGGame extends TeamGame {
 
         if (teamScoring.getScore() > finalRunLength) {
             getGameManager().playGlobalSound(Sound.BLOCK_NOTE_BLOCK_BIT, 100, 1);
-        } else if (teamScoring.getScore() > 0 ){
+        } else if (teamScoring.getScore() > 0) {
             getGameManager().playGlobalSound(Sound.BLOCK_NOTE_BLOCK_BIT, 100, 2);
             if (teamScoring.getScore() == 1) {
                 getGameManager().sendGlobalMessage(
@@ -430,7 +430,6 @@ public class HTGGame extends TeamGame {
 
         List<HTGTeam> sortedTeamList = new ArrayList<>(teams);
         sortedTeamList.sort(Comparator.comparingInt(HTGTeam::getScore));
-
         return sortedTeamList;
 
     }

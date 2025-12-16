@@ -22,7 +22,7 @@ public class CBCEventPlayer {
         this.gameScores = new ArrayList<>();
 
         // Add game scores for four games
-        for (int games = 1; games <= 4; games++) {
+        for (int games = 1; games <= CBCEventManager.getGameAmount() + 1; games++) {
             gameScores.add(0);
         }
         addGameScores();

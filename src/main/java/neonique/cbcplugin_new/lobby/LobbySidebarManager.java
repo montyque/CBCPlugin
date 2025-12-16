@@ -193,7 +193,7 @@ public class LobbySidebarManager {
 
         }
 
-        if (num == 4) {
+        if (num == CBCEventManager.getGameAmount() + 1) {
             numberColor = NamedTextColor.GOLD;
             if (eventManager.getEventWinner() != null) {
                 gamemodeColor = NamedTextColor.GOLD;
@@ -247,18 +247,18 @@ public class LobbySidebarManager {
         // Display game order
         displayToEveryone.add(normalText(TextUtil.getSpaceOfLength(8)).append(smallText("GAME ORDER:").color(NamedTextColor.AQUA)));
 
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 1; i <= CBCEventManager.getGameAmount(); i++) {
             displayToEveryone.add(normalText(TextUtil.getSpaceOfLength(8)).append(getGameOrderComponent(i)));
         }
 
         // Add final if required
         CBCEventManager eventManager = gameManager.getEventManager();
         int nextGameNum = eventManager.getNextGameNum();
-        if (nextGameNum == 4 && eventManager.getEventWinner() == null) {
-            displayToEveryone.add(normalText(TextUtil.getSpaceOfLength(8)).append(getGameOrderComponent(4)));
+        if (nextGameNum == CBCEventManager.getGameAmount() + 1 && eventManager.getEventWinner() == null) {
+            displayToEveryone.add(normalText(TextUtil.getSpaceOfLength(8)).append(getGameOrderComponent(CBCEventManager.getGameAmount() + 1)));
         }
-        else if (nextGameNum >= 4 && eventManager.getGameWinner(4) != null) {
-            displayToEveryone.add(normalText(TextUtil.getSpaceOfLength(8)).append(getGameOrderComponent(4)));
+        else if (nextGameNum >= CBCEventManager.getGameAmount() + 1 && eventManager.getGameWinner(CBCEventManager.getGameAmount() + 1) != null) {
+            displayToEveryone.add(normalText(TextUtil.getSpaceOfLength(8)).append(getGameOrderComponent(CBCEventManager.getGameAmount() + 1)));
         }
 
 
@@ -340,9 +340,6 @@ public class LobbySidebarManager {
                 ).append(
                         Component.text(eventPlayer.getEventScore()).color(NamedTextColor.YELLOW)
                 ));
-
-                // Blank component for seperation
-                clientStringList.add(blankComponent());
 
                 // Display CBC event team
                 if (eventPlayer.getTeam() != null) {

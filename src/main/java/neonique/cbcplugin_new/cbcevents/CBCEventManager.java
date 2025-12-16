@@ -49,16 +49,18 @@ public class CBCEventManager {
     // The winner of the event
     private CBCEventTeam eventWinner = null;
 
-    // Game status - game 4 is finale
+    // Game status - game 5 is finale
+    private static final int gameAmount = 4;
+    private static final int maxPointsPerGame = 2000;
     private int nextGameNum = 1;
 
     // Display variables
-    private final String eventName = "The Crossbow Championship 15";
-    private final String eventNameShorthand = "CBC 15";
-    private final String eventTagline = "MAKE A SPLASH";
-    private final String eventTime = "June 28 2025 23:00 UTC";
+    private static final String eventName = "The Crossbow Championship 16";
+    private static final String eventNameShorthand = "CBC 16";
+    private static final String eventTagline = "FOUR BY FOUR";
+    private static final String eventTime = "August 24 2025 22:00 UTC";
 
-    private final char eventLogoUnicode = 0xE900;
+    private static final char eventLogoUnicode = 0xE900;
 
     // Game end
     private boolean isCurrentGameEventGame = false;
@@ -124,22 +126,26 @@ public class CBCEventManager {
         beaconAltGlassBlock.put(NamedTextColor.YELLOW, Material.RED_STAINED_GLASS);
 
         // Game 1
-        gamemodeList.add(CBCGamemode.RENDEZVOUS);
-        mapNameList.add("Pearl");
+        gamemodeList.add(CBCGamemode.SHOWDOWN);
+        mapNameList.add("Verdant Entropy");
 
         // Game 2
-        gamemodeList.add(CBCGamemode.CTF);
-        mapNameList.add("The Six Seas");
+        gamemodeList.add(CBCGamemode.TDM);
+        mapNameList.add("Sky Kingdom");
 
         // Game 3
-        gamemodeList.add(CBCGamemode.SHOWDOWN);
-        mapNameList.add("Highrise");
+        gamemodeList.add(CBCGamemode.CBCTAG);
+        mapNameList.add("Beacon Haven");
+
+        // Game 4
+        gamemodeList.add(CBCGamemode.RENDEZVOUS);
+        mapNameList.add("Garden of Eeshol");
 
         // Final -- BY DEFAULT
-        gamemodeList.add(CBCGamemode.HOLDTHEGOLD);
-        mapNameList.add("Astrozapper");
+        gamemodeList.add(CBCGamemode.KOTH);
+        mapNameList.add("Volcanic Rift");
 
-        imageMapBoard = new CBCEventImageMapBoard(this, BlockFace.WEST, new Location(world, -1043, 129, -1657));
+        imageMapBoard = new CBCEventImageMapBoard(this, BlockFace.WEST, new Location(world, -1043, 130, -1657), gameAmount + 1);
 
         try {
             imageMapBoard.placeItemFrames();
@@ -321,15 +327,23 @@ public class CBCEventManager {
         winners.add(nextGameNum - 1, winningTeam);
 
         // Check if a team has won the entire event
-        if (nextGameNum == 3) {
-            // Check if a team has won all three of the first games
-            if (winners.get(0) == winners.get(1) && winners.get(0) == winners.get(2)) {
-                eventWinner = winners.get(0);
+        if (nextGameNum == gameAmount) {
+
+            // Check if a team has won all games
+            CBCEventTeam checkEventWinner = winners.get(0);
+            for (int i = 1; i < gameAmount; i++) {
+                if (winners.get(i) != checkEventWinner) {
+                    checkEventWinner = null;
+                    break;
+                }
             }
+
+            eventWinner = checkEventWinner;
+
         }
-        else if (nextGameNum == 4) {
+        else if (nextGameNum == gameAmount + 1) {
             // A team has won the finale, so they win the event
-            eventWinner = winners.get(3);
+            eventWinner = winners.get(gameAmount);
         }
 
         // Add to post game stats
@@ -385,20 +399,8 @@ public class CBCEventManager {
                     Component.text(" has won " + gameDisplayName + "!").color(NamedTextColor.AQUA)));
 
             // Send message about gamemode selection or qualification
-            if (getGamesWon(gameWinner) == 2) {
+            if (getGamesWon(gameWinner) == 1) {
                 // They have been awarded gamemode selection
-                gameEndMessage = gameEndMessage.append(Component.newline()
-                    .append(
-                        Component.text(" → ").color(NamedTextColor.GOLD)
-                    ).append(
-                        gameWinnerComponent
-                    ).append(
-                        Component.text(" has earned gamemode selection for the final!").color(NamedTextColor.GOLD)
-                    )
-                );
-            }
-            else {
-                // They have qualified for final
                 gameEndMessage = gameEndMessage.append(Component.newline()
                         .append(
                                 Component.text(" → ").color(NamedTextColor.GOLD)
@@ -410,8 +412,8 @@ public class CBCEventManager {
                 );
             }
 
-            // If this is the third game, eliminate teams who have not won a game yet
-            if (nextGameNum == 3) {
+            // If this is the game amount,
+            if (nextGameNum == gameAmount) {
 
                 Set<CBCEventTeam> eliminatedTeams = new HashSet<>();
                 for (CBCEventTeam team : teams) {
@@ -440,6 +442,8 @@ public class CBCEventManager {
                             Component.text(" has won " + eventName + "!").color(NamedTextColor.GOLD)
                     )
             );
+
+            gameManager.playGlobalSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 100, 0);
 
             sendEventWonTitle();
         }
@@ -556,6 +560,10 @@ public class CBCEventManager {
 
     }
 
+    public List<CBCEventTeam> getTeamsInFinal () {
+        return teams.stream().filter(team -> getGamesWon(team) >= 1).toList();
+    }
+
     public void sendEventWonTitle () {
 
         if (eventWinner == null) return;
@@ -610,8 +618,10 @@ public class CBCEventManager {
 
         // Play fireworks
         try {
-            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1051.00, 136.00, -1639.00)).runTaskTimer(CBCPlugin.getPlugin(), 20, 15);
-            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1051.00, 136.00, -1639.00)).runTaskTimer(CBCPlugin.getPlugin(), 60, 10);
+            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1053, 136, -1645)).runTaskTimer(CBCPlugin.getPlugin(), 0, 25);
+            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1055, 136, -1645)).runTaskTimer(CBCPlugin.getPlugin(), 10, 25);
+            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1051, 136, -1645)).runTaskTimer(CBCPlugin.getPlugin(), 20, 25);
+            new FireworkTask(eventWinner.getTeamColor(), new Location(gameManager.getWorld(), -1049, 136, -1645)).runTaskTimer(CBCPlugin.getPlugin(), 30, 25);
         } catch (Exception ignored) {}
 
         // Change holograms
@@ -689,9 +699,8 @@ public class CBCEventManager {
             @Override
             public void run () {
                 gameManager.getWorld().showTitle(mvpTitle);
-                for (Player player : gameManager.getWorld().getPlayers()) {
-                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 100, 0);
-                }
+                gameManager.playGlobalSound(Sound.ENTITY_PLAYER_LEVELUP, 100, 0);
+
                 // Send message for MVP
                 gameManager.getWorld().sendMessage(mvpMessageComponent);
 
@@ -719,6 +728,8 @@ public class CBCEventManager {
 
     public Component generateLeaderboard() {
 
+        ResourcePackManager resourcePackManager = CBCPlugin.getResourcePackManager();
+
         Component leaderboardComponent = Component.newline().append(Component.text(eventName + " Event Scores").color(NamedTextColor.GOLD));
 
         // Go through all players sorted by score
@@ -739,11 +750,15 @@ public class CBCEventManager {
             // Add rank
             playerComponent = playerComponent.append(Component.text(rank + ". ").color(NamedTextColor.GOLD));
 
-            // Add player name, adding space to make names even
-            int playerNameLength = TextUtil.getPixelLengthOfText(playerName);
-            Component spaceComponent = getComponentSpaceOfLength(92 - playerNameLength);
+            // Add player head
+            Component playerHeadComponent = resourcePackManager.getPlayerHeadComponent(PlayerHeadType.NORMAL, eventPlayer.getOfflinePlayer());
+            playerComponent = playerComponent.append(playerHeadComponent.color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE));
+            playerComponent = playerComponent.append(Component.space());
 
-            playerComponent = playerComponent.append(eventPlayer.getNameComponent()).append(spaceComponent);
+
+
+            playerComponent = playerComponent.append(eventPlayer.getNameComponent());
+            playerComponent = playerComponent.append(Component.newline().append(getComponentSpaceOfLength(23)));
 
             // Add points icon
             playerComponent = playerComponent.append(getIconComponent()).append(Component.text(" "));
@@ -756,7 +771,7 @@ public class CBCEventManager {
 
             // Go through each game and put the score there
             NamedTextColor teamColor = eventPlayer.getTeamColor();
-            for (int gameNum = 1; gameNum <= 4; gameNum++) {
+            for (int gameNum = 1; gameNum <= gameAmount + 1; gameNum++) {
 
                 // Get icon for gamemode
                 CBCGamemode gamemode = getGamemode(gameNum);
@@ -788,21 +803,20 @@ public class CBCEventManager {
 
         String gameName = getGameName();
 
-        if (nextGameNum == 4) {
-            if (getGamesWon(winners.get(0)) > 1) {
-                // Team has selection
-                teamPick = winners.get(0);
+        if (nextGameNum == gameAmount + 1) {
+
+            // Check if every team in final has won only one game
+            List<CBCEventTeam> teamsInFinal = getTeamsInFinal();
+            if (teamsInFinal.size() == gameAmount) {
+                gamemode = gamemodeList.get(gameAmount);
+                mapName = mapNameList.get(gameAmount);
             }
-            else if (getGamesWon(winners.get(1)) > 1) {
-                // Team has selection
-                teamPick = winners.get(1);
-            }
-            else {
-                gamemode = gamemodeList.get(3);
-                mapName = mapNameList.get(3);
-            }
+
+            // Find the team that has gamemode pick
+            teamPick = getTeamWithPick();
+
         }
-        else if (nextGameNum <= 3) {
+        else if (nextGameNum <= gameAmount) {
             gamemode = gamemodeList.get(nextGameNum - 1);
             mapName = mapNameList.get(nextGameNum - 1);
         }
@@ -811,14 +825,27 @@ public class CBCEventManager {
         Component nextGameMessage = getIconComponentWithBrackets(NamedTextColor.AQUA, true).append(
                 Component.text("Next up: " + gameName + " - ").color(NamedTextColor.AQUA)
         );
+
         if (teamPick == null && gamemode != null) {
             nextGameMessage = nextGameMessage.append(Component.text(gamemode.getGamemodeName() + " on " + mapName)
                     .color(NamedTextColor.GOLD));
-        }
-        else {
+        } else if (nextGameNum == gameAmount + 1) {
             if (teamPick != null) {
                 nextGameMessage = nextGameMessage.append(teamPick.getNameComponent(true)
                         .append(Component.text("'s pick").color(teamPick.getTeamColor())));
+            } else {
+
+                List<Component> teamInFinalComponents = getTeamsInFinal().stream()
+                        .map(team -> team.getNameComponent(false))
+                        .toList();
+
+                for (int i = 0; i < teamInFinalComponents.size(); i++) {
+                    if (i > 0) {
+                        nextGameMessage = nextGameMessage.append(Component.text(" vs ").color(NamedTextColor.GRAY));
+                    }
+                    nextGameMessage = nextGameMessage.append(teamInFinalComponents.get(i));
+                }
+
             }
         }
 
@@ -827,6 +854,29 @@ public class CBCEventManager {
         // Change hologram to next game
         changeHologram(3, nextGameMessage);
 
+
+    }
+
+    public CBCEventTeam getTeamWithPick () {
+
+        List<CBCEventTeam> teamsInFinal = getTeamsInFinal();
+
+        int maxGamesWon = 0;
+        int maxGamesWonCount = 0;
+        CBCEventTeam pickingTeam = null;
+
+        for (CBCEventTeam team : teamsInFinal) {
+            int gamesWon = getGamesWon(team);
+            if (gamesWon > maxGamesWon) {
+                maxGamesWon = getGamesWon(team);
+                maxGamesWonCount = 1;
+                pickingTeam = team;
+            } else if (gamesWon == maxGamesWon) {
+                maxGamesWonCount++;
+            }
+        }
+
+        return maxGamesWonCount == 1 ? pickingTeam : null;
 
     }
 
@@ -849,7 +899,7 @@ public class CBCEventManager {
         }
 
         // Calculate multiplier
-        double multiplier = 2500 / ((double) maxGameScore - (double) minGameScore);
+        double multiplier = maxPointsPerGame / ((double) maxGameScore - (double) minGameScore);
 
         // Go through every player and get their score
         LinkedHashMap<CBCEventPlayer, Integer> lastGameScores = new LinkedHashMap<>();
@@ -882,7 +932,7 @@ public class CBCEventManager {
         Component title = noShadowText(Component.text(String.valueOf(eventLogoUnicode)));
 
         // Get character for game title
-        Component subtitle = noShadowText(Component.text(String.valueOf((char) (eventLogoUnicode + nextGameNum))));
+        Component subtitle = noShadowText(Component.text(getGameNumSubtitle()));
 
         // Return title
         return Title.title(
@@ -890,6 +940,16 @@ public class CBCEventManager {
                 subtitle,
                 TextUtil.titleTimes(0, 3000, 500)
         );
+
+    }
+
+    public String getGameNumSubtitle () {
+
+        if (nextGameNum <= gameAmount) {
+            return String.valueOf((char) (eventLogoUnicode + nextGameNum));
+        } else {
+            return "\uE909";
+        }
 
     }
 
@@ -955,15 +1015,11 @@ public class CBCEventManager {
     }
 
     public String getGameName () {
-        if (nextGameNum == 4) {
-            return ("Final");
-        } else {
-            return ("Game " + nextGameNum);
-        }
+        return getGameName(nextGameNum);
     }
 
     public String getGameName (int gameNum) {
-        if (gameNum == 4) {
+        if (gameNum == gameAmount + 1) {
             return ("Final");
         } else {
             return ("Game " + gameNum);
@@ -972,7 +1028,7 @@ public class CBCEventManager {
 
 
     public String getGameNameShorthand () {
-        if (nextGameNum == 4) {
+        if (nextGameNum == gameAmount + 1) {
             return ("Final");
         } else {
             return ("G" + nextGameNum);
@@ -986,7 +1042,6 @@ public class CBCEventManager {
     public CBCEventPlayer getPlayer (UUID playerUUID) {
         return players.getOrDefault(playerUUID, null);
     }
-
 
     public String getEventName() {
         return eventName;
@@ -1010,7 +1065,7 @@ public class CBCEventManager {
 
     public int getGamesWon (CBCEventTeam team) {
         int gamesWon = 0;
-        for (int i = 1; i <= 4; i++) {
+        for (int i = 1; i <= gameAmount + 1; i++) {
             if (getGameWinner(i) == team) {
                 gamesWon++;
             }
@@ -1221,6 +1276,10 @@ public class CBCEventManager {
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
+    }
+
+    public static int getGameAmount () {
+        return gameAmount;
     }
 
 }
