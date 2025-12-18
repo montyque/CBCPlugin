@@ -52,6 +52,9 @@ public class RendezvousCheckpointTask extends BukkitRunnable {
                 targetCheckpoint.playParticles(team.getColor(), false);
             }
 
+            // Check if team has a runner
+            if (team.getRunner() == null) continue;
+
             // Check if player's runner is within checkpoint
             if (!team.getRunner().isAlive()) {
                 team.setRunnerInCheckpoint(false);

@@ -238,9 +238,8 @@ public class RendezvousPlayer extends CBCPlayer {
 
         if (!isOnline()) return;
 
-        playerSetup();
+        playerSetup(2);
         setTempImmune(60);
-        setReloadsBySecond(2);
 
         RendezvousSpawn selectedSpawn = selectSpawn();
         Location lookLocation = game.getMap().getMapCentre();
@@ -350,29 +349,6 @@ public class RendezvousPlayer extends CBCPlayer {
             return closestSpawn;
         }
 
-    }
-
-    @Override
-    public void loadInventory() {
-
-        super.loadInventory();
-
-        if (!isOnline()) return;
-        PlayerInventory inventory = getPlayer().getInventory();
-
-        // Create compass for runner
-        if (isPlayerRunner() && getTeamCheckpoint() != null) {
-            giveRunnerCompass(inventory);
-        } else {
-            if (inventory.contains(Material.COMPASS)) {
-                inventory.setItem(8, null);
-            }
-        }
-    }
-
-    public void giveRunnerCompass(PlayerInventory inventory) {
-        RendezvousTeam team = getRendezvousTeam();
-        inventory.setItem(8, team.getRunnerCompassItem());
     }
 
     @Override

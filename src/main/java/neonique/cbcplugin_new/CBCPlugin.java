@@ -2,9 +2,10 @@ package neonique.cbcplugin_new;
 
 import neonique.cbcplugin_new.commands.*;
 import neonique.cbcplugin_new.enums.GameState;
-import neonique.cbcplugin_new.managers.ArmorTrimManager;
+import neonique.cbcplugin_new.services.ArmorTrimService;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
+import neonique.cbcplugin_new.services.WeaponPresetService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
@@ -27,7 +28,8 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
     private static GameManager gameManager;
     private static ResourcePackManager resourcePackManager;
 
-    private ArmorTrimManager trimManager;
+    private ArmorTrimService trimService;
+    private WeaponPresetService weaponPresetService;
 
     private static Set<UUID> gameOperators;
     private static Set<UUID> gameAdmins;
@@ -41,9 +43,6 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         // Create config yml file if not existent
         plugin.saveDefaultConfig();
 
-        // Create resource pack manager
-        resourcePackManager = new ResourcePackManager();
-
         System.out.println("=======================================");
         System.out.println("Starting the Crossbow Champions plugin (1.21.1) developed by Neonique");
 
@@ -55,6 +54,14 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         System.out.println("CBC Operators (perms no. 2): " + String.join(", ", operatorNames));
         List<String> adminNames = new ArrayList<>(gameAdmins).stream().map(uuid -> Bukkit.getOfflinePlayer(uuid).getName()).collect(Collectors.toList());
         System.out.println("CBC Administrators (perms no. 1): " + String.join(", ", adminNames));
+
+        // Create all required services
+        trimService = new ArmorTrimService();
+
+        weaponPresetService = new WeaponPresetService();
+        weaponPresetService.loadWeaponPresets();
+
+        resourcePackManager = new ResourcePackManager();
 
         // Register join server and leave server listeners
         getServer().getPluginManager().registerEvents(this, this);
@@ -74,9 +81,6 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         Objects.requireNonNull(getCommand("getblockcoords")).setExecutor(new GetBlockLocationsCommand());
         Objects.requireNonNull(getCommand("cbcreload")).setExecutor(new CBCReloadCommand(gameManager));
         Objects.requireNonNull(getCommand("sidebar")).setExecutor(new SidebarCommand());
-
-        // Initialise armor trim manager
-        trimManager = new ArmorTrimManager();
 
         // Print to show finished initialisation
         System.out.println("Crossbow Champions plugin initialisation finished");
@@ -190,7 +194,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
             @Override
             public void run() {
-                trimManager.loadPlayerTrimFromFile(playerJoined);
+                trimService.loadPlayerTrimFromFile(playerJoined);
                 gameManager.getGlobalKillsManager().loadPlayerGlobalKills(playerJoined);
             }
         }.runTaskAsynchronously(CBCPlugin.getPlugin());
@@ -200,7 +204,11 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         return gameManager;
     }
 
-    public ArmorTrimManager getTrimManager() {
-        return trimManager;
+    public ArmorTrimService getTrimService () {
+        return trimService;
+    }
+
+    public WeaponPresetService getWeaponPresetService () {
+        return weaponPresetService;
     }
 }

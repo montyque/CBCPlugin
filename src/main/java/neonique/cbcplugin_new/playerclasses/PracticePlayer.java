@@ -36,8 +36,7 @@ public class PracticePlayer extends CBCPlayer {
         teleportPlayer();
 
         getGameManager().getWorld().spawnParticle(Particle.INSTANT_EFFECT, getPlayer().getLocation(), 80, 0.25, 0.25, 0.25, 1, null, true);
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
 
     }
 

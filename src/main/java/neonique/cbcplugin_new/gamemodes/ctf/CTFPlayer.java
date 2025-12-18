@@ -69,9 +69,7 @@ public class CTFPlayer extends CBCPlayer {
         flagsPickedUp++;
 
         // Set player helmet to banner
-        setOverrideGlassHelmet(true);
-        getPlayer().getInventory().setHelmet(flagTeam.getBannerItem());
-        getPlayer().updateInventory();
+        getInventory().setHelmetOverride(flagTeam.getBannerItem());
 
         // Add flag
         List<Component> suffixes = new ArrayList<>(Collections.singletonList(Component.text("⚑ ").color(flagTeam.getColor())));
@@ -148,8 +146,7 @@ public class CTFPlayer extends CBCPlayer {
         }
 
         // Set player helmet back to normal
-        setOverrideGlassHelmet(false);
-        loadInventory();
+        getInventory().setHelmetOverride(null);
 
     }
 
@@ -170,11 +167,7 @@ public class CTFPlayer extends CBCPlayer {
         );
 
         // Set player helmet back to normal
-        setOverrideGlassHelmet(false);
-
-        if (isAlive()) {
-            loadInventory();
-        }
+        getInventory().setHelmetOverride(null);
     }
 
     @Override
@@ -332,7 +325,7 @@ public class CTFPlayer extends CBCPlayer {
 
         teleportPlayerToSpawn(team.getPlayerSpawn(), game.getMap().getMapCentre());
         playerSetup();
-        setReloadsBySecond(2);
+        getInventory().setReloadsBySecond(2);
         setTempImmune(60);
 
         // If the player has been revived, un-eliminate the player

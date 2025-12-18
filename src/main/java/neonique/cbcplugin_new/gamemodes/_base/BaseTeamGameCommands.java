@@ -168,8 +168,8 @@ public class BaseTeamGameCommands extends BaseGameCommands {
                 }
             }
             putPlayerOnTeam(gameManager.getPlayer(playerEntity), team, false);
-            broadcastAction(user, "used /game join to put " + playerName + " on " + team.getTeamName());
         }
+        broadcastAction(user, "used /game join to put " + playerName + " on " + team.getTeamName());
     }
 
     public List<String> joinTabComplete(Player user, String[] args, int perms) {

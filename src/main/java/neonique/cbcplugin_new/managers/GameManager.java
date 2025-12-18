@@ -20,6 +20,8 @@ import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.gamemodes.tdm.MapRushTDMGame;
 import neonique.cbcplugin_new.gamemodes.tdm.TDMGame;
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownGame;
+import neonique.cbcplugin_new.services.WeaponPresetService;
+import neonique.cbcplugin_new.weapons.WeaponFactory;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.gameobjects.GamemodeOptions;
@@ -413,9 +415,10 @@ public class GameManager {
             gameCommands = currentGame.getGameCommands();
 
             // Set weapon presets
-            combatManager.setCreeperWeaponVariables((CreeperPreset) lobby.getWeaponPreset(WeaponType.CREEPER));
-            combatManager.setFlameWeaponVariables((FlamePreset) lobby.getWeaponPreset(WeaponType.FLAME));
-            combatManager.setXbowWeaponVariables((XbowPreset) lobby.getWeaponPreset(WeaponType.XBOW));
+            WeaponFactory weaponFactory = combatManager.getWeaponFactory();
+            weaponFactory.setCreeperVar((CreeperPreset) lobby.getWeaponPreset(WeaponType.CREEPER));
+            weaponFactory.setFlameVar((FlamePreset) lobby.getWeaponPreset(WeaponType.FLAME));
+            weaponFactory.setXbowVar((XbowPreset) lobby.getWeaponPreset(WeaponType.XBOW));
 
             lobby.putTeamOverridesPresetsIntoWeaponManager();
 

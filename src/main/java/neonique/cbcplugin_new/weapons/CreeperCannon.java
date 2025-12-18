@@ -27,6 +27,10 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowTe
 
 public class CreeperCannon implements CrossbowWeapon {
 
+    public final static NamespacedKey horKbKey = new NamespacedKey(CBCPlugin.getPlugin(), "hor_kb");
+    public final static NamespacedKey verKbKey = new NamespacedKey(CBCPlugin.getPlugin(), "ver_kb");
+    public final static NamespacedKey allyDamageRatioKey = new NamespacedKey(CBCPlugin.getPlugin(), "ally_dmg_ratio");
+
     private final CBCPlayer owner;
     private final WeaponReloader weaponReloader;
     private final CreeperPreset weaponOptions;
@@ -49,7 +53,7 @@ public class CreeperCannon implements CrossbowWeapon {
     }
 
     @Override
-    public ItemStack getWeaponItem(int weaponId) {
+    public ItemStack getWeaponItem() {
 
         // Create crossbow weapon
         ItemStack weaponItem = new ItemStack(Material.CROSSBOW);
@@ -60,7 +64,6 @@ public class CreeperCannon implements CrossbowWeapon {
         itemMeta.addEnchant(Enchantment.QUICK_CHARGE, 10, true);
 
         PersistentDataContainer itemTags = itemMeta.getPersistentDataContainer();
-        itemTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_weapon_id"), PersistentDataType.INTEGER, weaponId);
 
         if (weaponReloader.isLoaded()) {
 
@@ -128,6 +131,12 @@ public class CreeperCannon implements CrossbowWeapon {
         if (owner.getTeam() != null) {
             creeperFired.customName(Component.text(owner.getTeam().getTeamName() + "Creeper"));
         }
+
+        // Add data to creeper used when creeper does damage
+        PersistentDataContainer data = creeperFired.getPersistentDataContainer();
+        data.set(horKbKey, PersistentDataType.DOUBLE, weaponOptions.getHorizontalKnockbackCoefficient());
+        data.set(verKbKey, PersistentDataType.DOUBLE, weaponOptions.getVerticalKnockbackCoefficient());
+        data.set(allyDamageRatioKey, PersistentDataType.DOUBLE, weaponOptions.getCreeperAllyDamageRatio());
 
         return new CBCCreeper(owner, creeperFired);
 

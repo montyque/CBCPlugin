@@ -257,8 +257,7 @@ public class AssassinPlayer extends CBCPlayer {
             setImmune(true);
         }
 
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
         teleportOnRespawn();
 
     }
@@ -297,8 +296,7 @@ public class AssassinPlayer extends CBCPlayer {
         Player playerEntity = getPlayer();
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
 
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
 
         // Show title for player's target
         newTargetTitle();

@@ -44,7 +44,6 @@ public class RendezvousTeam extends CBCTeam {
     private boolean hasHalfStick = false;
     private List<RendezvousPlayer> runnerQueue;
     private double currentCheckpointTargetDistance;
-    private ItemStack runnerCompassItem;
 
     boolean outOfGame = false;
 
@@ -228,10 +227,12 @@ public class RendezvousTeam extends CBCTeam {
         if (oldRunner != runner) {
             newCheckpoint = true;
             changeInRunner();
+            if (oldRunner != null) {
+                oldRunner.getInventory().removeItem(8);
+            }
         }
 
-        PlayerInventory inventory = runner.getPlayer().getInventory();
-        runner.giveRunnerCompass(inventory);
+        runner.getInventory().setItem(8, getCheckpointCompass());
 
         if (newCheckpoint) {
             if (onFinalCheckpoint()) {
@@ -280,8 +281,8 @@ public class RendezvousTeam extends CBCTeam {
 
                 playerEntity.showTitle(title);
 
-            }
-            else {
+            } else {
+
                 // Play title to all non runners
                 Component titleComponent = Component.text("Runner switch!").color(getColor())
                         .decorate(TextDecoration.BOLD);
@@ -292,9 +293,6 @@ public class RendezvousTeam extends CBCTeam {
                 ));
                 playerEntity.showTitle(title);
 
-                // Remove compass from other players
-                playerEntity.getInventory().remove(ItemStack.of(Material.COMPASS));
-                playerEntity.updateInventory();
             }
         }
 
@@ -339,12 +337,8 @@ public class RendezvousTeam extends CBCTeam {
             }
         }
 
-        createCheckpointCompass();
-
         if (runner != null) {
-            if (!runner.isOnline()) return;
-            PlayerInventory inventory = runner.getPlayer().getInventory();
-            runner.giveRunnerCompass(inventory);
+            runner.getInventory().setItem(8, getCheckpointCompass());
         }
 
         targetCheckpoint.createGlowingMarker(this);
@@ -523,7 +517,8 @@ public class RendezvousTeam extends CBCTeam {
         }
     }
 
-    public void createCheckpointCompass () {
+    public ItemStack getCheckpointCompass () {
+
         ItemStack compass = new ItemStack(Material.COMPASS);
         ItemMeta itemMeta = compass.getItemMeta();
 
@@ -534,13 +529,8 @@ public class RendezvousTeam extends CBCTeam {
         compassMeta.setLodestoneTracked(false);
 
         compass.setItemMeta(compassMeta);
+        return compass;
 
-        runnerCompassItem = compass;
-
-    }
-
-    public ItemStack getRunnerCompassItem() {
-        return runnerCompassItem;
     }
 
     public List<RendezvousPlayer> getRunnerQueue () {
@@ -704,11 +694,11 @@ public class RendezvousTeam extends CBCTeam {
         if (!(player instanceof RendezvousPlayer rdvPlayer)) return;
 
         // Check if player is runner
+        runnerQueue.remove(rdvPlayer);
         if (runner == rdvPlayer) {
 
             // Change runner to the next online player in the queue
             setRunnerNextPlayerInQueue();
-            game.updateServerSidebar();
 
             // Send message to team
             for (CBCPlayer plr : getOnlinePlayers()) {
@@ -717,9 +707,6 @@ public class RendezvousTeam extends CBCTeam {
                 );
             }
         }
-
-        // Remove player from runner queue
-        runnerQueue.remove(rdvPlayer);
 
         // Update team footer to show correct order
         setFooterQueueComponent();

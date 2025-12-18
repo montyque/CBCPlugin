@@ -64,10 +64,21 @@ public class CTFMap extends CBCMap {
             teamFlags = getVectorListFromStrings(gamemodeYml.getStringList("FlagLocations"));
 
             teamSpawns = new ArrayList<>();
-            List<List<String>> spawnsList = (List<List<String>>) gamemodeYml.getList("BaseSpawns");
-            assert spawnsList != null;
-            for (List<String> spawnStringList : spawnsList) {
-                teamSpawns.add(getVectorSetFromStrings(spawnStringList));
+            List<?> rawSpawnsList = gamemodeYml.getList("BaseSpawns");
+            assert rawSpawnsList != null;
+
+            for (Object obj : rawSpawnsList) {
+
+                if (!(obj instanceof List<?> list)) continue;
+
+                List<String> teamSpawnList = new ArrayList<>();
+                for (Object e : list) {
+                    if (e instanceof String s) {
+                        teamSpawnList.add(s);
+                    }
+                }
+                teamSpawns.add(getVectorSetFromStrings(teamSpawnList));
+
             }
 
         } else {

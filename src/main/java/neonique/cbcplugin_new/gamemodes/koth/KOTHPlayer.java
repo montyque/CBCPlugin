@@ -94,8 +94,7 @@ public class KOTHPlayer extends CBCPlayer {
 
     public void playerRefresh () {
 
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
         setTempImmune(60);
 
     }

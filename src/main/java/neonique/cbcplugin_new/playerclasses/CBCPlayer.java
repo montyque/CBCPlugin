@@ -3,16 +3,12 @@ package neonique.cbcplugin_new.playerclasses;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
-import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
 import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
 import neonique.cbcplugin_new.weapons.*;
-import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
-import neonique.cbcplugin_new.weapons.presets.FlamePreset;
-import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -21,27 +17,19 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ArmorMeta;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.trim.ArmorTrim;
-import org.bukkit.inventory.meta.trim.TrimMaterial;
-import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 
 public class CBCPlayer {
-
-    private final CBCPlugin plugin;
 
     private final int playerId;
 
@@ -65,7 +53,6 @@ public class CBCPlayer {
     private int maxKillStreak = 0;
     private int multiKill = 0;
     private int lastKillTime = 0;
-
     private int gamePoints = 0;
 
     // Team variables
@@ -79,30 +66,29 @@ public class CBCPlayer {
     private int lastPlayerHitByReset = 0;
     private final HashMap<CBCPlayer, Integer> timeDamaged = new HashMap<>();
 
-    private HashMap<Integer, CrossbowWeapon> weapons = new HashMap<>();
+    private final CBCInventory inventory;
 
     // Important stats for fighting
     private final FlameDamager flameDamager = new FlameDamager(this);
 
     // Other fields
-
     private int swimTimer = 0;
     private int swimTimerDamageTick = 0;
     private boolean onJumpPad = false;
-    private boolean overrideGlassHelmet = false;
 
     // Display in player list
     private List<Component> playerListSuffixes;
 
     public CBCPlayer(GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
+
         this.gameManager = gameManager;
         this.combatManager = combatManager;
         this.playerUUID = player.getUniqueId();
         this.playerId = playerId;
 
-        playerListSuffixes = new ArrayList<>();
+        this.inventory = new CBCInventory(this, combatManager.getWeaponFactory(), combatManager.getEquipmentFactory());
 
-        this.plugin = CBCPlugin.getPlugin();
+        playerListSuffixes = new ArrayList<>();
 
         if (combatManager.isSwimTimerEnabled()) {
             swimTimer = combatManager.getSwimTimerLength();
@@ -125,7 +111,9 @@ public class CBCPlayer {
     }
 
     // Return true or false if this player is respawning
-    public boolean isRespawning() {return (this.respawning);}
+    public boolean isRespawning() {
+        return (this.respawning);
+    }
 
     // Return the player's player id
     public Integer getPlayerId () {
@@ -197,20 +185,11 @@ public class CBCPlayer {
     // PLAYER WEAPONS AND PLAYER RESET FUNCTIONS
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void playerSetup () {
-        setAlive(true);
-        setRespawning(false);
-        resetPlayer();
-        createWeapons();
-        loadInventory();
-    }
-
     public void resetPlayer() {
 
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
 
-        // Set exp levels to 0
         playerEntity.setLevel(0);
         playerEntity.setExp(0);
         playerEntity.setGameMode(GameMode.ADVENTURE);
@@ -218,7 +197,6 @@ public class CBCPlayer {
         playerEntity.updateInventory();
         resetAllAttributes();
         healToFull();
-
         flameDamager.resetFlameDamager();
         setLastPlayerHitBy(null);
 
@@ -233,54 +211,18 @@ public class CBCPlayer {
 
     }
 
-    public void createWeapons() {
-
-        weapons = new HashMap<>();
-        weapons.put(0, new CreeperCannon(this, (CreeperPreset) combatManager.getWeaponVariables(WeaponType.CREEPER)));
-        weapons.put(1, new FlameZoner(this, (FlamePreset) combatManager.getWeaponVariables(WeaponType.FLAME)));
-        weapons.put(2, new XBow(this, (XbowPreset) combatManager.getWeaponVariables(WeaponType.XBOW)));
-
+    public void playerSetup () {
+        setAlive(true);
+        setRespawning(false);
+        resetPlayer();
+        inventory.setWeapons();
+        inventory.loadEquipment();
+        giveEffects();
     }
 
-    public void loadInventory() {
-
-        if (!isOnline()) return;
-        Player player = getPlayer();
-        PlayerInventory inventory = getPlayer().getInventory();
-
-        // Create netherite chestplate
-        ItemStack chestplate = new ItemStack(Material.NETHERITE_CHESTPLATE);
-        ItemMeta chestplateMeta = chestplate.getItemMeta();
-        ArmorMeta armorChestplateMeta = (ArmorMeta) chestplateMeta;
-        chestplateMeta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-
-        // Check if player has team
-        if (team != null && !overrideGlassHelmet) {
-            inventory.setHelmet(team.getGlassHead());
-            TrimMaterial material = team.getTrimMaterial();
-            TrimPattern pattern = plugin.getTrimManager().getCBCPlayerTrim(this);
-            ArmorTrim armorTrim = new ArmorTrim(material, pattern);
-            armorChestplateMeta.setTrim(armorTrim);
-
-        }
-
-        chestplateMeta.setUnbreakable(true);
-        chestplate.setItemMeta(chestplateMeta);
-        inventory.setChestplate(chestplate);
-
-        // If beacon head is on, set player's head to beacon
-        if (combatManager.isBeaconHeads() && !overrideGlassHelmet) {
-            ItemStack beacon = new ItemStack(Material.BEACON);
-            ItemMeta itemMeta = beacon.getItemMeta();
-            itemMeta.addEnchant(Enchantment.BINDING_CURSE, 1, false);
-            beacon.setItemMeta(itemMeta);
-            inventory.setHelmet(beacon);
-        }
-
-        updateAllWeaponItems();
-        player.updateInventory();
-        giveEffects();
-
+    public void playerSetup (double weaponReloadTimer) {
+        playerSetup();
+        inventory.setReloadsBySecond(weaponReloadTimer);
     }
 
     public void giveEffects () {
@@ -341,52 +283,6 @@ public class CBCPlayer {
         Vector dir = targetLocation.clone().subtract(getPlayer().getEyeLocation()).toVector();
         Location loc = playerEntity.getLocation().setDirection(dir);
         playerEntity.teleport(loc);
-
-    }
-
-    public void updateWeaponReloads() {
-
-        if (!isOnline()) return;
-        if (!isAlive()) return;
-
-        for (Integer id : weapons.keySet()) {
-            CrossbowWeapon weapon = weapons.get(id);
-            weapon.getWeaponReloader().updateReload();
-        }
-
-        updateActionBarDisplay(true);
-
-    }
-
-    public void updateWeaponItem (int weaponId, CrossbowWeapon weapon) {
-
-        Player player = getPlayer();
-        PlayerInventory inventory = getPlayer().getInventory();
-
-        ItemStack weaponItem = weapon.getWeaponItem(weaponId);
-        inventory.setItem(weaponId, weaponItem);
-        player.updateInventory();
-
-    }
-
-    public void updateAllWeaponItems () {
-
-        for (Integer id : weapons.keySet()) {
-            CrossbowWeapon weapon = weapons.get(id);
-            updateWeaponItem(id, weapon);
-        }
-
-    }
-
-    public void setReloadsBySecond(double seconds) {
-
-        for (Integer id : weapons.keySet()) {
-            CrossbowWeapon weapon = weapons.get(id);
-            weapon.getWeaponReloader().setReloadBySecond(seconds);
-        }
-
-        updateAllWeaponItems();
-        updateActionBarDisplay(true);
 
     }
 
@@ -625,10 +521,6 @@ public class CBCPlayer {
         return maxKillStreak;
     }
 
-    public void setOverrideGlassHelmet(boolean b) {
-        overrideGlassHelmet = b;
-    }
-
     public void updateMultiKill() {
 
         if (combatManager.getTimer() - lastKillTime > 120) {
@@ -760,6 +652,10 @@ public class CBCPlayer {
         }
     }
 
+    public CBCInventory getInventory () {
+        return inventory;
+    }
+
     // Action bar display
     public void updateActionBarDisplay (boolean showIcon) {
 
@@ -776,6 +672,7 @@ public class CBCPlayer {
 
         Component actionBarDisplay = null;
 
+        /*
         if (isAlive()) {
 
             // Check which slot player is using
@@ -787,6 +684,7 @@ public class CBCPlayer {
             }
 
         }
+        */
 
         // Show icon if needing to show icon
         if (showIcon) {
@@ -807,16 +705,9 @@ public class CBCPlayer {
 
         int currentTime = combatManager.getTimer();
 
-        Set<CBCPlayer> damagedInPeriod = new HashSet<>();
-        for (CBCPlayer player : timeDamaged.keySet()) {
-            int time = timeDamaged.get(player);
-            int timeSinceDamaged = currentTime - time;
-            if (timeSinceDamaged < ticks) {
-                damagedInPeriod.add(player);
-            }
-        }
-
-        return damagedInPeriod;
+        return timeDamaged.keySet().stream()
+                .filter(p -> (currentTime - timeDamaged.get(p)) < ticks)
+                .collect(Collectors.toSet());
 
     }
 
@@ -873,10 +764,6 @@ public class CBCPlayer {
 
     public Component modifyDeathMessageAsKiller (CBCPlayer playerKilled, Component deathMessage) {
         return deathMessage;
-    }
-
-    public CrossbowWeapon getWeaponFromId(Integer weaponId) {
-        return weapons.getOrDefault(weaponId, null);
     }
 
     public FlameDamager getFlameDamager() {

@@ -10,6 +10,8 @@ import neonique.cbcplugin_new.listeners.combat.*;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 
 import neonique.cbcplugin_new.tasks.weapontasks.*;
+import neonique.cbcplugin_new.weapons.EquipmentFactory;
+import neonique.cbcplugin_new.weapons.WeaponFactory;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
@@ -45,7 +47,10 @@ public class CombatManager {
     // Weapons active
     private boolean active = false;
     private final GameManager gameManager;
-    private final ProjectileManager projectileManager = new ProjectileManager();
+
+    private final ProjectileManager projectileManager;
+    private final EquipmentFactory equipmentFactory;
+    private final WeaponFactory weaponFactory;
 
     // Death message manager
     private final DeathMessageManager deathMessageManager;
@@ -54,24 +59,9 @@ public class CombatManager {
     private Team flameZoneArrowTeam;
     private Team xbowArrowTeam;
 
-    // Weapon variables
-    private CreeperPreset creeperWeaponVariables;
-    private FlamePreset flameWeaponVariables;
-    private XbowPreset xbowWeaponVariables;
-
-    private HashMap<String, CreeperPreset> creeperPresetTeamOverrides;
-    private HashMap<String, FlamePreset> flamePresetTeamOverrides;
-    private HashMap<String, XbowPreset> xbowPresetTeamOverrides;
-
     // Amount of times to run reload task
     private int reloadTaskFrequency = 10; // Per second
     private int reloadTaskPeriod = 2; // In ticks
-
-    // Other weapon variables that can be chosen from
-    private HashMap<String, CreeperPreset> creeperPresets;
-    private HashMap<String, FlamePreset> flamePresets;
-    private HashMap<String, XbowPreset> xbowPresets;
-    private HashMap<String, OverallPreset> overallPresets;
 
     // Other weapon manager related stats
     private int healPadTimer = 10;
@@ -127,6 +117,8 @@ public class CombatManager {
 
     public CombatManager(GameManager gameManager) {
 
+        CBCPlugin plugin = CBCPlugin.getPlugin();
+
         this.gameManager = gameManager;
 
         // Load death messages
@@ -135,10 +127,15 @@ public class CombatManager {
 
         if (success) {
             CBCPlugin.getPlugin().getLogger().info("Successfully loaded death messages!");
-        }
-        else {
+        } else {
             CBCPlugin.getPlugin().getLogger().warning("Did not successfully load death messages!");
         }
+
+        // Create factories
+        projectileManager = new ProjectileManager();
+        equipmentFactory = new EquipmentFactory(plugin.getTrimService());
+        weaponFactory = new WeaponFactory();
+        weaponFactory.resetWeaponPresetsToDefault();
 
         // Create instances of listeners
         entityDamagePlayerListener = new EntityDamagePlayerListener(gameManager, this);
@@ -151,167 +148,6 @@ public class CombatManager {
         arrowHitPlayerListener = new ArrowHitPlayerListener(gameManager, this);
         blockInteractListener = new BlockInteractListener(gameManager, this);
 
-        // Load weapon presets
-        loadWeaponPresets();
-
-        // Reset weapon presets to default
-        resetWeaponPresetsToDefault();
-
-    }
-
-    public void loadWeaponPresets () {
-
-        creeperPresets = new HashMap<>();
-        flamePresets = new HashMap<>();
-        xbowPresets = new HashMap<>();
-
-        // Attempt to find weapons folder
-        File weaponsFolderFile = new File(CBCPlugin.getPlugin().getDataFolder(), "weapons");
-        // Attempt to make this a directory
-        if (!weaponsFolderFile.exists()) {
-            boolean folderMade = weaponsFolderFile.mkdir();
-            if (!folderMade) {
-                return;
-            }
-        }
-
-        // Get config file
-        File file = new File(weaponsFolderFile, "weaponpresets.yml");
-        if (!file.exists()) return;
-
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-
-        // Creeper presets
-        ConfigurationSection creeperSection = config.getConfigurationSection("CreeperPresets");
-        if (creeperSection != null) {
-            System.out.println("Creeper preset section found");
-            for (String key : creeperSection.getKeys(false)) {
-                ConfigurationSection creeperPresetSection = creeperSection.getConfigurationSection(key);
-                if (creeperPresetSection != null) {
-                    CreeperPreset preset = CreeperPreset.newPreset(key.toUpperCase(), creeperPresetSection);
-                    creeperPresets.put(key, preset);
-                }
-            }
-        }
-
-        // Flame presets
-        ConfigurationSection flameSection = config.getConfigurationSection("FlamePresets");
-        if (flameSection != null) {
-            System.out.println("Flame preset section found");
-            for (String key : flameSection.getKeys(false)) {
-                ConfigurationSection flamePresetSection = flameSection.getConfigurationSection(key);
-                if (flamePresetSection != null) {
-                    FlamePreset preset = FlamePreset.newPreset(key.toUpperCase(), flamePresetSection);
-                    flamePresets.put(key, preset);
-                }
-            }
-        }
-
-        // Xbow presets
-        ConfigurationSection xbowSection = config.getConfigurationSection("XbowPresets");
-        if (xbowSection != null) {
-            System.out.println("Flame preset section found");
-            for (String key : xbowSection.getKeys(false)) {
-                ConfigurationSection xbowPresetSection = xbowSection.getConfigurationSection(key);
-                if (xbowPresetSection != null) {
-                    XbowPreset preset = XbowPreset.newPreset(key.toUpperCase(), xbowPresetSection);
-                    xbowPresets.put(key, preset);
-                }
-            }
-        }
-
-        // Put overall presets
-        overallPresets = new HashMap<>();
-
-        ConfigurationSection overallSection = config.getConfigurationSection("OverallPresets");
-        if (overallSection != null) {
-            System.out.println("Overall preset section found");
-            for (String key : overallSection.getKeys(false)) {
-                ConfigurationSection overallPresetSection = overallSection.getConfigurationSection(key);
-                if (overallPresetSection != null) {
-
-                    String creeperPreset = overallPresetSection.getString("Creeper");
-                    String flamePreset = overallPresetSection.getString("Flame");
-                    String xbowPreset = overallPresetSection.getString("Xbow");
-
-                    if (!creeperPresets.containsKey(creeperPreset)) {
-                        continue;
-                    }
-                    if (!flamePresets.containsKey(flamePreset)) {
-                        continue;
-                    }
-                    if (!xbowPresets.containsKey(xbowPreset)) {
-                        continue;
-                    }
-
-                    // Add overall preset
-                    OverallPreset overallPreset = new OverallPreset(key, creeperPresets.get(creeperPreset), flamePresets.get(flamePreset),
-                            xbowPresets.get(xbowPreset));
-
-                    overallPresets.put(key, overallPreset);
-
-                }
-            }
-        }
-
-    }
-
-    public void resetWeaponPresetsToDefault () {
-        creeperWeaponVariables = CreeperPreset.getDefaultPreset();
-        flameWeaponVariables = FlamePreset.getDefaultPreset();
-        xbowWeaponVariables = XbowPreset.getDefaultPreset();
-
-        creeperPresetTeamOverrides = new HashMap<>();
-        flamePresetTeamOverrides = new HashMap<>();
-        xbowPresetTeamOverrides = new HashMap<>();
-    }
-
-    public void setCreeperWeaponVariables(CreeperPreset creeperWeaponVariables) {
-        this.creeperWeaponVariables = creeperWeaponVariables;
-    }
-
-    public void setFlameWeaponVariables(FlamePreset flameWeaponVariables) {
-        this.flameWeaponVariables = flameWeaponVariables;
-
-    }
-
-    public void setXbowWeaponVariables(XbowPreset xbowWeaponVariables) {
-        this.xbowWeaponVariables = xbowWeaponVariables;
-    }
-
-    public CreeperPreset getCreeperPresetById (String presetId) {
-        return creeperPresets.get(presetId);
-    }
-
-    public FlamePreset getFlamePresetById (String presetId) {
-        return flamePresets.get(presetId);
-    }
-
-    public XbowPreset getXbowPresetById (String presetId) {
-        return xbowPresets.get(presetId);
-    }
-
-    public OverallPreset getOverallPreset (String presetId) {
-        return overallPresets.get(presetId);
-    }
-
-    public List<String> getPresetIds (WeaponType weaponType) {
-
-        if (weaponType == WeaponType.CREEPER) {
-            return new ArrayList<>(creeperPresets.keySet());
-        }
-        else if (weaponType == WeaponType.FLAME) {
-            return new ArrayList<>(flamePresets.keySet());
-        }
-        else if (weaponType == WeaponType.XBOW) {
-            return new ArrayList<>(xbowPresets.keySet());
-        }
-        return null;
-
-    }
-
-    public List<String> getOverallPresetIds () {
-        return new ArrayList<>(overallPresets.keySet());
     }
 
     public void activateWeapons () {
@@ -491,9 +327,7 @@ public class CombatManager {
         }
 
         // Set weapon presets back to default
-        resetWeaponPresetsToDefault();
-
-        // Clear all projectiles
+        weaponFactory.resetWeaponPresetsToDefault();
         projectileManager.clearAllProjectiles();
 
         // Disable heal pads
@@ -817,52 +651,6 @@ public class CombatManager {
         task.cancel();
     }
 
-    public double getCreeperAllyDamageRatio () {
-        return creeperWeaponVariables.getCreeperAllyDamageRatio();
-    }
-
-    public double getHorizontalKnockbackCoefficient () {
-        return creeperWeaponVariables.getHorizontalKnockbackCoefficient();
-    }
-
-    public double getVerticalKnockbackCoefficient () {
-        return creeperWeaponVariables.getVerticalKnockbackCoefficient();
-    }
-
-    public WeaponPreset getWeaponVariables (WeaponType weaponType) {
-        if (weaponType == WeaponType.CREEPER) {
-            return creeperWeaponVariables;
-        }
-        else if (weaponType == WeaponType.FLAME) {
-            return flameWeaponVariables;
-        }
-        else if (weaponType == WeaponType.XBOW) {
-            return xbowWeaponVariables;
-        }
-        return null;
-    }
-
-    public void addTeamCreeperOverrides(String teamId, CreeperPreset preset) {
-        if (creeperPresetTeamOverrides.containsKey(teamId) && preset == creeperWeaponVariables) {
-            creeperPresetTeamOverrides.remove(teamId);
-        }
-        creeperPresetTeamOverrides.put(teamId, preset);
-    }
-
-    public void addTeamFlameOverrides(String teamId, FlamePreset preset) {
-        if (flamePresetTeamOverrides.containsKey(teamId) && preset == flameWeaponVariables) {
-            flamePresetTeamOverrides.remove(teamId);
-        }
-        flamePresetTeamOverrides.put(teamId, preset);
-    }
-
-    public void addTeamXbowOverrides(String teamId, XbowPreset preset) {
-        if (xbowPresetTeamOverrides.containsKey(teamId) && preset == xbowWeaponVariables) {
-            xbowPresetTeamOverrides.remove(teamId);
-        }
-        xbowPresetTeamOverrides.put(teamId, preset);
-    }
-
     public JumpPadTask getJumpPadTask() {
         return jumpPadTask;
     }
@@ -896,5 +684,13 @@ public class CombatManager {
 
     public Location getVoidTeleport () {
         return voidTeleport;
+    }
+
+    public EquipmentFactory getEquipmentFactory () {
+        return equipmentFactory;
+    }
+
+    public WeaponFactory getWeaponFactory() {
+        return weaponFactory;
     }
 }

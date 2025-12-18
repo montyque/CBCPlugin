@@ -1,7 +1,9 @@
 package neonique.cbcplugin_new.commands.lobbysubcommands;
 
+import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.commands.LobbyCommand;
 import neonique.cbcplugin_new.enums.WeaponType;
+import neonique.cbcplugin_new.services.WeaponPresetService;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.gameobjects.OverallPreset;
@@ -238,6 +240,7 @@ public class lobby_game {
             }
 
             String weaponType = args[2];
+            WeaponPresetService presetService = CBCPlugin.getPlugin().getWeaponPresetService();
             WeaponType weapon;
             NamedTextColor weaponColor;
 
@@ -289,9 +292,9 @@ public class lobby_game {
                 String presetId = args[3].toUpperCase();
 
                 // Get valid ids
-                List<String> presetIds = combatManager.getPresetIds(weapon);
+                List<String> presetIds = CBCPlugin.getPlugin().getWeaponPresetService().getPresetIds(weapon);
                 if (weapon == null) {
-                    presetIds = combatManager.getOverallPresetIds();
+                    presetIds = CBCPlugin.getPlugin().getWeaponPresetService().getOverallPresetIds();
                 }
 
                 if (!presetIds.contains(presetId)) {
@@ -313,7 +316,7 @@ public class lobby_game {
                 // Set preset
                 if (weapon == WeaponType.CREEPER) {
 
-                    CreeperPreset preset = combatManager.getCreeperPresetById(presetId);
+                    CreeperPreset preset = CBCPlugin.getPlugin().getWeaponPresetService().getCreeperPresetById(presetId);
 
                     if (teamId != null) {
                         lobby.addTeamCreeperOverrides(teamId, preset);
@@ -333,7 +336,7 @@ public class lobby_game {
                 }
                 else if (weapon == WeaponType.FLAME) {
 
-                    FlamePreset preset = combatManager.getFlamePresetById(presetId);
+                    FlamePreset preset = presetService.getFlamePresetById(presetId);
                     if (teamId != null) {
                         lobby.addTeamFlameOverrides(teamId, preset);
                         user.sendMessage(Component.text("Current preset for " + weapon + " has been set to ").color(NamedTextColor.YELLOW)
@@ -353,7 +356,7 @@ public class lobby_game {
                 }
                 else if (weapon == WeaponType.XBOW) {
 
-                    XbowPreset preset = combatManager.getXbowPresetById(presetId);
+                    XbowPreset preset = presetService.getXbowPresetById(presetId);
                     if (teamId != null) {
                         lobby.addTeamXbowOverrides(teamId, preset);
                         user.sendMessage(Component.text("Current preset for " + weapon + " has been set to ").color(NamedTextColor.YELLOW)
@@ -373,7 +376,7 @@ public class lobby_game {
 
                 else {
 
-                    OverallPreset preset = combatManager.getOverallPreset(presetId);
+                    OverallPreset preset = presetService.getOverallPreset(presetId);
 
                     CreeperPreset creeperPreset = preset.getCreeperPreset();
                     FlamePreset flamePreset = preset.getFlamePreset();
@@ -460,16 +463,16 @@ public class lobby_game {
                     }
                     else if (level == 4) {
                         if (args[2].equalsIgnoreCase("creeper")) {
-                            tabCompletions = combatManager.getPresetIds(WeaponType.CREEPER);
+                            tabCompletions = CBCPlugin.getPlugin().getWeaponPresetService().getPresetIds(WeaponType.CREEPER);
                         }
                         else if (args[2].equalsIgnoreCase("flame")) {
-                            tabCompletions = combatManager.getPresetIds(WeaponType.FLAME);
+                            tabCompletions = CBCPlugin.getPlugin().getWeaponPresetService().getPresetIds(WeaponType.FLAME);
                         }
                         else if (args[2].equalsIgnoreCase("xbow")) {
-                            tabCompletions = combatManager.getPresetIds(WeaponType.XBOW);
+                            tabCompletions = CBCPlugin.getPlugin().getWeaponPresetService().getPresetIds(WeaponType.XBOW);
                         }
                         else if (args[2].equalsIgnoreCase("all")) {
-                            tabCompletions = combatManager.getOverallPresetIds();
+                            tabCompletions = CBCPlugin.getPlugin().getWeaponPresetService().getOverallPresetIds();
                         }
                     }
                     else if (level == 5) {
