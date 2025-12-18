@@ -217,8 +217,7 @@ public class CTFGame extends TeamGame {
             for (CBCPlayer player : team.getPlayers()) {
                 CTFPlayer ctfPlayer = (CTFPlayer) player;
 
-                ctfPlayer.playerSetup();
-                ctfPlayer.setReloadsBySecond(2);
+                ctfPlayer.playerSetup(2);
                 ctfPlayer.setTempImmune(60);
 
             }

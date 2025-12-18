@@ -5,7 +5,10 @@ import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.weapons.CBCInventory;
 import neonique.cbcplugin_new.weapons.CrossbowWeapon;
+import neonique.cbcplugin_new.weapons.InventorySlot;
+import neonique.cbcplugin_new.weapons.WeaponSlot;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
@@ -62,16 +65,14 @@ public class CrossbowFiredListener implements Listener {
         // Check what weapon player fired from
         ItemMeta itemFiredMeta = itemFired.getItemMeta();
         PersistentDataContainer itemFiredTags = itemFiredMeta.getPersistentDataContainer();
-        Integer playerWeaponId = itemFiredTags.get(
-                new NamespacedKey(CBCPlugin.getPlugin(), "cbc_weapon_id"),
-                PersistentDataType.INTEGER
-        );
+        Integer itemSlotId = itemFiredTags.get(CBCInventory.slotKey, PersistentDataType.INTEGER);
+        if (itemSlotId == null) return;
 
-        CrossbowWeapon weaponFired = cbcPlayerFired.getWeaponFromId(playerWeaponId);
-        weaponFired.fireWeapon(arrowFired);
-
-        // Play fired crossbow sound
-        playerFired.playSound(playerFired.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 10, 2);
+        InventorySlot slotFrom = cbcPlayerFired.getInventory().getSlot(itemSlotId);
+        if (slotFrom instanceof WeaponSlot weaponSlot) {
+            weaponSlot.getWeapon().fireWeapon(arrowFired);
+            playerFired.playSound(playerFired.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 10, 2);
+        }
 
     }
 

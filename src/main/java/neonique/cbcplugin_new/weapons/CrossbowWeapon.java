@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Arrow;
@@ -10,7 +11,7 @@ public interface CrossbowWeapon {
 
     void fireWeapon (Arrow arrowFired);
 
-    ItemStack getWeaponItem (int weaponId);
+    ItemStack getWeaponItem ();
 
     Projectile fireProjectile (Arrow arrowFired);
 

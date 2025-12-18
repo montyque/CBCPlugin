@@ -77,8 +77,7 @@ public class TagPlayer extends CBCPlayer {
         Player playerEntity = getPlayer();
 
         // Set gamemode of player to adventure and reset their stats
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
         setTempImmune(60);
 
         playerEntity.removePotionEffect(PotionEffectType.BLINDNESS);
@@ -94,8 +93,7 @@ public class TagPlayer extends CBCPlayer {
 
         if (!isOnline()) return;
 
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
         setTempImmune(60);
 
         // Teleport player back to tagger spawn

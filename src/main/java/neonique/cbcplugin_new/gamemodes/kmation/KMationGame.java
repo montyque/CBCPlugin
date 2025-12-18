@@ -107,7 +107,7 @@ public class KMationGame extends FFAGame {
         int spawnNum = 0;
         for (KMationPlayer player : shuffledPlayers) {
             if (!player.isOnline()) continue;
-            player.teleportToSpawn(gameStartSpawns.get(spawnNum));
+            player.teleportPlayerToSpawn(gameStartSpawns.get(spawnNum), map.getMapCentre());
             player.playerSetupGame();
             spawnNum++;
         }

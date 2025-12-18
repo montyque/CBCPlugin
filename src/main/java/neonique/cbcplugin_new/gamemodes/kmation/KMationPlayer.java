@@ -43,14 +43,6 @@ public class KMationPlayer extends CBCPlayer {
         this.game = game;
     }
 
-    public void teleportToSpawn(Location location) {
-        getPlayer().teleport(location);
-
-        Vector dir = game.getMap().getMapCentre().clone().subtract(getPlayer().getEyeLocation()).toVector();
-        Location loc = getPlayer().getLocation().setDirection(dir);
-        getPlayer().teleport(loc);
-    }
-
     @Override
     public void playerAfterKill (CBCPlayer playerKilled) {
         playerCycleKills++;
@@ -109,10 +101,9 @@ public class KMationPlayer extends CBCPlayer {
         }
 
         // Teleport player to spawn point
-        teleportToSpawn(selectSpawn());
+        teleportPlayerToSpawn(selectSpawn(), game.getMap().getMapCentre());
 
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
 
         getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
 
@@ -133,8 +124,7 @@ public class KMationPlayer extends CBCPlayer {
         Player playerEntity = getPlayer();
 
         // Set gamemode of player to adventure and reset their stats
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
         setTempImmune(60);
 
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
@@ -177,7 +167,7 @@ public class KMationPlayer extends CBCPlayer {
             }
         }
 
-        if (noEnemyNearbySpawns.size() > 0) {
+        if (!noEnemyNearbySpawns.isEmpty()) {
             noEnemyNearbySpawns.sort(Comparator.comparingDouble(KMationSpawn::getNearestEnemyDistanceMinusTarget));
             return noEnemyNearbySpawns.get(0);
         } else {

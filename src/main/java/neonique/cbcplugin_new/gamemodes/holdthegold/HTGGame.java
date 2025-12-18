@@ -147,10 +147,7 @@ public class HTGGame extends TeamGame {
             // Initialise all players
             for (CBCPlayer player : team.getPlayers()) {
                 if (!player.isOnline()) continue;
-                player.playerSetup();
-                player.setAlive(true);
-                player.setRespawning(false);
-                player.setReloadsBySecond(2);
+                player.playerSetup(2);
                 player.setTempImmune(60);
                 player.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
             }

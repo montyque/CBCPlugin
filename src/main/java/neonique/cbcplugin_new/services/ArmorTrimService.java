@@ -1,10 +1,9 @@
-package neonique.cbcplugin_new.managers;
+package neonique.cbcplugin_new.services;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.listeners.lobby.TrimSelectHandler;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -19,16 +18,16 @@ import java.util.UUID;
 
 import static neonique.cbcplugin_new.util.StringUtil.firstLetterUpper;
 
-public class ArmorTrimManager {
+public class ArmorTrimService {
 
-    private final String playerTrimsFileName = "playertrims.yaml";
+    public final static String playerTrimsFileName = "playertrims.yaml";
 
     private final Map<UUID, TrimPattern> playerTrims;
     private final TrimSelectHandler trimSelectHandler;
 
     private final TrimPattern defaultTrim = TrimPattern.COAST;
 
-    public ArmorTrimManager () {
+    public ArmorTrimService() {
 
         CBCPlugin plugin = CBCPlugin.getPlugin();
 
@@ -67,16 +66,6 @@ public class ArmorTrimManager {
      */
     public TrimPattern getPlayerTrim (UUID playerUUID) {
         return playerTrims.getOrDefault(playerUUID, defaultTrim);
-    }
-
-    /**
-     * Get the selected trim pattern of a CBCPlayer object.
-     * @param player The UUID of player whose trim pattern is being retrieved.
-     * @return The TrimPattern that the player has selected.
-     */
-    public TrimPattern getCBCPlayerTrim (CBCPlayer player) {
-        UUID playerUUID = player.getOfflinePlayer().getUniqueId();
-        return getPlayerTrim(playerUUID);
     }
 
     /**

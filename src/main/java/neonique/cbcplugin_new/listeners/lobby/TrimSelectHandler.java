@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.listeners.lobby;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
-import neonique.cbcplugin_new.managers.ArmorTrimManager;
+import neonique.cbcplugin_new.services.ArmorTrimService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
@@ -22,9 +22,9 @@ import static neonique.cbcplugin_new.util.StringUtil.firstLetterUpper;
 
 public class TrimSelectHandler implements Listener {
 
-    private final ArmorTrimManager trimManager;
+    private final ArmorTrimService trimManager;
 
-    public TrimSelectHandler (ArmorTrimManager trimManager) {
+    public TrimSelectHandler (ArmorTrimService trimManager) {
         this.trimManager = trimManager;
     }
 

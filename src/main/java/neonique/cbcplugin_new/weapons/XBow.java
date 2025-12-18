@@ -50,7 +50,7 @@ public class XBow implements CrossbowWeapon {
     }
 
     @Override
-    public ItemStack getWeaponItem(int weaponId) {
+    public ItemStack getWeaponItem () {
 
         // Create crossbow weapon
         ItemStack weaponItem = new ItemStack(Material.CROSSBOW);
@@ -61,7 +61,6 @@ public class XBow implements CrossbowWeapon {
         itemMeta.addEnchant(Enchantment.QUICK_CHARGE, 10, true);
 
         PersistentDataContainer itemTags = itemMeta.getPersistentDataContainer();
-        itemTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_weapon_id"), PersistentDataType.INTEGER, weaponId);
 
         if (weaponReloader.isLoaded()) {
             // Loads crossbow so the player is able to fire it

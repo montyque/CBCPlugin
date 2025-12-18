@@ -8,12 +8,15 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.weapons.CreeperCannon;
 import neonique.cbcplugin_new.weapons.projectiles.*;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -69,6 +72,13 @@ public class EntityDamagePlayerListener implements Listener {
                 return;
             }
 
+            // Get creeper modifiers
+            PersistentDataContainer data = creeper.getPersistentDataContainer();
+            Double horKnockback = data.get(CreeperCannon.horKbKey, PersistentDataType.DOUBLE);
+            Double verKnockback = data.get(CreeperCannon.verKbKey, PersistentDataType.DOUBLE);
+            Double allyDamageRatio = data.get(CreeperCannon.allyDamageRatioKey, PersistentDataType.DOUBLE);
+            if (horKnockback == null || verKnockback == null || allyDamageRatio == null) return;
+
             CBCPlayer sourcePlayer = creeperProjectile.getSource();
             double finalDamage = e.getDamage() * CREEPER_DAMAGE_MULTIPLIER;
 
@@ -82,7 +92,7 @@ public class EntityDamagePlayerListener implements Listener {
                 player.setLastPlayerHitBy(sourcePlayer);
             } else {
                 // Change creeper damage if creeper fired by ally
-                finalDamage *= combatManager.getCreeperAllyDamageRatio();
+                finalDamage *= allyDamageRatio;
                 if (sourcePlayer != player) {
                     if (player.isImmune() || !player.isInSameTeam(sourcePlayer)) {
                         e.setCancelled(true);
@@ -110,15 +120,15 @@ public class EntityDamagePlayerListener implements Listener {
 
             // Dampen the vertical velocity of creeper knockback
             Vector velocity = playerEntity.getVelocity().clone();
-            velocity.setY(velocity.getY() * combatManager.getVerticalKnockbackCoefficient());
+            velocity.setY(velocity.getY() * verKnockback);
             playerEntity.setVelocity(velocity);
 
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     Vector velocity = playerEntity.getVelocity().clone();
-                    velocity.setX(velocity.getX() * combatManager.getHorizontalKnockbackCoefficient());
-                    velocity.setZ(velocity.getZ() * combatManager.getHorizontalKnockbackCoefficient());
+                    velocity.setX(velocity.getX() * horKnockback);
+                    velocity.setZ(velocity.getZ() * horKnockback);
                     playerEntity.setVelocity(velocity);
                 }
             }.runTaskLater(CBCPlugin.getPlugin(), 0);

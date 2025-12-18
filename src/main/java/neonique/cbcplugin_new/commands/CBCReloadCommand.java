@@ -50,7 +50,7 @@ public class CBCReloadCommand extends _BaseCommand {
         }
         else if (reloadType.equals("weaponpresets")) {
             user.sendMessage(Component.text("Reloading weapon presets...").color(NamedTextColor.GREEN));
-            gameManager.combatManager.loadWeaponPresets();
+            CBCPlugin.getPlugin().getWeaponPresetService().loadWeaponPresets();
             user.sendMessage(Component.text("Weapon presets loaded!").color(NamedTextColor.GREEN));
         }
         else if (reloadType.equals("deathmessages")) {

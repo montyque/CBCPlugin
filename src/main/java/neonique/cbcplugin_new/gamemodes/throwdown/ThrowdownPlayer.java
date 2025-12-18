@@ -60,8 +60,7 @@ public class ThrowdownPlayer extends CBCPlayer {
         Player playerEntity = getPlayer();
 
         // Set gamemode of player to adventure and reset their stats
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
         setTempImmune(60);
 
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);

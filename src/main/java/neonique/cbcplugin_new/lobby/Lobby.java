@@ -1102,13 +1102,13 @@ public class Lobby {
         CombatManager combatManager = gameManager.combatManager;
 
         for (String teamId : creeperPresetTeamOverrides.keySet()) {
-            combatManager.addTeamCreeperOverrides(teamId, creeperPresetTeamOverrides.get(teamId));
+            combatManager.getWeaponFactory().addTeamCreeperOverrides(teamId, creeperPresetTeamOverrides.get(teamId));
         }
         for (String teamId : flamePresetTeamOverrides.keySet()) {
-            combatManager.addTeamFlameOverrides(teamId, flamePresetTeamOverrides.get(teamId));
+            combatManager.getWeaponFactory().addTeamFlameOverrides(teamId, flamePresetTeamOverrides.get(teamId));
         }
         for (String teamId : xbowPresetTeamOverrides.keySet()) {
-            combatManager.addTeamXbowOverrides(teamId, xbowPresetTeamOverrides.get(teamId));
+            combatManager.getWeaponFactory().addTeamXbowOverrides(teamId, xbowPresetTeamOverrides.get(teamId));
         }
 
     }

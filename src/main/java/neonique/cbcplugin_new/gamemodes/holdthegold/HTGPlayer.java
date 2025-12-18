@@ -165,8 +165,7 @@ public class HTGPlayer extends CBCPlayer {
             setImmune(true);
         }
 
-        playerSetup();
-        setReloadsBySecond(2);
+        playerSetup(2);
         setTempImmune(60);
 
         // Teleport player to spawn point
@@ -198,9 +197,7 @@ public class HTGPlayer extends CBCPlayer {
         playerEntity.playSound(getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 300, 2);
 
         // Set player helmet to gold block
-        setOverrideGlassHelmet(true);
-        playerEntity.getInventory().setHelmet(game.getGoldHead());
-        playerEntity.updateInventory();
+        getInventory().setHelmetOverride(game.getGoldHead());
 
         // Show gold holder title
         Component titleComponent = Component.text("You have the gold!").decorate(TextDecoration.BOLD).color(NamedTextColor.GOLD);
@@ -216,7 +213,7 @@ public class HTGPlayer extends CBCPlayer {
 
     public void dropGold() {
         isHoldingGold = false;
-        setOverrideGlassHelmet(false);
+        getInventory().setHelmetOverride(null);
         game.playerDropGold();
     }
 

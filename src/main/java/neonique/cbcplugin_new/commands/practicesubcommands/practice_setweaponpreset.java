@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.commands.practicesubcommands;
 
+import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
@@ -51,7 +52,7 @@ public class practice_setweaponpreset {
         if (args.length < 3) {
             // Send current preset id
             user.sendMessage(Component.text("Current preset for " + weapon + " is ").append(
-                    Component.text(combatManager.getWeaponVariables(weapon).getPresetName()).color(weaponColor)
+                    Component.text(combatManager.getWeaponFactory().getWeaponVar(weapon).getPresetName()).color(weaponColor)
             ));
         }
         else {
@@ -59,7 +60,7 @@ public class practice_setweaponpreset {
             String presetId = args[2].toUpperCase();
 
             // Get valid ids
-            List<String> presetIds = combatManager.getPresetIds(weapon);
+            List<String> presetIds = CBCPlugin.getPlugin().getWeaponPresetService().getPresetIds(weapon);
 
             if (!presetIds.contains(presetId)) {
                 // Invalid presetId
@@ -70,8 +71,8 @@ public class practice_setweaponpreset {
             // Set preset
             if (weapon == WeaponType.CREEPER) {
 
-                CreeperPreset preset = combatManager.getCreeperPresetById(presetId);
-                combatManager.setCreeperWeaponVariables(preset);
+                CreeperPreset preset = CBCPlugin.getPlugin().getWeaponPresetService().getCreeperPresetById(presetId);
+                combatManager.getWeaponFactory().setCreeperVar(preset);
 
                 user.sendMessage(Component.text("Current preset for " + weapon + " has been set to ").append(
                         Component.text(preset.getPresetName()).color(weaponColor)
@@ -80,8 +81,8 @@ public class practice_setweaponpreset {
             }
             else if (weapon == WeaponType.FLAME) {
 
-                FlamePreset preset = combatManager.getFlamePresetById(presetId);
-                combatManager.setFlameWeaponVariables(preset);
+                FlamePreset preset = CBCPlugin.getPlugin().getWeaponPresetService().getFlamePresetById(presetId);
+                combatManager.getWeaponFactory().setFlameVar(preset);
 
                 user.sendMessage(Component.text("Current preset for " + weapon + " has been set to ").append(
                         Component.text(preset.getPresetName()).color(weaponColor)
@@ -90,8 +91,8 @@ public class practice_setweaponpreset {
             }
             else {
 
-                XbowPreset preset = combatManager.getXbowPresetById(presetId);
-                combatManager.setXbowWeaponVariables(preset);
+                XbowPreset preset = CBCPlugin.getPlugin().getWeaponPresetService().getXbowPresetById(presetId);
+                combatManager.getWeaponFactory().setXbowVar(preset);
 
                 user.sendMessage(Component.text("Current preset for " + weapon + " has been set to ").append(
                         Component.text(preset.getPresetName()).color(weaponColor)
@@ -119,13 +120,13 @@ public class practice_setweaponpreset {
         else if (level == 3) {
             if (perms >= 1) {
                 if (args[1].equalsIgnoreCase("creeper")) {
-                    tabCompletions = combatManager.getPresetIds(WeaponType.CREEPER);
+                    tabCompletions = CBCPlugin.getPlugin().getWeaponPresetService().getPresetIds(WeaponType.CREEPER);
                 }
                 else if (args[1].equalsIgnoreCase("flame")) {
-                    tabCompletions = combatManager.getPresetIds(WeaponType.FLAME);
+                    tabCompletions = CBCPlugin.getPlugin().getWeaponPresetService().getPresetIds(WeaponType.FLAME);
                 }
                 else if (args[1].equalsIgnoreCase("xbow")) {
-                    tabCompletions = combatManager.getPresetIds(WeaponType.XBOW);
+                    tabCompletions = CBCPlugin.getPlugin().getWeaponPresetService().getPresetIds(WeaponType.XBOW);
                 }
             }
         }

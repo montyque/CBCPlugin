@@ -225,8 +225,7 @@ public class RendezvousGame extends TeamGame {
             for (CBCPlayer player : team.getOnlinePlayers()) {
 
                 RendezvousPlayer rdvPlayer = (RendezvousPlayer) player;
-                rdvPlayer.playerSetup();
-                rdvPlayer.setReloadsBySecond(1);
+                rdvPlayer.playerSetup(2);
                 rdvPlayer.setTempImmune(60);
                 if (rdvPlayer.isPlayerRunner()) {
                     rdvPlayer.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1,
