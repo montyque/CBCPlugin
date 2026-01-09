@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes._base;
 // This class represents a CBC map - with a name, heal pads, other game mechanics, etc.
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinMap;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagMap;
@@ -464,7 +464,6 @@ public class CBCMap {
         else if (gamemode == CBCGamemode.SHOWDOWN) requiredKeys = ShowdownMap.getGmYamlRequiredKeys();
         else if (gamemode == CBCGamemode.HOLDTHEGOLD) requiredKeys = HTGMap.getGmYamlRequiredKeys();
         else if (gamemode == CBCGamemode.TDM) requiredKeys = TDMMap.getGmYamlRequiredKeys();
-        else if (gamemode == CBCGamemode.FLAGRUSH) requiredKeys = CTFMap.getGmYamlRequiredKeys();
         else if (gamemode == CBCGamemode.THROWDOWN) requiredKeys = ThrowdownMap.getGmYamlRequiredKeys();
         else if (gamemode == CBCGamemode.KMATION) requiredKeys = KMationMap.getGmYamlRequiredKeys();
         else if (gamemode == CBCGamemode.RENDEZVOUS) requiredKeys = RendezvousMap.getGmYamlRequiredKeys();
@@ -490,7 +489,6 @@ public class CBCMap {
         else if (gamemode == CBCGamemode.SHOWDOWN) mapObj = new ShowdownMap(baseYmlMapConfig, ymlMapConfig, gameManager, combatManager);
         else if (gamemode == CBCGamemode.HOLDTHEGOLD) mapObj = new HTGMap(baseYmlMapConfig, ymlMapConfig, gameManager, combatManager);
         else if (gamemode == CBCGamemode.TDM) mapObj = new TDMMap(baseYmlMapConfig, ymlMapConfig, gameManager, combatManager);
-        else if (gamemode == CBCGamemode.FLAGRUSH) mapObj = new CTFMap(baseYmlMapConfig, ymlMapConfig, gameManager, combatManager);
         else if (gamemode == CBCGamemode.THROWDOWN) mapObj = new ThrowdownMap(baseYmlMapConfig, ymlMapConfig, gameManager, combatManager);
         else if (gamemode == CBCGamemode.KMATION) mapObj = new KMationMap(baseYmlMapConfig, ymlMapConfig, gameManager, combatManager);
         else if (gamemode == CBCGamemode.RENDEZVOUS) mapObj = new RendezvousMap(baseYmlMapConfig, ymlMapConfig, gameManager, combatManager);

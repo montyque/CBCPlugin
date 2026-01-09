@@ -16,8 +16,6 @@ import java.util.Set;
 
 public class KOTHHill {
 
-    private final GameManager gameManager;
-
     private final Location zoneCenter; // Center of hill
     private final HillShape zoneShape; // Geometric shape of hill bounding box
     private final float zoneRadius;
@@ -34,10 +32,8 @@ public class KOTHHill {
         cosSineTable = new CosSineTable(360);
     }
 
-    public KOTHHill (GameManager gameManager, Location zoneCenter, HillShape zoneShape,
+    public KOTHHill (Location zoneCenter, HillShape zoneShape,
                      float zoneRadius, float zoneHeight) {
-
-        this.gameManager = gameManager;
 
         this.zoneShape = zoneShape;
         this.zoneCenter = zoneCenter;

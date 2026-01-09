@@ -1,22 +1,18 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
-import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 import static neonique.cbcplugin_new.util.TextUtil.*;
@@ -151,7 +147,7 @@ public class TagSidebarManager extends GameSidebarManager {
         }
 
         if (statCycle != null) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getTagPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
         }
 
         displayToEveryone.add(blankComponent());
@@ -162,11 +158,10 @@ public class TagSidebarManager extends GameSidebarManager {
     public void updateClientBoard (Player player) {
 
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
+        TagPlayer tagPlayer = game.getPlayer(player);
 
         // Client side scoreboards
-        if (game.getPlayer(player) != null) {
-
-            TagPlayer tagPlayer = (TagPlayer) game.getPlayer(player);
+        if (tagPlayer != null) {
 
             // Check if player's team is on team order on sidebar
             if (tagPlayer.getTeam() != null) {

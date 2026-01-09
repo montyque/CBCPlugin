@@ -1,16 +1,15 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.TagNoMove;
 import neonique.cbcplugin_new.listeners.gamemodes.TagTeleportListener;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.crossbowtag.TagNextRoundTimer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.crossbowtag.TagRoundTimer;
@@ -35,9 +34,7 @@ import java.util.*;
 
 import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
 
-public class TagGame extends TeamGame {
-
-    private final List<TagTeam> teams = new ArrayList<>();
+public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
     // Game variables
     private int roundLength = 150; // Round length in seconds
@@ -73,7 +70,6 @@ public class TagGame extends TeamGame {
     private int WIPEOUT_BONUS = 20;
 
     // Map related variables
-    private TagMap map;
     private HashMap<String, Set<Location>> teamEvaderSpawns;
     private HashMap<String, Set<Location>> teamTaggerSpawns;
     private List<Set<Location>> randomEvaderSpawns;
@@ -87,29 +83,56 @@ public class TagGame extends TeamGame {
     private TaggerReleaseTimer taggerReleaseTimerTask;
     private TagRoundTimer roundTimerTask;
 
-    Component footerComponent;
+    private Component footerComponent;
 
 
     // !!! Add radar locations maybe?
 
-    public TagGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public TagGame(GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
-    public void setupGame(CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                          HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.CBCTAG;
+    }
+
+    @Override
+    public TagPlayer createGamemodePlayer (Player playerEntity) {
+        return new TagPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
+
+    @Override
+    public TagTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
+        return new TagTeam(this, team.getTeamId(),
+                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
+                team.getPrefix(), team.getItem(), team.getGlassHead()
+        );
+    }
+
+    public GameSidebarManager createSidebarManager () {
+        return new TagSidebarManager(getGameManager(), this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager () {
+        return new TagBossbarManager(this);
+    }
+
+    @Override
+    public void setupGame (GameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
 
         // Setup map
-        setupMap(mapChosen);
+        TagMap map = (TagMap) ctx.getMap();
+        setupMap(map);
+
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
         // Set gamemode information
-        setGamemode(CBCGamemode.CBCTAG);
         createHeaderTitle();
 
         // Enable weapons
@@ -119,24 +142,24 @@ public class TagGame extends TeamGame {
         setGameCommands(new TagGameCommands(gameManager, combatManager, this));
 
         // Setup gamemode game variables
-        this.roundLength = intVars.getOrDefault("roundLength", 150);
-        this.roundsPerTeam = intVars.getOrDefault("roundsPerTeam", 1);
-        this.taggerRespawnTimer = intVars.getOrDefault("taggerRespawnTimer", 4);
+        this.roundLength = ctx.getIntVars().getOrDefault("roundLength", 150);
+        this.roundsPerTeam = ctx.getIntVars().getOrDefault("roundsPerTeam", 1);
+        this.taggerRespawnTimer = ctx.getIntVars().getOrDefault("taggerRespawnTimer", 4);
 
         // Setup point game variables
-        this.MAX_POINTS_FOR_SURVIVAL = intVars.getOrDefault("MAX_POINTS_FOR_SURVIVAL", 150);
-        this.MAX_POINTS_FOR_WIPEOUT = intVars.getOrDefault("MAX_POINTS_FOR_WIPEOUT", 150);
-        this.MAX_EVADER_KILL_POINTS = intVars.getOrDefault("MAX_EVADER_KILL_POINTS", 35);
-        this.MIN_EVADER_KILL_POINTS = intVars.getOrDefault("MIN_EVADER_KILL_POINTS", 10);
-        this.WIPEOUT_BONUS = intVars.getOrDefault("WIPEOUT_BONUS", 25);
-        this.SURVIVAL_BONUS = intVars.getOrDefault("SURVIVAL_BONUS", 10);
+        this.MAX_POINTS_FOR_SURVIVAL = ctx.getIntVars().getOrDefault("MAX_POINTS_FOR_SURVIVAL", 150);
+        this.MAX_POINTS_FOR_WIPEOUT = ctx.getIntVars().getOrDefault("MAX_POINTS_FOR_WIPEOUT", 150);
+        this.MAX_EVADER_KILL_POINTS = ctx.getIntVars().getOrDefault("MAX_EVADER_KILL_POINTS", 35);
+        this.MIN_EVADER_KILL_POINTS = ctx.getIntVars().getOrDefault("MIN_EVADER_KILL_POINTS", 10);
+        this.WIPEOUT_BONUS = ctx.getIntVars().getOrDefault("WIPEOUT_BONUS", 25);
+        this.SURVIVAL_BONUS = ctx.getIntVars().getOrDefault("SURVIVAL_BONUS", 10);
 
         // Setup teams/players
-        createTeams(teams);
+        createTeams(ctx.getTeams());
         teleportSpectators();
 
         // Set team spawns
-        for (TagTeam team : this.teams) {
+        for (TagTeam team : getTeams()) {
 
             String teamId = team.getTeamId();
 
@@ -177,32 +200,39 @@ public class TagGame extends TeamGame {
         setupRound();
     }
 
-    public CBCTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        TagTeam createdTeam = new TagTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
-        );
-        teams.add(createdTeam);
-        return createdTeam;
-    }
+    @Override
+    public void gameWon (TagTeam team) {
 
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new TagPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
+        super.gameWon(team);
 
-    public GameSidebarManager createSidebarManager() {
-        return new TagSidebarManager(getGameManager(), this);
+        for (TagPlayer player : team.getPlayers()) {
+            player.setBonusGameScore(40);
+        }
+
+        updateBossbarManager();
+        updateServerSidebar();
+
+        // Play fireworks
+        playVictoryFireworks(team);
     }
 
     @Override
-    public GameBossBarManager createBossbarManager() {
-        return new TagBossbarManager(this);
+    public void resetGame() {
+
+        super.resetGame();
+
+        // Unregister no move listener from player move event
+        PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
+        PlayerTeleportEvent.getHandlerList().unregister(teleportListener);
+
+        cancelTask(roundTimerTask);
+        cancelTask(taggerReleaseTimerTask);
+
     }
 
-    public void setupMap (CBCMap generalMap) {
+    public void setupMap (TagMap map) {
 
-        super.setupMap(generalMap);
-        this.map = (TagMap) generalMap;
+        super.setupMap(map);
 
         if (!map.isEvaderSpawnsRandom()) {
             teamEvaderSpawns = map.getTeamEvaderSpawns();
@@ -236,14 +266,14 @@ public class TagGame extends TeamGame {
 
         // Choose which team is tagger
         taggers = taggerOrder.get(roundNumber - 1);
-        map.fillBlocksAtStart();
+        getMap().fillBlocksAtStart();
 
         // Enable heal pads
         getCombatManager().enableAllHealPads();
         getCombatManager().setAllPlayersImmune(false);
 
         // Randomise evader spawns if evader spawns are random
-        if (map.isEvaderSpawnsRandom()) {
+        if (getMap().isEvaderSpawnsRandom()) {
 
             // Randomise list of spawns
             List<Set<Location>> randomisedSpawns = new ArrayList<>(randomEvaderSpawns);
@@ -290,11 +320,11 @@ public class TagGame extends TeamGame {
         noMoveListener.setEvadersMove(false);
         CBCPlugin.getPlugin().getServer().getPluginManager().registerEvents(noMoveListener, CBCPlugin.getPlugin());
 
-        if (map.canEvadersMoveAtRoundStart()) {
+        if (getMap().canEvadersMoveAtRoundStart()) {
             noMoveListener.setEvadersMove(true);
         }
 
-        for (TagPlayer player : getTagPlayers()) {
+        for (TagPlayer player : getPlayers()) {
             if (player.isOnline()) {
                 player.setCanMove(false);
             }
@@ -310,7 +340,7 @@ public class TagGame extends TeamGame {
 
     public void releaseEvaders () {
 
-        map.fillBlocksAtEnd();
+        getMap().fillBlocksAtEnd();
 
         // Round is now in play
         roundInPlay = true;
@@ -320,15 +350,14 @@ public class TagGame extends TeamGame {
 
         // Make it so evaders can move and make them alive
         noMoveListener.setEvadersMove(true);
-        for (CBCPlayer player : getPlayers().values()) {
-            TagPlayer tagPlayer = (TagPlayer) player;
+        for (TagPlayer player : getPlayers()) {
             if (player.getTeam() != taggers) {
                 if (!player.isOnline()) {
-                    if (!tagPlayer.isInGame()) continue;
-                    tagPlayer.automaticElimination();
+                    if (!player.isInGame()) continue;
+                    player.automaticElimination();
                     continue;
                 }
-                tagPlayer.playerStartRound();
+                player.playerStartRound();
             }
         }
 
@@ -396,7 +425,7 @@ public class TagGame extends TeamGame {
         // Make it so taggers can move and make them alive
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
 
-        for (TagPlayer player : getTagPlayers()) {
+        for (TagPlayer player : getPlayers()) {
             if (player.getTeam() == taggers) {
                 player.playerStartRound();
             }
@@ -615,11 +644,8 @@ public class TagGame extends TeamGame {
         }
 
         getGameManager().sendGlobalMessage(roundOverMessage);
-
         getGameManager().sendGlobalTitle(Title.title(title, subtitle,
                 TextUtil.titleTimes(0, 3000, 500)));
-
-        // Play sound to all players
         getGameManager().playGlobalSound(Sound.ENTITY_PLAYER_LEVELUP, 200, 0);
 
         // Start the next round
@@ -664,36 +690,6 @@ public class TagGame extends TeamGame {
             }.runTaskLater(CBCPlugin.getPlugin(), 60);
 
         }
-    }
-
-    @Override
-    public void gameWon (CBCTeam team) {
-
-        super.gameWon(team);
-
-        for (CBCPlayer player : team.getPlayers()) {
-            ((TagPlayer) player).setBonusGameScore(40);
-        }
-
-        updateBossbarManager();
-        updateServerSidebar();
-
-        // Play fireworks
-        playVictoryFireworks(team);
-    }
-
-    @Override
-    public void resetGame() {
-
-        super.resetGame();
-
-        // Unregister no move listener from player move event
-        PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
-        PlayerTeleportEvent.getHandlerList().unregister(teleportListener);
-
-        cancelTask(roundTimerTask);
-        cancelTask(taggerReleaseTimerTask);
-
     }
 
     public List<TagTeam> getTeamsByScore() {
@@ -790,10 +786,6 @@ public class TagGame extends TeamGame {
         return new TagPostGameStats(this);
     }
 
-    public List<TagTeam> getTeams () {
-        return teams;
-    }
-
     public int getRoundNumber() {
         return roundNumber;
     }
@@ -802,17 +794,9 @@ public class TagGame extends TeamGame {
         return roundInPlay;
     }
 
-    public Set<TagPlayer> getTagPlayers () {
-        Set<TagPlayer> tagPlayers = new HashSet<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            tagPlayers.add((TagPlayer) player);
-        }
-        return tagPlayers;
-    }
-
     public Set<TagPlayer> getEvaders () {
         Set<TagPlayer> evaders = new HashSet<>();
-        for (TagPlayer player : getTagPlayers()) {
+        for (TagPlayer player : getPlayers()) {
             // Add player to evaders list if they are not a tagger
             if (!player.isTagger()) evaders.add(player);
         }
@@ -836,43 +820,34 @@ public class TagGame extends TeamGame {
     }
 
     @Override
-    public void playerJoinServer(Player player) {
+    public void playerJoinServer(Player playerEntity) {
 
-        super.playerJoinServer(player);
-
-        // Handle sidebar
-        getSidebarManager().addPlayerSidebar(player);
+        super.playerJoinServer(playerEntity);
 
         // Check if player is CBC player
-        CBCPlayer cbcPlayer = getGameManager().getPlayer(player);
-        if (cbcPlayer != null) {
+        TagPlayer player = getPlayer(playerEntity);
+        if (player == null) return;
 
-            // Cast to TagPlayer object
-            if (!(cbcPlayer instanceof TagPlayer tagPlayer)) return;
+        TagTeam team = getTypedTeam(player.getTeam());
+        if (team == null) return;
 
-            CBCTeam team = tagPlayer.getTeam();
-            if (team == null) return;
-            if (!(team instanceof TagTeam tagTeam)) return;
-
-            // If player is tagger and joined before taggers released, put them in
-            if (tagPlayer.isTagger()) {
-                if (taggerReleaseTimer > 0) {
-                    // Setup player round and teleport them to tagger spawn
-                    tagPlayer.playerSetupRound();
-                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn(), map.getMapCentre());
-                    tagPlayer.setCanMove(false);
-                }
+        // If player is tagger and joined before taggers released, put them in
+        if (player.isTagger()) {
+            if (taggerReleaseTimer > 0) {
+                // Setup player round and teleport them to tagger spawn
+                player.playerSetupRound();
+                player.teleportPlayerToSpawn(team.getRandomTaggerSpawn(), getMap().getMapCentre());
+                player.setCanMove(false);
             }
-            // If player is evader and joined before evaders released, put them in
-            else {
-                if (!roundInPlay && taggerReleaseTimer > 0) {
-                    // Setup player round and teleport them to tagger spawn
-                    tagPlayer.playerSetupRound();
-                    tagPlayer.teleportPlayerToSpawn(tagTeam.getRandomEvaderSpawn(), map.getMapCentre());
-                    tagPlayer.setCanMove(false);
-                }
+        } else {
+            if (!roundInPlay && taggerReleaseTimer > 0) {
+                // Setup player round and teleport them to tagger spawn
+                player.playerSetupRound();
+                player.teleportPlayerToSpawn(team.getRandomEvaderSpawn(), getMap().getMapCentre());
+                player.setCanMove(false);
             }
         }
+
     }
 
     public int getMaxScorePerSecond() {

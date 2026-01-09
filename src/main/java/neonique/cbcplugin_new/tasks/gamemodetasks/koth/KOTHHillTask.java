@@ -40,7 +40,7 @@ public class KOTHHillTask extends BukkitRunnable {
             HashMap<KOTHTeam, Set<KOTHPlayer>> teamPlayersInHill = new HashMap<>();
             for (KOTHTeam team : game.getTeams()) {
                 Set<KOTHPlayer> playersInHill = new HashSet<>();
-                for (KOTHPlayer player : team.getKothPlayers()) {
+                for (KOTHPlayer player : team.getPlayers()) {
                     if (this.hill.isPlayerInHill(player)) {
                         playersInHill.add(player);
                         peopleInHill++;

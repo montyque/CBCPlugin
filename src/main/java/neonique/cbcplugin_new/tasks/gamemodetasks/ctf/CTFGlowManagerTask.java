@@ -19,18 +19,20 @@ public class CTFGlowManagerTask extends BukkitRunnable {
     @Override
     public void run() {
 
-        if (this.game.isGameOver()) return;
-
-        // Get all players in the world
-        for (Player player : this.game.getWorld().getPlayers()) {
-
-            CBCPlayer playerObj = this.game.getPlayer(player);
-            if (playerObj == null) continue;
-
-            CTFPlayer ctfPlayerObj = (CTFPlayer) playerObj;
-
-            Set<Player> glowingPlayers = ctfPlayerObj.getGlowingPlayers();
-            game.getGlowManager().updateGlowingList(player, glowingPlayers);
+        if (game.isGameOver()) {
+            cancel();
+            return;
         }
+
+        for (CTFPlayer player : game.getPlayers()) {
+
+            // Update glow manager if player is online
+            if (!player.isOnline()) continue;
+
+            Set<Player> glowingPlayers = player.getGlowingPlayers();
+            game.getGlowManager().updateGlowingList(player.getPlayer(), glowingPlayers);
+
+        }
+
     }
 }

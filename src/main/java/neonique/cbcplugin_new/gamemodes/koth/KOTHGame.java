@@ -1,11 +1,10 @@
 package neonique.cbcplugin_new.gamemodes.koth;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
-import neonique.cbcplugin_new.gamemodes.holdthegold.HTGPlayer;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -30,15 +29,7 @@ import org.bukkit.util.Vector;
 import java.time.Duration;
 import java.util.*;
 
-import static neonique.cbcplugin_new.util.StatsUtil.sortPlayerStatList;
-
-public class KOTHGame extends TeamGame {
-
-    // Gamemode and map
-    private KOTHMap map;
-
-    // List of teams and other team related variables
-    private final List<KOTHTeam> teams = new ArrayList<>();
+public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
 
     // Game related variables
     private boolean hillEnabled = false;
@@ -71,24 +62,51 @@ public class KOTHGame extends TeamGame {
     private int teamsWon = 0;
     private KOTHTeam originalWinningTeam = null;
 
-    public KOTHGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public KOTHGame (GameManager gameManager) {
+        super(gameManager);
     }
 
-    public void setupGame(CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                          HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    @Override
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.KOTH;
+    }
+
+    @Override
+    public KOTHTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
+        return new KOTHTeam(this, team.getTeamId(),
+                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
+                team.getPrefix(), team.getItem(), team.getGlassHead()
+        );
+    }
+
+    @Override
+    public KOTHPlayer createGamemodePlayer (Player playerEntity) {
+        return new KOTHPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
+
+    @Override
+    public GameSidebarManager createSidebarManager () {
+        return new KOTHSidebarManager(this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager () {
+        return new KOTHBossbarManager(this);
+    }
+
+    @Override
+    public void setupGame (GameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
-        final World world = getWorld();
 
         // Setup map
-        setupMap(mapChosen);
+        setupMap((KOTHMap) ctx.getMap());
+
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
         // Set gamemode information
-        setGamemode(CBCGamemode.KOTH);
         createHeaderTitle();
 
         // Enable weapons
@@ -96,10 +114,10 @@ public class KOTHGame extends TeamGame {
         gameManager.resetPlayerList();
 
         // Setup gamemode game variables
-        this.pointsStart = intVars.getOrDefault("pointsStart", 40);
-        this.ticksToScore = intVars.getOrDefault("ticksToScore", 40);
-        this.capturingPlayerPercentage = (float) intVars.getOrDefault("captureMajorityPercentage", 50) / 100;
-        this.teamsToWin = intVars.getOrDefault("teamsToWin", 1);
+        this.pointsStart = ctx.getIntVars().getOrDefault("pointsStart", 40);
+        this.ticksToScore = ctx.getIntVars().getOrDefault("ticksToScore", 40);
+        this.capturingPlayerPercentage = (float) ctx.getIntVars().getOrDefault("captureMajorityPercentage", 50) / 100;
+        this.teamsToWin = ctx.getIntVars().getOrDefault("teamsToWin", 1);
 
         // Make sure not to go out of bounds
         if (this.capturingPlayerPercentage > 1 || this.capturingPlayerPercentage <= 0) {
@@ -110,12 +128,12 @@ public class KOTHGame extends TeamGame {
         setGameCommands(new BaseTeamGameCommands(gameManager, combatManager, this));
 
         // Create teams and players
-        HashMap<String, Set<Location>> teamSpawns = map.getTeamSpawns();
-        createTeams(teams);
+        HashMap<String, Set<Location>> teamSpawns = getMap().getTeamSpawns();
+        createTeams(ctx.getTeams());
         teleportSpectators();
 
         // Teleport all players to their spawns
-        for (KOTHTeam team : this.teams) {
+        for (KOTHTeam team : getTeams()) {
 
             team.setScore(pointsStart);
             team.setTeamSpawns(teamSpawns.get(team.getTeamId()));
@@ -124,7 +142,7 @@ public class KOTHGame extends TeamGame {
             Collections.shuffle(teamSpawnList);
 
             int playerinc = 0; // Increments every time we teleport a player
-            for (KOTHPlayer player : team.getKothPlayers()) {
+            for (KOTHPlayer player : team.getPlayers()) {
                 // Reset player to get ready for game and teleport to spawn
                 player.resetPlayer();
                 // Teleports player to a spawn not already used
@@ -168,49 +186,58 @@ public class KOTHGame extends TeamGame {
 
     }
 
-    public CBCTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        KOTHTeam createdTeam = new KOTHTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
-        );
-        teams.add(createdTeam);
-        return createdTeam;
-    }
+    @Override
+    public void gameWon (KOTHTeam team) {
 
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new KOTHPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
+        super.gameWon(team);
 
-    public GameSidebarManager createSidebarManager() {
-        return new KOTHSidebarManager(this);
+        // Add bonus points for winning
+        for (KOTHPlayer player : team.getPlayers()) {
+            player.addGamePoints(40);
+        }
+
+        // Disable hill
+        hillEnabled = false;
+
     }
 
     @Override
-    public GameBossBarManager createBossbarManager() {
-        return new KOTHBossbarManager(this);
+    public void resetGame() {
+
+        super.resetGame();
+
+        // Cancel tasks
+        cancelTask(startGameTimer);
+        cancelTask(hillParticlesTask);
+        cancelTask(hillControlTask);
+        cancelTask(scoreTask);
+        scoreTask = null;
+
     }
 
-    public void setupMap (CBCMap generalMap) {
+    @Override
+    public PostGameStats getPostGameStats() {
+        return new KOTHPostGameStats(this);
+    }
 
-        super.setupMap(generalMap);
-        this.map = (KOTHMap) generalMap;
+    public void setupMap (KOTHMap map) {
 
-        // Get hill
-        hill = map.getHill(getGameManager());
+        super.setupMap(map);
+        hill = map.getHill();
 
     }
 
     public void startGame () {
 
-        map.fillBlocksAtEnd();
+        getMap().fillBlocksAtEnd();
 
         // Let players move again
         PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);
         playerNoMoveListener = null;
 
         // Initialise all players
-        for (KOTHTeam team : teams) {
-            for (KOTHPlayer player : team.getKothPlayers()) {
+        for (KOTHTeam team : getTeams()) {
+            for (KOTHPlayer player : team.getPlayers()) {
                 if (!player.isOnline()) continue;
                 player.playerRefresh();
             }
@@ -339,16 +366,14 @@ public class KOTHGame extends TeamGame {
     }
 
     public void changeBlocks (String colorMaterialString, NamedTextColor particleColor) {
-        for (String materialString : map.getBlocksOnCapture().keySet()) {
+        for (String materialString : getMap().getBlocksOnCapture().keySet()) {
             try {
                 Material blockMaterial = Material.valueOf((colorMaterialString + "_" + materialString).toUpperCase());
-                Set<Vector> blockVectorList = map.getBlocksOnCapture().get(materialString);
+                Set<Vector> blockVectorList = getMap().getBlocksOnCapture().get(materialString);
                 for (Vector vector : blockVectorList) {
-
                     Block block = getWorld().getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
                     block.setType(blockMaterial);
                     block.getState().update();
-
                     if (particleColor != null) {
                         Location particleLocation = block.getLocation().add(0.5, 0.5, 0.5);
                         Particle.DustOptions options = new Particle.DustOptions(Color.fromRGB(particleColor.value()), 0.5f);
@@ -417,34 +442,6 @@ public class KOTHGame extends TeamGame {
         updateBossbarManager();
     }
 
-    @Override
-    public void gameWon (CBCTeam team) {
-
-        super.gameWon(team);
-
-        // Add bonus points for winning
-        for (CBCPlayer player : team.getPlayers()) {
-            player.addGamePoints(40);
-        }
-
-        // Disable hill
-        hillEnabled = false;
-
-    }
-
-    public void resetGame() {
-
-        super.resetGame();
-
-        // Cancel tasks
-        cancelTask(startGameTimer);
-        cancelTask(hillParticlesTask);
-        cancelTask(hillControlTask);
-        cancelTask(scoreTask);
-        scoreTask = null;
-
-    }
-
     public void updatePlacements () {
 
         List<KOTHTeam> teamsByScore = getTeamsByScore();
@@ -485,15 +482,6 @@ public class KOTHGame extends TeamGame {
 
     }
 
-    @Override
-    public PostGameStats getPostGameStats() {
-        return new KOTHPostGameStats(this);
-    }
-
-    public List<KOTHTeam> getTeams() {
-        return teams;
-    }
-
     public KOTHTeam getPointControlTeam() {
         return pointControlTeam;
     }
@@ -516,16 +504,6 @@ public class KOTHGame extends TeamGame {
 
     public float getCapturingPlayerPercentage() {
         return capturingPlayerPercentage;
-    }
-
-    public Set<KOTHPlayer> getKOTHPlayers () {
-        Set<KOTHPlayer> kothPlayers = new HashSet<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            if (player instanceof KOTHPlayer) {
-                kothPlayers.add((KOTHPlayer) player);
-            }
-        }
-        return kothPlayers;
     }
 
 }

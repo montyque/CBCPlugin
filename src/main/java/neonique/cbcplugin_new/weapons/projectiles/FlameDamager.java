@@ -79,6 +79,7 @@ public class FlameDamager {
             playerEntity.removePotionEffect(PotionEffectType.WITHER);
             player.getCombatManager().playerDeath(player, playerSource, DeathCause.FLAMEZONE, true);
         } else {
+            playerEntity.setNoDamageTicks(0);
             playerEntity.damage(1);
             player.setLastPlayerHitBy(playerSource);
             player.addPlayerDamaged(playerSource);

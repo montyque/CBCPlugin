@@ -34,8 +34,9 @@ public class CTFPlayersNearbyFlags extends BukkitRunnable {
             // Find all players within a radius of 2
             for (Player playerEntity : flagLocation.getNearbyEntitiesByType(Player.class, 2)) {
 
-                if (game.getPlayer(playerEntity) == null) continue;
-                CTFPlayer player = (CTFPlayer) game.getPlayer(playerEntity);
+                CTFPlayer player = game.getPlayer(playerEntity);
+                if (player == null) continue;
+
                 if (!player.isAlive()) continue;
 
                 // Make sure player isn't one block or more below the flag

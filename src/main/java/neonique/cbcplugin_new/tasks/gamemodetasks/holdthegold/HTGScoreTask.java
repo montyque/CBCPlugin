@@ -6,8 +6,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class HTGScoreTask extends BukkitRunnable {
 
-    private HTGGame game;
-    private HTGPlayer playerScoring;
+    private final HTGGame game;
+    private final HTGPlayer playerScoring;
 
     public HTGScoreTask (HTGGame game, HTGPlayer playerScoring) {
         this.game = game;

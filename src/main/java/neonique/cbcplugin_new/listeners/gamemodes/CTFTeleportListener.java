@@ -22,31 +22,19 @@ public class CTFTeleportListener implements Listener {
     public void onPlayerTeleport (PlayerTeleportEvent e) {
 
         if (game.isGameOver()) return;
+        if (e.getCause() != PlayerTeleportEvent.TeleportCause.SPECTATE) return;
 
-        // Get player
         Player playerEntity = e.getPlayer();
-
-        // Check if player is in game
-        if (game.getPlayer(playerEntity) == null) {
+        CTFPlayer player = game.getPlayer(playerEntity);
+        if (player == null) {
             return;
         }
 
-        CBCPlayer player = game.getPlayer(playerEntity);
+        if (player.isEliminated()) return;
 
-        // Check if player is a CTF player
-        if (!(player instanceof CTFPlayer)) {
-            return;
-        }
+        // If player tries to teleport to a player while in spectator mode, remove them from team
+        playerEntity.sendMessage(Component.text("You cannot use spectator mode to teleport to players!").color(NamedTextColor.YELLOW));
+        e.setCancelled(true);
 
-        CTFPlayer ctfPlayer = (CTFPlayer) player;
-
-        // Check if teleport reason is spectate
-        if (e.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE) {
-
-            if (ctfPlayer.isEliminated()) return;
-
-            playerEntity.sendMessage(Component.text("You cannot use spectator mode to teleport to players!").color(NamedTextColor.YELLOW));
-            e.setCancelled(true);
-        }
     }
 }

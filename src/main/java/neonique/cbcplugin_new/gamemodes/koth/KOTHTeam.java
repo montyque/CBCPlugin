@@ -1,8 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.koth;
 
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.gamemodes.crossbowtag.TagPlayer;
-import neonique.cbcplugin_new.gamemodes.holdthegold.HTGGame;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.util.StringUtil;
 import neonique.cbcplugin_new.util.TextUtil;
@@ -10,7 +8,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -18,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-public class KOTHTeam extends CBCTeam {
+public class KOTHTeam extends CBCTeam<KOTHPlayer> {
 
     private final KOTHGame game;
 
@@ -65,7 +62,7 @@ public class KOTHTeam extends CBCTeam {
         pointsScored++;
 
         // Give point defended to any player in the point
-        for (KOTHPlayer player : getKothPlayers()) {
+        for (KOTHPlayer player : getPlayers()) {
             if (player.isInHill()) {
                 player.addPointDefended();
             }
@@ -77,7 +74,7 @@ public class KOTHTeam extends CBCTeam {
 
         // Get all team members and check if they are in hill
         // Give point defended to any player in the point
-        for (KOTHPlayer player : getKothPlayers()) {
+        for (KOTHPlayer player : getPlayers()) {
             if (player.isInHill()) {
                 player.addHillCapture();
             }
@@ -134,15 +131,6 @@ public class KOTHTeam extends CBCTeam {
         this.tied = tied;
     }
 
-    public Set<KOTHPlayer> getKothPlayers () {
-        // Get players at KOTH objects
-        Set<KOTHPlayer> kothPlayers = new HashSet<>();
-        for (CBCPlayer player : getPlayers()) {
-            kothPlayers.add((KOTHPlayer) player);
-        }
-        return kothPlayers;
-    }
-
     public Location getPlayerSpawn() {
 
         List<Location> validSpawns = new ArrayList<>();
@@ -159,7 +147,7 @@ public class KOTHTeam extends CBCTeam {
             }
         }
 
-        if (validSpawns.size() == 0) {
+        if (validSpawns.isEmpty()) {
             validSpawns = new ArrayList<>(teamSpawns);
         }
 

@@ -1,11 +1,11 @@
 package neonique.cbcplugin_new.listeners.gamemodes;
 
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagPlayer;
+import neonique.cbcplugin_new.gamemodes.crossbowtag.TagTeam;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -30,27 +30,20 @@ public class TagNoMove implements Listener {
             return;
         }
 
-        // Check that the player is in the game
-        if (!gameManager.hasPlayer(e.getPlayer())) return;
 
-        CBCPlayer cbcPlayer = gameManager.getPlayer(e.getPlayer());
-        CBCTeam playerTeam = cbcPlayer.getTeam();
-
-        // Check that player's moving is allowed
-        if (cbcPlayer instanceof TagPlayer) {
-            TagPlayer tagPlayer = (TagPlayer) cbcPlayer;
-            if (tagPlayer.isCanMove()) {
-                return;
-            }
+        Player playerEntity = e.getPlayer();
+        TagPlayer player = game.getPlayer(playerEntity);
+        if (player == null) {
+            return;
         }
+        TagTeam team = game.getPlayerTeam(player);
 
-        if (playerTeam != game.getTaggers() && evadersMove) return;
+        if (team != game.getTaggers() && evadersMove) return;
 
+        // Prevent player from moving by teleporting them back to their original location
         Location from = e.getFrom().clone();
         Location to = e.getTo().clone();
-
         if (from.getX() == to.getX() && from.getZ() == to.getZ()) return;
-
         e.setTo(from);
 
     }

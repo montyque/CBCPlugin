@@ -33,12 +33,7 @@ public class RendezvousPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof RendezvousPlayer) {
-                playersList.add((RendezvousPlayer) player);
-            }
-        }
+        playersList = game.getPlayers();
 
         if (!playersList.isEmpty()) {
 
@@ -172,9 +167,9 @@ public class RendezvousPostGameStats extends PostGameStats {
     }
 
     @Override
-    public ItemStack generateTeamItem (CBCTeam rawTeam) {
+    public ItemStack generateTeamItem (CBCTeam<?> rawTeam) {
 
-        RendezvousTeam team = (RendezvousTeam) rawTeam;
+        RendezvousTeam team = game.getTypedTeam(rawTeam);
 
         // Create item for team statistics
         ItemStack teamItem = team.getItem().clone();
@@ -186,10 +181,10 @@ public class RendezvousPostGameStats extends PostGameStats {
         int teamTotalKills = 0;
         int teamTotalEnemyRunnersKilled = 0;
         int teamTotalMoraleBoostsGiven = 0;
-        for (CBCPlayer player : team.getPlayers()) {
+        for (RendezvousPlayer player : team.getPlayers()) {
             teamTotalKills += player.getKills();
-            teamTotalEnemyRunnersKilled += ((RendezvousPlayer) player).getEnemyRunnersKilled();
-            teamTotalMoraleBoostsGiven += ((RendezvousPlayer) player).getMoraleBoostsGiven();
+            teamTotalEnemyRunnersKilled += player.getEnemyRunnersKilled();
+            teamTotalMoraleBoostsGiven += player.getMoraleBoostsGiven();
         }
 
         // Add team statistics
@@ -202,7 +197,7 @@ public class RendezvousPostGameStats extends PostGameStats {
         addLoreField(teamLoreList, "Runner Deaths", String.valueOf(team.getRunnerDeaths()), NamedTextColor.RED);
 
         // Get list of teams (this is converting the CBC players to Rendezvous players)
-        List<RendezvousPlayer> teamPlayersList = team.getRendezvousPlayers();
+        List<RendezvousPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
 
         addLoreBlankLine(teamLoreList);
 
@@ -242,7 +237,7 @@ public class RendezvousPostGameStats extends PostGameStats {
     @Override
     public ItemStack generatePlayerItem (CBCPlayer rawPlayer) {
 
-        RendezvousPlayer player = (RendezvousPlayer) rawPlayer;
+        RendezvousPlayer player = game.getTypedPlayer(rawPlayer);
 
         ItemStack playerItem = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta playerItemMeta = (SkullMeta) playerItem.getItemMeta();
@@ -303,7 +298,8 @@ public class RendezvousPostGameStats extends PostGameStats {
     public Inventory createInventoryGui (Player user) {
 
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers().values()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
+
     }
 
 }

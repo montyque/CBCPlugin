@@ -3,9 +3,6 @@ package neonique.cbcplugin_new.gamemodes.tdm;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.gamemodes.tdm.TDMGame;
-import neonique.cbcplugin_new.gamemodes.tdm.TDMPlayer;
-import neonique.cbcplugin_new.gamemodes.tdm.TDMTeam;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -34,17 +31,11 @@ public class TDMPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof TDMPlayer) {
-                playersList.add((TDMPlayer) player);
-            }
-        }
+        playersList = game.getPlayers();
 
-        if (playersList.size() > 0) {
+        if (!playersList.isEmpty()) {
 
             playersByKills = new ArrayList<>();
-
             for (TDMPlayer player : playersList) {
                 // Add player's kills
                 playersByKills.add(new PlayerStatObject(player, player.getKills()));
@@ -80,7 +71,7 @@ public class TDMPostGameStats extends PostGameStats {
 
         audience.sendMessage(finalScore);
 
-        if (playersList.size() > 0) {
+        if (!playersList.isEmpty()) {
             // Show which players were in first for kills
             int mostKillsValue = playersByKills.get(0).getValue();
             audience.sendMessage(
@@ -135,8 +126,9 @@ public class TDMPostGameStats extends PostGameStats {
     }
 
     @Override
-    public ItemStack generateTeamItem (CBCTeam rawTeam) {
-        TDMTeam team = (TDMTeam) rawTeam;
+    public ItemStack generateTeamItem (CBCTeam<?> rawTeam) {
+
+        TDMTeam team = game.getTypedTeam(rawTeam);
 
         // Create item for team statistics
         ItemStack teamItem = team.getItem().clone();
@@ -150,20 +142,12 @@ public class TDMPostGameStats extends PostGameStats {
 
         addLoreField(teamLoreList, "Total Kills", String.valueOf(teamTotalKills), NamedTextColor.GREEN);
 
-        // Get list of teams (this is converting the CBC players to showdown players)
-        List<TDMPlayer> teamPlayersList = new ArrayList<>();
-        for (CBCPlayer player : team.getPlayers()) {
-            if (player instanceof TDMPlayer) {
-                teamPlayersList.add((TDMPlayer) player);
-            }
-        }
-
         // Sort players by kills
-        List<TDMPlayer> teamPlayersByKills = new ArrayList<>(teamPlayersList);
+        List<TDMPlayer> teamPlayersByKills = new ArrayList<>(team.getPlayers());
         teamPlayersByKills.sort(Comparator.comparingInt(TDMPlayer::getKills).reversed());
 
         // Add team most kills and team most time alive
-        if (teamPlayersList.size() > 0) {
+        if (!teamPlayersByKills.isEmpty()) {
             addLoreBlankLine(teamLoreList);
             TDMPlayer mostKillsPlayer = teamPlayersByKills.get(0);
             addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.getName()
@@ -212,7 +196,7 @@ public class TDMPostGameStats extends PostGameStats {
 
     public Inventory createInventoryGui(Player user) {
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers().values()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
     }
 
 }

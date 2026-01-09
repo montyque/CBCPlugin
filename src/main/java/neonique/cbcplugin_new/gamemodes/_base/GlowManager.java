@@ -38,7 +38,7 @@ public abstract class GlowManager {
         glowMap = new HashMap<>();
     }
 
-    public void togglePlayer(Player client, Player playerGlowing) {
+    public void togglePlayer (Player client, Player playerGlowing) {
         if (!glowMap.containsKey(client)) {
             glowMap.put(client, new HashSet<>());
         }
@@ -131,11 +131,9 @@ public abstract class GlowManager {
                         .map(WrappedDataValue::getValue)
                         .filter(Byte.class::isInstance)
                         .map(Byte.class::cast)
-                        .filter(Objects::nonNull)
                         .anyMatch(b -> b == (byte) 0x40))
                     return;
                 wrapper.addToDataValueCollection(new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), (byte) 0x40));
-                CBCPlugin.getPlugin().getLogger().info("Sending glowing packet to " + client.getName() + " for player " + player.getName());
             }
 
             packetEvent.setPacket(wrapper.getHandle());

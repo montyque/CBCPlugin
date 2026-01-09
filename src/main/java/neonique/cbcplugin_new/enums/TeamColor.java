@@ -11,7 +11,7 @@ public enum TeamColor {
     MAGENTA (6),
     PURPLE (7);
 
-    private int rpNumber;
+    private final int rpNumber;
 
     TeamColor(int rpNumber) {
         this.rpNumber = rpNumber;

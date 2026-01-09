@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,12 +33,7 @@ public class TagPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        List<TagPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof TagPlayer) {
-                playersList.add((TagPlayer) player);
-            }
-        }
+        List<TagPlayer> playersList = game.getPlayers();
 
         if (!playersList.isEmpty()) {
 
@@ -79,28 +75,12 @@ public class TagPostGameStats extends PostGameStats {
                         .append(Component.text(getTimeFormat(game.getGameLength())).color(NamedTextColor.GREEN))
         );
 
-        Component finalScore = Component.text("Final Score: ").color(NamedTextColor.WHITE);
-        List<TagTeam> teamsByScore = game.getTeamsByScore();
-
-        int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
-        for (TagTeam team : teamsByScore) {
-            finalScore = finalScore.append(Component.text(team.getIntScore()).color(team.getColor()));
-            i++;
-            if (i != teamsByScore.size()) {
-                finalScore = finalScore.append(Component.text("-").color(NamedTextColor.WHITE));
-            }
-        }
+        Component finalScore = getComponent();
 
         audience.sendMessage(finalScore);
 
         // Sort players on statistics
-        List<TagPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof TagPlayer) {
-                playersList.add((TagPlayer) player);
-            }
-        }
-
+        List<TagPlayer> playersList = game.getPlayers();
         if (!playersList.isEmpty()) {
 
             // Show which players were in first for points scored
@@ -147,10 +127,25 @@ public class TagPostGameStats extends PostGameStats {
         );
     }
 
+    private @NotNull Component getComponent() {
+        Component finalScore = Component.text("Final Score: ").color(NamedTextColor.WHITE);
+        List<TagTeam> teamsByScore = game.getTeamsByScore();
+
+        int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
+        for (TagTeam team : teamsByScore) {
+            finalScore = finalScore.append(Component.text(team.getIntScore()).color(team.getColor()));
+            i++;
+            if (i != teamsByScore.size()) {
+                finalScore = finalScore.append(Component.text("-").color(NamedTextColor.WHITE));
+            }
+        }
+        return finalScore;
+    }
+
     @Override
     public Inventory createInventoryGui (Player user) {
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers().values()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
     }
 
     @Override
@@ -257,9 +252,9 @@ public class TagPostGameStats extends PostGameStats {
     }
 
     @Override
-    public ItemStack generateTeamItem(CBCTeam rawTeam) {
+    public ItemStack generateTeamItem(CBCTeam<?> rawTeam) {
 
-        TagTeam team = (TagTeam) rawTeam;
+        TagTeam team = game.getTypedTeam(rawTeam);
 
         // Create item for team statistics
         ItemStack teamItem = team.getItem().clone();
@@ -268,24 +263,18 @@ public class TagPostGameStats extends PostGameStats {
 
         // Add team statistics
         addLoreField(teamLoreList, "Score", String.valueOf(team.getIntScore()), NamedTextColor.GREEN);
-
         addLoreField(teamLoreList, "Tagger Points", String.valueOf(team.getIntTaggerPoints()), NamedTextColor.GREEN);
         addLoreField(teamLoreList, "Evader Points", String.valueOf(team.getIntEvaderPoints()), NamedTextColor.GREEN);
 
         int teamTotalKills = 0;
-        for (CBCPlayer player : team.getPlayers()) {
+        for (TagPlayer player : team.getPlayers()) {
             teamTotalKills += player.getKills();
         }
 
         addLoreField(teamLoreList, "Total Kills", String.valueOf(teamTotalKills), NamedTextColor.GREEN);
 
         // Get list of teams (this is converting the CBC players to tag players)
-        List<TagPlayer> teamPlayersList = new ArrayList<>();
-        for (CBCPlayer player : team.getPlayers()) {
-            if (player instanceof TagPlayer) {
-                teamPlayersList.add((TagPlayer) player);
-            }
-        }
+        List<TagPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
 
         // Sort players by points scored
         List<TagPlayer> teamPlayersByPointsScored = new ArrayList<>(teamPlayersList);

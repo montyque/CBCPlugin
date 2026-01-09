@@ -135,47 +135,44 @@ public class HTGSidebarManager extends GameSidebarManager {
         }
 
         if (game.getGameManager().isEventGame()) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getHTGPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
         }
 
         displayToEveryone.add(blankComponent());
         updateAllClientBoards();
     }
 
-    public void updateClientBoard (Player player) {
+    public void updateClientBoard (Player client) {
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
         // Client side scoreboards
-        if (game.getPlayer(player) != null) {
-
-            HTGPlayer htgPlayer = (HTGPlayer) game.getPlayer(player);
+        HTGPlayer player = game.getPlayer(client);
+        if (game.getPlayer(client) != null) {
 
             // Check if player's team is on team order on sidebar
-            if (htgPlayer.getTeam() != null) {
-                HTGTeam team = (HTGTeam) htgPlayer.getTeam();
+            HTGTeam team = game.getPlayerTeam(player);
+            if (team != null) {
                 if (teamOrderOnSidebar.containsKey(team)) {
-
                     int slot = teamOrderOnSidebar.get(team);
                     clientStringList.set(slot, getTeamRow(team, true));
-
                 }
             }
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Kills: ").color(NamedTextColor.GREEN)).append(
-                    Component.text(htgPlayer.getKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Gold Score: ").color(NamedTextColor.GREEN)).append(
-                    Component.text(htgPlayer.getGoldScore()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getGoldScore()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(blankComponent());
 
             // Add game score
             if (game.getGameManager().isEventGame()) {
-                clientStringList.add(generateGameScoreComponent(game.getGamemode(), htgPlayer, getComponentSpaceOfLength(11)));
+                clientStringList.add(generateGameScoreComponent(game.getGamemode(), player, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
         } else if (!spectatorLeaderboardComponents.isEmpty()) {
@@ -189,7 +186,7 @@ public class HTGSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
+        ClientSidebar clientSidebar = getPlayerSidebar(client);
         clientSidebar.setSidebarComponents(clientStringList);
     }
 

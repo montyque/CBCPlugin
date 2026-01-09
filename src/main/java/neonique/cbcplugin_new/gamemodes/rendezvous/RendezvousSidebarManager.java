@@ -26,7 +26,7 @@ public class RendezvousSidebarManager extends GameSidebarManager {
     private final RendezvousGame game;
 
     private final List<Component> displayToEveryone = new ArrayList<>();
-    private final HashMap<CBCTeam, Integer> teamOrderOnSidebar = new HashMap<>();
+    private final HashMap<RendezvousTeam, Integer> teamOrderOnSidebar = new HashMap<>();
 
     private final ResourcePackManager packManager;
 
@@ -148,57 +148,54 @@ public class RendezvousSidebarManager extends GameSidebarManager {
         displayToEveryone.add(blankComponent());
 
         if (game.getGameManager().isEventGame()) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getRendezvousPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
         }
 
         updateAllClientBoards();
     }
 
-    public void updateClientBoard (Player player) {
+    public void updateClientBoard (Player client) {
 
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
         // Client side scoreboards
-        if (game.getPlayer(player) != null) {
-
-            RendezvousPlayer rdvPlayer = (RendezvousPlayer) game.getPlayer(player);
+        RendezvousPlayer player = game.getPlayer(client);
+        if (player != null) {
 
             // Check if player's team is on team order on sidebar
-            if (rdvPlayer.getTeam() != null) {
-                RendezvousTeam team = (RendezvousTeam) rdvPlayer.getTeam();
+            RendezvousTeam team = game.getPlayerTeam(player);
+            if (team != null) {
                 if (teamOrderOnSidebar.containsKey(team)) {
-
                     int slot = teamOrderOnSidebar.get(team);
                     clientStringList.set(slot, getTeamRow(team, true));
-
                 }
             }
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Total Kills: ").color(NamedTextColor.GREEN)).append(
-                    Component.text(rdvPlayer.getKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Checkpoints: ").color(NamedTextColor.GREEN)).append(
-                    Component.text(rdvPlayer.getCheckpointsCleared()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getCheckpointsCleared()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Runners Killed: ").color(NamedTextColor.GREEN)).append(
-                    Component.text(rdvPlayer.getEnemyRunnersKilled()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getEnemyRunnersKilled()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Morale Boosts Given: ").color(NamedTextColor.GREEN)).append(
-                    Component.text(rdvPlayer.getMoraleBoostsGiven()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getMoraleBoostsGiven()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(blankComponent());
 
             // Add game score
             if (game.getGameManager().isEventGame()) {
-                clientStringList.add(generateGameScoreComponent(game.getGamemode(), rdvPlayer, getComponentSpaceOfLength(11)));
+                clientStringList.add(generateGameScoreComponent(game.getGamemode(), player, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
         } else if (!spectatorLeaderboardComponents.isEmpty()) {
@@ -212,8 +209,9 @@ public class RendezvousSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
+        ClientSidebar clientSidebar = getPlayerSidebar(client);
         clientSidebar.setSidebarComponents(clientStringList);
+
     }
 
 }

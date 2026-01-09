@@ -39,12 +39,7 @@ public class KMationPostGameStats extends PostGameStats {
         );
 
         // Sort players on statistics
-        List<KMationPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof KMationPlayer) {
-                playersList.add((KMationPlayer) player);
-            }
-        }
+        List<KMationPlayer> playersList = game.getPlayers();
 
         List<KMationPlayer> playersByKills = new ArrayList<>(playersList);
         playersByKills.sort(Comparator.comparingInt(KMationPlayer::getKills));
@@ -79,7 +74,7 @@ public class KMationPostGameStats extends PostGameStats {
         List<Component> loreList = new ArrayList<>();
         addLoreField(loreList, "Map", game.getMap().getMapName(), NamedTextColor.GREEN);
         if (game.getWinner() != null) {
-            addLoreField(loreList, "Winner", "" + game.getWinner().getName(), NamedTextColor.GREEN);
+            addLoreField(loreList, "Winner", game.getWinner().getName(), NamedTextColor.GREEN);
         }
 
         addLoreBlankLine(loreList);
@@ -93,12 +88,7 @@ public class KMationPostGameStats extends PostGameStats {
         inventory.setItem(0, gameSummaryItem);
 
         // Sort players on statistics
-        List<KMationPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof KMationPlayer) {
-                playersList.add((KMationPlayer) player);
-            }
-        }
+        List<KMationPlayer> playersList = game.getPlayers();
         playersList.sort(Comparator.comparingInt(KMationPlayer::getCyclesSurvived).reversed()
                 .thenComparing(Comparator.comparingInt(KMationPlayer::getCycleKills).reversed())
                 .thenComparing(Comparator.comparingInt(KMationPlayer::getKills).reversed())

@@ -29,8 +29,8 @@ public class ThrowdownPlayer extends CBCPlayer {
     private int playerRoundKills = 0;
     private int secondsAlive = 0;
 
-    public ThrowdownPlayer(ThrowdownGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+    public ThrowdownPlayer(ThrowdownGame game, GameManager gameManager, CombatManager combatManager, Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
     }
 
@@ -105,15 +105,13 @@ public class ThrowdownPlayer extends CBCPlayer {
     @Override
     public void playerAfterKill (CBCPlayer playerKilled) {
         playerRoundKills++;
-        if (isOnline()) {
-            game.getSidebarManager().updateClientBoard(getPlayer());
-        }
+        game.updateServerSidebar();
     }
 
     public void incrementPlayerSecondsAlive () {
         secondsAlive++;
         if (isOnline()) {
-            game.getSidebarManager().updateClientBoard(getPlayer());
+            game.updateClientSidebar(getPlayer());
         }
     }
 

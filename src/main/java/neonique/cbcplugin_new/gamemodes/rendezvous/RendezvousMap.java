@@ -22,7 +22,7 @@ public class RendezvousMap extends CBCMap {
     private final HashMap<String, Set<Vector>> teamStartSpawns;
 
     // Checkpoint related maps
-    private Set<Vector> checkpointLocations;
+    private final Set<Vector> checkpointLocations;
     private final double checkpointRadius;
     private final double checkpointDistanceMin;
     private final double checkpointDistanceMax;

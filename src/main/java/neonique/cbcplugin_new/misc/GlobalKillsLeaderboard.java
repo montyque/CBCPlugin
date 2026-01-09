@@ -149,7 +149,7 @@ public class GlobalKillsLeaderboard implements Listener {
         // Check if there is an existing area effect cloud at this place
         Collection<ArmorStand> nearbyArmorStands = loc.getNearbyEntitiesByType(ArmorStand.class, 0.01);
         ArmorStand armorStand;
-        if (nearbyArmorStands.size() == 0) {
+        if (nearbyArmorStands.isEmpty()) {
             // Create new armor stand
             armorStand = (ArmorStand) gameManager.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
             armorStand.setInvisible(true);

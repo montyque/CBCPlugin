@@ -28,7 +28,7 @@ public class AssassinBossbarManager extends GameBossBarManager {
         setServerText(1, createPlayerDisplayComponent());
 
         // Go through each team and each player in every team
-        for (AssassinPlayer player : game.getAssassinPlayers()) {
+        for (AssassinPlayer player : game.getPlayers()) {
 
             if (!player.isOnline()) continue;
             Player playerEntity = player.getPlayer();
@@ -90,7 +90,7 @@ public class AssassinBossbarManager extends GameBossBarManager {
         String playerSeparator = "\uF823";
 
         // Teams
-        Collection<AssassinPlayer> players = game.getAssassinPlayers();
+        Collection<AssassinPlayer> players = game.getPlayers();
 
         // Update player display
         int i = 0;

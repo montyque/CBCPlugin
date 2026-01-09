@@ -11,10 +11,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -47,8 +45,8 @@ public class RendezvousPlayer extends CBCPlayer {
     private static final int RUNNER_SPAWN_CHECKPOINT_RADIUS = 30;
 
     public RendezvousPlayer(RendezvousGame game, GameManager gameManager, CombatManager combatManager,
-                            Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+                            Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
     }
 
@@ -89,7 +87,7 @@ public class RendezvousPlayer extends CBCPlayer {
     public void checkpointCleared () {
 
         if (!isOnline()) return;
-        RendezvousTeam team = getRendezvousTeam();
+        RendezvousTeam team = game.getPlayerTeam(this);
 
         getGameManager().sendGlobalMessage(
                         Component.text("CHECKPOINT > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
@@ -127,7 +125,7 @@ public class RendezvousPlayer extends CBCPlayer {
         int killPts = KILL_PTS;
 
         // Check if player killed was a runner
-        RendezvousPlayer rdvPlayerKilled = (RendezvousPlayer) playerKilled;
+        RendezvousPlayer rdvPlayerKilled = game.getTypedPlayer(playerKilled);
         if (rdvPlayerKilled.isPlayerRunner()) {
             enemyRunnersKilled++;
             if (isOnline()) {
@@ -149,7 +147,7 @@ public class RendezvousPlayer extends CBCPlayer {
         // Give morale boost
         if (checkMoraleBoost(playerKilled)) {
 
-            RendezvousPlayer teamRunner = getRendezvousTeam().getRunner();
+            RendezvousPlayer teamRunner = game.getPlayerTeam(this).getRunner();
 
             teamRunner.addHealing(6);
             if (isOnline()) {
@@ -189,11 +187,11 @@ public class RendezvousPlayer extends CBCPlayer {
 
         if (isPlayerRunner()) return false;
 
-        RendezvousPlayer teamRunner = getRendezvousTeam().getRunner();
+        RendezvousPlayer teamRunner = game.getPlayerTeam(this).getRunner();
         if (teamRunner == null) return false;
         if (!teamRunner.isAlive()) return false;
 
-        RendezvousCheckpoint currentCheckpoint = getRendezvousTeam().getTargetCheckpoint();
+        RendezvousCheckpoint currentCheckpoint = game.getPlayerTeam(this).getTargetCheckpoint();
         if (currentCheckpoint == null) return false;
 
         // Check if the runner has been damaged in the last 8 seconds by the player who was killed
@@ -224,12 +222,12 @@ public class RendezvousPlayer extends CBCPlayer {
     }
 
     public boolean isPlayerRunner () {
-        RendezvousTeam team = getRendezvousTeam();
+        RendezvousTeam team = game.getPlayerTeam(this);
         return (team.getRunner() == this);
     }
 
     public RendezvousCheckpoint getTeamCheckpoint () {
-        RendezvousTeam team = getRendezvousTeam();
+        RendezvousTeam team = game.getPlayerTeam(this);
         return team.getTargetCheckpoint();
     }
 
@@ -254,8 +252,9 @@ public class RendezvousPlayer extends CBCPlayer {
 
         teleportPlayerToSpawn(selectedSpawn, lookLocation);
 
-        if (getRendezvousTeam() != null) {
-            getRendezvousTeam().setPlayerListFooterForPlayer(getPlayer());
+        RendezvousTeam team = game.getPlayerTeam(this);
+        if (team != null) {
+            team.setPlayerListFooterForPlayer(getPlayer());
         }
 
     }
@@ -301,7 +300,7 @@ public class RendezvousPlayer extends CBCPlayer {
     public RendezvousSpawn selectSpawnForRunner () {
 
         RendezvousCheckpoint checkpoint = getTeamCheckpoint();
-        double targetDistance = getRendezvousTeam().getCurrentCheckpointTargetDistance();
+        double targetDistance = game.getPlayerTeam(this).getCurrentCheckpointTargetDistance();
 
         List<RendezvousSpawn> spawns = new ArrayList<>(game.getSpawns());
         Collections.shuffle(spawns);
@@ -364,21 +363,23 @@ public class RendezvousPlayer extends CBCPlayer {
                 if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
             }
 
-            if (!getRendezvousTeam().isOutOfGame()) {
+            if (!game.getPlayerTeam(this).isOutOfGame()) {
+
                 // Make sure team is still able to respawn
                 setRespawning(true);
-
                 // Find the amount of time that it takes for the players to respawn
                 int timeToRespawn = 4;
                 // Set up respawn timer
                 RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
                 respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
+
             }
         }
 
-        if (getRendezvousTeam() != null) {
+        RendezvousTeam team = game.getPlayerTeam(this);
+        if (team != null) {
             if (isPlayerRunner()) {
-                getRendezvousTeam().incrementRunnerDeaths();
+                team.incrementRunnerDeaths();
             }
         }
 
@@ -398,14 +399,6 @@ public class RendezvousPlayer extends CBCPlayer {
 
     }
 
-    public RendezvousTeam getRendezvousTeam () {
-        try {
-            return (RendezvousTeam) getTeam();
-        } catch (ClassCastException e) {
-            return null;
-        }
-    }
-
     public int getCheckpointsCleared() {
         return checkpointsCleared;
     }
@@ -417,7 +410,7 @@ public class RendezvousPlayer extends CBCPlayer {
     @Override
     public void addGamePoints (int points) {
         super.addGamePoints(points);
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
     }
 
     public int getMoraleBoostsGiven() {

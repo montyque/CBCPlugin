@@ -9,13 +9,11 @@ import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 public class ShowdownGameCommands extends BaseTeamGameCommands {
 
-    ShowdownGame game;
+    private final ShowdownGame game;
 
     public ShowdownGameCommands(GameManager gm, CombatManager wm, ShowdownGame game) {
         super(gm, wm, game);
@@ -23,7 +21,10 @@ public class ShowdownGameCommands extends BaseTeamGameCommands {
     }
 
     @Override
-    public void putPlayerOnTeam (CBCPlayer player, CBCTeam team, boolean spawnImmediately) {
+    public void putPlayerOnTeam (CBCPlayer player, CBCTeam<?> team, boolean spawnImmediately) {
+
+        ShowdownPlayer typedPlayer = game.getTypedPlayer(player);
+        ShowdownTeam typedTeam = game.getTypedTeam(team);
 
         // Kill player if player is alive
         if (player.isAlive()) {
@@ -35,8 +36,8 @@ public class ShowdownGameCommands extends BaseTeamGameCommands {
         }
 
         removePlayerFromTeam(player, false);
+        typedTeam.addPlayer(typedPlayer);
 
-        team.addPlayer(player);
         if (player.isOnline()) {
             player.getPlayer().sendMessage(
                     Component.text("You have been added to ").color(NamedTextColor.GREEN).append(
@@ -46,10 +47,11 @@ public class ShowdownGameCommands extends BaseTeamGameCommands {
                     ).decorate(TextDecoration.BOLD)
             );
         }
+
     }
 
     @Override
-    public void revive(Player user, String[] args, int perms) {
+    public void revive (Player user, String[] args, int perms) {
 
         if (checkIfPerms(user, perms, 1)) return;
 
@@ -65,35 +67,36 @@ public class ShowdownGameCommands extends BaseTeamGameCommands {
 
         // Check if player is alive right now
         String playerName = args[1];
-        CBCPlayer playerObj = findPlayerInGame(user, args[1]);
+        Player targetedPlayer = findPlayerWithName(playerName);
+        if (targetedPlayer == null) {
+            sendColorMessage(user, "Could not find player " + playerName + "!", NamedTextColor.YELLOW);
+            return;
+        }
 
-        if (playerObj == null) return;
+        ShowdownPlayer player = game.getPlayer(targetedPlayer);
+        if (player == null) {
+            sendColorMessage(user, playerName + " is not registered in the game!", NamedTextColor.YELLOW);
+            return;
+        }
 
-        if (playerObj.isAlive()) {
+        if (!player.isAlive()) {
             sendColorMessage(user, playerName + " is currently alive! You can only use this command on dead players.", NamedTextColor.YELLOW);
             return;
         }
 
-        if (!(playerObj instanceof ShowdownPlayer showdownPlayer)) {
-            sendColorMessage(user, playerName + " does not have a ShowdownPlayer object.", NamedTextColor.YELLOW);
-            return;
-        }
-        if (!(showdownPlayer.getTeam() instanceof ShowdownTeam team)) {
-            sendColorMessage(user, playerName + " does not have a ShowdownPlayer object.", NamedTextColor.YELLOW);
+        if (!player.isOnline()) {
+            sendColorMessage(user, playerName + " is currently offline!", NamedTextColor.YELLOW);
             return;
         }
 
-        if (!showdownPlayer.isOnline()) {
-            sendColorMessage(user, playerName + " cannot be revived as they are offline!", NamedTextColor.YELLOW);
+        ShowdownTeam team = game.getPlayerTeam(player);
+        if (team == null) {
+            sendColorMessage(user, playerName + " is not currently on a team!", NamedTextColor.YELLOW);
             return;
         }
 
-        showdownPlayer.playerStartRound();
-
-        showdownPlayer.getPlayer().teleport(team.getRoundSpawn());
-        Vector dir = game.getMap().getMapCentre().clone().subtract(showdownPlayer.getPlayer().getEyeLocation()).toVector();
-        Location loc = showdownPlayer.getPlayer().getLocation().setDirection(dir);
-        showdownPlayer.getPlayer().teleport(loc);
+        player.playerStartRound();
+        player.teleportPlayerToSpawn(team.getRoundSpawn(), game.getMap().getMapCentre());
 
         if (!team.isTeamAlive()) {
             team.reviveTeam();
@@ -101,5 +104,6 @@ public class ShowdownGameCommands extends BaseTeamGameCommands {
 
         sendColorMessage(user, playerName + " has been revived!", NamedTextColor.GREEN);
         broadcastAction(user, "used /game revive to revive " + playerName);
+
     }
 }

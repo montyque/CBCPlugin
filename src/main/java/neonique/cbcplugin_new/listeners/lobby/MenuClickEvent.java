@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.listeners.lobby;
 
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.gameobjects.GamemodeOptions;
 import neonique.cbcplugin_new.lobby.Lobby;

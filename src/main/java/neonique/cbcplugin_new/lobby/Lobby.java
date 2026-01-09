@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
@@ -584,12 +584,11 @@ public class Lobby {
 
     public void addNewLobbyPlayer(Player player) {
 
-        System.out.println("New player added to lobby: " + player.getName());
+        CBCPlugin.getPlugin().getLogger().info("New player added to lobby: " + player.getName());
 
         player.playerListName(null);
 
         players.put(player.getUniqueId(), new LobbyPlayer(gameManager, this, player.getUniqueId()));
-        gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), ffaTeam);
         gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), ffaTeam);
 
         // Remove potion effects
@@ -601,11 +600,12 @@ public class Lobby {
                 player.teleport(lobbyTeleport);
                 player.getInventory().clear();
                 player.updateInventory();
-                player.setBedSpawnLocation(lobbyTeleport, true);
+                player.setRespawnLocation(lobbyTeleport, true);
                 player.setHealth(20);
                 player.removeScoreboardTag("NVDisable");
             }
         } else {
+
             for (PotionEffect effect : player.getActivePotionEffects())
                 player.removePotionEffect(effect.getType());
             player.setGameMode(GameMode.ADVENTURE);
@@ -624,9 +624,10 @@ public class Lobby {
             }
             player.getInventory().clear();
             player.updateInventory();
-            player.setBedSpawnLocation(lobbyTeleport, true);
+            player.setRespawnLocation(lobbyTeleport, true);
             player.setHealth(20);
             player.removeScoreboardTag("NVDisable");
+
         }
     }
 
@@ -641,12 +642,10 @@ public class Lobby {
     }
 
     public void playerLeaveTeam(LobbyPlayer player, boolean spectator) {
-
         LobbyTeam playerTeam = player.getAssignedTeam();
         if (playerTeam == null) {
             return;
         }
-
         playerTeam.removePlayer(player);
         if (!spectator) {
             gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), ffaTeam);
@@ -741,7 +740,7 @@ public class Lobby {
     public Set<LobbyTeam> getTeamsWithOnlinePlayers () {
         Set<LobbyTeam> teamsWithOnlinePlayers = new HashSet<>();
         for (LobbyTeam team : teams.values()) {
-            if (team.getOnlinePlayers().size() > 0) {
+            if (!team.getOnlinePlayers().isEmpty()) {
                 teamsWithOnlinePlayers.add(team);
             }
         }
@@ -900,13 +899,12 @@ public class Lobby {
         player.teleport(lobbyTeleport);
         player.getInventory().clear();
         player.updateInventory();
-        player.setBedSpawnLocation(lobbyTeleport, true);
+        player.setRespawnLocation(lobbyTeleport, true);
         player.setHealth(20);
 
         // Add night vision back
         player.removeScoreboardTag("NVDisable");
 
-        System.out.println(getPlayerEntities().size());
         for (Player playerEntity : getPlayerEntities()) {
             if (playerEntity.getUniqueId().equals(player.getUniqueId())) {
                 replacePlayerEntityKey(playerEntity, player);

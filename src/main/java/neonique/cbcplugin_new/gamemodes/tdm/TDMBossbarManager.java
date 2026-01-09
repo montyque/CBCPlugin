@@ -4,6 +4,7 @@ import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.util.StringUtil;
+import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.attribute.Attribute;
@@ -45,7 +46,7 @@ public class TDMBossbarManager extends GameBossBarManager {
 
         // Show timer
         if (game.getWinner() != null) {
-            CBCTeam winningTeam = game.getWinner();
+            TDMTeam winningTeam = game.getWinner();
             gameInfo = gameInfo.append(smallText(winningTeam.getTeamName() + " WINS!").color(winningTeam.getColor()));
         }
         else {
@@ -53,14 +54,15 @@ public class TDMBossbarManager extends GameBossBarManager {
                 gameInfo = gameInfo.append(smallText("OVERTIME: FIRST TO " + game.getOvertimeKillsToWin() + " WINS").color(NamedTextColor.RED));
             }
             else {
+                String timerText = TextUtil.timerToText(game.getTimer());
                 if (game.getTimer() < 60) {
-                    gameInfo = gameInfo.append(smallText(game.timerToText()).color(NamedTextColor.RED));
+                    gameInfo = gameInfo.append(smallText(timerText).color(NamedTextColor.RED));
                 }
                 else if (game.getTimer() < 180) {
-                    gameInfo = gameInfo.append(smallText(game.timerToText()).color(NamedTextColor.YELLOW));
+                    gameInfo = gameInfo.append(smallText(timerText).color(NamedTextColor.YELLOW));
                 }
                 else {
-                    gameInfo = gameInfo.append(smallText(game.timerToText()).color(NamedTextColor.AQUA));
+                    gameInfo = gameInfo.append(smallText(timerText).color(NamedTextColor.AQUA));
                 }
             }
         }
@@ -112,9 +114,9 @@ public class TDMBossbarManager extends GameBossBarManager {
 
             Component teamComponent = Component.text("");
 
-            Collection<CBCPlayer> players = team.getPlayers();
+            Collection<TDMPlayer> players = team.getPlayers();
 
-            for (CBCPlayer player : players) {
+            for (TDMPlayer player : players) {
 
                 j++;
 

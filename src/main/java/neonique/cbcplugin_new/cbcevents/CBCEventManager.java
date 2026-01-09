@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.cbcevents;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.enums.PlayerHeadType;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
@@ -881,9 +881,9 @@ public class CBCEventManager {
     }
 
     // Calculate scores
-    public void calculateScores (Game g) {
+    public void calculateScores (Game<?, ?> g) {
 
-        List<CBCPlayer> cbcPlayers = new ArrayList<>(g.getPlayers().values());
+        List<? extends CBCPlayer> cbcPlayers = g.getBasePlayers();
 
         if (cbcPlayers.isEmpty()) return;
 

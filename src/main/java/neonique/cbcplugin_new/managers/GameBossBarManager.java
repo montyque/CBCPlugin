@@ -6,9 +6,7 @@ import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -16,8 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-
-import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowText;
 
 public class GameBossBarManager {
 
@@ -35,8 +31,6 @@ public class GameBossBarManager {
         bossbars = new HashMap<>();
         uiBossbars = new ArrayList<>();
         this.rows = rows;
-
-        System.out.println(rows);
 
         // Create boss bars
         for (int row = 0; row < rows; row++) {

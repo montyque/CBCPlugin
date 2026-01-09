@@ -14,7 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class HTGTeam extends CBCTeam {
+public class HTGTeam extends CBCTeam<HTGPlayer> {
 
     // Set variables relating to game
     private final HTGGame game;

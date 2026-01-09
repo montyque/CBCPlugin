@@ -1,8 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.attribute.Attribute;
@@ -105,7 +103,7 @@ public class TagBossbarManager extends GameBossBarManager {
             }
         }
         else {
-            CBCTeam winningTeam = game.getWinner();
+            TagTeam winningTeam = game.getWinner();
             setServerText(3, smallRaisedText(winningTeam.getTeamName() + " WINS!").color(winningTeam.getColor()));
         }
 

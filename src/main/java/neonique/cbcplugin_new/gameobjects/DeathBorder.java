@@ -220,9 +220,7 @@ public class DeathBorder {
                     world.spawnParticle(Particle.DUST,
                             center.clone().add(currentRadius, offset, xzCoord),
                             1, 0, 0, 0, 1, dustOptions, true);
-
-                    CBCPlugin.getPlugin().getLogger().info("DEATH PARTICLE MADE");
-
+                    
                 }
             }
         }

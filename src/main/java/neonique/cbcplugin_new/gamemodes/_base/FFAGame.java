@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
-import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
@@ -14,12 +13,12 @@ import java.time.Duration;
 import java.util.Collection;
 
 
-public abstract class FFAGame extends Game {
+public abstract class FFAGame<P extends CBCPlayer, M extends CBCMap> extends Game<P, M> {
 
-    private CBCPlayer winningPlayer;
+    private P winningPlayer;
 
-    public FFAGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public FFAGame(GameManager gameManager) {
+        super(gameManager);
     }
 
     public void createPlayers (Collection<LobbyPlayer> players) {
@@ -28,7 +27,7 @@ public abstract class FFAGame extends Game {
         }
     }
 
-    public void playerWonGame (CBCPlayer player) {
+    public void playerWonGame (P player) {
 
         final GameManager gameManager = getGameManager();
 
@@ -61,7 +60,7 @@ public abstract class FFAGame extends Game {
         gameManager.playGlobalSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 200, 1);
 
         // Set all alive players to immune
-        for (CBCPlayer plr : getPlayers().values()) {
+        for (P plr : getPlayers()) {
             if (plr.isAlive()) {
                 plr.setImmune(true);
             }
@@ -74,7 +73,7 @@ public abstract class FFAGame extends Game {
 
     }
 
-    public CBCPlayer getWinner () {
+    public P getWinner () {
         return winningPlayer;
     }
 

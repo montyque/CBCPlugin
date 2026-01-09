@@ -1,13 +1,12 @@
 package neonique.cbcplugin_new.gamemodes.throwdown;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gameobjects.DeathBorder;
 import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
@@ -30,13 +29,12 @@ import org.bukkit.scoreboard.Team;
 import java.time.Duration;
 import java.util.*;
 
-public class ThrowdownGame extends FFAGame {
+public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
 
     // Game related variables
     private int roundsToWin = 3;
 
     // Map related variables
-    private ThrowdownMap map;
     private List<FFASpawnpoint> spawns;
 
     // Teams - for display only
@@ -68,24 +66,41 @@ public class ThrowdownGame extends FFAGame {
 
     private PlayerNoMove noMoveListener;
 
-    public ThrowdownGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public ThrowdownGame (GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
-    public void setupGame(CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                          HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.THROWDOWN;
+    }
+
+    @Override
+    public ThrowdownPlayer createGamemodePlayer (Player playerEntity) {
+        return new ThrowdownPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
+
+    @Override
+    public GameSidebarManager createSidebarManager () {
+        return new ThrowdownSidebarManager(getGameManager(), getCombatManager(), this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager () {
+        return new ThrowdownBossbarManager(this);
+    }
+
+    @Override
+    public void setupGame (GameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
 
         // Setup map
-        setupMap(mapChosen);
+        setupMap((ThrowdownMap) ctx.getMap());
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
-        // Set gamemode information
-        setGamemode(CBCGamemode.THROWDOWN);
         createHeaderTitle();
 
         // Enable weapons
@@ -93,12 +108,12 @@ public class ThrowdownGame extends FFAGame {
         gameManager.resetPlayerList();
 
         // Setup gamemode game variables
-        this.roundsToWin = intVars.getOrDefault("pointsToWin", 3);
-        this.suddenDeathEnabled = boolVars.getOrDefault("suddenDeathEnabled", true);
+        this.roundsToWin = ctx.getIntVars().getOrDefault("pointsToWin", 3);
+        this.suddenDeathEnabled = ctx.getBoolVars().getOrDefault("suddenDeathEnabled", true);
 
         // setGameCommands(new ShowdownGameCommands(gameManager, weaponManager, this));
         // Create players
-        createPlayers(players);
+        createPlayers(ctx.getPlayers());
         teleportSpectators();
 
         // Create teams
@@ -136,23 +151,9 @@ public class ThrowdownGame extends FFAGame {
         setupRound();
     }
 
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new ThrowdownPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
+    public void setupMap (ThrowdownMap map) {
 
-    public GameSidebarManager createSidebarManager() {
-        return new ThrowdownSidebarManager(getGameManager(), getCombatManager(), this);
-    }
-
-    @Override
-    public GameBossBarManager createBossbarManager() {
-        return new ThrowdownBossbarManager(this);
-    }
-
-    public void setupMap (CBCMap generalMap) {
-
-        super.setupMap(generalMap);
-        map = (ThrowdownMap) generalMap;
+        super.setupMap(map);
 
         // Variables that handle player movement at start of game
         if (map.getOverrideSpawns().isEmpty()) {
@@ -174,20 +175,20 @@ public class ThrowdownGame extends FFAGame {
         roundNumber++;
 
         // Reset players
-        for (ThrowdownPlayer player : getThrowdownPlayers()) {
+        for (ThrowdownPlayer player : getPlayers()) {
             player.playerSetupRound();
         }
 
         // Select each player's spawn randomly
         List<Location> spawnOrder = sortSpawns();
-        List<ThrowdownPlayer> randomPlayerList = getThrowdownPlayers();
+        List<ThrowdownPlayer> randomPlayerList = new ArrayList<>(getPlayers());
         Collections.shuffle(randomPlayerList);
 
         int spawnNum = 0;
         for (ThrowdownPlayer player : randomPlayerList) {
 
             if (!player.isOnline()) continue;
-            player.teleportPlayerToSpawn(spawnOrder.get(spawnNum), map.getMapCentre());
+            player.teleportPlayerToSpawn(spawnOrder.get(spawnNum), getMap().getMapCentre());
             getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), getAliveTeam());
             spawnNum++;
 
@@ -218,14 +219,50 @@ public class ThrowdownGame extends FFAGame {
         checkPlayerCounts();
         updateBossbarManager();
         updateServerSidebar();
+
+    }
+
+    @Override
+    public void resetGame() {
+
+        super.resetGame();
+
+        if (suddenDeathBorder != null) {
+            if (suddenDeathBorder.isActive()) {
+                suddenDeathBorder.deactivateBorder();
+            }
+            suddenDeathBorder = null;
+        }
+
+        cancelTask(sdTimerTask);
+
+        // Unregister teams
+        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(aliveTeam.getName());
+        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(elimTeam.getName());
+
+        aliveTeam.unregister();
+        elimTeam.unregister();
+
+    }
+
+    @Override
+    public void playerWonGame (ThrowdownPlayer winner) {
+        super.playerWonGame(winner);
+        // End round and do not start the next round
+        roundOver(false);
+    }
+
+    @Override
+    public PostGameStats getPostGameStats() {
+        return new ThrowdownPostGameStats(this);
     }
 
     public void startRound() {
 
-        map.fillBlocksAtEnd();
+        getMap().fillBlocksAtEnd();
 
         // Start round for players
-        for (ThrowdownPlayer player : getThrowdownPlayers()) {
+        for (ThrowdownPlayer player : getPlayers()) {
             player.playerStartRound();
         }
 
@@ -251,6 +288,7 @@ public class ThrowdownGame extends FFAGame {
         checkPlayerCounts();
         updateServerSidebar();
         updateBossbarManager();
+
     }
 
     public void checkPlayerCounts() {
@@ -265,7 +303,7 @@ public class ThrowdownGame extends FFAGame {
         }
 
         List<ThrowdownPlayer> playersAlive = new ArrayList<>();
-        for (ThrowdownPlayer player : getThrowdownPlayers()) {
+        for (ThrowdownPlayer player : getPlayers()) {
             if (!player.isEliminated()) playersAlive.add(player);
         }
 
@@ -352,39 +390,6 @@ public class ThrowdownGame extends FFAGame {
         updateServerSidebar();
     }
 
-    @Override
-    public void playerWonGame (CBCPlayer winner) {
-
-        super.playerWonGame(winner);
-
-        // End round and do not start the next round
-        roundOver(false);
-
-    }
-
-    @Override
-    public void resetGame() {
-
-        super.resetGame();
-
-        if (suddenDeathBorder != null) {
-            if (suddenDeathBorder.isActive()) {
-                suddenDeathBorder.deactivateBorder();
-            }
-            suddenDeathBorder = null;
-        }
-
-        cancelTask(sdTimerTask);
-
-        // Unregister teams
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(aliveTeam.getName());
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(elimTeam.getName());
-
-        aliveTeam.unregister();
-        elimTeam.unregister();
-
-    }
-
 
     public List<Location> sortSpawns() {
 
@@ -393,7 +398,7 @@ public class ThrowdownGame extends FFAGame {
 
         // Select the first spawn
         Comparator<Location> byDistanceFromCenter =
-                (Location loc1, Location loc2) -> Double.compare(loc1.distanceSquared(map.getMapCentre()), loc2.distanceSquared(map.getMapCentre()));
+                (Location loc1, Location loc2) -> Double.compare(loc1.distanceSquared(getMap().getMapCentre()), loc2.distanceSquared(getMap().getMapCentre()));
         roundSpawnList.sort(byDistanceFromCenter);
         Collections.reverse(roundSpawnList);
 
@@ -420,19 +425,6 @@ public class ThrowdownGame extends FFAGame {
         }
 
         return spawnOrder;
-    }
-
-    public List<ThrowdownPlayer> getThrowdownPlayers() {
-        List<ThrowdownPlayer> playerList = new ArrayList<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            playerList.add((ThrowdownPlayer) player);
-        }
-        return playerList;
-    }
-
-    @Override
-    public PostGameStats getPostGameStats() {
-        return new ThrowdownPostGameStats(this);
     }
 
     public int getRoundNumber() {
@@ -506,7 +498,7 @@ public class ThrowdownGame extends FFAGame {
 
         // If sudden death border is enabled
         if (suddenDeathBorderEnabled) {
-            suddenDeathBorder = map.getSuddenDeathBorder();
+            suddenDeathBorder = getMap().getSuddenDeathBorder();
             suddenDeathBorder.activateBorder();
         }
 
@@ -537,7 +529,7 @@ public class ThrowdownGame extends FFAGame {
     }
 
     public List<ThrowdownPlayer> getSortedPlayersIncludingEliminated() {
-        List<ThrowdownPlayer> playerList = getThrowdownPlayers();
+        List<ThrowdownPlayer> playerList = new ArrayList<>(getPlayers());
         playerList.sort(Comparator.comparing(ThrowdownPlayer::isEliminated)
                 .thenComparing(Comparator.comparingInt(ThrowdownPlayer::getRoundsWon).reversed())
                 .thenComparing(Comparator.comparingInt(ThrowdownPlayer::getKills).reversed())
@@ -549,20 +541,6 @@ public class ThrowdownGame extends FFAGame {
 
     public int getRoundsToWin() {
         return roundsToWin;
-    }
-
-    @Override
-    public void playerJoinServer(Player player) {
-        super.playerJoinServer(player);
-        // Handle sidebar
-        getSidebarManager().addPlayerSidebar(player);
-    }
-
-    @Override
-    public void playerLeaveServer(Player player) {
-        super.playerLeaveServer(player);
-        // Handle sidebar
-        getSidebarManager().removePlayerSidebar(player);
     }
 
     public Team getAliveTeam() {

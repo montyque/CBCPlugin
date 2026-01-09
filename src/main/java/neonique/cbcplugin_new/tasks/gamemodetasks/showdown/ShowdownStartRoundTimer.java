@@ -1,7 +1,10 @@
 package neonique.cbcplugin_new.tasks.gamemodetasks.showdown;
 
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
+import neonique.cbcplugin_new.gamemodes.crossbowtag.TagTeam;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownPlayer;
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownTeam;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.tasks.gamemodetasks.BaseStartGameTimer;
 import net.kyori.adventure.text.Component;
@@ -27,14 +30,7 @@ public class ShowdownStartRoundTimer extends BaseStartGameTimer {
     @Override
     public Title getDefaultTitle (Player player) {
 
-        GameManager gameManager = getGameManager();
-
-        CBCTeam team = null;
-        if (gameManager.hasPlayer(player)) {
-            if (gameManager.getPlayer(player).getTeam() != null) {
-                team = gameManager.getPlayer(player).getTeam();
-            }
-        }
+        ShowdownTeam team = game.getPlayer(player) != null ? game.getPlayerTeam(game.getPlayer(player)) : null;
 
         Component titleComponent;
         Component subtitleComponent;

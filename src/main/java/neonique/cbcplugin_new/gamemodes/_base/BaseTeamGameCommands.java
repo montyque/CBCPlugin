@@ -15,37 +15,32 @@ import java.util.Objects;
 
 public class BaseTeamGameCommands extends BaseGameCommands {
 
-    private final TeamGame game;
+    private final TeamGame<?, ?, ?> game;
+
+    public BaseTeamGameCommands(GameManager gm, CombatManager wm, TeamGame<?, ?, ?> game) {
+        super(gm, wm);
+        this.game = game;
+    }
 
     public List<String> getTeamIds() {
         return new ArrayList<>(game.getGeneralTeamList().keySet());
     }
 
-    public CBCTeam findTeam (Player user, String teamId) {
-        CBCTeam team = game.getGeneralTeamList().get(teamId);
+    public CBCTeam<?> findTeam (Player user, String teamId) {
+        CBCTeam<?> team = game.getGeneralTeamList().get(teamId);
         if (team == null) {
             sendColorMessage(user, teamId + " is not a valid team!", NamedTextColor.YELLOW);
             return null;
         }
-
         return team;
     }
 
     public void removePlayerFromTeam (CBCPlayer player, boolean removePlayerFromGame) {
 
-        // Kill player if player is alive
-        if (player.isAlive()) {
-            if (player.getLastPlayerHitBy() != null) {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
-            } else {
-                combatManager.playerDeath(player, null, DeathCause.COMMAND, false);
-            }
-        }
-
-        CBCTeam currentTeam = player.getTeam();
+        CBCTeam<?> currentTeam = player.getTeam();
         if (currentTeam == null) return;
 
-        currentTeam.removePlayer(player);
+        game.removePlayerFromTeam(player, currentTeam);
 
         if (player.isOnline()) {
             player.getPlayer().sendMessage(
@@ -60,9 +55,10 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         if (removePlayerFromGame) {
             game.removePlayer(player);
         }
+
     }
 
-    public void putPlayerOnTeam (CBCPlayer player, CBCTeam team, boolean spawnImmediately) {
+    public void putPlayerOnTeam (CBCPlayer player, CBCTeam<?> team, boolean spawnImmediately) {
 
         // Kill player if player is alive
         if (player.isAlive()) {
@@ -74,8 +70,8 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         }
 
         removePlayerFromTeam(player, false);
+        game.addPlayerToTeam(player, team);
 
-        team.addPlayer(player);
         if (player.isOnline()) {
             player.getPlayer().sendMessage(
                     Component.text("You have been added to ").color(NamedTextColor.GREEN).append(
@@ -89,11 +85,6 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         if (spawnImmediately) {
             combatManager.playerRespawn(player);
         }
-    }
-
-    public BaseTeamGameCommands(GameManager gm, CombatManager wm, TeamGame game) {
-        super(gm, wm);
-        this.game = game;
     }
 
     @Override
@@ -152,7 +143,7 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         String playerName = playerEntity.getName();
 
         // Find team
-        CBCTeam team = findTeam(user, args[2]);
+        CBCTeam<?> team = findTeam(user, args[2]);
         if (team == null) return;
 
         CBCPlayer playerObj;

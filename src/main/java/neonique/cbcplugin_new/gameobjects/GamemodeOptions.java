@@ -1,8 +1,7 @@
 package neonique.cbcplugin_new.gameobjects;
 
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;

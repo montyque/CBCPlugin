@@ -1,6 +1,5 @@
 package neonique.cbcplugin_new.gamemodes.rendezvous;
 
-import neonique.cbcplugin_new.managers.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -11,7 +10,6 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.joml.AxisAngle4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.awt.geom.Point2D;
@@ -30,8 +28,8 @@ public class RendezvousCheckpoint extends Location {
     private double upwardsExtensionMax;
 
     // Particle information
-    private static List<Point2D> circlePositions = new ArrayList<>();
-    private static List<Point2D> circlePositions2 = new ArrayList<>();
+    private static final List<Point2D> circlePositions = new ArrayList<>();
+    private static final List<Point2D> circlePositions2 = new ArrayList<>();
     Integer currentCirclePosition = 0;
 
     // Glowing snowball marker information
@@ -253,7 +251,7 @@ public class RendezvousCheckpoint extends Location {
     }
 
     public boolean isCheckpointTaken () {
-        return (glowingMarkers.size() > 0);
+        return (!glowingMarkers.isEmpty());
     }
 
     public void playSoundOnCheckpointClear () {

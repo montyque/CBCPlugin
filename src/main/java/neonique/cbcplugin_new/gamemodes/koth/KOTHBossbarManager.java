@@ -117,9 +117,9 @@ public class KOTHBossbarManager extends GameBossBarManager {
 
             Component teamComponent = Component.text("");
 
-            Collection<CBCPlayer> players = team.getPlayers();
+            Collection<KOTHPlayer> players = team.getPlayers();
 
-            for (CBCPlayer player : players) {
+            for (KOTHPlayer player : players) {
 
                 j++;
 
@@ -146,7 +146,7 @@ public class KOTHBossbarManager extends GameBossBarManager {
                 }
 
                 // Check if player is in hill
-                if (((KOTHPlayer) player).isInHill()) {
+                if (player.isInHill()) {
                     // Add outline around player
                     playerComponent = playerComponent.append(Component.text("\uF808\uF802\uE470\uF801").color(team.getColor()));
                 }

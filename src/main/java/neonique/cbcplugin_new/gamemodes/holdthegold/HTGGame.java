@@ -1,14 +1,13 @@
 package neonique.cbcplugin_new.gamemodes.holdthegold;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.holdthegold.*;
 import neonique.cbcplugin_new.util.StringUtil;
@@ -29,9 +28,7 @@ import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
-public class HTGGame extends TeamGame {
-
-    private final List<HTGTeam> teams = new ArrayList<>();
+public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
 
     // Game related variables
     private int pointsStart = 40;
@@ -48,34 +45,60 @@ public class HTGGame extends TeamGame {
     private HTGTeam originalWinningTeam = null;
 
     // Map related variables
-    private HTGMap map;
     private List<HTGSpawn> spawns;
     private Location goldSpawn;
 
     // Event listeners and tasks
     private HTGStartGameTimer startGameTimer;
     private HTGPlayerNearbyGold pickupGoldTask;
-    private HTGPlayerTrackingTask goldTrackingTask;
     private HTGScoreTask scoreTask;
 
-    public HTGGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public HTGGame (GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
-    public void setupGame(CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                          HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.HOLDTHEGOLD;
+    }
+
+    @Override
+    public HTGTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
+        return new HTGTeam(this, team.getTeamId(),
+                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
+                team.getPrefix(), team.getItem(), team.getGlassHead()
+        );
+    }
+
+    @Override
+    public HTGPlayer createGamemodePlayer (Player playerEntity) {
+        return new HTGPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
+
+    @Override
+    public GameSidebarManager createSidebarManager () {
+        return new HTGSidebarManager(getGameManager(), getCombatManager(), this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager () {
+        return new HTGBossbarManager(this);
+    }
+
+    @Override
+    public void setupGame (GameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
 
         // Setup map
-        setupMap(mapChosen);
+        HTGMap map = (HTGMap) ctx.getMap();
+        setupMap(map);
+
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
         // Set gamemode information
-        setGamemode(CBCGamemode.HOLDTHEGOLD);
         createHeaderTitle();
 
         // Enable weapons
@@ -83,38 +106,39 @@ public class HTGGame extends TeamGame {
         gameManager.resetPlayerList();
 
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
         // Setup gamemode game variables
-        this.pointsStart = intVars.getOrDefault("pointsStart", 40);
-        this.ticksToScore = intVars.getOrDefault("ticksToScore", 40);
-        this.teamsToWin = intVars.getOrDefault("teamsToWin", 1);
-        this.finalRunLength = Math.min(intVars.getOrDefault("finalRunLength", 7), pointsStart);
+        this.pointsStart = ctx.getIntVars().getOrDefault("pointsStart", 40);
+        this.ticksToScore = ctx.getIntVars().getOrDefault("ticksToScore", 40);
+        this.teamsToWin = ctx.getIntVars().getOrDefault("teamsToWin", 1);
+        this.finalRunLength = Math.min(ctx.getIntVars().getOrDefault("finalRunLength", 7), pointsStart);
 
         // Setup game commands
         setGameCommands(new HTGGameCommands(gameManager, combatManager, this));
 
         // Create teams and players
         HashMap<String, Location> teamSpawns = map.getTeamSpawns();
-        createTeams(teams);
+        createTeams(ctx.getTeams());
         teleportSpectators();
 
-        for (HTGTeam team : this.teams) {
+        for (HTGTeam team : getTeams()) {
 
             // Setup team's spawn
             Location spawn = teamSpawns.get(team.getTeamId());
             if (spawn == null) {
                 throw new IllegalArgumentException("Team with id '" + team.getTeamId() + "' does not have a spawn!");
             }
+
             team.setStartSpawn(spawn);
             team.createSpawnBox();
 
             // Teleport all players to their spawn
-            for (CBCPlayer player : team.getPlayers()) {
-                HTGPlayer htgPlayer = (HTGPlayer) player;
-                htgPlayer.resetPlayer();
-                htgPlayer.teleportPlayerToSpawn(spawn, map.getGoldSpawn());
+            for (HTGPlayer player : team.getPlayers()) {
+                player.resetPlayer();
+                player.teleportPlayerToSpawn(spawn, map.getGoldSpawn());
             }
+
         }
 
         // Create gold team
@@ -134,18 +158,50 @@ public class HTGGame extends TeamGame {
         // Start the countdown timer
         startGameTimer = new HTGStartGameTimer(gameManager, this, 11);
         startGameTimer.runTaskTimer(CBCPlugin.getPlugin(), 0, 20);
+
     }
 
-    public void startGame() {
+    @Override
+    public void gameWon (HTGTeam team) {
 
-        map.fillBlocksAtEnd();
+        super.gameWon(team);
+
+        // Add bonus points for winning
+        for (HTGPlayer player : team.getPlayers()) {
+            player.addGamePoints(40);
+        }
+
+    }
+
+    @Override
+    public void resetGame () {
+
+        super.resetGame();
+
+        getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(goldTeam.getName());
+        goldTeam.unregister();
+
+        cancelTask(scoreTask);
+        cancelTask(startGameTimer);
+        cancelTask(pickupGoldTask);
+
+    }
+
+    @Override
+    public PostGameStats getPostGameStats () {
+        return new HTGPostGameStats(this);
+    }
+
+    public void startGame () {
+
+        getMap().fillBlocksAtEnd();
 
         // Remove boxes in spawns
-        for (HTGTeam team : teams) {
+        for (HTGTeam team : getTeams()) {
             team.removeSpawnBox();
 
             // Initialise all players
-            for (CBCPlayer player : team.getPlayers()) {
+            for (HTGPlayer player : team.getPlayers()) {
                 if (!player.isOnline()) continue;
                 player.playerSetup(2);
                 player.setTempImmune(60);
@@ -156,34 +212,12 @@ public class HTGGame extends TeamGame {
         // Start important tasks
         pickupGoldTask = new HTGPlayerNearbyGold(this);
         pickupGoldTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 1);
-        goldTrackingTask = new HTGPlayerTrackingTask(this);
-        goldTrackingTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 4);
 
         // Start game length timer
         new IncrementGameTimeTask(this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
+
     }
 
-    public CBCTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        HTGTeam createdTeam = new HTGTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
-        );
-        teams.add(createdTeam);
-        return createdTeam;
-    }
-
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new HTGPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
-
-    public GameSidebarManager createSidebarManager() {
-        return new HTGSidebarManager(getGameManager(), getCombatManager(), this);
-    }
-
-    @Override
-    public GameBossBarManager createBossbarManager() {
-        return new HTGBossbarManager(this);
-    }
 
     public void summonGoldArmorStand (Location loc) {
 
@@ -206,10 +240,9 @@ public class HTGGame extends TeamGame {
 
     }
 
-    public void setupMap (CBCMap generalMap) {
+    public void setupMap (HTGMap map) {
 
-        super.setupMap(generalMap);
-        this.map = (HTGMap) generalMap;
+        super.setupMap(map);
 
         // Get spawns for players and for the gold
         spawns = map.getHTGSpawns();
@@ -217,7 +250,7 @@ public class HTGGame extends TeamGame {
 
     }
 
-    public void playerPickupGold(HTGPlayer player) {
+    public void playerPickupGold (HTGPlayer player) {
 
         goldHolder = player;
         player.pickupGold();
@@ -253,17 +286,18 @@ public class HTGGame extends TeamGame {
 
     public void playerDropGold() {
 
-        HTGTeam gTeam = (HTGTeam) goldHolder.getTeam();
+        HTGTeam team = getPlayerTeam(goldHolder);
+
         // Reset team score to finalRunLength if they got below 7
-        if (!gTeam.isOutOfGame()) {
-            if (gTeam.getScore() <= finalRunLength) {
-                gTeam.setScore(finalRunLength);
+        if (!team.isOutOfGame()) {
+            if (team.getScore() <= finalRunLength) {
+                team.setScore(finalRunLength);
                 getGameManager().sendGlobalMessage(
-                        Component.text(gTeam.getTeamName() + "'s score has been reset to " + finalRunLength + "!").color(gTeam.getColor()).decorate(TextDecoration.BOLD)
+                        Component.text(team.getTeamName() + "'s score has been reset to " + finalRunLength + "!").color(team.getColor()).decorate(TextDecoration.BOLD)
                 );
             } else {
                 if (playerScored) {
-                    gTeam.setScore(gTeam.getScore() + 1);
+                    team.setScore(team.getScore() + 1);
                 }
             }
 
@@ -300,7 +334,7 @@ public class HTGGame extends TeamGame {
         playerScored = true;
 
         playerScoring.addPointsScored();
-        HTGTeam teamScoring = (HTGTeam) playerScoring.getTeam();
+        HTGTeam teamScoring = getPlayerTeam(playerScoring);
         teamScoring.score();
 
         if (teamScoring.getScore() > finalRunLength) {
@@ -366,32 +400,6 @@ public class HTGGame extends TeamGame {
         updateBossbarManager();
     }
 
-    @Override
-    public void gameWon (CBCTeam team) {
-
-        super.gameWon(team);
-
-        // Add bonus points for winning
-        for (CBCPlayer player : team.getPlayers()) {
-            player.addGamePoints(40);
-        }
-
-    }
-
-    public void resetGame() {
-
-        super.resetGame();
-
-        getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(goldTeam.getName());
-        goldTeam.unregister();
-
-        cancelTask(scoreTask);
-        cancelTask(startGameTimer);
-        cancelTask(pickupGoldTask);
-        cancelTask(goldTrackingTask);
-
-    }
-
     public void updatePlacements () {
 
         List<HTGTeam> teamsByScore = getTeamsByScore();
@@ -424,42 +432,17 @@ public class HTGGame extends TeamGame {
     }
 
     public List<HTGTeam> getTeamsByScore() {
-
-        List<HTGTeam> sortedTeamList = new ArrayList<>(teams);
+        List<HTGTeam> sortedTeamList = getTeams();
         sortedTeamList.sort(Comparator.comparingInt(HTGTeam::getScore));
         return sortedTeamList;
-
     }
 
     public List<HTGSpawn> getSpawns() {
         return spawns;
     }
 
-    @Override
-    public PostGameStats getPostGameStats() {
-        return new HTGPostGameStats(this);
-    }
-
-    @Override
-    public void playerJoinServer(Player player) {
-        super.playerJoinServer(player);
-        // Handle sidebar
-        getSidebarManager().addPlayerSidebar(player);
-    }
-
-    @Override
-    public void playerLeaveServer(Player player) {
-        super.playerLeaveServer(player);
-        // Handle sidebar
-        getSidebarManager().removePlayerSidebar(player);
-    }
-
     public int getStartScore() {
         return pointsStart;
-    }
-
-    public HTGMap getMap() {
-        return map;
     }
 
     public Location getGoldLocation () {
@@ -482,11 +465,11 @@ public class HTGGame extends TeamGame {
         return goldHolder != null;
     }
 
-    public ArmorStand getGoldArmorStand() {
+    public ArmorStand getGoldArmorStand () {
         return goldArmorStand;
     }
 
-    public ItemStack getGoldHead() {
+    public ItemStack getGoldHead () {
         // Create enchanted gold block
         ItemStack goldBlock = new ItemStack(Material.GOLD_BLOCK);
         ItemMeta goldBlockMeta = goldBlock.getItemMeta();
@@ -495,21 +478,8 @@ public class HTGGame extends TeamGame {
         return goldBlock;
     }
 
-    public HTGPlayer getGoldHolder() {
+    public HTGPlayer getGoldHolder () {
         return goldHolder;
     }
 
-    public List<HTGTeam> getTeams() {
-        return teams;
-    }
-
-    public Set<HTGPlayer> getHTGPlayers () {
-        Set<HTGPlayer> htgPlayers = new HashSet<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            if (player instanceof HTGPlayer) {
-                htgPlayers.add((HTGPlayer) player);
-            }
-        }
-        return htgPlayers;
-    }
 }

@@ -21,11 +21,9 @@ public class PlayerDamageListener implements Listener {
     @EventHandler
     public void playerDamage(EntityDamageEvent e) {
 
-        if (!(e.getEntity() instanceof Player)) {
+        if (!(e.getEntity() instanceof Player player)) {
             return;
         }
-
-        Player player = (Player) e.getEntity();
 
         if (gameManager.isPracticeActive()) {
             if (gameManager.hasPlayer(player)) return;

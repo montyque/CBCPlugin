@@ -1,37 +1,57 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
-import neonique.cbcplugin_new.gamemodes.ctf.CTFPlayer;
-import neonique.cbcplugin_new.gamemodes.ctf.CTFTeam;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
 import java.time.Duration;
 import java.util.*;
 
-public abstract class TeamGame extends Game {
+public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends CBCTeam<P>>
+        extends Game<P, M> {
 
     // If teams should be restored after this game
     private boolean restoreTeamsAfterGame = true;
+    private final LinkedHashMap<String, T> teams = new LinkedHashMap<>();
 
-    protected LinkedHashMap<String, CBCTeam> generalTeamList = new LinkedHashMap<>();
+    private T winningTeam = null;
 
-    private CBCTeam winningTeam = null;
+    public TeamGame(GameManager gameManager) {
+        super(gameManager);
+    }
 
-    public TeamGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    /**
+     * Creates a CBCTeam object for the gamemode.
+     * @param team The LobbyTeam to create the team from.
+     * @param teamNum The number that is assigned to the team.
+     */
+    public abstract T createGamemodeTeam (LobbyTeam team, int teamNum);
+
+    public T getTypedTeam (CBCTeam<?> team) {
+        if (team == null) return null;
+        return teams.get(team.getTeamId());
+    }
+
+    public void addPlayerToTeam (CBCPlayer player, CBCTeam<?> team) {
+        P gamemodePlayer = getTypedPlayer(player);
+        T gamemodeTeam = getTypedTeam(team);
+        gamemodeTeam.addPlayer(gamemodePlayer);
+    }
+
+    public void removePlayerFromTeam (CBCPlayer player, CBCTeam<?> team) {
+        P gamemodePlayer = getTypedPlayer(player);
+        T gamemodeTeam = getTypedTeam(team);
+        gamemodeTeam.removePlayer(gamemodePlayer);
     }
 
     @Override
-    public void setupDefaultGameVars (HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    public void setupDefaultGameVars (Map<String, Boolean> boolVars, Map<String, Integer> intVars, Map<String, String> stringVars) {
         super.setupDefaultGameVars(boolVars, intVars, stringVars);
         restoreTeamsAfterGame = boolVars.getOrDefault("restoreTeamsAfterGame", true);
     }
@@ -53,38 +73,33 @@ public abstract class TeamGame extends Game {
             Set<LobbyPlayer> teamOnlinePlayers = lobbyTeam.getOnlinePlayers();
 
             // Create team
-            CBCTeam team = createGamemodeTeam(lobbyTeam, teamNum);
+            T team = createGamemodeTeam(lobbyTeam, teamNum);
 
             for (LobbyPlayer onlinePlayer : teamOnlinePlayers) {
                 // Create player and add them to the created team
-                CBCPlayer player = createPlayer(onlinePlayer.getPlayer());
+                P player = createPlayer(onlinePlayer.getPlayer());
                 team.addPlayer(player);
             }
 
             // Add team to team list
-            generalTeamList.put(teamId, team);
+            teams.put(teamId, team);
             teamNum++;
         }
     }
 
-    /**
-     * Creates a CBCTeam object for the gamemode.
-     * @param team The LobbyTeam to create the team from.
-     * @param teamNum The number that is assigned to the team.
-     */
-    public abstract CBCTeam createGamemodeTeam (LobbyTeam team, int teamNum);
-
     @Override
     public void resetGame () {
+
         super.resetGame();
 
         // Remove all teams
-        for (CBCTeam team : generalTeamList.values()) {
+        for (T team : teams.values()) {
             team.removeTeam();
         }
+
     }
 
-    public void gameWon (CBCTeam team) {
+    public void gameWon (T team) {
 
         final GameManager gameManager = getGameManager();
         winningTeam = team;
@@ -119,27 +134,33 @@ public abstract class TeamGame extends Game {
 
     }
 
-    public CBCTeam getWinner () {
+    public T getWinner () {
         return winningTeam;
     }
 
     public HashMap<UUID, String> getPlayersTeamIds () {
-
         HashMap<UUID, String> playersTeamIds = new HashMap<>();
-
-        for (CBCTeam team : generalTeamList.values()) {
+        for (T team : teams.values()) {
             String teamId = team.getTeamId();
             for (CBCPlayer player : team.getPlayers()) {
                 playersTeamIds.put(player.getOfflinePlayer().getUniqueId(), teamId);
             }
         }
-
         return playersTeamIds;
-
     }
 
-    public LinkedHashMap<String, CBCTeam> getGeneralTeamList() {
-        return generalTeamList;
+    public List<T> getTeams () {
+        return new ArrayList<>(teams.values());
+    }
+
+    public T getPlayerTeam (P player) {
+        if (player == null) return null;
+        if (player.getTeam() == null) return null;
+        return getTypedTeam(player.getTeam());
+    }
+
+    public LinkedHashMap<String, T> getGeneralTeamList () {
+        return teams;
     }
 
     public boolean isRestoreTeamsAfterGame() {

@@ -6,10 +6,8 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.PracticeManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
-import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,8 +17,8 @@ public class PracticePlayer extends CBCPlayer {
 
     PracticeManager practiceManager;
 
-    public PracticePlayer(GameManager gameManager, CombatManager combatManager, PracticeManager practiceManager, Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+    public PracticePlayer(GameManager gameManager, CombatManager combatManager, PracticeManager practiceManager, Player player) {
+        super(gameManager, combatManager, player);
         this.practiceManager = practiceManager;
     }
 

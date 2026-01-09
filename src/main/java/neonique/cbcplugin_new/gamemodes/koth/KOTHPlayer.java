@@ -30,8 +30,8 @@ public class KOTHPlayer extends CBCPlayer {
     private static final int TIME_IN_HILL_PTS = 0; // Points you get for every second in the hill
     private int timeInHillLast = 0;
 
-    public KOTHPlayer(KOTHGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+    public KOTHPlayer(KOTHGame game, GameManager gameManager, CombatManager combatManager, Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
     }
 
@@ -89,7 +89,7 @@ public class KOTHPlayer extends CBCPlayer {
         }
 
         // Update bossbar manager
-        game.getBossbarManager().update();
+        game.updateBossbarManager();
     }
 
     public void playerRefresh () {
@@ -136,7 +136,7 @@ public class KOTHPlayer extends CBCPlayer {
 
         // Update client board
         if (toggle && isOnline()) {
-            game.getSidebarManager().updateClientBoard(getPlayer());
+            game.updateClientSidebar(getPlayer());
         }
     }
 

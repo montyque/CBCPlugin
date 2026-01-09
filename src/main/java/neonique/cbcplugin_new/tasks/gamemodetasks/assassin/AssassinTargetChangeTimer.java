@@ -27,11 +27,12 @@ public class AssassinTargetChangeTimer extends BukkitRunnable {
         }
 
         // Decrement player's target change timer
-        for (AssassinPlayer player : game.getAssassinPlayers()) {
+        for (AssassinPlayer player : game.getPlayers()) {
             player.decrementTargetChangeTimer();
         }
 
         // Update bossbar
-        game.getBossbarManager().update();
+        game.updateBossbarManager();
+
     }
 }

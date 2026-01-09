@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.commands;
 
 import neonique.cbcplugin_new.commands.cbceventsubcommands.cbcevent_player;
 import neonique.cbcplugin_new.commands.cbceventsubcommands.cbcevent_team;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.gamemodes._base.TeamGame;

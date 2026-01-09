@@ -3,6 +3,7 @@ package neonique.cbcplugin_new.listeners.gamemodes;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagPlayer;
+import neonique.cbcplugin_new.gamemodes.ctf.CTFPlayer;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -23,30 +24,18 @@ public class TagTeleportListener implements Listener {
     public void onPlayerTeleport (PlayerTeleportEvent e) {
 
         if (game.isGameOver()) return;
+        if (e.getCause() != PlayerTeleportEvent.TeleportCause.SPECTATE) return;
 
-        // Get player
         Player playerEntity = e.getPlayer();
-
-        // Check if player is in game
-        if (game.getPlayer(playerEntity) == null) {
+        TagPlayer player = game.getPlayer(playerEntity);
+        if (player == null) {
             return;
         }
 
-        CBCPlayer player = game.getPlayer(playerEntity);
-
-        // Check if player is a tag player
-        if (!(player instanceof TagPlayer)) {
-            return;
+        if (player.isTagger()) {
+            playerEntity.sendMessage(Component.text("You cannot use spectator to teleport to players!").color(NamedTextColor.YELLOW));
+            e.setCancelled(true);
         }
 
-        TagPlayer tagPlayer = (TagPlayer) player;
-
-        // Check if teleport reason is spectate
-        if (e.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE) {
-            if (tagPlayer.isTagger()) {
-                playerEntity.sendMessage(Component.text("You cannot use spectator to teleport to players!").color(NamedTextColor.YELLOW));
-                e.setCancelled(true);
-            }
-        }
     }
 }

@@ -16,7 +16,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -44,8 +43,8 @@ public class HTGPlayer extends CBCPlayer {
     private final static int GOLD_SCORE_WITHIN_7_PTS = 5; // Extra points for scoring a point with the gold while within 7
     private final static int WINNING_GOLD_RUN_PTS = 50; // Points you gain for getting a winning gold run
 
-    public HTGPlayer(HTGGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+    public HTGPlayer(HTGGame game, GameManager gameManager, CombatManager combatManager, Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
     }
 
@@ -86,7 +85,7 @@ public class HTGPlayer extends CBCPlayer {
         addGamePoints(killPts);
 
         // Update leaderboards
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
 
     }
 
@@ -95,7 +94,7 @@ public class HTGPlayer extends CBCPlayer {
 
         if (isHoldingGold) {
             if (playerKiller != null) {
-                ((HTGPlayer) playerKiller).killedGoldHolder();
+                game.getTypedPlayer(playerKiller).killedGoldHolder();
             }
             dropGold();
         }
@@ -224,18 +223,20 @@ public class HTGPlayer extends CBCPlayer {
     }
 
     public void addPointsScored() {
+
+        HTGTeam team = game.getPlayerTeam(this);
         pointsScored++;
-        // Add game score
+
         int goldPts = GOLD_SCORE_PTS;
-        // Check if within 7
         if (getTeam() != null) {
-            if (((HTGTeam) getTeam()).getScore() <= 7) {
+            if (team.getScore() <= 7) {
                 goldPts += GOLD_SCORE_WITHIN_7_PTS;
             }
-            if (((HTGTeam) getTeam()).getScore() == 1) {
+            if (team.getScore() == 1) {
                 goldPts += WINNING_GOLD_RUN_PTS;
             }
         }
+
         addGamePoints(goldPts);
     }
 
@@ -243,7 +244,7 @@ public class HTGPlayer extends CBCPlayer {
         return pointsScored;
     }
 
-    public int getGoldholdersKilled() {
+    public int getGoldHoldersKilled() {
         return goldHoldersKilled;
     }
 

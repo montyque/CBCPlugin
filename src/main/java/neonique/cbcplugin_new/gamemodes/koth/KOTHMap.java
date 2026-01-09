@@ -97,7 +97,7 @@ public class KOTHMap extends CBCMap {
         return spawnLocationMap;
     }
 
-    public KOTHHill getHill (GameManager gameManager) {
+    public KOTHHill getHill () {
 
         // Get shape of zone
         HillShape zoneShape;
@@ -113,7 +113,7 @@ public class KOTHMap extends CBCMap {
         // Get center of zone
         Location zoneCenter;
         String zoneCenterString = hillSettingsSection.getString("center", "");
-        if (zoneCenterString.equals("")) {
+        if (zoneCenterString.isEmpty()) {
             // No center was given, so set it to the center of the map
             zoneCenter = getMapCentre();
         }
@@ -125,7 +125,7 @@ public class KOTHMap extends CBCMap {
         double zoneRadius = hillSettingsSection.getDouble("radius", 7); // Radius of hill zone
         double zoneHeight = hillSettingsSection.getDouble("height", 15); // Height that zone extends from bottom of hill
 
-        return new KOTHHill(gameManager, zoneCenter, zoneShape, (float) zoneRadius, (float) zoneHeight);
+        return new KOTHHill(zoneCenter, zoneShape, (float) zoneRadius, (float) zoneHeight);
 
     }
 

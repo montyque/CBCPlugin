@@ -3,7 +3,6 @@ package neonique.cbcplugin_new.managers;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
-import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.gameobjects.*;
 import neonique.cbcplugin_new.listeners.combat.*;
@@ -12,18 +11,12 @@ import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.weapontasks.*;
 import neonique.cbcplugin_new.weapons.EquipmentFactory;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
-import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
-import neonique.cbcplugin_new.weapons.presets.FlamePreset;
-import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
-import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.Color;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -38,7 +31,6 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
-import java.io.File;
 import java.time.Duration;
 import java.util.*;
 
@@ -60,8 +52,8 @@ public class CombatManager {
     private Team xbowArrowTeam;
 
     // Amount of times to run reload task
-    private int reloadTaskFrequency = 10; // Per second
-    private int reloadTaskPeriod = 2; // In ticks
+    public final static int RELOAD_TASK_FREQUENCY = 20; // Per second
+    public final static int RELOAD_TASK_PERIOD = 1; // In ticks
 
     // Other weapon manager related stats
     private int healPadTimer = 10;
@@ -208,7 +200,7 @@ public class CombatManager {
         playerParticlesTask = new PlayerParticlesTask(gameManager);
 
 
-        weaponReloadTask.runTaskTimer(plugin, 0, reloadTaskPeriod);
+        weaponReloadTask.runTaskTimer(plugin, 0, RELOAD_TASK_PERIOD);
         projectileUpdateTask.runTaskTimer(plugin, 0, 1L);
         voidTask.runTaskTimer(plugin, 0, 1L);
         healPadTask.runTaskTimer(plugin, 0, 2L);
@@ -430,6 +422,7 @@ public class CombatManager {
             }
 
             playerKilled.updateActionBarDisplay(true);
+
         }
 
         // Get kill streak message
@@ -451,9 +444,10 @@ public class CombatManager {
             gameManager.sendGlobalMessage(killStreakEndMessage);
             gameManager.playGlobalSound(Sound.BLOCK_BEACON_DEACTIVATE, 100, 2);
         }
-
         playerKilled.playerKillStreakEnd();
+
     }
+
     // Respawn player
     public void playerRespawn (CBCPlayer playerRespawning) {
 

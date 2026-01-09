@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.cbcevents;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

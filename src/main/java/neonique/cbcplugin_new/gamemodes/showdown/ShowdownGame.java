@@ -1,10 +1,10 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gameobjects.DeathBorder;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -22,16 +22,12 @@ import org.bukkit.entity.Player;
 import java.time.Duration;
 import java.util.*;
 
-public class ShowdownGame extends TeamGame {
-
-    // Create list of teams
-    private final List<ShowdownTeam> teams = new ArrayList<>();
+public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, ShowdownTeam> {
 
     // Game related variables
     private int roundsToWin = 4;
 
     // Map related variables
-    private ShowdownMap map;
     private boolean randomSpawns;
     private List<ShowdownSpawn> randomTeamSpawns;
     private HashMap<String, ShowdownSpawn> nonRandomTeamSpawns;
@@ -64,62 +60,43 @@ public class ShowdownGame extends TeamGame {
     // Other game variables
     private boolean playersGlow = true;
 
-    public ShowdownGame (GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public ShowdownGame (GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
-    public void setupGame (CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                           HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
-
-        final GameManager gameManager = getGameManager();
-        final CombatManager combatManager = getCombatManager();
-
-        // Setup map
-        setupMap(mapChosen);
-
-        // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
-
-        // Set gamemode information
-        setGamemode(CBCGamemode.SHOWDOWN);
-        createHeaderTitle();
-
-        // Enable weapons
-        combatManager.activateWeapons();
-        gameManager.resetPlayerList();
-
-        // Setup game listeners and tasks
-        CBCPlugin plugin = CBCPlugin.getPlugin();
-
-        showdownPlayerCountsTask = new ShowdownPlayerCounts(gameManager, this);
-        showdownPlayerCountsTask.runTaskTimer(plugin, 0, 4);
-
-        // Setup gamemode game variables
-        this.roundsToWin = intVars.getOrDefault("pointsToWin", 4);
-        this.suddenDeathEnabled = boolVars.getOrDefault("suddenDeathEnabled", true);
-        this.playersGlow = boolVars.getOrDefault("playersGlow", true);
-
-        setGameCommands(new ShowdownGameCommands(gameManager, combatManager, this));
-
-        // Create teams and players
-        createTeams(teams);
-        teleportSpectators();
-
-        // Create bossbar and sidebar displays
-        createUIManagers();
-
-        // Start round 1
-        setupRound();
-
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.SHOWDOWN;
     }
 
-    public void setupMap (CBCMap generalMap) {
+    @Override
+    public ShowdownTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
+        return new ShowdownTeam(this, team.getTeamId(),
+                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
+                team.getPrefix(), team.getItem(), team.getGlassHead()
+        );
+    }
 
-        super.setupMap(generalMap);
-        map = (ShowdownMap) generalMap;
+    @Override
+    public ShowdownPlayer createGamemodePlayer (Player playerEntity) {
+        return new ShowdownPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
 
-        // Variables that handle player movement at start of game
+    @Override
+    public GameSidebarManager createSidebarManager () {
+        return new ShowdownSidebarManager(getGameManager(), getCombatManager(), this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager () {
+        return new ShowdownBossbarManager(this);
+    }
+
+    @Override
+    public void setupMap (ShowdownMap map) {
+
+        super.setupMap(map);
+
         // Get spawns
         randomSpawns = map.isRandomTeamSpawns();
         if (randomSpawns) {
@@ -136,29 +113,51 @@ public class ShowdownGame extends TeamGame {
         }
     }
 
-    public CBCTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        ShowdownTeam createdTeam = new ShowdownTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
-        );
-        teams.add(createdTeam);
-        return createdTeam;
-    }
-
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new ShowdownPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
-
-    public GameSidebarManager createSidebarManager() {
-        return new ShowdownSidebarManager(getGameManager(), getCombatManager(), this);
-    }
-
     @Override
-    public GameBossBarManager createBossbarManager() {
-        return new ShowdownBossbarManager(this);
+    public void setupGame (GameContext ctx) {
+
+        final GameManager gameManager = getGameManager();
+        final CombatManager combatManager = getCombatManager();
+
+        // Setup map
+        setupMap((ShowdownMap) ctx.getMap());
+
+        // Setup default game variables
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
+
+        // Set gamemode information
+        createHeaderTitle();
+
+        // Enable weapons
+        combatManager.activateWeapons();
+        gameManager.resetPlayerList();
+
+        // Setup game listeners and tasks
+        CBCPlugin plugin = CBCPlugin.getPlugin();
+
+        showdownPlayerCountsTask = new ShowdownPlayerCounts(gameManager, this);
+        showdownPlayerCountsTask.runTaskTimer(plugin, 0, 4);
+
+        // Setup gamemode game variables
+        this.roundsToWin = ctx.getIntVars().getOrDefault("pointsToWin", 4);
+        this.suddenDeathEnabled = ctx.getBoolVars().getOrDefault("suddenDeathEnabled", true);
+        this.playersGlow = ctx.getBoolVars().getOrDefault("playersGlow", true);
+
+        setGameCommands(new ShowdownGameCommands(gameManager, combatManager, this));
+
+        // Create teams and players
+        createTeams(ctx.getTeams());
+        teleportSpectators();
+
+        // Create bossbar and sidebar displays
+        createUIManagers();
+
+        // Start round 1
+        setupRound();
+
     }
 
-    public void setupRound() {
+    public void setupRound () {
 
         roundInPlay = false;
         roundWinner = null;
@@ -179,21 +178,21 @@ public class ShowdownGame extends TeamGame {
             }
         }
 
-        map.fillBlocksAtStart();
+        getMap().fillBlocksAtStart();
 
         // Teleport players to spawns
         if (randomSpawns) {
-            List<ShowdownTeam> shuffledTeams = new ArrayList<>(teams);
+            List<ShowdownTeam> shuffledTeams = new ArrayList<>(getTeams());
             Collections.shuffle(shuffledTeams);
-            int inc = 0;
+            int spawnNum = 0;
             for (ShowdownTeam team : shuffledTeams) {
-                ShowdownSpawn spawnToTeleport = randomTeamSpawns.get(inc);
+                ShowdownSpawn spawnToTeleport = randomTeamSpawns.get(spawnNum);
                 team.setRoundSpawn(spawnToTeleport);
                 team.teleportPlayers(spawnToTeleport);
-                inc++;
+                spawnNum++;
             }
         } else {
-            for (ShowdownTeam team : teams) {
+            for (ShowdownTeam team : getTeams()) {
                 ShowdownSpawn spawn = nonRandomTeamSpawns.get(team.getTeamId());
                 team.setRoundSpawn(spawn);
                 team.teleportPlayers(spawn);
@@ -209,7 +208,7 @@ public class ShowdownGame extends TeamGame {
         getCombatManager().enableAllHealPads();
 
         // Reset team variables
-        for (ShowdownTeam team : teams) {
+        for (ShowdownTeam team : getTeams()) {
             team.setupRound();
         }
 
@@ -223,17 +222,18 @@ public class ShowdownGame extends TeamGame {
         // Update UI elements
         updateBossbarManager();
         updateServerSidebar();
+
     }
 
-    public void startRound() {
+    public void startRound () {
 
-        map.fillBlocksAtEnd();
+        getMap().fillBlocksAtEnd();
 
         roundInPlay = true;
         getCombatManager().setVoidKill(true);
 
-        for (CBCPlayer player : getPlayers().values()) {
-            ((ShowdownPlayer) player).playerStartRound();
+        for (ShowdownPlayer player : getPlayers()) {
+            player.playerStartRound();
         }
 
         // Release players
@@ -278,7 +278,7 @@ public class ShowdownGame extends TeamGame {
         }
 
         List<ShowdownTeam> teamsAlive = new ArrayList<>();
-        for (ShowdownTeam team : teams) {
+        for (ShowdownTeam team : getTeams()) {
             if (!team.isTeamAlive()) continue; // Make sure team is alive
 
             int teamPlayerCount = team.updatePlayersLeftAlive(true);
@@ -299,7 +299,7 @@ public class ShowdownGame extends TeamGame {
         }
     }
 
-    public void teamWonRound(ShowdownTeam team) {
+    public void teamWonRound (ShowdownTeam team) {
 
         // Increment team count
         team.teamWonRound();
@@ -342,15 +342,14 @@ public class ShowdownGame extends TeamGame {
         updateBossbarManager();
     }
 
-    public void roundOver(boolean startNextRound) {
+    public void roundOver (boolean startNextRound) {
 
         roundInPlay = false;
 
         // Set all alive players to immune
-        for (CBCPlayer player : getGameManager().getAlivePlayers()) {
-            player.setImmune(true);
-            if (player instanceof ShowdownPlayer) {
-                ((ShowdownPlayer) player).playerSurvivedRound();
+        for (ShowdownPlayer player : getPlayers()) {
+            if (player.isAlive()) {
+                player.setImmune(true);
             }
         }
 
@@ -378,11 +377,11 @@ public class ShowdownGame extends TeamGame {
         }
 
         // Update sidebar manager
-        getSidebarManager().updateServerBoard();
+        updateServerSidebar();
     }
 
     @Override
-    public void gameWon (CBCTeam team) {
+    public void gameWon (ShowdownTeam team) {
 
         super.gameWon(team);
 
@@ -421,20 +420,12 @@ public class ShowdownGame extends TeamGame {
         return roundNumber;
     }
 
-    public ShowdownMap getMap() {
-        return map;
-    }
-
     public boolean isRoundNotInPlay() {
         return !roundInPlay;
     }
 
     public int getRoundsToWin() {
         return roundsToWin;
-    }
-
-    public List<ShowdownTeam> getTeams() {
-        return teams;
     }
 
     // Sudden death functions
@@ -500,7 +491,7 @@ public class ShowdownGame extends TeamGame {
         // If sudden death border is enabled activate the border
         if (suddenDeathBorderEnabled) {
 
-            suddenDeathBorder = map.getSuddenDeathBorder();
+            suddenDeathBorder = getMap().getSuddenDeathBorder();
             suddenDeathBorder.activateBorder();
 
         }
@@ -531,33 +522,29 @@ public class ShowdownGame extends TeamGame {
     }
 
     @Override
-    public void playerJoinServer(Player player) {
+    public void playerJoinServer(Player client) {
 
-        super.playerJoinServer(player);
+        super.playerJoinServer(client);
 
-        // Check if player is CBC player
-        CBCPlayer cbcPlayer = getGameManager().getPlayer(player);
-        if (cbcPlayer != null) {
+        ShowdownPlayer player = getPlayer(client);
+        if (player != null) {
 
-            // Cast to TagPlayer object
-            if (!(cbcPlayer instanceof ShowdownPlayer showdownPlayer)) return;
-
-            CBCTeam team = showdownPlayer.getTeam();
+            ShowdownTeam team = getPlayerTeam(player);
             if (team == null) return;
-            if (!(team instanceof ShowdownTeam showdownTeam)) return;
 
-            // If player joined before round starts, put them in
+            // If player joins before round starts, put them into game
             if (!roundInPlay && roundStartCountdown) {
-                // Setup player round and teleport them to spawn
-                showdownPlayer.playerSetupRound();
-                showdownPlayer.teleportPlayerToSpawn(showdownTeam.getRoundSpawn(), map.getMapCentre());
+                player.playerSetupRound();
+                player.teleportPlayerToSpawn(team.getRoundSpawn(), getMap().getMapCentre());
             }
+
         }
+
     }
 
     public void createFooter () {
 
-        int maxRounds = (roundsToWin - 1) * teams.size() + 1;
+        int maxRounds = (roundsToWin - 1) * getTeams().size() + 1;
 
         Component footer = Component.newline().append(smallText("Round " + roundNumber + " ")
                 .color(NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
@@ -592,7 +579,7 @@ public class ShowdownGame extends TeamGame {
 
         // Select the first spawn
         Comparator<ShowdownSpawn> byDistanceFromCenter =
-                (ShowdownSpawn loc1, ShowdownSpawn loc2) -> Double.compare(loc1.distanceSquared(map.getMapCentre()), loc2.distanceSquared(map.getMapCentre()));
+                (ShowdownSpawn loc1, ShowdownSpawn loc2) -> Double.compare(loc1.distanceSquared(getMap().getMapCentre()), loc2.distanceSquared(getMap().getMapCentre()));
         roundSpawnList.sort(byDistanceFromCenter);
         Collections.reverse(roundSpawnList);
 
@@ -626,21 +613,7 @@ public class ShowdownGame extends TeamGame {
     }
 
     public int getPlayersAlive () {
-        return getGameManager().getAlivePlayers().size();
+        return (int) getPlayers().stream().filter(ShowdownPlayer::isAlive).count();
     }
 
-    public int getTotalPlayers () {
-        return getPlayers().size();
-    }
-
-    public List<ShowdownPlayer> getShowdownPlayers () {
-        // Get all players as ShowdownPlayer objects
-        List<ShowdownPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            if (player instanceof ShowdownPlayer) {
-                playersList.add((ShowdownPlayer) player);
-            }
-        }
-        return playersList;
-    }
 }

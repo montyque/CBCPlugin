@@ -1,18 +1,14 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes._base.*;
-import neonique.cbcplugin_new.gamemodes.ctf.CTFPlayer;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 import java.util.List;
@@ -138,44 +134,41 @@ public class ShowdownSidebarManager extends GameSidebarManager {
         }
 
         if (game.getGameManager().isEventGame()) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getShowdownPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
         }
 
         displayToEveryone.add(blankComponent());
         updateAllClientBoards();
     }
 
-    public void updateClientBoard (Player player) {
+    public void updateClientBoard (Player client) {
 
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
         // Client side scoreboards
-        if (game.getPlayer(player) != null) {
-
-            ShowdownPlayer showdownPlayer = (ShowdownPlayer) game.getPlayer(player);
+        ShowdownPlayer player = game.getPlayer(client);
+        if (game.getPlayer(client) != null) {
 
             // Check if player's team is on team order on sidebar
-            if (showdownPlayer.getTeam() != null) {
-                ShowdownTeam team = (ShowdownTeam) showdownPlayer.getTeam();
+            ShowdownTeam team = game.getPlayerTeam(player);
+            if (team != null) {
                 if (teamOrderOnSidebar.containsKey(team)) {
-
                     int slot = teamOrderOnSidebar.get(team);
                     clientStringList.set(slot, getTeamRow(team, true));
-
                 }
             }
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Round Kills: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(showdownPlayer.getPlayerRoundKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getPlayerRoundKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Game Kills: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(showdownPlayer.getKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getKills()).color(NamedTextColor.YELLOW))
             );
 
-            int secondsAlive = showdownPlayer.getPlayerSecondsAlive();
+            int secondsAlive = player.getPlayerSecondsAlive();
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Time Alive: " ).color(NamedTextColor.GREEN)).append(
@@ -186,7 +179,7 @@ public class ShowdownSidebarManager extends GameSidebarManager {
 
             // Add game score
             if (game.getGameManager().isEventGame()) {
-                clientStringList.add(generateGameScoreComponent(game.getGamemode(), showdownPlayer, getComponentSpaceOfLength(11)));
+                clientStringList.add(generateGameScoreComponent(game.getGamemode(), player, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
         } else if (!spectatorLeaderboardComponents.isEmpty()) {
@@ -200,7 +193,7 @@ public class ShowdownSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
+        ClientSidebar clientSidebar = getPlayerSidebar(client);
         clientSidebar.setSidebarComponents(clientStringList);
     }
 

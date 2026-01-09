@@ -19,4 +19,5 @@ public class HTGStartGameTimer extends BaseStartGameTimer {
     public void startGame() {
         game.startGame();
     }
+
 }

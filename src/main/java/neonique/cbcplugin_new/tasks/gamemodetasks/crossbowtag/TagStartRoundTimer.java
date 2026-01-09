@@ -30,14 +30,7 @@ public class TagStartRoundTimer extends BaseStartGameTimer {
     @Override
     public Title getDefaultTitle (Player player) {
 
-        GameManager gameManager = getGameManager();
-
-        CBCTeam team = null;
-        if (gameManager.hasPlayer(player)) {
-            if (gameManager.getPlayer(player).getTeam() != null) {
-                team = gameManager.getPlayer(player).getTeam();
-            }
-        }
+        TagTeam team = game.getPlayer(player) != null ? game.getPlayerTeam(game.getPlayer(player)) : null;
 
         Component titleComponent;
         Component subtitleComponent;

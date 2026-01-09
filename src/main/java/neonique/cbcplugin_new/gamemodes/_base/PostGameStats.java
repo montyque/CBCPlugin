@@ -27,15 +27,15 @@ public abstract class PostGameStats {
 
     public ItemStack generateGameSummaryItem () {
         return new ItemStack(Material.AIR);
-    };
+    }
 
-    public ItemStack generateTeamItem (CBCTeam rawTeam) {
+    public ItemStack generateTeamItem (CBCTeam<?> rawTeam) {
         return new ItemStack(Material.AIR);
-    };
+    }
 
     public ItemStack generatePlayerItem (CBCPlayer rawPlayer) {
         return new ItemStack(Material.AIR);
-    };
+    }
 
     public abstract Inventory createInventoryGui (Player user);
 
@@ -48,7 +48,7 @@ public abstract class PostGameStats {
 
     };
 
-    public Inventory inventoryGuiGenerate (Player user, boolean teamGame, List<CBCTeam> teams, List<CBCPlayer> players) {
+    public Inventory inventoryGuiGenerate (Player user, boolean teamGame, List<CBCTeam<?>> teams, List<CBCPlayer> players) {
 
         // Create inventory
         Inventory inventory = Bukkit.createInventory(user, 54, Component.text("Post Game Statistics"));
@@ -67,7 +67,7 @@ public abstract class PostGameStats {
             // Display teams vertically
             int teamNum = 1;
 
-            for (CBCTeam team : teams) {
+            for (CBCTeam<?> team : teams) {
 
                 // Generate team statistical display item and put it in a slot
                 ItemStack teamItem = generateTeamItem(team);
@@ -216,7 +216,7 @@ public abstract class PostGameStats {
         // Assuming list is already sorted
         List<PlayerStatObject> first = new ArrayList<>();
 
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             return first;
         }
 
@@ -297,7 +297,7 @@ public abstract class PostGameStats {
 
     }
 
-    public ItemStack createGameSummaryItemStack (Game game) {
+    public ItemStack createGameSummaryItemStack (Game<?, ?> game) {
 
         // Add general game stat item
         ItemStack gameSummaryItem = game.getGamemode().getGamemodeIconItem();

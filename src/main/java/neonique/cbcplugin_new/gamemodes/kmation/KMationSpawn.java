@@ -91,7 +91,7 @@ public class KMationSpawn extends Location {
             }
         }
 
-        return enemiesNearby.size() > 0;
+        return !enemiesNearby.isEmpty();
     }
 
     public Collection<Player> getEnemiesNearby (Location loc, CBCPlayer ownPlayer, double radius) {

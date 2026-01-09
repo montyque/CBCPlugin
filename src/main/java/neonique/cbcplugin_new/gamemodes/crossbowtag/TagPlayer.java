@@ -39,8 +39,8 @@ public class TagPlayer extends CBCPlayer {
     private boolean inGame = true;
 
     public TagPlayer(TagGame game, GameManager gameManager, CombatManager combatManager,
-                     Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+                     Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
     }
 
@@ -97,7 +97,7 @@ public class TagPlayer extends CBCPlayer {
         setTempImmune(60);
 
         // Teleport player back to tagger spawn
-        TagTeam tagTeam = (TagTeam) getTeam();
+        TagTeam tagTeam = game.getTypedTeam(getTeam());
         teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn(), game.getMap().getMapCentre());
 
         if (isTagger()) {
@@ -156,8 +156,7 @@ public class TagPlayer extends CBCPlayer {
                 if (taggerTeam != null) {
                     taggerTeam.evaderKill();
                     if (playerKiller != null) {
-                        // Give player credit for points
-                        TagPlayer tagPlayer = (TagPlayer) playerKiller;
+                        TagPlayer tagPlayer = game.getTypedPlayer(playerKiller);
                         tagPlayer.addEvaderKill();
                     }
                 }
@@ -181,8 +180,8 @@ public class TagPlayer extends CBCPlayer {
 
         }
 
-        game.getSidebarManager().updateServerBoard();
-        game.getBossbarManager().update();
+        game.updateServerSidebar();
+        game.updateBossbarManager();
 
     }
 
@@ -210,7 +209,7 @@ public class TagPlayer extends CBCPlayer {
         // Give team score increase of one
         if (getTeam() == null) return;
 
-        TagTeam tagTeam = (TagTeam) getTeam();
+        TagTeam tagTeam = game.getTypedTeam(getTeam());
         float multiplier = (float) game.getMaxScorePerSecond() / tagTeam.getInGamePlayers().size();
 
         tagTeam.playerSurvivalScore(1 * multiplier);
@@ -226,7 +225,7 @@ public class TagPlayer extends CBCPlayer {
 
         // Give team score increase of one
         if (getTeam() == null) return;
-        TagTeam tagTeam = (TagTeam) getTeam();
+        TagTeam tagTeam = game.getTypedTeam(getTeam());
 
         tagTeam.playerSurvivalScore(survivalBonus);
         pointsScored += survivalBonus;
@@ -297,4 +296,5 @@ public class TagPlayer extends CBCPlayer {
         bonusGameScore = points;
         setGamePoints(getIntPointsScored());
     }
+
 }

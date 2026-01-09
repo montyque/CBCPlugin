@@ -8,7 +8,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class HTGPlayerNearbyGold extends BukkitRunnable {
 
-    HTGGame game;
+    private final HTGGame game;
 
     public HTGPlayerNearbyGold (HTGGame game) {
         this.game = game;
@@ -47,7 +47,7 @@ public class HTGPlayerNearbyGold extends BukkitRunnable {
         for (Player playerEntity : goldLocation.getNearbyPlayers(1.5)) {
 
             if (game.getPlayer(playerEntity) == null) continue;
-            HTGPlayer player = (HTGPlayer) game.getPlayer(playerEntity);
+            HTGPlayer player = game.getPlayer(playerEntity);
             if (!player.isAlive()) continue;
             if (!player.isOnline()) continue;
 

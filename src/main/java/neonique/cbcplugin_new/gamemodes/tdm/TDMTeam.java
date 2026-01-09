@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.tdm;
 
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -9,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-public class TDMTeam extends CBCTeam {
+public class TDMTeam extends CBCTeam<TDMPlayer> {
 
     // Set variables relating to game
     private final TDMGame game;
@@ -40,7 +39,7 @@ public class TDMTeam extends CBCTeam {
         game.updatePlacements();
         updateWithinTeamPlacements();
         // Update bossbar
-        game.getBossbarManager().update();
+        game.updateBossbarManager();
     }
 
     public int getKills() {
@@ -74,14 +73,10 @@ public class TDMTeam extends CBCTeam {
         return validSpawns.get(new Random().nextInt(validSpawns.size()));
     }
 
-    public List<CBCPlayer> sortPlayersByKills () {
-
-        List<CBCPlayer> playerList = new ArrayList<>(getPlayers());
-        playerList.sort(Comparator.comparingInt(CBCPlayer::getKills));
-        Collections.reverse(playerList);
-
+    public List<TDMPlayer> sortPlayersByKills () {
+        List<TDMPlayer> playerList = new ArrayList<>(getPlayers());
+        playerList.sort(Comparator.comparingInt(TDMPlayer::getKills).reversed());
         return playerList;
-
     }
 
     public void setPlacement (int placement, boolean tied) {
@@ -91,15 +86,13 @@ public class TDMTeam extends CBCTeam {
 
     public void updateWithinTeamPlacements () {
 
-        List<CBCPlayer> playersByKills = sortPlayersByKills();
+        List<TDMPlayer> playersByKills = sortPlayersByKills();
 
         int placement = 0;
         int currentkills = 100000;
         int i = 0;
 
-        for (CBCPlayer player : playersByKills) {
-
-            TDMPlayer tdmPlayer = (TDMPlayer) player;
+        for (TDMPlayer player : playersByKills) {
 
             boolean tied = false;
             if (player.getKills() < currentkills) {
@@ -115,7 +108,7 @@ public class TDMTeam extends CBCTeam {
                 tied = true;
             }
 
-            tdmPlayer.setWithinTeamPlacement(placement, tied);
+            player.setWithinTeamPlacement(placement, tied);
 
             i++;
 

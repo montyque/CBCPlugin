@@ -23,7 +23,7 @@ import org.bukkit.util.Vector;
 import java.time.Duration;
 import java.util.*;
 
-public class CTFTeam extends CBCTeam {
+public class CTFTeam extends CBCTeam<CTFPlayer> {
 
     // Set variables relating to game
     private final CTFGame game;
@@ -80,16 +80,6 @@ public class CTFTeam extends CBCTeam {
 
         this.flagLocation.setYaw(getAngle(new Vector(flagLocation.getX(), 0, flagLocation.getZ()), game.getMap().getMapCentre().toVector()));
         setBannerBlock();
-
-        /*AreaEffectCloud hg = (AreaEffectCloud) game.getWorld().spawnEntity(flagLocation, EntityType.AREA_EFFECT_CLOUD, CreatureSpawnEvent.SpawnReason.COMMAND,
-                hologram -> {
-                    hologram.setGravity(false);
-                    hologram.setInvulnerable(true);
-                    hologram.setCustomNameVisible(true);
-                    hologram.customName(Component.text("⚑ " + getTeamName() + " Flag ⚑").color(getColor()).decorate(TextDecoration.BOLD));
-                }
-        );*/
-
         createFlagHologram(this.flagLocation.clone().add(0, 2, 0));
 
     }
@@ -127,11 +117,10 @@ public class CTFTeam extends CBCTeam {
                 Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1000), Duration.ofMillis(150))
         );
 
-        for (CBCPlayer teamPlayer : getPlayers()) {
+        for (CTFPlayer teamPlayer : getPlayers()) {
             if (teamPlayer.isOnline()) {
 
-                CTFPlayer ctfPlayerObj = (CTFPlayer) teamPlayer;
-                Set<Player> glowingPlayers = ctfPlayerObj.getGlowingPlayers();
+                Set<Player> glowingPlayers = teamPlayer.getGlowingPlayers();
                 game.getGlowManager().updateGlowingList(teamPlayer.getPlayer(), glowingPlayers);
 
                 teamPlayer.getPlayer().playSound(teamPlayer.getPlayer().getLocation(), Sound.ITEM_CHORUS_FRUIT_TELEPORT, 100, 0);
@@ -144,7 +133,7 @@ public class CTFTeam extends CBCTeam {
         getHologram().setCustomNameVisible(false);
         flagLocation.getBlock().setType(Material.AIR);
 
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
     }
 
     public void flagCaptured() {
@@ -168,12 +157,13 @@ public class CTFTeam extends CBCTeam {
             flagLocation.getBlock().setType(Material.AIR);
         }
 
-        for (CBCPlayer player : getOnlinePlayers()) {
-            Set<Player> glowingPlayers = ((CTFPlayer) player).getGlowingPlayers();
+        for (CTFPlayer player : getPlayers()) {
+            Set<Player> glowingPlayers = player.getGlowingPlayers();
             game.getGlowManager().updateGlowingList(player.getPlayer(), glowingPlayers);
         }
 
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
+
     }
 
     public Location getFlagLocation() {
@@ -364,11 +354,11 @@ public class CTFTeam extends CBCTeam {
         return teamEliminated;
     }
 
-    public int countNonEliminatedPlayers () {
+    public void checkIfEliminated() {
+
         int nonEliminatedPlayers = 0;
-        for (CBCPlayer player : getPlayers()) {
-            CTFPlayer ctfplayer = (CTFPlayer) player;
-            if (!ctfplayer.isEliminated()) {
+        for (CTFPlayer player : getPlayers()) {
+            if (!player.isEliminated()) {
                 nonEliminatedPlayers++;
             }
         }
@@ -378,7 +368,6 @@ public class CTFTeam extends CBCTeam {
             eliminateTeam();
         }
 
-        return nonEliminatedPlayers;
     }
 
     public void setFlagsLeft(int i) {
@@ -391,7 +380,7 @@ public class CTFTeam extends CBCTeam {
             flagReset();
         }
         game.checkIfFlagsLeft();
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
     }
 
     public int getFlagsLeft() {
@@ -466,7 +455,7 @@ public class CTFTeam extends CBCTeam {
             }
         }
 
-        for (CBCPlayer teamPlayer : getPlayers()) {
+        for (CTFPlayer teamPlayer : getPlayers()) {
             if (teamPlayer.isOnline()) {
                 Player entity = teamPlayer.getPlayer();
                 entity.playSound(entity.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 200, 1);
@@ -475,7 +464,7 @@ public class CTFTeam extends CBCTeam {
                 );
             } else if (flagsLeft == 0) {
                 // Eliminate any players offline if no flags are remaining
-                ((CTFPlayer) teamPlayer).eliminatePlayer();
+                teamPlayer.eliminatePlayer();
             }
         }
     }

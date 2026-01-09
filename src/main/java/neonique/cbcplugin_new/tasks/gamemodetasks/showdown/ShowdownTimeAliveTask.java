@@ -35,6 +35,6 @@ public class ShowdownTimeAliveTask extends BukkitRunnable {
             ((ShowdownPlayer) player).incrementPlayerSecondsAlive();
         }
 
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
     }
 }

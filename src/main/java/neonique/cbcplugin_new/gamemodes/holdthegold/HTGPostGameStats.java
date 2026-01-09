@@ -30,15 +30,11 @@ public class HTGPostGameStats extends PostGameStats {
     List<PlayerStatObject> playersByGoldScore;
 
     public HTGPostGameStats (HTGGame HTGGame) {
+
         this.game = HTGGame;
 
         // Sort players on statistics
-        playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof HTGPlayer) {
-                playersList.add((HTGPlayer) player);
-            }
-        }
+        playersList = game.getPlayers();
 
         if (!playersList.isEmpty()) {
 
@@ -96,8 +92,9 @@ public class HTGPostGameStats extends PostGameStats {
         return gameSummaryItem;
     }
 
-    public ItemStack generateTeamItem (CBCTeam rawTeam) {
-        HTGTeam team = (HTGTeam) rawTeam;
+    public ItemStack generateTeamItem (CBCTeam<?> rawTeam) {
+
+        HTGTeam team = game.getTypedTeam(rawTeam);
 
         // Create item for team statistics
         ItemStack teamItem = team.getItem().clone();
@@ -115,13 +112,7 @@ public class HTGPostGameStats extends PostGameStats {
         addLoreField(teamLoreList, "Total Gold Score", String.valueOf(team.getGoldScore()), NamedTextColor.GREEN);
         addLoreBlankLine(teamLoreList);
 
-        // Get list of teams (this is converting the CBC players to showdown players)
-        List<HTGPlayer> teamPlayersList = new ArrayList<>();
-        for (CBCPlayer player : team.getPlayers()) {
-            if (player instanceof HTGPlayer) {
-                teamPlayersList.add((HTGPlayer) player);
-            }
-        }
+        List<HTGPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
 
         addLoreBlankLine(teamLoreList);
 
@@ -192,7 +183,7 @@ public class HTGPostGameStats extends PostGameStats {
         }
 
         addLoreField(playerLoreList, "Times Picked Up Gold", String.valueOf(player.getTimesGoldPickedUp()), NamedTextColor.GREEN);
-        addLoreField(playerLoreList, "Gold Holders Killed", String.valueOf(player.getGoldholdersKilled()), NamedTextColor.GREEN);
+        addLoreField(playerLoreList, "Gold Holders Killed", String.valueOf(player.getGoldHoldersKilled()), NamedTextColor.GREEN);
 
         // Set the item lore and the item meta then add item to inventory
         playerItemMeta.lore(playerLoreList);
@@ -256,6 +247,6 @@ public class HTGPostGameStats extends PostGameStats {
     @Override
     public Inventory createInventoryGui(Player user) {
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers().values()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
     }
 }

@@ -129,37 +129,33 @@ public class KMationSidebarManager extends GameSidebarManager {
         updateAllClientBoards();
     }
 
-    public void updateClientBoard (Player player) {
+    public void updateClientBoard (Player client) {
 
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
-        // Show player's position if not in bottom players list
-        KMationPlayer kMationPlayer = null;
-        if (game.getPlayer(player) != null) {
-            kMationPlayer = (KMationPlayer) game.getPlayer(player);
-            // If player cannot be seen on bottom players list, show them above the list
-            if (!bottomPlayers.contains(kMationPlayer) && !kMationPlayer.isEliminated()) {
-                // Add player string
-                clientStringList.add(getPlayerRow(kMationPlayer, true));
+        // Show player's position above list if not in bottom players list
+        KMationPlayer player = game.getPlayer(client);
+        if (player != null) {
+            if (!bottomPlayers.contains(player) && !player.isEliminated()) {
+                clientStringList.add(getPlayerRow(player, true));
             }
         }
 
         // Show bottom players
         for (KMationPlayer botPlayer : bottomPlayers) {
-            if (kMationPlayer == null) {
+            if (player == null) {
                 clientStringList.add(getPlayerRow(botPlayer, false));
-            }
-            else {
-                clientStringList.add(getPlayerRow(botPlayer, kMationPlayer.getPlayerId().equals(botPlayer.getPlayerId())));
+            } else {
+                clientStringList.add(getPlayerRow(botPlayer, botPlayer == player));
             }
         }
 
         // Show player's position if they are eliminated and show stats
-        if (kMationPlayer != null) {
+        if (player != null) {
             // If player cannot be seen on bottom players list, show them above the list
-            if (!bottomPlayers.contains(kMationPlayer) && kMationPlayer.isEliminated()) {
+            if (!bottomPlayers.contains(player) && player.isEliminated()) {
                 // Add player string
-                clientStringList.add(getPlayerRow(kMationPlayer, true));
+                clientStringList.add(getPlayerRow(player, true));
             }
 
             // Add stats
@@ -167,13 +163,13 @@ public class KMationSidebarManager extends GameSidebarManager {
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Game Kills: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(kMationPlayer.getKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(blankComponent());
         }
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
+        ClientSidebar clientSidebar = getPlayerSidebar(client);
         clientSidebar.setSidebarComponents(clientStringList);
     }
 

@@ -11,8 +11,7 @@ import java.util.Set;
 public class CTFGlowManager extends GlowManager {
 
     private CTFGame game;
-
-    private HashMap<Player, Set<Player>> glowingPlayers;
+    private final HashMap<Player, Set<Player>> glowingPlayers;
 
     public CTFGlowManager(World world, CTFGame game) {
         super(world);
@@ -59,11 +58,7 @@ public class CTFGlowManager extends GlowManager {
     public boolean isGlowing(Player client, Player player) {
         if (glowingPlayers.containsKey(client)) {
             Set<Player> glowingPlayerSet = glowingPlayers.get(client);
-            if (glowingPlayerSet.contains(player)) {
-                return true;
-            } else {
-                return false;
-            }
+            return glowingPlayerSet.contains(player);
         }
         return false;
     }

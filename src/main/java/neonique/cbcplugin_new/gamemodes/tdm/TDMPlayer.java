@@ -26,8 +26,8 @@ public class TDMPlayer extends CBCPlayer {
     private final static int KILL_PTS = 20; // Points you gain for kills
     private final static int CLUTCH_KILL_PTS = 15; // Extra points you gain for getting a kill in the clutch
 
-    public TDMPlayer(TDMGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+    public TDMPlayer(TDMGame game, GameManager gameManager, CombatManager combatManager, Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
     }
 
@@ -46,7 +46,7 @@ public class TDMPlayer extends CBCPlayer {
         // Add points up for this kill
         int killPts = KILL_PTS;
 
-        TDMTeam team = (TDMTeam) this.getTeam();
+        TDMTeam team = game.getPlayerTeam(this);
 
         // Check if team is in clutch
         if (game.getTimer() < 120) {
@@ -59,7 +59,6 @@ public class TDMPlayer extends CBCPlayer {
         addGamePoints(killPts);
 
         team.onPlayerKill();
-
         game.updateServerSidebar();
 
     }
@@ -94,6 +93,7 @@ public class TDMPlayer extends CBCPlayer {
         if (game.isPlayerGlowingEnabled()) {
             getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
         }
+
     }
 
     @Override
