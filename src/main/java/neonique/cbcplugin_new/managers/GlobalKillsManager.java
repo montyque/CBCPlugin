@@ -66,7 +66,7 @@ public class GlobalKillsManager {
 
     }
 
-    public void addPlayersKills (Collection<CBCPlayer> players) {
+    public void addPlayersKills (Collection<? extends CBCPlayer> players) {
 
         File file = getFile();
         YamlConfiguration fileConfig = YamlConfiguration.loadConfiguration(file);

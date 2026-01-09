@@ -149,55 +149,53 @@ public class CTFSidebarManager extends GameSidebarManager {
         }
 
         if (game.getGameManager().isEventGame()) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getCTFPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
         }
 
         displayToEveryone.add(blankComponent());
         updateAllClientBoards();
     }
 
-    public void updateClientBoard (Player player) {
+    public void updateClientBoard (Player client) {
 
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
-        // Client side scoreboards
-        if (game.getPlayer(player) != null) {
-
-            CTFPlayer ctfPlayer = (CTFPlayer) game.getPlayer(player);
+        CTFPlayer player = game.getPlayer(client);
+        if (player != null) {
 
             // Check if player's team is on team order on sidebar
-            if (ctfPlayer.getTeam() != null) {
-                CTFTeam team = (CTFTeam) ctfPlayer.getTeam();
-                if (teamOrderOnSidebar.containsKey(team)) {
+            CTFTeam team = game.getPlayerTeam(player);
 
+            if (team != null) {
+                if (teamOrderOnSidebar.containsKey(team)) {
                     int slot = teamOrderOnSidebar.get(team);
                     clientStringList.set(slot, getTeamRow(team, true));
-
                 }
             }
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Kills: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(ctfPlayer.getKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Defensive Kills: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(ctfPlayer.getDefensiveKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getDefensiveKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Flags Captured: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(ctfPlayer.getFlagsCaptured()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getFlagsCaptured()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(blankComponent());
 
             // Add game score
             if (game.getGameManager().isEventGame()) {
-                clientStringList.add(generateGameScoreComponent(game.getGamemode(), ctfPlayer, getComponentSpaceOfLength(11)));
+                clientStringList.add(generateGameScoreComponent(game.getGamemode(), player, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
+
         } else if (!spectatorLeaderboardComponents.isEmpty()) {
 
             // Add current leaderboard title
@@ -209,7 +207,7 @@ public class CTFSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
+        ClientSidebar clientSidebar = getPlayerSidebar(client);
         clientSidebar.setSidebarComponents(clientStringList);
     }
 

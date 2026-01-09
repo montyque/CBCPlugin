@@ -42,7 +42,7 @@ public class TDMGameCommands extends BaseTeamGameCommands {
         return tabCompletions;
     }
 
-    public void settimer(Player user, String[] args, int perms) {
+    public void settimer (Player user, String[] args, int perms) {
 
         if (checkIfPerms(user, perms, 1)) return;
 

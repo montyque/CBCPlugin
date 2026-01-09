@@ -20,26 +20,20 @@ public class AssassinGlowUpdateTask extends BukkitRunnable {
         if (this.game.isGameOver()) return;
 
         // Get all players in the world
-        for (Player player : this.game.getWorld().getPlayers()) {
+        for (AssassinPlayer player : game.getPlayers()) {
 
-            CBCPlayer playerObj = this.game.getPlayer(player);
-            if (playerObj == null) continue;
-
-            AssassinPlayer assassinPlayerObj = (AssassinPlayer) playerObj;
-            AssassinPlayer glowingPlayer = assassinPlayerObj.getCurrentTarget();
+            AssassinPlayer glowingPlayer = player.getCurrentTarget();
 
             if (glowingPlayer == null) {
-                game.getGlowManager().updateGlowingPlayer(player, null);
-                continue;
+                game.getGlowManager().updateGlowingPlayer(player.getPlayer(), null);
+            } else if (glowingPlayer.isAlive()) {
+                game.getGlowManager().updateGlowingPlayer(player.getPlayer(), glowingPlayer.getPlayer());
+            } else {
+                game.getGlowManager().updateGlowingPlayer(player.getPlayer(), null);
             }
 
-            if (glowingPlayer.isAlive()) {
-                game.getGlowManager().updateGlowingPlayer(player, glowingPlayer.getPlayer());
-            }
-            else {
-                game.getGlowManager().updateGlowingPlayer(player, null);
-            }
         }
+
     }
 
 }

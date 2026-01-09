@@ -113,28 +113,27 @@ public class ThrowdownSidebarManager extends GameSidebarManager {
         updateAllClientBoards();
     }
 
-    public void updateClientBoard (Player player) {
+    public void updateClientBoard (Player client) {
 
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
         // Show player's stats if they are in the game
-        if (game.getPlayer(player) != null) {
-
-            ThrowdownPlayer throwdownPlayer = (ThrowdownPlayer) game.getPlayer(player);
+        ThrowdownPlayer player = game.getPlayer(client);
+        if (game.getPlayer(client) != null) {
 
             // If player cannot be seen on top players list, show
             if (!topPlayers.isEmpty()) {
-                if (!topPlayers.contains(throwdownPlayer)) {
+                if (!topPlayers.contains(player)) {
                     if (topPlayers.get(topPlayers.size() - 1).isEliminated()) clientStringList.add(getComponentSpaceOfLength(11)
                             .append(Component.text("...").color(NamedTextColor.RED)));
                     else clientStringList.add(getComponentSpaceOfLength(11).append(Component.text("...").color(NamedTextColor.GREEN)));
                     // Add player string
-                    clientStringList.add(getPlayerRow(throwdownPlayer, true));
+                    clientStringList.add(getPlayerRow(player, true));
                 }
                 else {
-                    int index = topPlayers.indexOf(throwdownPlayer);
+                    int index = topPlayers.indexOf(player);
                     if (index != -1) {
-                        clientStringList.set(index + 1, getPlayerRow(throwdownPlayer, true));
+                        clientStringList.set(index + 1, getPlayerRow(player, true));
                     }
                 }
             }
@@ -143,24 +142,24 @@ public class ThrowdownSidebarManager extends GameSidebarManager {
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Round Kills: ").color(NamedTextColor.GREEN)).append(
-                    Component.text(throwdownPlayer.getPlayerRoundKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getPlayerRoundKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Game Kills: ").color(NamedTextColor.GREEN)).append(
-                    Component.text(throwdownPlayer.getKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getKills()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Time Alive: ").color(NamedTextColor.GREEN)).append(
-                    Component.text(timerToText(throwdownPlayer.getPlayerSecondsAlive())).color(NamedTextColor.YELLOW))
+                    Component.text(timerToText(player.getPlayerSecondsAlive())).color(NamedTextColor.YELLOW))
             );
 
         }
 
         clientStringList.add(blankComponent());
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
+        ClientSidebar clientSidebar = getPlayerSidebar(client);
         clientSidebar.setSidebarComponents(clientStringList);
     }
 }

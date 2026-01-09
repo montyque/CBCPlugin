@@ -1,15 +1,14 @@
 package neonique.cbcplugin_new.gamemodes.tdm;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.tdm.TDMGameTimerTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.tdm.TDMStartGameTimer;
@@ -25,24 +24,19 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import java.time.Duration;
 import java.util.*;
 
-public class TDMGame extends TeamGame {
-
-    // Create list of teams
-    protected final List<TDMTeam> teams = new ArrayList<>();
+public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
 
     // Game related variables
-    protected boolean gameByTimer; // If this is set to false, this means the game is by kills
-    protected boolean timerEnabled = false;
-    protected int overtimeThreshold = 2;
-    protected boolean overtime = false;
-    protected int overtimeKillsToWin;
-    protected int maxTimer;
-    protected int timer;
-    protected int killsToWin;
-    protected boolean playersGlow = true;
+    private boolean gameByTimer; // If this is set to false, this means the game is by kills
+    private boolean timerEnabled = false;
+    private int overtimeThreshold = 2;
+    private boolean overtime = false;
+    private int overtimeKillsToWin;
+    private int maxTimer;
+    private int timer;
+    private boolean playersGlow = true;
 
     // Map related variables
-    private TDMMap map;
     protected boolean randomSpawnsEnabled;
     protected List<TDMSpawn> spawns;
     protected HashMap<String, Set<Location>> teamSpawns;
@@ -52,25 +46,51 @@ public class TDMGame extends TeamGame {
     protected TDMGameTimerTask tdmGameTimerTask;
     protected PlayerNoMove playerNoMoveListener;
 
-    public TDMGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public TDMGame(GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
-    public void setupGame(CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                          HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.TDM;
+    }
+
+    @Override
+    public TDMTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
+        return new TDMTeam(this, team.getTeamId(),
+                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
+                team.getPrefix(), team.getItem(), team.getGlassHead()
+        );
+    }
+
+    @Override
+    public TDMPlayer createGamemodePlayer (Player playerEntity) {
+        return new TDMPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
+
+    @Override
+    public GameSidebarManager createSidebarManager() {
+        return new TDMSidebarManager(getGameManager(), getCombatManager(), this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager() {
+        return new TDMBossbarManager(this);
+    }
+
+    @Override
+    public void setupGame (GameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
 
         // Setup map
-        setupMap(mapChosen);
+        setupMap((TDMMap) ctx.getMap());
 
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
         // Set gamemode information
-        setGamemode(CBCGamemode.TDM);
         createHeaderTitle();
 
         // Enable weapons
@@ -78,25 +98,23 @@ public class TDMGame extends TeamGame {
         gameManager.resetPlayerList();
 
         // Setup gamemode specific game variables
-        this.gameByTimer = boolVars.getOrDefault("gameByTimer", true);
-        if (this.gameByTimer) {
-            this.maxTimer = intVars.getOrDefault("gameTimer", 600);
-            this.overtimeThreshold = intVars.getOrDefault("overtimeThreshold", 2);
-            this.timer = maxTimer;
-        } else {
-            this.killsToWin = intVars.getOrDefault("killsToWin", 50);
+        gameByTimer = ctx.getBoolVars().getOrDefault("gameByTimer", true);
+        if (gameByTimer) {
+            maxTimer = ctx.getIntVars().getOrDefault("gameTimer", 600);
+            overtimeThreshold = ctx.getIntVars().getOrDefault("overtimeThreshold", 2);
+            timer = maxTimer;
         }
 
-        this.playersGlow = boolVars.getOrDefault("playersGlow", true);
+        playersGlow = ctx.getBoolVars().getOrDefault("playersGlow", true);
 
         // Setup game commands
         setGameCommands(new TDMGameCommands(gameManager, combatManager, this));
 
-        createTeams(teams);
+        createTeams(ctx.getTeams());
         teleportSpectators();
 
         // Teleport all players
-        for (TDMTeam team : this.teams) {
+        for (TDMTeam team : getTeams()) {
 
             team.setSpawns(teamSpawns.get(team.getTeamId()));
             List<Location> teamSpawnList = new ArrayList<>(team.getSpawns());
@@ -104,10 +122,9 @@ public class TDMGame extends TeamGame {
 
             // Spawn each player in the team in different spawnpoints
             int playerinc = 0;
-            for (CBCPlayer player : team.getPlayers()) {
-                TDMPlayer tdmPlayer = (TDMPlayer) player;
-                tdmPlayer.resetPlayer();
-                tdmPlayer.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()));
+            for (TDMPlayer player : team.getPlayers()) {
+                player.resetPlayer();
+                player.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()));
                 playerinc++;
             }
 
@@ -132,32 +149,9 @@ public class TDMGame extends TeamGame {
 
     }
 
-    public CBCTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        TDMTeam createdTeam = new TDMTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
-        );
-        teams.add(createdTeam);
-        return createdTeam;
-    }
+    public void setupMap (TDMMap map) {
 
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new TDMPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
-
-    public GameSidebarManager createSidebarManager() {
-        return new TDMSidebarManager(getGameManager(), getCombatManager(), this);
-    }
-
-    @Override
-    public GameBossBarManager createBossbarManager() {
-        return new TDMBossbarManager(this);
-    }
-
-    public void setupMap (CBCMap generalMap) {
-
-        super.setupMap(generalMap);
-        map = (TDMMap) generalMap;
+        super.setupMap(map);
 
         // Get team spawns
         teamSpawns = map.getTeamSpawns();
@@ -169,20 +163,22 @@ public class TDMGame extends TeamGame {
         } else {
             randomSpawnsEnabled = false;
         }
+
     }
 
     public void startGame () {
 
-        map.fillBlocksAtEnd();
+        getMap().fillBlocksAtEnd();
 
         PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);
         playerNoMoveListener = null;
 
         // Initialise all players
-        for (TDMTeam team : teams) {
-            for (CBCPlayer player : team.getOnlinePlayers()) {
-                TDMPlayer tdmPlayer = (TDMPlayer) player;
-                tdmPlayer.playerRefresh();
+        for (TDMTeam team : getTeams()) {
+            for (TDMPlayer player : team.getPlayers()) {
+                if (player.isOnline()) {
+                    player.playerRefresh();
+                }
             }
         }
 
@@ -234,20 +230,6 @@ public class TDMGame extends TeamGame {
         return new TDMPostGameStats(this);
     }
 
-    @Override
-    public void playerJoinServer(Player player) {
-        super.playerJoinServer(player);
-        // Handle sidebar
-        getSidebarManager().addPlayerSidebar(player);
-    }
-
-    @Override
-    public void playerLeaveServer(Player player) {
-        super.playerLeaveServer(player);
-        // Handle sidebar
-        getSidebarManager().removePlayerSidebar(player);
-    }
-
     public void timerMessage(Component message, float pitch) {
 
         getGameManager().sendGlobalMessage(message);
@@ -284,46 +266,31 @@ public class TDMGame extends TeamGame {
     }
 
     public List<TDMTeam> getLeadingTeams() {
-
-        // Figure out which team is currently leading
-        List<TDMTeam> teamsLeading = new ArrayList<>();
-        int highestKills = 0;
-        for (TDMTeam team : teams) {
-
-            if (team.getKills() > highestKills) {
-                teamsLeading.clear();
-                teamsLeading.add(team);
-                highestKills = team.getKills();
-            } else if (team.getKills() == highestKills) {
-                teamsLeading.add(team);
-            }
-        }
-
-        return teamsLeading;
-
+        Optional<Integer> maxKills = getTeams().stream().map(TDMTeam::getKills).max(Comparator.naturalOrder());
+        return maxKills.map(max -> getTeams().stream().filter(t -> t.getKills() == max).toList()).orElseGet(ArrayList::new);
     }
 
     public void checkWinner() {
         // Check for the winning team
         List<TDMTeam> leadingTeams = getLeadingTeams();
 
-        // If the amount of teams in the lead is 1, then end the game
+        // If single team leads, end game, otherwise go to overtime
         if (leadingTeams.size() == 1) {
             TDMTeam winningTeam = leadingTeams.get(0);
             gameWon(winningTeam);
         } else {
-            // Go to overtime - last team to get a kill wins
             startOvertime();
         }
+
     }
 
     public void startOvertime() {
 
         overtime = true;
 
-        // Find the highest kill amount, set overtime threshold to that plus two
+        // Find the highest kill amount, set winning threshold to that plus
         int highestKills = 0;
-        for (TDMTeam team : teams) {
+        for (TDMTeam team : getTeams()) {
             if (team.getKills() > highestKills) {
                 highestKills = team.getKills();
             }
@@ -332,29 +299,23 @@ public class TDMGame extends TeamGame {
         overtimeKillsToWin = highestKills + overtimeThreshold;
 
         // Reset all players
-        for (TDMTeam team : teams) {
-            for (CBCPlayer player : team.getOnlinePlayers()) {
-                TDMPlayer tdmPlayer = (TDMPlayer) player;
-                tdmPlayer.resetPlayer();
-                if (tdmPlayer.isRespawning()) {
-                    getCombatManager().playerRespawn(player);
-                }
-                else {
-                    tdmPlayer.playerRefresh();
-                }
-            }
+        for (TDMTeam team : getTeams()) {
 
             // Teleport all players back to team spawns
             List<Location> teamSpawnList = new ArrayList<>(team.getSpawns());
             Collections.shuffle(teamSpawnList);
 
-            int playerinc = 0; // Increments every time we teleport a player
-            for (CBCPlayer player : team.getPlayers()) {
-                TDMPlayer tdmPlayer = (TDMPlayer) player;
-                // Spawns players in different spawnpoints - reason playerinc is used
-                tdmPlayer.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()));
-                playerinc++;
+            int playerInc = 0;
+            for (TDMPlayer player : team.getOnlinePlayers()) {
+                if (player.isRespawning()) {
+                    getCombatManager().playerRespawn(player);
+                } else {
+                    player.playerRefresh();
+                }
+                player.teleportPlayerToSpawn(teamSpawnList.get(playerInc % teamSpawnList.size()));
+                playerInc++;
             }
+
         }
 
         // Play sound
@@ -385,6 +346,7 @@ public class TDMGame extends TeamGame {
 
         // Update bossbar
         updateBossbarManager();
+
     }
 
     public void killDuringOvertime (TDMTeam team) {
@@ -394,18 +356,15 @@ public class TDMGame extends TeamGame {
         }
     }
 
-    public void gameWon (CBCTeam team) {
+    public void gameWon (TDMTeam team) {
 
         super.gameWon(team);
 
         // Add bonus points for winning
-        for (CBCPlayer player : team.getPlayers()) {
+        for (TDMPlayer player : team.getPlayers()) {
             player.addGamePoints(40);
         }
 
-        // Update bossbar
-        updateBossbarManager();
-        updateServerSidebar();
     }
 
     public void resetGame() {
@@ -419,23 +378,12 @@ public class TDMGame extends TeamGame {
 
     public List<TDMTeam> getTeamsByKills() {
 
-        List<TDMTeam> sortedTeamList = new ArrayList<>(teams);
+        List<TDMTeam> sortedTeamList = new ArrayList<>(getTeams());
         sortedTeamList.sort(Comparator.comparingInt(TDMTeam::getKills));
         Collections.reverse(sortedTeamList);
 
         return sortedTeamList;
 
-    }
-
-    public List<TDMPlayer> getTDMPlayers () {
-        // Get all players as TDMPlayer objects
-        List<TDMPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            if (player instanceof TDMPlayer) {
-                playersList.add((TDMPlayer) player);
-            }
-        }
-        return playersList;
     }
 
     public String timerToText() {
@@ -452,10 +400,6 @@ public class TDMGame extends TeamGame {
 
     public boolean isGameByTimer() {
         return gameByTimer;
-    }
-
-    public List<TDMTeam> getTeams() {
-        return teams;
     }
 
     public List<TDMSpawn> getRandomSpawns() {

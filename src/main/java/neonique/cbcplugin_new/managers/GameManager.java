@@ -3,24 +3,13 @@ package neonique.cbcplugin_new.managers;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.enums.*;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.BaseGameCommands;
 import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.gamemodes._base.TeamGame;
-import neonique.cbcplugin_new.gamemodes.assassin.AssassinGame;
-import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
-import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
-import neonique.cbcplugin_new.gamemodes.flagrush.FlagRushGame;
-import neonique.cbcplugin_new.gamemodes.holdthegold.HTGGame;
-import neonique.cbcplugin_new.gamemodes.kmation.KMationGame;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.gamemodes.koth.KOTHGame;
-import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousGame;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
-import neonique.cbcplugin_new.gamemodes.tdm.MapRushTDMGame;
-import neonique.cbcplugin_new.gamemodes.tdm.TDMGame;
-import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownGame;
-import neonique.cbcplugin_new.services.WeaponPresetService;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
@@ -58,12 +47,12 @@ public class GameManager {
     private final Lobby lobby;
 
     private HashMap<UUID, CBCPlayer> playerList;
-    private HashMap<Integer, CBCPlayer> playerIdList;
 
     private final UUID worldUUID;
 
     // Gamemodes and classes
     private LinkedHashMap<CBCGamemode, GamemodeOptions> gamemodes;
+
     // Loaded maps
     private HashMap<Integer, CBCGamemode> gamemodeToIntList;
     private HashMap<CBCGamemode, List<CBCMap>> gamemodeAndMapList;
@@ -75,8 +64,8 @@ public class GameManager {
     // Other statistics
     private PostGameStats lastGameStats = null;
 
-    private Game currentGame = null;
-    private Game lastGame = null;
+    private Game<?, ?> currentGame = null;
+    private Game<?, ?> lastGame = null;
     private BaseGameCommands gameCommands = null;
 
     // Join and leave listeners
@@ -105,23 +94,27 @@ public class GameManager {
     public GameManager(CBCPlugin plugin) {
 
         this.plugin = plugin;
+
         worldUUID = Objects.requireNonNull(Bukkit.getWorld("world")).getUID();
+
+        // Create managers
         combatManager = new CombatManager(this);
         practiceManager = new PracticeManager(this, combatManager);
         chatManager = new ChatManager(this);
         globalKillsManager = new GlobalKillsManager();
+        cbcScoreboardManager = new CBCScoreboardManager(this, Bukkit.getScoreboardManager());
 
         gameState = GameState.DISABLED;
         lobby = new Lobby(this);
 
+        // Create required listeners and tasks
         gameJoinListener = new GameJoinListener(this);
         gameLeaveListener = new GameLeaveListener(this);
         plugin.getServer().getPluginManager().registerEvents(gameJoinListener, plugin);
         plugin.getServer().getPluginManager().registerEvents(gameLeaveListener, plugin);
 
-        cbcScoreboardManager = new CBCScoreboardManager(this, Bukkit.getScoreboardManager());
-
         loadMaps();
+
     }
 
     public void loadMaps () {
@@ -165,8 +158,8 @@ public class GameManager {
                 "King Of The Hill", true, 1, 8));
 
         // FLAG RUSH GAMEMODE
-        gamemodes.put(CBCGamemode.FLAGRUSH, new GamemodeOptions(CBCGamemode.FLAGRUSH, "flagrush",
-                "Flag Rush", true, 2, 4));
+        /* gamemodes.put(CBCGamemode.FLAGRUSH, new GamemodeOptions(CBCGamemode.FLAGRUSH, "flagrush",
+                "Flag Rush", true, 2, 4))*/;
 
         // THROWDOWN GAMEMODE
         gamemodes.put(CBCGamemode.THROWDOWN, new GamemodeOptions(CBCGamemode.THROWDOWN, "throwdown",
@@ -208,9 +201,6 @@ public class GameManager {
 
             // Search for folder in the "gamemodes" folder named after the gamemode
             File gamemodeFolderFile = new File(gamemodeMasterFolderFile, gamemodeId);
-            if (gamemode == CBCGamemode.FLAGRUSH) {
-                gamemodeFolderFile = new File(gamemodeMasterFolderFile, "ctf");
-            }
 
             if (!gamemodeFolderFile.exists()) {
                 // Folder does not exist, therefore one will be created
@@ -233,6 +223,7 @@ public class GameManager {
                 CBCPlugin.getPlugin().getLogger().warning("Could not find files in " + gamemodeMapsFolderFile.getPath());
                 continue;
             }
+
             CBCPlugin.getPlugin().getLogger().info(mapFiles.length + " files found in " + gamemodeMapsFolderFile.getPath());
             // Iterate through each yml file
             List<CBCMap> mapList = new ArrayList<>();
@@ -380,38 +371,11 @@ public class GameManager {
 
         // Start the game depending on the gamemode
         try {
+
             cbcScoreboardManager.activate();
-            if (gamemode == CBCGamemode.SHOWDOWN) {
-                currentGame = new ShowdownGame(this, combatManager);
-            } else if (gamemode == CBCGamemode.CTF) {
-                currentGame = new CTFGame(this, combatManager);
-            } else if (gamemode == CBCGamemode.HOLDTHEGOLD) {
-                currentGame = new HTGGame(this, combatManager);
-            } else if (gamemode == CBCGamemode.TDM) {
-                if (map.isMapRush()) {
-                    currentGame = new MapRushTDMGame(this, combatManager);
-                }
-                else {
-                    currentGame = new TDMGame(this, combatManager);
-                }
-            } else if (gamemode == CBCGamemode.RENDEZVOUS) {
-                currentGame = new RendezvousGame(this, combatManager);
-            } else if (gamemode == CBCGamemode.CBCTAG) {
-                currentGame = new TagGame(this, combatManager);
-            } else if (gamemode == CBCGamemode.KOTH) {
-                currentGame = new KOTHGame(this, combatManager);
-            } else if (gamemode == CBCGamemode.FLAGRUSH) {
-                currentGame = new FlagRushGame(this, combatManager);
-            } else if (gamemode == CBCGamemode.THROWDOWN) {
-                currentGame = new ThrowdownGame(this, combatManager);
-            } else if (gamemode == CBCGamemode.KMATION) {
-                currentGame = new KMationGame(this, combatManager);
-            } else if (gamemode == CBCGamemode.ASSASSIN) {
-                currentGame = new AssassinGame(this, combatManager);
-            }
-
-            currentGame.setupGame(map, lobby.getTeams(), lobby.getLobbyPlayersPlayingAndOnline(), boolVars, intVars, stringVars);
-
+            currentGame = gamemode.getGame(this);
+            GameContext ctx = new GameContext(map, lobby.getTeams(), lobby.getLobbyPlayersPlayingAndOnline(), boolVars, intVars, stringVars);
+            currentGame.setupGame(ctx);
             gameCommands = currentGame.getGameCommands();
 
             // Set weapon presets
@@ -419,7 +383,6 @@ public class GameManager {
             weaponFactory.setCreeperVar((CreeperPreset) lobby.getWeaponPreset(WeaponType.CREEPER));
             weaponFactory.setFlameVar((FlamePreset) lobby.getWeaponPreset(WeaponType.FLAME));
             weaponFactory.setXbowVar((XbowPreset) lobby.getWeaponPreset(WeaponType.XBOW));
-
             lobby.putTeamOverridesPresetsIntoWeaponManager();
 
         } catch (Exception e) {
@@ -478,7 +441,7 @@ public class GameManager {
         // If event is active and game is counted as an event game, run end game function
         if (isCBCEventActive()) {
             if (eventManager.isLastGameEventGame()) {
-                if (currentGame instanceof TeamGame eventGame) {
+                if (currentGame instanceof TeamGame<?, ?, ?> eventGame) {
                     eventManager.eventGameEnded(eventGame);
                 }
             }
@@ -496,7 +459,7 @@ public class GameManager {
         // Setup lobby
         startLobby();
 
-        Game game = currentGame;
+        Game<?, ?> game = currentGame;
         lastGame = currentGame;
 
         // No more game
@@ -504,43 +467,29 @@ public class GameManager {
         gameCommands = null;
 
         // Restore teams if the game is a team game
-        if (game instanceof TeamGame teamGame) {
+        if (game instanceof TeamGame<?, ?, ?> teamGame) {
             // Check if teams should be restored
             if (teamGame.isRestoreTeamsAfterGame()) {
-
                 lobby.restoreTeams(teamGame.getPlayersTeamIds());
-
             }
         }
 
         // Update global kills
         if (game.isGlobalKillsEnabled()) {
-            globalKillsManager.addPlayersKills(game.getPlayers().values());
+            globalKillsManager.addPlayersKills(game.getPlayers());
         }
     }
 
     public void resetPlayerList () {
         playerList = new HashMap<>();
-        playerIdList = new HashMap<>();
     }
 
-    public void addPlayer (CBCPlayer player, int playerId) {
+    public void addPlayer (CBCPlayer player) {
         playerList.put(player.getOfflinePlayer().getUniqueId(), player);
-        playerIdList.put(playerId, player);
     }
 
     public void removePlayer (CBCPlayer player) {
         playerList.remove(player.getOfflinePlayer().getUniqueId());
-        playerIdList.remove(player.getPlayerId());
-    }
-
-    public void replacePlayerEntityKey(Player origin, Player newPlayer) {
-        if (playerList.containsKey(origin.getUniqueId())) {
-            CBCPlayer cbcPlayer = playerList.get(origin.getUniqueId());
-            playerList.remove(origin.getUniqueId());
-            playerList.put(newPlayer.getUniqueId(), cbcPlayer);
-            cbcPlayer.setNewPlayer(newPlayer);
-        }
     }
 
     public GameState getGameState () {
@@ -581,14 +530,6 @@ public class GameManager {
         return this.playerList.containsKey(player.getUniqueId());
     }
 
-    public boolean hasPlayerId (Integer id) {
-        return this.playerIdList.containsKey(id);
-    }
-
-    public CBCPlayer getPlayerById (Integer id) {
-        return this.playerIdList.get(id);
-    }
-
     public Collection<CBCPlayer> getPlayers () {
         return playerList.values();
     }
@@ -607,7 +548,7 @@ public class GameManager {
         return this.playerList.getOrDefault(player.getUniqueId(), null);
     }
 
-    public Game getCurrentGame() {
+    public Game<?, ?> getCurrentGame() {
         return currentGame;
     }
 
@@ -812,7 +753,7 @@ public class GameManager {
         else return (eventManager.getNextGameNum() <= CBCEventManager.getGameAmount() + 1);
     }
 
-    public Game getLastGame() {
+    public Game<?, ?> getLastGame() {
         return lastGame;
     }
 

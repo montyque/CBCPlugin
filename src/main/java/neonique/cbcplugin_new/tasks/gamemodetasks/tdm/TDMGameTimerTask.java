@@ -22,5 +22,6 @@ public class TDMGameTimerTask extends BukkitRunnable {
         if (game.isGameByTimer()) {
             game.decrementTimer();
         }
+
     }
 }

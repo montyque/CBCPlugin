@@ -7,7 +7,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.inventory.ItemStack;
 
-public class ShowdownTeam extends CBCTeam {
+public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
 
     // Set variables relating to showdown game
     private final ShowdownGame game;
@@ -24,12 +24,14 @@ public class ShowdownTeam extends CBCTeam {
         teamAlive = false;
     }
 
-    public int getRoundsWon () {return roundsWon;}
+    public int getRoundsWon () {
+        return roundsWon;
+    }
 
     public void teleportPlayers (ShowdownSpawn spawn) {
-        for (CBCPlayer player : getOnlinePlayers()) {
+        for (ShowdownPlayer player : getOnlinePlayers()) {
             player.teleportPlayerToSpawn(spawn, game.getMap().getMapCentre());
-            ((ShowdownPlayer) player).playerSetupRound();
+            player.playerSetupRound();
         }
     }
 
@@ -61,12 +63,14 @@ public class ShowdownTeam extends CBCTeam {
     public void reviveTeam () {
 
         teamAlive = true;
+
         // Send message
         game.getGameManager().sendGlobalMessage(
                 Component.text("TEAM REVIVED > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
                         .append(Component.text(getTeamName()).decorate(TextDecoration.BOLD).color(getColor()))
                         .append(Component.text(" has been revived as at least one member is back alive!").decoration(TextDecoration.BOLD, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
         );
+
     }
 
     public void teamWonRound () {

@@ -1,8 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.holdthegold;
 
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.attribute.Attribute;
@@ -65,7 +63,7 @@ public class HTGBossbarManager extends GameBossBarManager {
             setServerText(3, goldComponent);
         }
         else {
-            CBCTeam winner = game.getWinner();
+            HTGTeam winner = game.getWinner();
             setServerText(3, smallRaisedText(winner.getTeamName() + " WINS!").color(winner.getColor()));
         }
 
@@ -95,10 +93,9 @@ public class HTGBossbarManager extends GameBossBarManager {
             int j = 0;
 
             Component teamComponent = Component.text("");
+            Collection<HTGPlayer> players = team.getPlayers();
 
-            Collection<CBCPlayer> players = team.getPlayers();
-
-            for (CBCPlayer player : players) {
+            for (HTGPlayer player : players) {
 
                 j++;
 
@@ -125,11 +122,8 @@ public class HTGBossbarManager extends GameBossBarManager {
                 }
 
                 // Check if player has gold
-                if (goldHolder != null) {
-                    if (goldHolder.getPlayerId().equals(player.getPlayerId())) {
-                        // Add gold icon
-                        playerComponent = playerComponent.append(Component.text("\uF808\uF801\uE462\uF821").color(NamedTextColor.WHITE));
-                    }
+                if (goldHolder != null && goldHolder == player) {
+                    playerComponent = playerComponent.append(Component.text("\uF808\uF801\uE462\uF821").color(NamedTextColor.WHITE));
                 }
 
                 teamComponent = teamComponent.append(playerComponent);

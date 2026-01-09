@@ -29,22 +29,11 @@ public class ThrowdownStartRoundTimer extends BaseStartGameTimer {
 
         GameManager gameManager = getGameManager();
 
-        CBCTeam team = null;
-        if (gameManager.hasPlayer(player)) {
-            if (gameManager.getPlayer(player).getTeam() != null) {
-                team = gameManager.getPlayer(player).getTeam();
-            }
-        }
-
         Component titleComponent;
         Component subtitleComponent;
 
         TextColor textColor = game.getGamemodeColor();
         NamedTextColor teamColor = NamedTextColor.WHITE;
-        if (team != null) {
-            textColor = team.getColor();
-            teamColor = null;
-        }
 
         String gamemodeUnicode = game.getGamemode().getUnicodeIcon(teamColor);
 

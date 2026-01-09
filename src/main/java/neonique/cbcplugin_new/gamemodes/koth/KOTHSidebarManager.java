@@ -20,7 +20,7 @@ public class KOTHSidebarManager extends GameSidebarManager {
     private final KOTHGame game;
 
     private final List<Component> displayToEveryone = new ArrayList<>();
-    private final HashMap<CBCTeam, Integer> teamOrderOnSidebar = new HashMap<>();
+    private final HashMap<KOTHTeam, Integer> teamOrderOnSidebar = new HashMap<>();
 
     private SidebarStatCycle<KOTHPlayer> statCycle;
     private List<Component> spectatorLeaderboardComponents = new ArrayList<>();
@@ -133,24 +133,23 @@ public class KOTHSidebarManager extends GameSidebarManager {
         }
 
         if (game.getGameManager().isEventGame()) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getKOTHPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
         }
 
         displayToEveryone.add(blankComponent());
         updateAllClientBoards();
     }
 
-    public void updateClientBoard (Player player) {
+    public void updateClientBoard (Player client) {
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
         // Client side scoreboards
-        if (game.getPlayer(player) != null) {
-
-            KOTHPlayer kothPlayer = (KOTHPlayer) game.getPlayer(player);
+        KOTHPlayer player = game.getPlayer(client);
+        if (player != null) {
 
             // Check if player's team is on team order on sidebar
-            if (kothPlayer.getTeam() != null) {
-                KOTHTeam team = (KOTHTeam) kothPlayer.getTeam();
+            if (player.getTeam() != null) {
+                KOTHTeam team = (KOTHTeam) player.getTeam();
                 if (teamOrderOnSidebar.containsKey(team)) {
 
                     int slot = teamOrderOnSidebar.get(team);
@@ -161,31 +160,32 @@ public class KOTHSidebarManager extends GameSidebarManager {
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Kills: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(kothPlayer.getKills()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getKills()).color(NamedTextColor.YELLOW))
             );
 
             // Make color aqua of time of hill stat if player is currently in the hill
             NamedTextColor color = NamedTextColor.YELLOW;
-            if (kothPlayer.isInHill()) {
+            if (player.isInHill()) {
                 color = NamedTextColor.AQUA;
             }
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Time In Hill: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(timerToText(kothPlayer.getSecondsInHill())).color(color))
+                    Component.text(timerToText(player.getSecondsInHill())).color(color))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Points Defended: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(kothPlayer.getPointsDefended()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getPointsDefended()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(blankComponent());
 
             // Add game score
             if (game.getGameManager().isEventGame()) {
-                clientStringList.add(generateGameScoreComponent(game.getGamemode(), kothPlayer, getComponentSpaceOfLength(11)));
+                clientStringList.add(generateGameScoreComponent(game.getGamemode(), player, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
+
         } else if (!spectatorLeaderboardComponents.isEmpty()) {
 
             // Add current leaderboard title
@@ -197,7 +197,7 @@ public class KOTHSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
+        ClientSidebar clientSidebar = getPlayerSidebar(client);
         clientSidebar.setSidebarComponents(clientStringList);
 
     }

@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.cbcevents.CBCEventTeam;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gameobjects.GamemodeOptions;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.managers.CBCScoreboardManager;
@@ -21,7 +21,6 @@ import java.util.*;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.normalText;
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
-import static neonique.cbcplugin_new.util.StringUtil.firstLetterUpper;
 import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
 
 public class LobbySidebarManager {

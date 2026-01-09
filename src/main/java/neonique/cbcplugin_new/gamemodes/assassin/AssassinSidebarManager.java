@@ -116,20 +116,20 @@ public class AssassinSidebarManager extends GameSidebarManager {
         updateAllClientBoards();
     }
 
-    public void updateClientBoard (Player player) {
+    public void updateClientBoard (Player client) {
 
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
-        // Show player's stats if they are in the game
-        if (game.getPlayer(player) != null) {
+        // Show client's stats if they are in the game
+        if (game.getPlayer(client) != null) {
 
-            AssassinPlayer assassinPlayer = (AssassinPlayer) game.getPlayer(player);
+            AssassinPlayer assassinPlayer = game.getPlayer(client);
 
-            // If player cannot be seen on top players list, show
+            // If client cannot be seen on top players list, show
             if (!topPlayers.isEmpty()) {
                 if (!topPlayers.contains(assassinPlayer)) {
                     clientStringList.add(blankComponent());
-                    // Add player string
+                    // Add client string
                     clientStringList.add(getPlayerRow(assassinPlayer, true));
                 }
                 else {
@@ -155,7 +155,7 @@ public class AssassinSidebarManager extends GameSidebarManager {
 
         clientStringList.add(blankComponent());
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
+        ClientSidebar clientSidebar = getPlayerSidebar(client);
         clientSidebar.setSidebarComponents(clientStringList);
 
     }

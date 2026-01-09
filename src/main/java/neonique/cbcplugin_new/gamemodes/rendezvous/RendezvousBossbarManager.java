@@ -1,10 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.rendezvous;
 
-import neonique.cbcplugin_new.gamemodes.holdthegold.HTGGame;
-import neonique.cbcplugin_new.gamemodes.holdthegold.HTGPlayer;
-import neonique.cbcplugin_new.gamemodes.holdthegold.HTGTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.attribute.Attribute;
@@ -15,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallRaisedText;
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
 import static neonique.cbcplugin_new.util.TextUtil.timerToText;
@@ -106,11 +101,9 @@ public class RendezvousBossbarManager extends GameBossBarManager {
 
             Component teamComponent = Component.text("");
 
-            Collection<CBCPlayer> players = team.getPlayers();
+            Collection<RendezvousPlayer> players = team.getPlayers();
 
-            for (CBCPlayer player : players) {
-
-                RendezvousPlayer rdvPlayer = (RendezvousPlayer) player;
+            for (RendezvousPlayer player : players) {
 
                 j++;
 
@@ -137,7 +130,7 @@ public class RendezvousBossbarManager extends GameBossBarManager {
                 }
 
                 // Check if player has gold
-                if (rdvPlayer.isPlayerRunner()) {
+                if (player.isPlayerRunner()) {
                     // Add gold icon
                     playerComponent = playerComponent.append(Component.text("\uF808\uF802\uE470\uF801").color(team.getColor()));
                 }

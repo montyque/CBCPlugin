@@ -32,12 +32,7 @@ public class CTFPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof CTFPlayer) {
-                playersList.add((CTFPlayer) player);
-            }
-        }
+        playersList = game.getPlayers();
 
         if (!playersList.isEmpty()) {
 
@@ -133,9 +128,9 @@ public class CTFPostGameStats extends PostGameStats {
     }
 
     @Override
-    public ItemStack generateTeamItem (CBCTeam rawTeam) {
+    public ItemStack generateTeamItem (CBCTeam<?> rawTeam) {
 
-        CTFTeam team = (CTFTeam) rawTeam;
+        CTFTeam team = game.getTypedTeam(rawTeam);
 
         // Create item for team statistics
         ItemStack teamItem = team.getItem().clone();
@@ -143,14 +138,13 @@ public class CTFPostGameStats extends PostGameStats {
         List<Component> teamLoreList = new ArrayList<>();
 
         // Find team's total kills and total defensive kills
-
         int teamTotalKills = 0;
         int teamTotalDKills = 0;
         int teamTotalCaptures = 0;
-        for (CBCPlayer player : team.getPlayers()) {
+        for (CTFPlayer player : team.getPlayers()) {
             teamTotalKills += player.getKills();
-            teamTotalDKills += ((CTFPlayer) player).getDefensiveKills();
-            teamTotalCaptures += ((CTFPlayer) player).getFlagsCaptured();
+            teamTotalDKills += player.getDefensiveKills();
+            teamTotalCaptures += player.getFlagsCaptured();
         }
 
         // Add team statistics
@@ -173,12 +167,7 @@ public class CTFPostGameStats extends PostGameStats {
         }
 
         // Get list of teams (this is converting the CBC players to showdown players)
-        List<CTFPlayer> teamPlayersList = new ArrayList<>();
-        for (CBCPlayer player : team.getPlayers()) {
-            if (player instanceof CTFPlayer) {
-                teamPlayersList.add((CTFPlayer) player);
-            }
-        }
+        List<CTFPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
 
         addLoreBlankLine(teamLoreList);
 
@@ -281,6 +270,6 @@ public class CTFPostGameStats extends PostGameStats {
     public Inventory createInventoryGui (Player user) {
 
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers().values()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
     }
 }

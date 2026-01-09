@@ -6,8 +6,6 @@ import neonique.cbcplugin_new.enums.ChatType;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
-import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -16,12 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
-
-import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.normalText;
-import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 
 public class ChatManager implements Listener {
 
@@ -34,6 +27,7 @@ public class ChatManager implements Listener {
         this.chatTypes = new HashMap<>();
 
         CBCPlugin.getPlugin().getServer().getPluginManager().registerEvents(this, CBCPlugin.getPlugin());
+
     }
 
     @EventHandler
@@ -42,7 +36,7 @@ public class ChatManager implements Listener {
         Player player = e.getPlayer();
         UUID playerUUID = player.getUniqueId();
 
-        Game game = gameManager.getCurrentGame();
+        Game<?, ?> game = gameManager.getCurrentGame();
 
         // Check if game is over already
         if (game == null) return;
@@ -61,7 +55,7 @@ public class ChatManager implements Listener {
 
         // Check if player has a team
         if (cbcPlayer.getTeam() == null) return;
-        CBCTeam team = cbcPlayer.getTeam();
+        CBCTeam<?> team = cbcPlayer.getTeam();
         NamedTextColor color = cbcPlayer.getTeam().getColor();
 
         // Get current message
@@ -84,7 +78,7 @@ public class ChatManager implements Listener {
         return Component.text("[TEAM] ").color(color);
     }
 
-    public Component getChatComponentWithTeam (Player player, Component message, CBCTeam team) {
+    public Component getChatComponentWithTeam (Player player, Component message, CBCTeam<?> team) {
 
         // Add team component to the message
         Component msg = getTeamComponent(team.getColor());

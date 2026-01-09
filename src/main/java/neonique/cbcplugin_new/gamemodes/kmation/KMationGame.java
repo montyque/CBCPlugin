@@ -1,18 +1,15 @@
 package neonique.cbcplugin_new.gamemodes.kmation;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.kmation.KMationCycleTimerTask;
-import neonique.cbcplugin_new.tasks.gamemodetasks.kmation.KMationSidebarUpdate;
 import neonique.cbcplugin_new.tasks.gamemodetasks.kmation.KMationStartGameTimer;
 import neonique.cbcplugin_new.util.StringUtil;
 import net.kyori.adventure.text.Component;
@@ -20,7 +17,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scoreboard.Scoreboard;
@@ -30,7 +26,7 @@ import org.bukkit.scoreboard.Team;
 import java.time.Duration;
 import java.util.*;
 
-public class KMationGame extends FFAGame {
+public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
 
     // Game related variables
     private int cycleNumber;
@@ -49,7 +45,6 @@ public class KMationGame extends FFAGame {
     private int cycleLength;
 
     // Map related variables
-    private KMationMap map;
     private List<KMationSpawn> spawns;
 
     // Teams - for display only
@@ -61,26 +56,43 @@ public class KMationGame extends FFAGame {
     private KMationCycleTimerTask cycleTimerTask;
     private PlayerNoMove noMoveListener;
 
-    ////////////////////////////////////////////////////////////////////
-
-    public KMationGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public KMationGame (GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
-    public void setupGame(CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                          HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.KMATION;
+    }
+
+    @Override
+    public KMationPlayer createGamemodePlayer (Player playerEntity) {
+        return new KMationPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
+
+    @Override
+    public GameSidebarManager createSidebarManager () {
+        return new KMationSidebarManager(getGameManager(), getCombatManager(), this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager () {
+        return new KMationBossbarManager(this);
+    }
+
+    @Override
+    public void setupGame (GameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
 
         // Setup map
-        setupMap(mapChosen);
+        setupMap((KMationMap) ctx.getMap());
+
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
         // Set gamemode information
-        setGamemode(CBCGamemode.KMATION);
         createHeaderTitle();
 
         // Enable weapons
@@ -88,8 +100,8 @@ public class KMationGame extends FFAGame {
         gameManager.resetPlayerList();
 
         // Setup gamemode game variables
-        this.maxPlayersInFinalCycle = intVars.getOrDefault("maxPlayersInFinalCycle", 4);
-        this.cycleLength = intVars.getOrDefault("cycleLength", 60);
+        this.maxPlayersInFinalCycle = ctx.getIntVars().getOrDefault("maxPlayersInFinalCycle", 4);
+        this.cycleLength = ctx.getIntVars().getOrDefault("cycleLength", 60);
 
         // Set timer
         this.cycleTimer = this.cycleLength;
@@ -98,16 +110,17 @@ public class KMationGame extends FFAGame {
 
         // setGameCommands(new ShowdownGameCommands(gameManager, weaponManager, this));
         // Create players
-        createPlayers(players);
+        createPlayers(ctx.getPlayers());
         teleportSpectators();
 
         List<KMationSpawn> gameStartSpawns = sortSpawns();
-        List<KMationPlayer> shuffledPlayers = new ArrayList<>(getKMationPlayers());
+        List<KMationPlayer> shuffledPlayers = getPlayers();
         Collections.shuffle(shuffledPlayers);
         int spawnNum = 0;
+
         for (KMationPlayer player : shuffledPlayers) {
             if (!player.isOnline()) continue;
-            player.teleportPlayerToSpawn(gameStartSpawns.get(spawnNum), map.getMapCentre());
+            player.teleportPlayerToSpawn(gameStartSpawns.get(spawnNum), getMap().getMapCentre());
             player.playerSetupGame();
             spawnNum++;
         }
@@ -142,7 +155,7 @@ public class KMationGame extends FFAGame {
         }
 
         // Check if game starts in final cycle
-        if (getKMationPlayers().size() <= maxPlayersInFinalCycle) finalCycle = true;
+        if (getPlayers().size() <= maxPlayersInFinalCycle) finalCycle = true;
 
         // Set list of players in last
         updatePlayersInLast();
@@ -160,31 +173,45 @@ public class KMationGame extends FFAGame {
 
         // Start countdown timer
         new KMationStartGameTimer(gameManager, this, 11).runTaskTimer(plugin, 0, 20);
-    }
 
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new KMationPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
-
-    public GameSidebarManager createSidebarManager() {
-        return new KMationSidebarManager(getGameManager(), getCombatManager(), this);
     }
 
     @Override
-    public GameBossBarManager createBossbarManager() {
-        return new KMationBossbarManager(this);
+    public void resetGame() {
+
+        super.resetGame();
+
+        PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
+
+        // Cancel tasks
+        cancelTask(cycleTimerTask);
+
+        // Unregister teams
+        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(safeTeam.getName());
+        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(dangerTeam.getName());
+        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(eliminatedTeam.getName());
+
+        safeTeam.unregister();
+        dangerTeam.unregister();
+        eliminatedTeam.unregister();
+
+    }
+
+    @Override
+    public PostGameStats getPostGameStats() {
+        return new KMationPostGameStats(this);
     }
 
     public void startGame () {
 
-        map.fillBlocksAtEnd();
+        getMap().fillBlocksAtEnd();
 
         // Allow players to move
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
         noMoveListener = null;
 
         // Initialise all players
-        for (KMationPlayer player : getKMationPlayers()) {
+        for (KMationPlayer player : getPlayers()) {
             if (!player.isOnline()) return;
             player.playerStartGame();
         }
@@ -425,26 +452,6 @@ public class KMationGame extends FFAGame {
         );
     }
 
-    public void resetGame() {
-
-        super.resetGame();
-
-        PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
-
-        // Cancel tasks
-        cancelTask(cycleTimerTask);
-
-        // Unregister teams
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(safeTeam.getName());
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(dangerTeam.getName());
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(eliminatedTeam.getName());
-
-        safeTeam.unregister();
-        dangerTeam.unregister();
-        eliminatedTeam.unregister();
-
-    }
-
     public void eliminatePlayer(KMationPlayer player) {
 
         player.eliminatePlayer();
@@ -602,9 +609,8 @@ public class KMationGame extends FFAGame {
         List<KMationPlayer> playersSorted;
 
         if (includeEliminatedPlayers) {
-            playersSorted = new ArrayList<>(getKMationPlayers());
-        }
-        else {
+            playersSorted = new ArrayList<>(getPlayers());
+        } else {
             playersSorted = new ArrayList<>(getKMationPlayersInGame());
         }
 
@@ -641,15 +647,14 @@ public class KMationGame extends FFAGame {
 
     }
 
-    public void setupMap (CBCMap generalMap) {
+    public void setupMap (KMationMap map) {
 
-        super.setupMap(generalMap);
-        this.map = (KMationMap) generalMap;
-
+        super.setupMap(map);
         getCombatManager().setupMap(map);
 
         // Get spawns
         spawns = map.getKMationSpawns();
+
     }
 
     public List<KMationSpawn> sortSpawns() {
@@ -659,7 +664,7 @@ public class KMationGame extends FFAGame {
 
         // Select the first spawn
         Comparator<KMationSpawn> byDistanceFromCenter =
-                (KMationSpawn loc1, KMationSpawn loc2) -> Double.compare(loc1.distanceSquared(map.getMapCentre()), loc2.distanceSquared(map.getMapCentre()));
+                (KMationSpawn loc1, KMationSpawn loc2) -> Double.compare(loc1.distanceSquared(getMap().getMapCentre()), loc2.distanceSquared(getMap().getMapCentre()));
         roundSpawnList.sort(byDistanceFromCenter);
         Collections.reverse(roundSpawnList);
 
@@ -688,28 +693,8 @@ public class KMationGame extends FFAGame {
         return spawnOrder;
     }
 
-    public Set<KMationPlayer> getKMationPlayers() {
-        Set<KMationPlayer> players = new HashSet<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            players.add((KMationPlayer) player);
-        }
-        return players;
-    }
-
-    public Set<KMationPlayer> getKMationPlayersInGame() {
-        Set<KMationPlayer> players = new HashSet<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            KMationPlayer kMationPlayer = (KMationPlayer) player;
-            if (!kMationPlayer.isEliminated()) {
-                players.add((KMationPlayer) player);
-            }
-        }
-        return players;
-    }
-
-    @Override
-    public PostGameStats getPostGameStats() {
-        return new KMationPostGameStats(this);
+    public List<KMationPlayer> getKMationPlayersInGame() {
+        return getPlayers().stream().filter(p -> !p.isEliminated()).toList();
     }
 
     public int getCycleTimer() {

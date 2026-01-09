@@ -1,5 +1,7 @@
 package neonique.cbcplugin_new.weapons;
 
+import neonique.cbcplugin_new.managers.CombatManager;
+
 public class WeaponReloader {
 
     // Reloading variables
@@ -49,6 +51,6 @@ public class WeaponReloader {
     }
 
     public void setReloadBySecond(double seconds) {
-        setReloadProgress(reloadTime - (int) Math.round(seconds * 10));
+        setReloadProgress(reloadTime - (int) Math.round(seconds * CombatManager.RELOAD_TASK_FREQUENCY));
     }
 }

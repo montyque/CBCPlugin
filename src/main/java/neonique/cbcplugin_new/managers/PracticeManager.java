@@ -42,7 +42,6 @@ public class PracticeManager {
 
     private CBCMap currentMap;
     private List<FFASpawnpoint> spawns;
-    private int playerIdCount = 0;
 
     private final Location PRACTICE_HOLOGRAM_LOCATION;
 
@@ -122,19 +121,14 @@ public class PracticeManager {
     public void addPlayer (Player player) {
 
         PracticePlayer playerObj;
-        int playerId;
         if (allPracticePlayers.containsKey(player.getUniqueId())) {
             playerObj = allPracticePlayers.get(player.getUniqueId());
-            playerId = playerObj.getPlayerId();
-            playerObj.setNewPlayer(player);
         } else {
-            playerIdCount++;
-            playerObj = new PracticePlayer(gameManager, combatManager, this, player, playerIdCount);
+            playerObj = new PracticePlayer(gameManager, combatManager, this, player);
             allPracticePlayers.put(player.getUniqueId(), playerObj);
-            playerId = playerIdCount;
         }
 
-        gameManager.addPlayer(playerObj, playerId);
+        gameManager.addPlayer(playerObj);
         playerObj.playerSpawn();
 
         gameManager.setAudience(gameManager.getPlayerEntities());

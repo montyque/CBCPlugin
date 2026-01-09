@@ -18,13 +18,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 public abstract class BaseStartGameTimer extends BukkitRunnable {
 
     private final GameManager gameManager;
-    private final Game game;
+    private final Game<?, ?> game;
 
     private int countdownTimer;
     private int eventCountdownTimer = 6;
     private boolean firstSound = true;
 
-    public BaseStartGameTimer (GameManager gameManager, Game game, int countdownTimer) {
+    public BaseStartGameTimer (GameManager gameManager, Game<?, ?> game, int countdownTimer) {
         this.gameManager = gameManager;
         this.game = game;
         this.countdownTimer = countdownTimer;
@@ -116,7 +116,7 @@ public abstract class BaseStartGameTimer extends BukkitRunnable {
 
     public Title getDefaultTitle (Player player) {
 
-        CBCTeam team = null;
+        CBCTeam<?> team = null;
         if (gameManager.hasPlayer(player)) {
             if (gameManager.getPlayer(player).getTeam() != null) {
                 team = gameManager.getPlayer(player).getTeam();
@@ -164,7 +164,7 @@ public abstract class BaseStartGameTimer extends BukkitRunnable {
         return countdownTimer;
     }
 
-    public Game getGame() {
+    public Game<?, ?> getGame() {
         return game;
     }
 }

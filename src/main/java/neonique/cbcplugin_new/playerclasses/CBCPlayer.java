@@ -31,8 +31,6 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 
 public class CBCPlayer {
 
-    private final int playerId;
-
     private final GameManager gameManager;
 
     public GameManager getGameManager() {
@@ -45,7 +43,7 @@ public class CBCPlayer {
         return combatManager;
     }
 
-    private UUID playerUUID;
+    private final UUID playerUUID;
 
     private int kills;
     private int deaths;
@@ -56,7 +54,7 @@ public class CBCPlayer {
     private int gamePoints = 0;
 
     // Team variables
-    private CBCTeam team = null;
+    private CBCTeam<?> team = null;
 
     // Combat variables
     private boolean alive = false;
@@ -79,12 +77,11 @@ public class CBCPlayer {
     // Display in player list
     private List<Component> playerListSuffixes;
 
-    public CBCPlayer(GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
+    public CBCPlayer(GameManager gameManager, CombatManager combatManager, Player player) {
 
         this.gameManager = gameManager;
         this.combatManager = combatManager;
         this.playerUUID = player.getUniqueId();
-        this.playerId = playerId;
 
         this.inventory = new CBCInventory(this, combatManager.getWeaponFactory(), combatManager.getEquipmentFactory());
 
@@ -100,11 +97,6 @@ public class CBCPlayer {
         this.alive = alive;
     }
 
-    // Check if the given player id belongs to this player
-    public boolean hasPlayerId (Integer id) {
-        return (id == this.playerId);
-    }
-
     // Return true or false if this player is alive
     public boolean isAlive() {
         return (this.alive);
@@ -113,11 +105,6 @@ public class CBCPlayer {
     // Return true or false if this player is respawning
     public boolean isRespawning() {
         return (this.respawning);
-    }
-
-    // Return the player's player id
-    public Integer getPlayerId () {
-        return this.playerId;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,6 +133,12 @@ public class CBCPlayer {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // TEAM RELATED FUNCTIONS
     ////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Get player's team
+    public CBCTeam<?> getTeam () {
+        return team;
+    }
+
     // Check if player is an ally
     public boolean isAlly (CBCPlayer player) {
         if (player == this) return true;
@@ -176,11 +169,6 @@ public class CBCPlayer {
         return isAlly(player);
     }
 
-    // Get player's team
-    public CBCTeam getTeam () {
-        return team;
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////////////
     // PLAYER WEAPONS AND PLAYER RESET FUNCTIONS
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,9 +191,7 @@ public class CBCPlayer {
         if (alive) {
             giveEffects();
         } else {
-            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-            }
+            clearEffects();
             checkNightVision();
         }
 
@@ -223,6 +209,12 @@ public class CBCPlayer {
     public void playerSetup (double weaponReloadTimer) {
         playerSetup();
         inventory.setReloadsBySecond(weaponReloadTimer);
+    }
+
+    public void clearEffects () {
+        for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
+            if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
+        }
     }
 
     public void giveEffects () {
@@ -318,10 +310,14 @@ public class CBCPlayer {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     // Return the player last hit
-    public CBCPlayer getLastPlayerHitBy() {return lastPlayerHitBy;}
+    public CBCPlayer getLastPlayerHitBy() {
+        return lastPlayerHitBy;
+    }
 
     // Set the player last hit
-    public void setLastPlayerHitBy(CBCPlayer player) {lastPlayerHitBy = player; lastPlayerHitByReset = 7;}
+    public void setLastPlayerHitBy(CBCPlayer player) {
+        lastPlayerHitBy = player; lastPlayerHitByReset = 7;
+    }
 
     public void addPlayerDamaged (CBCPlayer player) {
         if (!player.isAlly(this)) {
@@ -344,15 +340,17 @@ public class CBCPlayer {
         if (isOnline()) {
 
             Player player = getPlayer();
-
             addHealing(6);
             player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 200, 1);
+
         }
     }
 
-    public void playerDie() {
+    public void playerDie () {
+
         this.deaths++;
         this.alive = false;
+
         // Reset variables
         if (combatManager.isSwimTimerEnabled()) {
             this.swimTimer = combatManager.getSwimTimerLength();
@@ -360,6 +358,7 @@ public class CBCPlayer {
         flameDamager.resetFlameDamager();
         lastPlayerHitBy = null;
         timeDamaged.clear();
+
         // Clear player inventory and effects
         if (isOnline()) {
             Player player = getPlayer();
@@ -371,6 +370,7 @@ public class CBCPlayer {
             player.setExp(0);
             player.updateInventory();
         }
+
     }
 
     public void playerKillStreakEnd() {
@@ -493,11 +493,7 @@ public class CBCPlayer {
         respawning = b;
     }
 
-    public void setNewPlayer(Player player) {
-        this.playerUUID = player.getUniqueId();
-    }
-
-    public void setTeam(CBCTeam cbcTeam) {
+    public void setTeam(CBCTeam<?> cbcTeam) {
         team = cbcTeam;
     }
 
@@ -662,7 +658,7 @@ public class CBCPlayer {
         if (!isOnline()) return;
 
         Player playerEntity = getPlayer();
-        PlayerInventory inventory = getPlayer().getInventory();
+        PlayerInventory entityInventory = getPlayer().getInventory();
 
         // Check if player is in creative or spectator mode, if so remove the action bar
         if (playerEntity.getGameMode() == GameMode.SPECTATOR || playerEntity.getGameMode() == GameMode.CREATIVE) {
@@ -672,19 +668,20 @@ public class CBCPlayer {
 
         Component actionBarDisplay = null;
 
-        /*
+
         if (isAlive()) {
 
             // Check which slot player is using
-            int slot = inventory.getHeldItemSlot();
+            int slotNum = entityInventory.getHeldItemSlot();
+            InventorySlot slot = inventory.getSlot(slotNum);
 
-            if (weapons.containsKey(slot)) {
-                CrossbowWeapon weapon = weapons.get(slot);
+            if (slot instanceof WeaponSlot weaponSlot) {
+                CrossbowWeapon weapon = weaponSlot.getWeapon();
                 actionBarDisplay = weapon.getXPBarComponent();
             }
 
         }
-        */
+
 
         // Show icon if needing to show icon
         if (showIcon) {
@@ -768,5 +765,9 @@ public class CBCPlayer {
 
     public FlameDamager getFlameDamager() {
         return flameDamager;
+    }
+
+    public UUID getUUID() {
+        return getOfflinePlayer().getUniqueId();
     }
 }

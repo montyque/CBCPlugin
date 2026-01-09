@@ -31,12 +31,7 @@ public class ShowdownPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        List<ShowdownPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof ShowdownPlayer) {
-                playersList.add((ShowdownPlayer) player);
-            }
-        }
+        List<ShowdownPlayer> playersList = game.getPlayers();
 
         if (!playersList.isEmpty()) {
 
@@ -82,12 +77,7 @@ public class ShowdownPostGameStats extends PostGameStats {
         audience.sendMessage(finalScore);
 
         // Sort players on statistics
-        List<ShowdownPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : game.getPlayers().values()) {
-            if (player instanceof ShowdownPlayer) {
-                playersList.add((ShowdownPlayer) player);
-            }
-        }
+        List<ShowdownPlayer> playersList = game.getPlayers();
 
         if (!playersList.isEmpty()) {
 
@@ -119,7 +109,7 @@ public class ShowdownPostGameStats extends PostGameStats {
     @Override
     public Inventory createInventoryGui (Player user) {
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers().values()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
     }
 
     @Override
@@ -167,7 +157,7 @@ public class ShowdownPostGameStats extends PostGameStats {
     @Override
     public ItemStack generatePlayerItem(CBCPlayer rawPlayer) {
 
-        ShowdownPlayer player = (ShowdownPlayer) rawPlayer;
+        ShowdownPlayer player = game.getTypedPlayer(rawPlayer);
 
         ItemStack playerItem = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta playerItemMeta = (SkullMeta) playerItem.getItemMeta();
@@ -212,9 +202,9 @@ public class ShowdownPostGameStats extends PostGameStats {
     }
 
     @Override
-    public ItemStack generateTeamItem(CBCTeam rawTeam) {
+    public ItemStack generateTeamItem(CBCTeam<?> rawTeam) {
 
-        ShowdownTeam team = (ShowdownTeam) rawTeam;
+        ShowdownTeam team = game.getTypedTeam(rawTeam);
 
         // Create item for team statistics
         ItemStack teamItem = team.getItem().clone();
@@ -231,29 +221,23 @@ public class ShowdownPostGameStats extends PostGameStats {
 
         addLoreField(teamLoreList, "Total Kills", String.valueOf(teamTotalKills), NamedTextColor.GREEN);
 
-        // Get list of teams (this is converting the CBC players to showdown players)
-        List<ShowdownPlayer> teamPlayersList = new ArrayList<>();
-        for (CBCPlayer player : team.getPlayers()) {
-            if (player instanceof ShowdownPlayer) {
-                teamPlayersList.add((ShowdownPlayer) player);
-            }
-        }
+        List<ShowdownPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
 
         // Sort players by kills
-        List<ShowdownPlayer> teamPlayersByKills = new ArrayList<>(teamPlayersList);
-        teamPlayersByKills.sort(Comparator.comparingInt(ShowdownPlayer::getKills));
-        Collections.reverse(teamPlayersByKills);
+        List<ShowdownPlayer> teamPlayersByKills = new ArrayList<>(team.getPlayers());
+        teamPlayersByKills.sort(Comparator.comparingInt(ShowdownPlayer::getKills).reversed());
 
-        List<ShowdownPlayer> teamPlayersByTimeAlive = new ArrayList<>(teamPlayersList);
-        teamPlayersByTimeAlive.sort(Comparator.comparingInt(ShowdownPlayer::getPlayerSecondsAlive));
-        Collections.reverse(teamPlayersByTimeAlive);
+        List<ShowdownPlayer> teamPlayersByTimeAlive = new ArrayList<>(team.getPlayers());
+        teamPlayersByTimeAlive.sort(Comparator.comparingInt(ShowdownPlayer::getPlayerSecondsAlive).reversed());
 
         // Add team most kills and team most time alive
         if (!teamPlayersList.isEmpty()) {
+
             teamLoreList.add(Component.text(" "));
             ShowdownPlayer mostKillsPlayer = teamPlayersByKills.get(0);
             addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.getName()
                     + " (" + mostKillsPlayer.getKills() + ")", NamedTextColor.GREEN);
+
             ShowdownPlayer mostTimeAlivePlayer = teamPlayersByTimeAlive.get(0);
             addLoreField(teamLoreList, "Most Time Alive", mostTimeAlivePlayer.getName()
                     + " (" + getTimeFormat(mostTimeAlivePlayer.getPlayerSecondsAlive()) + ")", NamedTextColor.GREEN);

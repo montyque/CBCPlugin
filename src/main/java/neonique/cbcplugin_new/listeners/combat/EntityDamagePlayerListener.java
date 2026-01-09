@@ -15,6 +15,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -168,11 +169,17 @@ public class EntityDamagePlayerListener implements Listener {
                 // Run player death function
                 player.addPlayerDamaged(sourcePlayer);
                 combatManager.playerDeath(player, sourcePlayer, DeathCause.XBOW, true);
-            }
-            else if (playerProjectile instanceof FlameArrow) {
+            }  else if (playerProjectile instanceof FlameArrow) {
                 player.addPlayerDamaged(sourcePlayer);
-                if (e.getFinalDamage() >= playerEntity.getHealth()) {
+
+                e.setDamage(0);
+
+                CBCPlugin.getPlugin().getLogger().info("Flame arrow did damage of " + e.getDamage());
+                CBCPlugin.getPlugin().getLogger().info("Flame arrow did final damage of " + e.getFinalDamage());
+                if (2 >= playerEntity.getHealth()) {
                     combatManager.playerDeath(player, sourcePlayer, DeathCause.FLAMEZONE, true);
+                } else {
+                    player.getPlayer().setHealth(player.getPlayer().getHealth() - 2);
                 }
             }
 

@@ -11,14 +11,13 @@ import java.util.Set;
 
 public class AssassinGlowManager extends GlowManager {
 
-    private AssassinGame game;
+    private final AssassinGame game;
 
     private final HashMap<Player, Player> glowingPlayers;
 
     public AssassinGlowManager (World world, AssassinGame game) {
         super(world);
         this.game = game;
-
         glowingPlayers = new HashMap<>();
     }
 

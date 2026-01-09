@@ -1,11 +1,10 @@
 package neonique.cbcplugin_new.gamemodes.assassin;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
@@ -26,10 +25,9 @@ import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
-public class AssassinGame extends FFAGame {
+public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
 
     // Map related variables
-    private AssassinMap map;
     private List<AssassinSpawn> spawns;
     private double targetSpawnDistance;
 
@@ -39,7 +37,7 @@ public class AssassinGame extends FFAGame {
 
     // Other variables
     private Team inGameTeam;
-    private ResourcePackManager resourcePackManager;
+    private final ResourcePackManager resourcePackManager;
 
     // Listeners and tasks
     private PlayerNoMove noMoveListener;
@@ -48,27 +46,46 @@ public class AssassinGame extends FFAGame {
     private AssassinGlowManager glowManager;
     private AssassinGlowUpdateTask glowUpdateTask;
 
-    public AssassinGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public AssassinGame(GameManager gameManager) {
+        super(gameManager);
+        resourcePackManager = CBCPlugin.getResourcePackManager();
     }
 
     @Override
-    public void setupGame(CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                             HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.ASSASSIN;
+    }
 
-        resourcePackManager = CBCPlugin.getResourcePackManager();
+    @Override
+    public AssassinPlayer createGamemodePlayer (Player playerEntity) {
+        return new AssassinPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
+
+    @Override
+    public GameSidebarManager createSidebarManager() {
+        return new AssassinSidebarManager(this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager() {
+        return new AssassinBossbarManager(this);
+    }
+
+    @Override
+    public void setupGame (GameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
         final World world = getWorld();
 
         // Setup map
-        setupMap(mapChosen);
+        AssassinMap map = (AssassinMap) ctx.getMap();
+        setupMap(map);
+
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
         // Set gamemode information
-        setGamemode(CBCGamemode.ASSASSIN);
         createHeaderTitle();
 
         // Enable weapons
@@ -76,19 +93,18 @@ public class AssassinGame extends FFAGame {
         gameManager.resetPlayerList();
 
         // Setup gamemode game variables
-        targetsToKill = intVars.getOrDefault("targetsToKill", 16);
-        targetChangeTimer = intVars.getOrDefault("targetChangeTimer", 60);
+        targetsToKill = ctx.getIntVars().getOrDefault("targetsToKill", 16);
+        targetChangeTimer = ctx.getIntVars().getOrDefault("targetChangeTimer", 60);
 
-        // setGameCommands(new ShowdownGameCommands(gameManager, weaponManager, this));
         // Create players
-        createPlayers(players);
+        createPlayers(ctx.getPlayers());
         teleportSpectators();
 
         // Teleport players to spawns
         map.fillBlocksAtStart();
 
         List<AssassinSpawn> gameStartSpawns = sortSpawns();
-        List<AssassinPlayer> shuffledPlayers = new ArrayList<>(getAssassinPlayers());
+        List<AssassinPlayer> shuffledPlayers = getPlayers();
         Collections.shuffle(shuffledPlayers);
         int spawnNum = 0;
         for (AssassinPlayer player : shuffledPlayers) {
@@ -126,7 +142,7 @@ public class AssassinGame extends FFAGame {
         glowUpdateTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
         // Set player's targets
-        for (AssassinPlayer player : getAssassinPlayers()) {
+        for (AssassinPlayer player : getPlayers()) {
             player.newTarget(false);
             getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), inGameTeam);
         }
@@ -143,29 +159,16 @@ public class AssassinGame extends FFAGame {
 
     }
 
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new AssassinPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
-
-    public GameSidebarManager createSidebarManager() {
-        return new AssassinSidebarManager(this);
-    }
-
-    @Override
-    public GameBossBarManager createBossbarManager() {
-        return new AssassinBossbarManager(this);
-    }
-
     public void startGame () {
 
-        map.fillBlocksAtEnd();
+        getMap().fillBlocksAtEnd();
 
         // Allow players to move
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
         noMoveListener = null;
 
         // Initialise all players
-        for (AssassinPlayer player : getAssassinPlayers()) {
+        for (AssassinPlayer player : getPlayers()) {
             if (!player.isOnline()) return;
             player.playerStartGame();
         }
@@ -184,7 +187,7 @@ public class AssassinGame extends FFAGame {
 
         // Select the first spawn
         Comparator<AssassinSpawn> byDistanceFromCenter =
-                (AssassinSpawn loc1, AssassinSpawn loc2) -> Double.compare(loc1.distanceSquared(map.getMapCentre()), loc2.distanceSquared(map.getMapCentre()));
+                (AssassinSpawn loc1, AssassinSpawn loc2) -> Double.compare(loc1.distanceSquared(getMap().getMapCentre()), loc2.distanceSquared(getMap().getMapCentre()));
         roundSpawnList.sort(byDistanceFromCenter);
         Collections.reverse(roundSpawnList);
 
@@ -213,17 +216,17 @@ public class AssassinGame extends FFAGame {
         return spawnOrder;
     }
 
-    public void setupMap (CBCMap generalMap) {
-        super.setupMap(generalMap);
-        this.map = (AssassinMap) generalMap;
-        // Get spawns
+    public void setupMap (AssassinMap map) {
+
+        super.setupMap(map);
         spawns = map.getAssassinSpawns();
         targetSpawnDistance = map.getTargetDistance();
+
     }
 
     public List<AssassinPlayer> getPlayersByTargets () {
 
-        List<AssassinPlayer> sortedPlayerList = new ArrayList<>(getAssassinPlayers());
+        List<AssassinPlayer> sortedPlayerList = new ArrayList<>(getPlayers());
         sortedPlayerList.sort(Comparator.comparingInt(AssassinPlayer::getTargetsLeft));
 
         return sortedPlayerList;
@@ -290,7 +293,7 @@ public class AssassinGame extends FFAGame {
             if (playerEntity.getUniqueId().equals(offlinePlayerId)) {
                 CBCPlayer cbcplayer = getGameManager().getPlayer(playerEntity);
                 // Check if player is the target of any assassins, if so change their targets
-                for (AssassinPlayer assassinPlayer : getAssassinPlayers()) {
+                for (AssassinPlayer assassinPlayer : getPlayers()) {
                     if (assassinPlayer.getCurrentTarget() == cbcplayer) {
                         // Change player's target
                         if (assassinPlayer.isOnline()) {
@@ -307,37 +310,6 @@ public class AssassinGame extends FFAGame {
     @Override
     public PostGameStats getPostGameStats() {
         return new AssassinPostGameStats(this);
-    }
-
-    public Set<AssassinPlayer> getAssassinPlayers() {
-        Set<AssassinPlayer> players = new HashSet<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            players.add((AssassinPlayer) player);
-        }
-        return players;
-    }
-
-    public Set<AssassinPlayer> getOnlineAssassinPlayers () {
-        Set<AssassinPlayer> players = new HashSet<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            if (player.isOnline()) {
-                players.add((AssassinPlayer) player);
-            }
-        }
-        return players;
-    }
-
-    public Set<AssassinPlayer> getCurrentTargets() {
-
-        Set<AssassinPlayer> targets = new HashSet<>();
-        for (AssassinPlayer player : getAssassinPlayers()) {
-            if (player.getCurrentTarget() != null) {
-                targets.add(player.getCurrentTarget());
-            }
-        }
-
-        return targets;
-
     }
 
     public int getTargetsToKill() {

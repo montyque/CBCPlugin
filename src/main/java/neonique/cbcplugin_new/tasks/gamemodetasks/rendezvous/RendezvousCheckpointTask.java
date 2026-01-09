@@ -68,6 +68,7 @@ public class RendezvousCheckpointTask extends BukkitRunnable {
             team.setRunnerInCheckpoint(targetCheckpoint.checkIfPlayerInCheckpoint(teamRunnerEntity));
 
             team.updateCheckpointStatus();
+
         }
     }
 }

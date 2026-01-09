@@ -16,7 +16,6 @@ import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
@@ -29,7 +28,7 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
 import static neonique.cbcplugin_new.util.TextUtil.titleTimes;
 
-public class RendezvousTeam extends CBCTeam {
+public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
 
     private final RendezvousGame game;
     private final GameManager gameManager;
@@ -87,11 +86,11 @@ public class RendezvousTeam extends CBCTeam {
         }
 
         // Get players
-        List<RendezvousPlayer> players = getRendezvousPlayers();
+        List<RendezvousPlayer> players = new ArrayList<>(getPlayers());
 
         // Sort players by name
         players.sort(Comparator.comparing(RendezvousPlayer::getLowercaseName));
-        List<RendezvousPlayer> playersNotListed = getRendezvousPlayers();
+        List<RendezvousPlayer> playersNotListed = new ArrayList<>(getPlayers());
 
         // Go through each character in number order list
         for (String chr : numberOrder.split("")) {
@@ -124,9 +123,7 @@ public class RendezvousTeam extends CBCTeam {
     }
 
     public void shuffleRunnerQueue () {
-        // Get players
-        List<RendezvousPlayer> players = getRendezvousPlayers();
-        // Shuffle players
+        List<RendezvousPlayer> players = new ArrayList<>(getPlayers());
         Collections.shuffle(players);
         runnerQueue = players;
     }
@@ -247,7 +244,7 @@ public class RendezvousTeam extends CBCTeam {
         }
 
         // Make the runner glow
-        for (RendezvousPlayer player : getRendezvousPlayers()) {
+        for (RendezvousPlayer player : getPlayers()) {
             if (!player.isAlive()) continue;
             if (player.isPlayerRunner()) {
                 player.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1,
@@ -262,7 +259,7 @@ public class RendezvousTeam extends CBCTeam {
 
     public void changeInRunner () {
 
-        for (RendezvousPlayer player : getRendezvousPlayers()) {
+        for (RendezvousPlayer player : getPlayers()) {
 
             if (!player.isOnline()) break;
             Player playerEntity = player.getPlayer();
@@ -499,7 +496,7 @@ public class RendezvousTeam extends CBCTeam {
 
         Title title = Title.title(titleComponent, subtitleComponent, TextUtil.titleTimes(0, 3000, 700));
 
-        for (CBCPlayer player : getPlayers()) {
+        for (RendezvousPlayer player : getPlayers()) {
             // Kill player if still alive
             if (player.isAlive()) {
                 // Set player unalive
@@ -535,17 +532,6 @@ public class RendezvousTeam extends CBCTeam {
 
     public List<RendezvousPlayer> getRunnerQueue () {
         return runnerQueue;
-    }
-
-    public List<RendezvousPlayer> getRendezvousPlayers () {
-
-        List<RendezvousPlayer> rendezvousPlayers = new ArrayList<>();
-        for (CBCPlayer player : getPlayers()) {
-            if (player instanceof RendezvousPlayer) {
-                rendezvousPlayers.add((RendezvousPlayer) player);
-            }
-        }
-        return rendezvousPlayers;
     }
 
     public int getScore () {
@@ -651,18 +637,16 @@ public class RendezvousTeam extends CBCTeam {
     }
 
     @Override
-    public void addPlayer (CBCPlayer player) {
+    public void addPlayer (RendezvousPlayer player) {
 
         super.addPlayer(player);
-
-        if (!(player instanceof RendezvousPlayer rdvPlayer)) return;
 
         if (runnerQueue == null) return;
 
         // Add player to runner queue before the runner
         for (int i = 0; i < runnerQueue.size(); i++) {
             if (runnerQueue.get(i) == runner) {
-                runnerQueue.add(i, rdvPlayer);
+                runnerQueue.add(i, player);
                 break;
             }
         }
@@ -677,6 +661,7 @@ public class RendezvousTeam extends CBCTeam {
                         Component.text("This team had no runner, so you were automatically assigned to be the runner.").color(NamedTextColor.YELLOW)
                 );
             }
+
         }
 
         // Update team footer to show correct order
@@ -687,15 +672,13 @@ public class RendezvousTeam extends CBCTeam {
     }
 
     @Override
-    public void removePlayer (CBCPlayer player) {
+    public void removePlayer (RendezvousPlayer player) {
 
         super.removePlayer(player);
 
-        if (!(player instanceof RendezvousPlayer rdvPlayer)) return;
-
         // Check if player is runner
-        runnerQueue.remove(rdvPlayer);
-        if (runner == rdvPlayer) {
+        runnerQueue.remove(player);
+        if (runner == player) {
 
             // Change runner to the next online player in the queue
             setRunnerNextPlayerInQueue();

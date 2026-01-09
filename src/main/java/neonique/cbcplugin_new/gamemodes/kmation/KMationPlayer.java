@@ -11,11 +11,9 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -38,8 +36,8 @@ public class KMationPlayer extends CBCPlayer {
     // Game stats
     private int cyclesSurvived = 0;
 
-    public KMationPlayer(KMationGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+    public KMationPlayer(KMationGame game, GameManager gameManager, CombatManager combatManager, Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
     }
 
@@ -48,7 +46,7 @@ public class KMationPlayer extends CBCPlayer {
         playerCycleKills++;
         game.updatePlayersInLast();
         game.updatePlacements();
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
 
         if (game.isOvertime() && playerCycleKills >= game.getOvertimeThreshold() && game.getWinner() == null) {
             game.endCycle();
@@ -85,7 +83,7 @@ public class KMationPlayer extends CBCPlayer {
             }
         }
 
-        game.getBossbarManager().update();
+        game.updateBossbarManager();
     }
 
     @Override

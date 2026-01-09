@@ -16,6 +16,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CTFPlayer extends CBCPlayer {
 
@@ -40,8 +41,8 @@ public class CTFPlayer extends CBCPlayer {
     private final static int FINAL_KILL_PTS = 15; // Extra points for getting a final kill
     private final static int FLAGCAPTURE_PTS = 135; // Points for capturing a flag
 
-    public CTFPlayer(CTFGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+    public CTFPlayer(CTFGame game, GameManager gameManager, CombatManager combatManager, Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
     }
 
@@ -61,7 +62,7 @@ public class CTFPlayer extends CBCPlayer {
         );
 
         // Play sound for yourself and allies
-        CTFTeam ownTeam = (CTFTeam) getTeam();
+        CTFTeam ownTeam = game.getPlayerTeam(this);
 
         ownTeam.allyPickedUpFlag();
 
@@ -139,11 +140,9 @@ public class CTFPlayer extends CBCPlayer {
         // Add game points
         addGamePoints(FLAGCAPTURE_PTS);
 
-        // Reset player's health and effects
+        // Remove player absorption
         healToFull();
-        for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-            if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-        }
+        getPlayer().removePotionEffect(PotionEffectType.ABSORPTION);
 
         // Set player helmet back to normal
         getInventory().setHelmetOverride(null);
@@ -173,31 +172,25 @@ public class CTFPlayer extends CBCPlayer {
     @Override
     public void playerAfterDeath (CBCPlayer playerKiller) {
 
-        CTFTeam team = (CTFTeam) getTeam();
+        CTFTeam team = game.getPlayerTeam(this);
 
         clearPlayerListSuffixes();
-        CTFPlayer ctfPlayerKiller = null;
-        if (playerKiller != null) {
-            ctfPlayerKiller = (CTFPlayer) playerKiller;
-        }
-
+        CTFPlayer ctfPlayerKiller = game.getTypedPlayer(playerKiller);
         boolean defensiveKillGive = false;
 
         // Check if near a team's base
         if (ctfPlayerKiller != null) {
+            CTFTeam enemyTeam = game.getPlayerTeam(ctfPlayerKiller);
             if (isOnline()) {
-                for (Player playerNearby : ((CTFTeam) playerKiller.getTeam()).getFlagLocation().getNearbyPlayers(game.getDefensiveKillRadius())) {
-                    if (playerNearby == getPlayer()) {
-                        defensiveKillGive = true;
-                        break;
-                    }
+                Player playerEntity = getPlayer();
+                if (enemyTeam.getFlagLocation().getNearbyPlayers(game.getDefensiveKillRadius()).contains(playerEntity)) {
+                    defensiveKillGive = true;
                 }
             }
         }
 
         // Check if a flag holder has been killed
         if (teamWithFlagPickedUp != null) {
-
             // Give a defensive kill to the player if they are on the team
             if (ctfPlayerKiller != null) {
                 if (ctfPlayerKiller.getTeam() == teamWithFlagPickedUp) {
@@ -206,22 +199,14 @@ public class CTFPlayer extends CBCPlayer {
                     playerKiller.addGamePoints(FLAGHOLDER_KILL_PTS);
                 }
             }
-
             teamWithFlagPickedUp.flagReset();
             playerDropFlag();
         }
 
         if (defensiveKillGive) ctfPlayerKiller.incrementDefensiveKills();
 
-        // The player will respawn, so we are overriding the old method
         if (isOnline() && getTeam() != null) {
 
-            // Remove potion effects
-            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-            }
-
-            if (!(getTeam() instanceof CTFTeam)) return;
             // Make sure team is still able to respawn
             if (team.canRespawn()) {
 
@@ -232,28 +217,28 @@ public class CTFPlayer extends CBCPlayer {
                 // Set up respawn timer
                 RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
                 respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
+
             } else {
+
                 // Player can no longer respawn
                 Component titleComponent = Component.text("YOU DIED!").color(NamedTextColor.RED)
                         .decorate(TextDecoration.BOLD);
                 Title diedTitle = Title.title(titleComponent, Component.text("You've been eliminated!")
                         .color(NamedTextColor.YELLOW), Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
                 getPlayer().showTitle(diedTitle);
+
             }
         }
+
         if (!team.canRespawn()) {
-            // Player can no longer respawn
             if (!eliminated) {
                 eliminatePlayer();
-                // Add points to player killer
-                if (playerKiller != null) {
-                    playerKiller.addGamePoints(FINAL_KILL_PTS);
-                }
+                playerKiller.addGamePoints(FINAL_KILL_PTS);
             }
         }
 
         // Update sidebar
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
     }
 
     @Override
@@ -261,7 +246,7 @@ public class CTFPlayer extends CBCPlayer {
 
         int killPoints = KILL_PTS;
 
-        CTFPlayer ctfPlayerKilled = (CTFPlayer) playerKilled;
+        CTFPlayer ctfPlayerKilled = game.getTypedPlayer(playerKilled);
 
         if (teamWithFlagPickedUp != null) {
             killPoints += HOLDING_FLAG_KILL_PTS;
@@ -269,25 +254,24 @@ public class CTFPlayer extends CBCPlayer {
 
         // Morale boosts
         // Check if teammate is currently holding a flag
-        for (CBCPlayer teammate : getTeam().getAlivePlayers()) {
-            CTFPlayer ctfTeammate = (CTFPlayer) teammate;
+        for (CTFPlayer teammate : game.getPlayerTeam(this).getPlayers()) {
 
-            if (ctfTeammate == this) continue;
-            if (ctfTeammate.getFlagHeld() != ctfPlayerKilled.getTeam()) continue;
-            if (!ctfTeammate.isOnline()) continue;
+            if (teammate == this) continue;
+            if (!teammate.isAlive()) continue;
+            if (teammate.getFlagHeld() != ctfPlayerKilled.getTeam()) continue;
 
-            ctfTeammate.addHealing(4);
+            teammate.addHealing(4);
 
             if (isOnline()) {
                 getPlayer().sendMessage(
                         Component.text("Morale Boost given to ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
-                                .append(Component.text(ctfTeammate.getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                                .append(Component.text(teammate.getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                                 .append(Component.text("! (Teammate receives +2 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                 );
             }
 
             moraleBoostsGiven++;
-            ctfTeammate.getPlayer().sendMessage(
+            teammate.getPlayer().sendMessage(
                     Component.text("Morale Boost received from ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
                             .append(Component.text(getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                             .append(Component.text("! ( +2 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
@@ -300,20 +284,23 @@ public class CTFPlayer extends CBCPlayer {
 
         // Give game points to the player for a kill
         addGamePoints(killPoints);
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
 
     }
 
     public void eliminatePlayer() {
         eliminated = true;
+
         // Send message
         getGameManager().sendGlobalMessage(
                 Component.text("PLAYER ELIMINATION > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD)
                         .append(getNameComponent())
                         .append(Component.text(" has been eliminated!").color(NamedTextColor.WHITE))
         );
+
         // Update team player counts
-        ((CTFTeam) getTeam()).countNonEliminatedPlayers();
+        game.getPlayerTeam(this).checkIfEliminated();
+
     }
 
     @Override
@@ -375,17 +362,17 @@ public class CTFPlayer extends CBCPlayer {
 
     public Set<Player> getGlowingPlayers() {
 
-        Set<Player> glowingPlayers = new HashSet<>();
-        for (CBCPlayer player : getTeam().getAlivePlayers()) {
-            if (player == this) continue;
-            if (player.isAlive()) {
-                glowingPlayers.add(player.getPlayer());
-            }
-        }
+        CTFTeam team = game.getPlayerTeam(this);
+
+        Set<Player> glowingPlayers = team.getPlayers().stream()
+                .filter(CTFPlayer::isAlive)
+                .filter(p -> p != this)
+                .map(CBCPlayer::getPlayer)
+                .collect(Collectors.toSet());
 
         // Make player glow if they are holding a flag
-        if (((CTFTeam) getTeam()).getFlagHolder() != null) {
-            CTFPlayer flagHolder = ((CTFTeam) getTeam()).getFlagHolder();
+        if (team.getFlagHolder() != null) {
+            CTFPlayer flagHolder = team.getFlagHolder();
             if (flagHolder.isAlive() && flagHolder.isOnline()) {
                 glowingPlayers.add(flagHolder.getPlayer());
             }

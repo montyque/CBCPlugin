@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class TagGameCommands extends BaseTeamGameCommands {
 
@@ -82,7 +81,7 @@ public class TagGameCommands extends BaseTeamGameCommands {
             return;
         }
 
-        Set<TagPlayer> players = game.getTagPlayers();
+        List<TagPlayer> players = game.getPlayers();
         TagPlayer playerTargeted = null;
 
         // Try find player
@@ -117,7 +116,10 @@ public class TagGameCommands extends BaseTeamGameCommands {
     }
 
     @Override
-    public void putPlayerOnTeam (CBCPlayer player, CBCTeam team, boolean spawnImmediately) {
+    public void putPlayerOnTeam (CBCPlayer player, CBCTeam<?> team, boolean spawnImmediately) {
+
+        TagPlayer tagPlayer = game.getTypedPlayer(player);
+        TagTeam tagTeam = game.getTypedTeam(team);
 
         // Kill player if player is alive
         if (player.isAlive()) {
@@ -129,8 +131,8 @@ public class TagGameCommands extends BaseTeamGameCommands {
         }
 
         removePlayerFromTeam(player, false);
+        game.addPlayerToTeam(player, team);
 
-        team.addPlayer(player);
         if (player.isOnline()) {
             player.getPlayer().sendMessage(
                     Component.text("You have been added to ").color(NamedTextColor.GREEN).append(
@@ -139,11 +141,6 @@ public class TagGameCommands extends BaseTeamGameCommands {
                             Component.text(" team!").color(NamedTextColor.GREEN)
                     ).decorate(TextDecoration.BOLD)
             );
-
-
-            // If player is a tagger, spawn them in
-            TagPlayer tagPlayer = (TagPlayer) player;
-            TagTeam tagTeam = (TagTeam) team;
 
             // If player is tagger and joined before taggers released, put them in
             if (tagPlayer.isTagger()) {

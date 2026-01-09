@@ -6,29 +6,26 @@ import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.CBCPlugin.getGameManager;
-import static neonique.cbcplugin_new.util.StringUtil.firstLetterUpper;
 
-public abstract class CBCTeam {
+public abstract class CBCTeam<P extends CBCPlayer> {
 
     // List of members
-    private final HashMap<UUID, CBCPlayer> players = new HashMap<>();
-    private final HashMap<Integer, CBCPlayer> playersById = new HashMap<>();
+    private final HashMap<UUID, P> players = new HashMap<>();
 
     // Teams that will not be able to damage/kill players from this team
-    private final Set<CBCTeam> otherAlliedTeams = new HashSet<>();
+    private final Set<CBCTeam<P>> otherAlliedTeams = new HashSet<>();
 
     // Team data
     private final String id;
@@ -110,24 +107,16 @@ public abstract class CBCTeam {
         else trimMaterial = null;
     }
 
-    public Collection<CBCPlayer> getPlayers () {
+    public Collection<P> getPlayers () {
         return players.values();
     }
 
-    public Collection<CBCPlayer> getAlivePlayers () {
-        Set<CBCPlayer> alivePlayers = new HashSet<>();
-        for (CBCPlayer player : players.values()) {
-            if (player.isAlive()) {alivePlayers.add(player);}
-        }
-        return alivePlayers;
+    public Collection<P> getAlivePlayers () {
+        return getPlayers().stream().filter(CBCPlayer::isAlive).collect(Collectors.toSet());
     }
 
-    public Set<CBCPlayer> getOnlinePlayers () {
-        Set<CBCPlayer> onlinePlayers = new HashSet<>();
-        for (CBCPlayer player : players.values()) {
-            if (player.isOnline()) {onlinePlayers.add(player);}
-        }
-        return onlinePlayers;
+    public Set<P> getOnlinePlayers () {
+        return getPlayers().stream().filter(CBCPlayer::isOnline).collect(Collectors.toSet());
     }
 
     public String getTeamName () {
@@ -146,31 +135,14 @@ public abstract class CBCTeam {
         return teamObject;
     }
 
-    public int countPlayers () {
-        return players.size();
-    }
-
-    public int countAlivePlayers () {
-        return getAlivePlayers().size();
-    }
-
-    public Set<Integer> getPlayerIds () {
-        return playersById.keySet();
-    }
-
-    public void addPlayer (CBCPlayer player) {
-        // Add player to team
+    public void addPlayer (P player) {
         players.put(player.getOfflinePlayer().getUniqueId(), player);
-        playersById.put(player.getPlayerId(), player);
-        // Add player to team object
         getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), teamObject);
-        // Set player's team
         player.setTeam(this);
     }
 
-    public void removePlayer (CBCPlayer player) {
+    public void removePlayer (P player) {
         players.remove(player.getOfflinePlayer().getUniqueId());
-        playersById.remove(player.getPlayerId());
         getGameManager().getCbcScoreboardManager().removeTeamEntry(player.getName(), teamObject);
         player.setTeam(null);
     }
@@ -184,7 +156,7 @@ public abstract class CBCTeam {
 
     public void replacePlayerEntityKey(Player origin, Player newPlayer) {
         if (players.containsKey(origin.getUniqueId())) {
-            CBCPlayer cbcPlayer = players.get(origin.getUniqueId());
+            P cbcPlayer = players.get(origin.getUniqueId());
             players.remove(origin.getUniqueId());
             players.put(newPlayer.getUniqueId(), cbcPlayer);
         }
@@ -223,33 +195,10 @@ public abstract class CBCTeam {
         return id;
     }
 
-    public boolean isAlly(CBCPlayer player) {
-
-        // Check if player is not in a team
+    public boolean isAlly (CBCPlayer player) {
         if (player.getTeam() == null) return false;
-
-        // Check if player is in this team
-        CBCTeam team = player.getTeam();
-        if (team == this) return true;
-
-        // Check if player is in any other allied teams
-        return otherAlliedTeams.contains(team);
-
-    }
-
-    public boolean isAllyPlayerId (int id) {
-
-        if (getPlayerIds().contains(id)) {
-            return true;
-        }
-
-        for (CBCTeam team : otherAlliedTeams) {
-            if (team.getPlayerIds().contains(id)) {
-                return true;
-            }
-        }
-
-        return false;
+        if (player.getTeam() == this) return true;
+        return otherAlliedTeams.contains(player.getTeam());
 
     }
 
@@ -257,7 +206,7 @@ public abstract class CBCTeam {
         otherAlliedTeams.clear();
     }
 
-    public void addAlliedTeam (CBCTeam team) {
+    public void addAlliedTeam (CBCTeam<P> team) {
         otherAlliedTeams.add(team);
     }
 
@@ -266,7 +215,6 @@ public abstract class CBCTeam {
         if (withTeam) {
             name += " Team";
         }
-
         return Component.text(name).color(color);
     }
 

@@ -1,13 +1,12 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import java.util.*;
 
-public class TagTeam extends CBCTeam {
+public class TagTeam extends CBCTeam<TagPlayer> {
 
     private final TagGame game;
 
@@ -49,16 +48,15 @@ public class TagTeam extends CBCTeam {
         Collections.shuffle(teamSpawnList);
 
         int playerinc = 0; // Increments every time we teleport a player
-        for (CBCPlayer player : getPlayers()) {
+        for (TagPlayer player : getPlayers()) {
 
-            TagPlayer tagPlayer = (TagPlayer) player;
-            tagPlayer.setEliminated(false);
+            player.setEliminated(false);
 
             if (!player.isOnline()) continue;
 
-            tagPlayer.playerSetupRound();
+            player.playerSetupRound();
             // Spawns players in different spawnpoints - reason playerinc is used
-            tagPlayer.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()), game.getMap().getMapCentre());
+            player.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()), game.getMap().getMapCentre());
             playerinc++;
         }
     }
@@ -140,13 +138,10 @@ public class TagTeam extends CBCTeam {
 
     public Set<TagPlayer> getInGamePlayers() {
         Set<TagPlayer> inGamePlayers = new HashSet<>();
-        for (CBCPlayer player : getPlayers()) {
-            // Convert CBCPlayer instance to TagPlayer object
-            TagPlayer tagPlayer = (TagPlayer) player;
-            tagPlayer.setEliminated(false);
-            // Only add him to list if in game
-            if (tagPlayer.isInGame()) {
-                inGamePlayers.add(tagPlayer);
+        for (TagPlayer player : getPlayers()) {
+            player.setEliminated(false);
+            if (player.isInGame()) {
+                inGamePlayers.add(player);
             }
         }
         return inGamePlayers;

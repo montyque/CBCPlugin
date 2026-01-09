@@ -19,6 +19,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 import static neonique.cbcplugin_new.util.TextUtil.titleTimes;
@@ -41,9 +42,8 @@ public class AssassinPlayer extends CBCPlayer {
     private int targetDeaths = 0;
     private int targetsKilled = 0;
 
-    public AssassinPlayer(AssassinGame game, GameManager gameManager, CombatManager combatManager, Player player,
-                          Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+    public AssassinPlayer(AssassinGame game, GameManager gameManager, CombatManager combatManager, Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
 
         targetsLeft = game.getTargetsToKill();
@@ -89,7 +89,7 @@ public class AssassinPlayer extends CBCPlayer {
 
     public AssassinPlayer selectNextTarget() {
 
-        List<AssassinPlayer> playerList = new ArrayList<>(game.getOnlineAssassinPlayers());
+        List<AssassinPlayer> playerList = new ArrayList<>(game.getPlayers().stream().filter(CBCPlayer::isAlive).toList());
         Collections.shuffle(playerList);
 
         // Clear target order if length of target order is the same or greater as the amount of players minus 1
@@ -98,7 +98,10 @@ public class AssassinPlayer extends CBCPlayer {
         }
 
         // List of players that are already targets
-        final Set<AssassinPlayer> alreadyTargetedPlayers = game.getCurrentTargets();
+        final Set<AssassinPlayer> alreadyTargetedPlayers = game.getPlayers().stream()
+                .map(AssassinPlayer::getCurrentTarget)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
         AssassinPlayer nextTarget = null;
         AssassinPlayer nextNewTarget = null;
@@ -106,7 +109,7 @@ public class AssassinPlayer extends CBCPlayer {
         for (AssassinPlayer player : playerList) {
 
             // Make sure target cannot be yourself
-            if (player.hasPlayerId(getPlayerId())) continue;
+            if (player == this) continue;
 
             // Make sure target cannot be repeated
             if (lastTarget == player && playerList.size() > 2) continue;
@@ -215,7 +218,7 @@ public class AssassinPlayer extends CBCPlayer {
         }
 
         if (isOnline()) {
-            game.getSidebarManager().updateClientBoard(getPlayer());
+            game.updateClientSidebar(getPlayer());
         }
     }
 

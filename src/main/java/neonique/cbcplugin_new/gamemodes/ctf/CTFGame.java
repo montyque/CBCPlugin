@@ -1,12 +1,12 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gameobjects.DeathBorder;
 import neonique.cbcplugin_new.listeners.gamemodes.CTFTeleportListener;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -28,13 +28,11 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import java.time.Duration;
 import java.util.*;
 
-public class CTFGame extends TeamGame {
-
-    protected final List<CTFTeam> teams = new ArrayList<>();
+public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
 
     // Game related variables
     private int flagsStart = 4;
-    protected boolean canCaptureOrTake = true;
+    private boolean canCaptureOrTake = true;
     private int flagsRemovedTimer = 1800;
     private int flagsRemovedTimerIncrement = 600;
     private boolean allFlagsTaken = false;
@@ -43,46 +41,70 @@ public class CTFGame extends TeamGame {
     private boolean suddenDeath = false;
     private DeathBorder suddenDeathBorder = null;
 
-    // Map related variables
-    protected CTFMap map;
+    private boolean randomBases;
+    private List<Location> randomFlagLocations;
+    private HashMap<String, Location> nonRandomFlagLocations;
+    private List<Set<Location>> randomBaseSpawns;
+    private HashMap<String, Set<Location>> nonRandomBaseSpawns;
 
-    protected boolean randomBases;
-    protected List<Location> randomFlagLocations;
-    protected HashMap<String, Location> nonRandomFlagLocations;
-    protected List<Set<Location>> randomBaseSpawns;
-    protected HashMap<String, Set<Location>> nonRandomBaseSpawns;
-
-    protected int defensiveKillRadius;
-    protected HashMap<Integer, Integer> respawnTimes;
+    private int defensiveKillRadius;
+    private HashMap<Integer, Integer> respawnTimes;
 
     // Game event listeners and tasks
-    protected CTFStartGameTimer startGameTimer;
-    protected CTFPlayersNearbyFlags playersNearbyFlagsTask;
-    protected CTFGlowManagerTask updateGlowTask;
-    protected PlayerNoMove playerNoMoveListener;
+    private CTFPlayersNearbyFlags playersNearbyFlagsTask;
+    private CTFGlowManagerTask updateGlowTask;
+    private PlayerNoMove playerNoMoveListener;
     private CTFTeleportListener teleportListener;
 
-    protected CTFGlowManager glowManager;
+    private CTFGlowManager glowManager;
 
-    public CTFGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public CTFGame(GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
-    public void setupGame(CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                          HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.CTF;
+    }
+
+    @Override
+    public CTFTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
+        return new CTFTeam(this, team.getTeamId(),
+                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
+                team.getPrefix(), team.getItem(), team.getGlassHead()
+        );
+    }
+
+    @Override
+    public CTFPlayer createGamemodePlayer (Player playerEntity) {
+        return new CTFPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
+
+    @Override
+    public GameSidebarManager createSidebarManager () {
+        return new CTFSidebarManager(this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager () {
+        return new CTFBossbarManager(this);
+    }
+
+    @Override
+    public void setupGame (GameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
         final World world = getWorld();
 
         // Setup map
-        setupMap(mapChosen);
+        CTFMap map = (CTFMap) ctx.getMap();
+        setupMap(map);
+
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
         // Set gamemode information
-        setGamemode(CBCGamemode.CTF);
         createHeaderTitle();
 
         // Enable weapons
@@ -90,15 +112,15 @@ public class CTFGame extends TeamGame {
         gameManager.resetPlayerList();
 
         // Setup gamemode game variables
-        this.flagsStart = intVars.getOrDefault("flagsStart", 4);
-        this.flagsRemovedTimer = intVars.getOrDefault("initialFlagsRemovedTimer", 1800);
-        this.flagsRemovedTimerIncrement = intVars.getOrDefault("flagsRemovedTimerAfterFirst", 600);
+        this.flagsStart = ctx.getIntVars().getOrDefault("flagsStart", 4);
+        this.flagsRemovedTimer = ctx.getIntVars().getOrDefault("initialFlagsRemovedTimer", 1800);
+        this.flagsRemovedTimerIncrement = ctx.getIntVars().getOrDefault("flagsRemovedTimerAfterFirst", 600);
 
         // Setup game commands
         setGameCommands(new CTFGameCommands(gameManager, combatManager, this));
 
         // Setup teams/players
-        createTeams(teams);
+        createTeams(ctx.getTeams());
         teleportSpectators();
 
         // Create random list of integers for randomizing team bases
@@ -109,7 +131,7 @@ public class CTFGame extends TeamGame {
         }
 
         int teamNum = 0;
-        for (CTFTeam team : this.teams) {
+        for (CTFTeam team : getTeams()) {
 
             // Set team's base variables
             if (randomBases) {
@@ -121,10 +143,9 @@ public class CTFGame extends TeamGame {
             }
 
             // Teleport all players to their spawn
-            for (CBCPlayer player : team.getPlayers()) {
-                CTFPlayer ctfPlayer = (CTFPlayer) player;
-                ctfPlayer.resetPlayer();
-                ctfPlayer.teleportPlayerToSpawn(team.getPlayerSpawn(), map.getMapCentre());
+            for (CTFPlayer player : team.getPlayers()) {
+                player.resetPlayer();
+                player.teleportPlayerToSpawn(team.getPlayerSpawn(), map.getMapCentre());
             }
 
             teamNum++;
@@ -149,14 +170,55 @@ public class CTFGame extends TeamGame {
         updateGlowTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 15);
 
         // Start countdown for the game
-        startGameTimer = new CTFStartGameTimer(gameManager, this, 11);
-        startGameTimer.runTaskTimer(CBCPlugin.getPlugin(), 0, 20);
+        new CTFStartGameTimer(gameManager, this, 11).runTaskTimer(CBCPlugin.getPlugin(), 0, 20);
+
     }
 
-    public void setupMap (CBCMap generalMap) {
+    @Override
+    public void gameWon (CTFTeam team) {
+        super.gameWon(team);
+        for (CTFPlayer player : team.getPlayers()) {
+            player.addGamePoints(40);
+        }
+        canCaptureOrTake = false;
+        if (suddenDeathBorder != null) {
+            suddenDeathBorder.deactivateBorder();
+        }
+    }
 
-        super.setupMap(generalMap);
-        this.map = (CTFMap) generalMap;
+    @Override
+    public void resetGame() {
+
+        super.resetGame();
+
+        // Deactivate sudden death border if existent
+        if (suddenDeathBorder != null) {
+            suddenDeathBorder.deactivateBorder();
+        }
+
+        // If players are unable to move, disable the function
+        if (playerNoMoveListener != null) {
+            PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);
+        }
+        PlayerTeleportEvent.getHandlerList().unregister(teleportListener);
+
+        // Cancel all tasks
+        cancelTask(playersNearbyFlagsTask);
+        cancelTask(updateGlowTask);
+
+        // Disable glow manager
+        glowManager.deactivate();
+
+    }
+
+    @Override
+    public PostGameStats getPostGameStats() {
+        return new CTFPostGameStats(this);
+    }
+
+    public void setupMap (CTFMap map) {
+
+        super.setupMap(map);
 
         // Get spawns
         randomBases = map.isRandomBases();
@@ -181,44 +243,20 @@ public class CTFGame extends TeamGame {
         }
     }
 
-    public CBCTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        CTFTeam createdTeam = new CTFTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
-        );
-        teams.add(createdTeam);
-        return createdTeam;
-    }
-
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new CTFPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
-
-    public GameSidebarManager createSidebarManager() {
-        return new CTFSidebarManager(this);
-    }
-
-    @Override
-    public GameBossBarManager createBossbarManager() {
-        return new CTFBossbarManager(this);
-    }
-
     public void startGame () {
 
-        map.fillBlocksAtEnd();
+        getMap().fillBlocksAtEnd();
 
-        if (!map.isCanMoveAtGameStart()) {
+        if (!getMap().isCanMoveAtGameStart()) {
             PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);
             playerNoMoveListener = null;
         }
 
         // Initialise all players
-        for (CTFTeam team : teams) {
-            for (CBCPlayer player : team.getPlayers()) {
-                CTFPlayer ctfPlayer = (CTFPlayer) player;
-
-                ctfPlayer.playerSetup(2);
-                ctfPlayer.setTempImmune(60);
+        for (CTFTeam team : getTeams()) {
+            for (CTFPlayer player : team.getPlayers()) {
+                player.playerSetup(2);
+                player.setTempImmune(60);
 
             }
         }
@@ -289,7 +327,7 @@ public class CTFGame extends TeamGame {
     public void removeFlagsFromTeams () {
 
         // Remove one flag from each team that still has more than 0 flags
-        for (CTFTeam team : teams) {
+        for (CTFTeam team : getTeams()) {
             if (team.getFlagsLeft() > 0) {
                 team.removeFlag(null);
             }
@@ -309,7 +347,7 @@ public class CTFGame extends TeamGame {
 
         // Remove flags from teams
         boolean flagsRemaining = false;
-        for (CTFTeam team : teams) {
+        for (CTFTeam team : getTeams()) {
             if (team.getFlagsLeft() > 0) {
                 flagsRemaining = true;
                 break;
@@ -318,7 +356,7 @@ public class CTFGame extends TeamGame {
 
         // Check if sudden death should begin
         if (!allFlagsTaken && !flagsRemaining) {
-            if (map.isSuddenDeathEnabled()) {
+            if (getMap().isSuddenDeathEnabled()) {
                 startSuddenDeath();
             }
         }
@@ -376,7 +414,7 @@ public class CTFGame extends TeamGame {
 
         // Go through every team and see if they are eliminated
         CTFTeam teamAlive = null;
-        for (CTFTeam team : teams) {
+        for (CTFTeam team : getTeams()) {
             if (!team.isTeamEliminated()) {
                 if (teamAlive != null) {
                     return;
@@ -390,55 +428,6 @@ public class CTFGame extends TeamGame {
         // End the game
         gameWon(teamAlive);
 
-    }
-
-    @Override
-    public void gameWon (CBCTeam team) {
-
-        super.gameWon(team);
-
-        for (CBCPlayer player : team.getPlayers()) {
-            player.addGamePoints(40);
-        }
-
-        canCaptureOrTake = false;
-        if (suddenDeathBorder != null) {
-            suddenDeathBorder.deactivateBorder();
-        }
-
-    }
-
-    public void resetGame() {
-
-        super.resetGame();
-
-        // Deactivate sudden death border if existent
-        if (suddenDeathBorder != null) {
-            suddenDeathBorder.deactivateBorder();
-        }
-
-        // If players are unable to move, disable the function
-        if (playerNoMoveListener != null) {
-            PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);
-        }
-        PlayerTeleportEvent.getHandlerList().unregister(teleportListener);
-
-        // Cancel all tasks
-        cancelTask(playersNearbyFlagsTask);
-        cancelTask(updateGlowTask);
-
-        // Disable glow manager
-        glowManager.deactivate();
-
-    }
-
-    @Override
-    public PostGameStats getPostGameStats() {
-        return new CTFPostGameStats(this);
-    }
-
-    public List<CTFTeam> getTeams() {
-        return teams;
     }
 
     public int getFlagsStart() {
@@ -460,7 +449,7 @@ public class CTFGame extends TeamGame {
     @Override
     public void incrementGameTime() {
         super.incrementGameTime();
-        for (CTFTeam team : teams) {
+        for (CTFTeam team : getTeams()) {
             team.incrementTimeTeamAlive();
         }
 
@@ -494,14 +483,4 @@ public class CTFGame extends TeamGame {
         return (int) Math.round(suddenDeathBorder.getCurrentRadius() * 2);
     }
 
-    public List<CTFPlayer> getCTFPlayers () {
-        // Get all players as CTFPlayer objects
-        List<CTFPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            if (player instanceof CTFPlayer) {
-                playersList.add((CTFPlayer) player);
-            }
-        }
-        return playersList;
-    }
 }

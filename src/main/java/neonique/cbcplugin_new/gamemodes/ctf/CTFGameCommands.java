@@ -80,17 +80,17 @@ public class CTFGameCommands extends BaseTeamGameCommands {
         }
 
         // Find team and check if this team exists
-        CBCTeam team = findTeam(user, args[1]);
+        CBCTeam<?> team = findTeam(user, args[1]);
         if (team == null) return;
 
-        int newFlagAmount =  Integer.parseInt(args[2]);
+        int newFlagAmount = Integer.parseInt(args[2]);
 
         if (newFlagAmount < 0) {
             sendColorMessage(user, "You cannot set a team's flags to a negative number!", NamedTextColor.YELLOW);
             return;
         }
 
-        CTFTeam ctfTeam = (CTFTeam) team;
+        CTFTeam ctfTeam = game.getTypedTeam(team);
         ctfTeam.setFlagsLeft(newFlagAmount);
 
         sendColorMessage(user, "Set flags left amount for " + ctfTeam.getTeamName() + " Team to " + newFlagAmount + "!", NamedTextColor.GREEN);

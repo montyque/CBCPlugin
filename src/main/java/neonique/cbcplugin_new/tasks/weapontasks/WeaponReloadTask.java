@@ -29,6 +29,7 @@ public class WeaponReloadTask extends BukkitRunnable {
         for (CBCPlayer player : players) {
             if (player.isAlive()) {
                 player.getInventory().updateWeaponReloads();
+                player.updateActionBarDisplay(true);
                 if (updateItems) {
                     player.getInventory().loadSlots();
                 }

@@ -1,10 +1,11 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
+import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import java.util.Collection;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallRaisedText;
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
+import static neonique.cbcplugin_new.util.StringUtil.checkPlural;
 import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
 import static neonique.cbcplugin_new.util.TextUtil.timerToText;
 
@@ -39,83 +41,28 @@ public class CTFBossbarManager extends GameBossBarManager {
         if (game.getWinner() == null) {
             for (CTFTeam team : game.getTeams()) {
 
-                int alivePlayersLeft = team.getAlivePlayers().size();
+                int alive = team.getAlivePlayers().size();
+                Component flagComponent = getTeamStatus(team);
 
-                Component flagComponent = Component.text("");
-                if (team.getFlagsLeft() > 0)
-                    if (!team.isFlagAtBase()) {
-
-                        CTFPlayer flagHolder = team.getFlagHolder();
-                        if (flagHolder != null) {
-                            CBCTeam flagHolderTeam = flagHolder.getTeam();
-                            if (flagHolderTeam != null) {
-                                if (team.getFlagsLeft() == 1) {
-                                    flagComponent = smallText("!! ").color(NamedTextColor.RED).append(
-                                                    smallText("FLAG STOLEN BY ").color(team.getColor()))
-                                            .append(smallText(team.getFlagHolder().getName())).color(flagHolderTeam.getColor())
-                                            .append(smallText(" - 1 FLAG REMAINING").color(team.getColor()));
-                                }
-                                else {
-                                    flagComponent = smallText("!! ").color(NamedTextColor.RED).append(
-                                                    smallText("FLAG STOLEN BY ").color(team.getColor()))
-                                            .append(smallText(team.getFlagHolder().getName())).color(flagHolderTeam.getColor())
-                                            .append(smallText("- " + team.getFlagsLeft() + " FLAGS REMAINING").color(team.getColor()));
-                                }
-                            }
+                for (CTFPlayer player : team.getPlayers()) {
+                    if (!player.isOnline()) continue;
+                    Player playerEntity = player.getPlayer();
+                    if (player.isEliminated()) {
+                        if (team.isTeamEliminated()) {
+                            setClientText(playerEntity, 2, smallText("TEAM ELIMINATED").color(NamedTextColor.RED));
+                        } else {
+                            setClientText(playerEntity, 2, smallText("ELIMINATED - ").color(NamedTextColor.RED).append(
+                                    smallText(checkPlural("%s PLAYER%s LEFT", alive).toUpperCase()).color(team.getColor())));
                         }
-                    }
-                    else {
-                        if (team.getFlagsLeft() == 1) {
-                            flagComponent = smallText("FLAG SAFE AT BASE - 1 FLAG REMAINING").color(team.getColor());
-                        }
-                        else {
-                            flagComponent = smallText("FLAG SAFE AT BASE - " + team.getFlagsLeft() + " FLAGS REMAINING").color(team.getColor());
-                        }
-                    }
-                else {
-                    if (alivePlayersLeft > 1) {
-                        flagComponent = smallText("FINAL LIFE - NO FLAGS REMAINING - ").color(NamedTextColor.GOLD).append(
-                                smallText(alivePlayersLeft + " PLAYERS LEFT").color(team.getColor())
-                        );
-                    }
-                    else {
-                        flagComponent = smallText("FINAL LIFE - NO FLAGS REMAINING - ").color(NamedTextColor.GOLD).append(
-                                smallText("LAST PLAYER ALIVE").color(team.getColor())
-                        );
-                    }
-                }
-
-                for (CBCPlayer player : team.getPlayers()) {
-                    if (player.isOnline()) {
-                        CTFPlayer ctfPlayer = (CTFPlayer) player;
-                        Player playerEntity = player.getPlayer();
-                        if (ctfPlayer.isEliminated()) {
-                            if (team.isTeamEliminated()) {
-                                setClientText(playerEntity, 2, smallText("TEAM ELIMINATED").color(NamedTextColor.RED));
-                            }
-                            else {
-                                if (alivePlayersLeft == 1) {
-                                    setClientText(playerEntity, 2, smallText("ELIMINATED - ").color(NamedTextColor.RED).append(
-                                            smallText("1 PLAYER LEFT").color(team.getColor())
-                                    ));
-                                }
-                                else {
-                                    setClientText(playerEntity, 2, smallText("ELIMINATED - ").color(NamedTextColor.RED).append(
-                                            smallText(alivePlayersLeft + " PLAYERS LEFT").color(team.getColor())
-                                    ));
-                                }
-                            }
-                        }
-                        else {
-                            setClientText(playerEntity, 2, flagComponent);
-                        }
+                    } else {
+                        setClientText(playerEntity, 2, flagComponent);
                     }
                 }
             }
-        }
-        else {
-            CBCTeam winner = game.getWinner();
-            for (CBCPlayer player : game.getPlayers().values()) {
+
+        } else {
+            CTFTeam winner = game.getWinner();
+            for (CTFPlayer player : game.getPlayers()) {
                 if (player.isOnline()) {
                     setClientText(player.getPlayer(), 2, smallText(winner.getTeamName() + " WINS!").color(winner.getColor()));
                 }
@@ -139,19 +86,56 @@ public class CTFBossbarManager extends GameBossBarManager {
             }
 
             setServerText(3, smallRaisedText(timerText).color(textColor).append(smallRaisedText(" UNTIL ALL TEAMS LOSE 1 FLAG").color(NamedTextColor.WHITE)));
-        }
-        else {
+
+        } else {
             if (game.isSuddenDeath()) {
                 Component suddenDeathText = smallRaisedText("SUDDEN DEATH - BORDER SIZE ").color(NamedTextColor.RED)
                         .append(smallRaisedText(game.getBorderDiameter() + "x" + game.getBorderDiameter()).color(NamedTextColor.YELLOW));
                 setServerText(3, suddenDeathText);
-            }
-            else {
+            } else {
                 setServerText(3, blankComponent());
             }
         }
 
         updateClientBars();
+
+    }
+
+    public Component getTeamStatus (CTFTeam team) {
+
+        Component flagComponent = Component.text("");
+        TextColor teamColor = team.getColor();
+        int flagsLeft = team.getFlagsLeft();
+
+        if (flagsLeft > 0)
+            if (!team.isFlagAtBase()) {
+                CTFPlayer flagHolder = team.getFlagHolder();
+                if (flagHolder != null) {
+                    flagComponent = smallText("!! ").color(NamedTextColor.RED).append(
+                                    smallText("FLAG STOLEN BY ").color(teamColor)
+                            .append(flagHolder.getNameComponent(ResourcePackFont.SMALL_5X5))
+                            .append(smallText(checkPlural(" - %s FLAG%s REMAINING", flagsLeft)
+                                    .toUpperCase()).color(teamColor)));
+                }
+            } else {
+                flagComponent = smallText(checkPlural("FLAG SAFE AT BASE - %s FLAG%s REMAINING", flagsLeft))
+                        .color(team.getColor());
+            }
+        else {
+            int alive = team.getAlivePlayers().size();
+            if (alive > 1) {
+                flagComponent = smallText("FINAL LIFE - NO FLAGS REMAINING - ").color(NamedTextColor.GOLD).append(
+                        smallText(alive + " PLAYERS LEFT").color(team.getColor())
+                );
+            }
+            else {
+                flagComponent = smallText("FINAL LIFE - NO FLAGS REMAINING - ").color(NamedTextColor.GOLD).append(
+                        smallText("LAST PLAYER ALIVE").color(team.getColor())
+                );
+            }
+        }
+
+        return flagComponent;
 
     }
 
@@ -175,7 +159,7 @@ public class CTFBossbarManager extends GameBossBarManager {
 
             Component teamComponent = Component.text("");
 
-            Collection<CBCPlayer> players = team.getPlayers();
+            Collection<CTFPlayer> players = team.getPlayers();
 
             for (CBCPlayer player : players) {
 

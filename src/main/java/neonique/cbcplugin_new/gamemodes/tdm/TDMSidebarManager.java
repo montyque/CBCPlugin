@@ -130,40 +130,36 @@ public class TDMSidebarManager extends GameSidebarManager {
         displayToEveryone.add(blankComponent());
 
         if (game.getGameManager().isEventGame()) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getTDMPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
         }
 
         updateAllClientBoards();
     }
 
-    public void updateClientBoard (Player player) {
+    public void updateClientBoard (Player client) {
+
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
+        TDMPlayer player = game.getPlayer(client);
 
-        // Client side scoreboards
-        if (game.getPlayer(player) != null) {
+        if (player != null) {
 
-            TDMPlayer tdmPlayer = (TDMPlayer) game.getPlayer(player);
-            TDMTeam team = (TDMTeam) tdmPlayer.getTeam();
+            TDMTeam team = game.getPlayerTeam(player);
 
             if (teamOrderOnSidebar.containsKey(team)) {
-
                 int slot = teamOrderOnSidebar.get(team);
                 clientStringList.set(slot, getTeamRow(team, true));
-
             }
 
             char swordChar = team.getSwordChar(true);
 
-            List<CBCPlayer> playersByKills = team.sortPlayersByKills();
+            List<TDMPlayer> playersByKills = team.sortPlayersByKills();
             clientStringList.add(getComponentSpaceOfLength(11).append(smallText("TEAMMATE KILLS:").color(NamedTextColor.AQUA)));
 
-            for (CBCPlayer teammate : playersByKills) {
-
-                boolean isPlayer = Objects.equals(tdmPlayer.getPlayerId(), teammate.getPlayerId());
+            for (TDMPlayer teamMember : playersByKills) {
 
                 Component playerComponent = getComponentSpaceOfLength(4);
 
-                if (isPlayer) {
+                if (teamMember == player) {
                     playerComponent = playerComponent
                             .append(Component.text("\uE880").color(NamedTextColor.YELLOW))
                             .append(getComponentSpaceOfLength(4));
@@ -174,17 +170,15 @@ public class TDMSidebarManager extends GameSidebarManager {
                             .append(getComponentSpaceOfLength(4));
                 }
 
-                TDMPlayer tdmTeammate = (TDMPlayer) teammate;
-
                 // Add placement
-                String placementString = tdmTeammate.getWithinTeamPlacement() + ". ";
-                if (isPlayer) {
+                String placementString = teamMember.getWithinTeamPlacement() + ". ";
+                if (teamMember == player) {
                     playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.YELLOW));
                 } else {
                     playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.WHITE));
                 }
 
-                String playerName = teammate.getName();
+                String playerName = teamMember.getName();
 
                 // Add player name
                 playerComponent = playerComponent.append(Component.text(playerName).color(team.getColor()));
@@ -194,10 +188,10 @@ public class TDMSidebarManager extends GameSidebarManager {
                 playerComponent = playerComponent.append(getComponentSpaceOfLength(102 - playerNameLength));
 
                 // Add team kills
-                int playerKills = teammate.getKills();
+                int playerKills = teamMember.getKills();
                 playerComponent = TextUtil.addLeadingSpaceForNumber(playerComponent, playerKills, 4);
 
-                if (isPlayer) {
+                if (teamMember == player) {
                     playerComponent = playerComponent.append(Component.text(playerKills).color(NamedTextColor.YELLOW));
                 }
                 else {
@@ -212,7 +206,7 @@ public class TDMSidebarManager extends GameSidebarManager {
 
             // Add game score on sidebar if showing
             if (game.getGameManager().isEventGame()) {
-                clientStringList.add(generateGameScoreComponent(game.getGamemode(), tdmPlayer, getComponentSpaceOfLength(11)));
+                clientStringList.add(generateGameScoreComponent(game.getGamemode(), player, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
         }
@@ -227,7 +221,7 @@ public class TDMSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
+        ClientSidebar clientSidebar = getPlayerSidebar(client);
         clientSidebar.setSidebarComponents(clientStringList);
     }
 }

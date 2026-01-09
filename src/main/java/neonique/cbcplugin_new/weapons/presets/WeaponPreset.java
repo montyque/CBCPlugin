@@ -1,5 +1,7 @@
 package neonique.cbcplugin_new.weapons.presets;
 
+import neonique.cbcplugin_new.managers.CombatManager;
+
 public class WeaponPreset {
 
     private final String presetName;
@@ -26,7 +28,7 @@ public class WeaponPreset {
     }
 
     public int getReloadTicks() {
-        return (int) Math.round(getReloadTimer() * 10);
+        return (int) Math.round(getReloadTimer() * CombatManager.RELOAD_TASK_FREQUENCY);
     }
 
 

@@ -1,10 +1,8 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -30,8 +28,8 @@ public class ShowdownPlayer extends CBCPlayer {
     private final static int ROUND_SURVIVAL_PTS = 15; // Points you gain for surviving a round
     private final static int TIME_ALIVE_PTS = 5; // Points you gain every 30 seconds you are alive
 
-    public ShowdownPlayer(ShowdownGame game, GameManager gameManager, CombatManager combatManager, Player player, Integer playerId) {
-        super(gameManager, combatManager, player, playerId);
+    public ShowdownPlayer(ShowdownGame game, GameManager gameManager, CombatManager combatManager, Player player) {
+        super(gameManager, combatManager, player);
         this.game = game;
     }
 
@@ -43,6 +41,7 @@ public class ShowdownPlayer extends CBCPlayer {
         Player playerEntity = getPlayer();
 
         setAlive(false); // Set player's alive state to false
+
         // Set gamemode of player to adventure and reset their stats
         resetPlayer();
 
@@ -103,7 +102,7 @@ public class ShowdownPlayer extends CBCPlayer {
         int killPts = KILL_PTS;
 
         // Check if less than half of players remain after kill
-        if (game.getTotalPlayers() / 2 <= game.getPlayersAlive()) {
+        if (game.getPlayers().size() / 2 <= game.getPlayersAlive()) {
             killPts += CLUTCH_KILL_PTS;
         }
 
@@ -140,6 +139,6 @@ public class ShowdownPlayer extends CBCPlayer {
     @Override
     public void addGamePoints (int points) {
         super.addGamePoints(points);
-        game.getSidebarManager().updateServerBoard();
+        game.updateServerSidebar();
     }
 }

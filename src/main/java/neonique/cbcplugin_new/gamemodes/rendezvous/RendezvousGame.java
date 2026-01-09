@@ -1,15 +1,14 @@
 package neonique.cbcplugin_new.gamemodes.rendezvous;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.rendezvous.RendezvousCheckpointTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.rendezvous.RendezvousStartTimer;
@@ -19,7 +18,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffect;
@@ -28,16 +26,12 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class RendezvousGame extends TeamGame {
-
-    // Team list
-    private final List<RendezvousTeam> teams = new ArrayList<>();
+public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, RendezvousTeam> {
 
     // Game related variables
     private RendezvousSwapSystem swapType = RendezvousSwapSystem.TIMER;
     private int swapTimer;
     private int swapPeriod;
-    private int checkpointsToSwap;
     private int scoreStart = 1;
 
     private int teamsToWin = 1;
@@ -45,7 +39,6 @@ public class RendezvousGame extends TeamGame {
     private RendezvousTeam originalWinningTeam = null;
 
     // Map related variables
-    private RendezvousMap map;
     private List<RendezvousCheckpoint> checkpoints;
     private List<RendezvousSpawn> spawns;
     private HashMap<String, Set<Location>> teamStartSpawns;
@@ -57,32 +50,77 @@ public class RendezvousGame extends TeamGame {
     private double checkpointMaxDistance;
     private final List<Double> checkpointTargetDistances = new ArrayList<>();
     private boolean canHalfStick = false;
-    private int timeToCaptureCheckpoint = 30;
 
     // Tasks and event listeners
     private RendezvousStartTimer startGameTimer;
     private RendezvousCheckpointTask checkpointTracking;
     private PlayerNoMove playerNoMoveListener;
 
-    public RendezvousGame(GameManager gameManager, CombatManager combatManager) {
-        super(gameManager, combatManager);
+    public RendezvousGame(GameManager gameManager) {
+        super(gameManager);
     }
 
     @Override
-    public void setupGame(CBCMap mapChosen, LinkedHashMap<String, LobbyTeam> teams, Collection<LobbyPlayer> players,
-                          HashMap<String, Boolean> boolVars, HashMap<String, Integer> intVars, HashMap<String, String> stringVars) {
+    public CBCGamemode getGamemode () {
+        return CBCGamemode.RENDEZVOUS;
+    }
+
+    @Override
+    public RendezvousTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
+        return new RendezvousTeam(this, team.getTeamId(),
+                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
+                team.getPrefix(), team.getItem(), team.getGlassHead()
+        );
+    }
+
+    @Override
+    public RendezvousPlayer createGamemodePlayer (Player playerEntity) {
+        return new RendezvousPlayer(this, getGameManager(), getCombatManager(), playerEntity);
+    }
+
+    @Override
+    public GameSidebarManager createSidebarManager() {
+        return new RendezvousSidebarManager(getGameManager(), getCombatManager(), this);
+    }
+
+    @Override
+    public GameBossBarManager createBossbarManager() {
+        return new RendezvousBossbarManager(this);
+    }
+
+    @Override
+    public void setupMap (RendezvousMap map) {
+
+        super.setupMap(map);
+
+        teamStartSpawns = map.getTeamStartSpawns();
+        spawns = map.getRandomSpawns();
+        checkpoints = map.getCheckpoints();
+
+        // Get min and max checkpoint distance
+        checkpointMinDistance = map.getCheckpointDistanceMin();
+        checkpointMaxDistance = map.getCheckpointDistanceMax();
+
+        // Get final checkpoint
+        finalCheckpointEnabled = map.isFinalCheckpointEnabled();
+        if (finalCheckpointEnabled) {
+            finalCheckpoint = map.getFinalCheckpoint();
+        }
+    }
+
+    @Override
+    public void setupGame (GameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
-        final World world = getWorld();
 
         // Setup map
-        setupMap(mapChosen);
+        setupMap((RendezvousMap) ctx.getMap());
+
         // Setup default game variables
-        setupDefaultGameVars(boolVars, intVars, stringVars);
+        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
 
         // Set gamemode information
-        setGamemode(CBCGamemode.RENDEZVOUS);
         createHeaderTitle();
 
         // Enable weapons
@@ -93,39 +131,37 @@ public class RendezvousGame extends TeamGame {
         setGameCommands(new RendezvousGameCommands(gameManager, combatManager, this));
 
         // Setup gamemode game variables
-        this.scoreStart = intVars.getOrDefault("checkpointsToWin", 8);
+        this.scoreStart = ctx.getIntVars().getOrDefault("checkpointsToWin", 8);
 
-        String swapSystemType = stringVars.getOrDefault("swapSystemType", "timer").toLowerCase();
+        String swapSystemType = ctx.getStringVars().getOrDefault("swapSystemType", "timer").toLowerCase();
         if (swapSystemType.equals("totalcheckpoints")) {
             swapType = RendezvousSwapSystem.TOTAL_CHECKPOINTS;
-            checkpointsToSwap = intVars.getOrDefault("swapCheckpoints", 8);
         }
         else if (swapSystemType.equals("teamcheckpoints")) {
             swapType = RendezvousSwapSystem.TEAM_CHECKPOINTS;
-            checkpointsToSwap = intVars.getOrDefault("swapCheckpoints", 4);
         }
         else {
             swapType = RendezvousSwapSystem.TIMER;
-            swapPeriod = intVars.getOrDefault("swapTimer", 120);
+            swapPeriod = ctx.getIntVars().getOrDefault("swapTimer", 120);
             swapTimer = swapPeriod;
         }
 
-        canHalfStick = boolVars.getOrDefault("canHalfStick", false);
-        timeToCaptureCheckpoint = intVars.getOrDefault("captureTime", 30);
+        canHalfStick = ctx.getBoolVars().getOrDefault("canHalfStick", false);
+        int timeToCaptureCheckpoint = ctx.getIntVars().getOrDefault("captureTime", 30);
 
         // Change final checkpoint
         if (finalCheckpointEnabled) {
-            finalCheckpointEnabled = boolVars.getOrDefault("finalCheckpointEnabled", false);
+            finalCheckpointEnabled = ctx.getBoolVars().getOrDefault("finalCheckpointEnabled", false);
         }
 
-        this.teamsToWin = intVars.getOrDefault("teamsToWin", 1);
+        this.teamsToWin = ctx.getIntVars().getOrDefault("teamsToWin", 1);
 
         // Create teams and players
-        createTeams(teams);
+        createTeams(ctx.getTeams());
         teleportSpectators();
 
         // Teleport all players
-        for (RendezvousTeam team : this.teams) {
+        for (RendezvousTeam team : getTeams()) {
 
             team.setSpawns(teamStartSpawns.get(team.getTeamId()));
 
@@ -133,20 +169,19 @@ public class RendezvousGame extends TeamGame {
             Collections.shuffle(teamSpawnList);
 
             int playerinc = 0; // Increments every time we teleport a player
-            for (CBCPlayer player : team.getPlayers()) {
+            for (RendezvousPlayer player : team.getPlayers()) {
 
-                RendezvousPlayer rdvPlayer = (RendezvousPlayer) player;
-                rdvPlayer.resetPlayer();
+                player.resetPlayer();
 
                 // Spawns players in different spawnpoints - reason playerinc is used
-                rdvPlayer.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()), map.getMapCentre());
-
+                player.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()), getMap().getMapCentre());
                 playerinc++;
+
             }
 
             // Select a player's runner
             String teamId = team.getTeamId();
-            String runnerOrderString = stringVars.getOrDefault("_" + teamId + "RunnerOrder", "0").toLowerCase();
+            String runnerOrderString = ctx.getStringVars().getOrDefault("_" + teamId + "RunnerOrder", "0").toLowerCase();
 
             team.setRunnerQueue(runnerOrderString);
             team.setRunnerNextPlayerInQueue();
@@ -169,69 +204,66 @@ public class RendezvousGame extends TeamGame {
         // Start countdown for the game
         startGameTimer = new RendezvousStartTimer(gameManager, this, 11);
         startGameTimer.runTaskTimer(CBCPlugin.getPlugin(), 0, 20);
+
     }
 
-    public CBCTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        RendezvousTeam createdTeam = new RendezvousTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
-        );
-        teams.add(createdTeam);
-        return createdTeam;
-    }
+    @Override
+    public void gameWon (RendezvousTeam team) {
 
-    public CBCPlayer createGamemodePlayer (Player playerEntity, int playerId) {
-        return new RendezvousPlayer(this, getGameManager(), getCombatManager(), playerEntity, playerId);
-    }
-
-    public GameSidebarManager createSidebarManager() {
-        return new RendezvousSidebarManager(getGameManager(), getCombatManager(), this);
-    }
-
-    public GameBossBarManager createBossbarManager() {
-        return new RendezvousBossbarManager(this);
-    }
-
-    public void setupMap (CBCMap generalMap) {
-
-        super.setupMap(generalMap);
-        this.map = (RendezvousMap) generalMap;
-
-        teamStartSpawns = this.map.getTeamStartSpawns();
-        spawns = this.map.getRandomSpawns();
-        checkpoints = this.map.getCheckpoints();
-
-        // Get min and max checkpoint distance
-        checkpointMinDistance = this.map.getCheckpointDistanceMin();
-        checkpointMaxDistance = this.map.getCheckpointDistanceMax();
-
-        // Get final checkpoint
-        finalCheckpointEnabled = this.map.isFinalCheckpointEnabled();
-        if (finalCheckpointEnabled) {
-            finalCheckpoint = this.map.getFinalCheckpoint();
+        super.gameWon(team);
+        for (RendezvousPlayer player : team.getPlayers()) {
+            player.addGamePoints(40);
         }
+
+        cancelTask(checkpointTracking);
+
+    }
+
+    @Override
+    public void resetGame() {
+
+        super.resetGame();
+
+        // Cancel tasks
+        cancelTask(startGameTimer);
+        cancelTask(checkpointTracking);
+
+    }
+
+    @Override
+    public void incrementGameTime() {
+        super.incrementGameTime();
+
+        // If swap by timer, decrement swap timer
+        if (swapType == RendezvousSwapSystem.TIMER) {
+            if (getWinner() == null) {
+                decrementSwapTimer();
+            }
+        }
+    }
+
+    @Override
+    public PostGameStats getPostGameStats() {
+        return new RendezvousPostGameStats(this);
     }
 
     public void startGame() {
 
-        map.fillBlocksAtEnd();
+        getMap().fillBlocksAtEnd();
 
         // Allow players to move
         PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);
         playerNoMoveListener = null;
 
         // Initialise all players
-        for (RendezvousTeam team : teams) {
-            for (CBCPlayer player : team.getOnlinePlayers()) {
-
-                RendezvousPlayer rdvPlayer = (RendezvousPlayer) player;
-                rdvPlayer.playerSetup(2);
-                rdvPlayer.setTempImmune(60);
-                if (rdvPlayer.isPlayerRunner()) {
-                    rdvPlayer.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1,
+        for (RendezvousTeam team : getTeams()) {
+            for (RendezvousPlayer player : team.getOnlinePlayers()) {
+                player.playerSetup(2);
+                player.setTempImmune(60);
+                if (player.isPlayerRunner()) {
+                    player.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1,
                             0, false, false, false));
                 }
-
             }
         }
 
@@ -283,12 +315,9 @@ public class RendezvousGame extends TeamGame {
     }
 
     public List<RendezvousTeam> getTeamsByScore() {
-
-        List<RendezvousTeam> sortedTeamList = new ArrayList<>(teams);
+        List<RendezvousTeam> sortedTeamList = getTeams();
         sortedTeamList.sort(Comparator.comparingInt(RendezvousTeam::getScore));
-
         return sortedTeamList;
-
     }
 
     public void checkTeamWon (RendezvousTeam team) {
@@ -327,20 +356,6 @@ public class RendezvousGame extends TeamGame {
         else {
             gameWon(team);
         }
-    }
-
-    @Override
-    public void gameWon (CBCTeam team) {
-
-        super.gameWon(team);
-
-        // Add bonus points for winning
-        for (CBCPlayer player : team.getPlayers()) {
-            player.addGamePoints(40);
-        }
-
-        cancelTask(checkpointTracking);
-
     }
 
     public void decrementSwapTimer() {
@@ -382,7 +397,7 @@ public class RendezvousGame extends TeamGame {
     public void swapAllRunners() {
 
         // Teleport all players
-        for (RendezvousTeam team : teams) {
+        for (RendezvousTeam team : getTeams()) {
             if (team.isOutOfGame()) continue;
             // Select a player's runner
             team.setRunnerNextPlayerInQueue();
@@ -396,34 +411,6 @@ public class RendezvousGame extends TeamGame {
 
     }
 
-    @Override
-    public void resetGame() {
-
-        super.resetGame();
-
-        // Cancel tasks
-        cancelTask(startGameTimer);
-        cancelTask(checkpointTracking);
-
-    }
-
-    @Override
-    public void incrementGameTime() {
-        super.incrementGameTime();
-
-        // If swap by timer, decrement swap timer
-        if (swapType == RendezvousSwapSystem.TIMER) {
-            if (getWinner() == null) {
-                decrementSwapTimer();
-            }
-        }
-    }
-
-    @Override
-    public PostGameStats getPostGameStats() {
-        return new RendezvousPostGameStats(this);
-    }
-
     public int getScoreStart() {
         return scoreStart;
     }
@@ -434,10 +421,6 @@ public class RendezvousGame extends TeamGame {
 
     public List<RendezvousSpawn> getSpawns() {
         return spawns;
-    }
-
-    public List<RendezvousTeam> getTeams() {
-        return teams;
     }
 
     public boolean isFinalCheckpointEnabled() {
@@ -489,14 +472,4 @@ public class RendezvousGame extends TeamGame {
         return aliveRunners;
     }
 
-    public List<RendezvousPlayer> getRendezvousPlayers () {
-        // Get all players as RendezvousPlayer objects
-        List<RendezvousPlayer> playersList = new ArrayList<>();
-        for (CBCPlayer player : getPlayers().values()) {
-            if (player instanceof RendezvousPlayer) {
-                playersList.add((RendezvousPlayer) player);
-            }
-        }
-        return playersList;
-    }
 }
