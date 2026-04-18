@@ -119,7 +119,7 @@ public class HTGTeam extends CBCTeam<HTGPlayer> {
                 player.playerAfterDeath(null);
             }
 
-            player.setRespawning(false);
+            player.setRespawnTicks(0);
 
             // Show title to players
             if (player.isOnline()) {

@@ -6,7 +6,6 @@ import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
-import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
 import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
 import neonique.cbcplugin_new.weapons.*;
 import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;
@@ -59,7 +58,8 @@ public class CBCPlayer {
     // Combat variables
     private boolean alive = false;
     private boolean immune = false;
-    private boolean respawning = false;
+    private TempImmunityTask tempImmunityTask = null;
+    private int respawnTicks = 0;
     private CBCPlayer lastPlayerHitBy = null;
     private int lastPlayerHitByReset = 0;
     private final HashMap<CBCPlayer, Integer> timeDamaged = new HashMap<>();
@@ -103,8 +103,8 @@ public class CBCPlayer {
     }
 
     // Return true or false if this player is respawning
-    public boolean isRespawning() {
-        return (this.respawning);
+    public boolean isRespawning () {
+        return respawnTicks > 0;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +199,7 @@ public class CBCPlayer {
 
     public void playerSetup () {
         setAlive(true);
-        setRespawning(false);
+        setRespawnTicks(0);
         resetPlayer();
         inventory.setWeapons();
         inventory.loadEquipment();
@@ -338,12 +338,11 @@ public class CBCPlayer {
         this.lastKillTime = combatManager.getTimer();
 
         if (isOnline()) {
-
             Player player = getPlayer();
             addHealing(6);
             player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 200, 1);
-
         }
+
     }
 
     public void playerDie () {
@@ -373,24 +372,13 @@ public class CBCPlayer {
 
     }
 
-    public void playerKillStreakEnd() {
+    public void playerKillStreakEnd () {
         this.killStreak = 0;
     }
 
-    public void playerAfterDeath(CBCPlayer playerKiller) {
-
-        // Set player's title
+    public void playerAfterDeath (CBCPlayer playerKiller) {
         if (isOnline()) {
-            Player player = getPlayer();
-            this.respawning = true;
-            Component titleComponent = Component.text("YOU DIED!").color(NamedTextColor.RED)
-                    .decorate(TextDecoration.BOLD);
-            Title diedTitle = Title.title(titleComponent, Component.text("Respawning in 4")
-                    .color(NamedTextColor.YELLOW), Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(1500), Duration.ofMillis(250)));
-            player.showTitle(diedTitle);
-            // Set up respawn timer
-            RespawnTimerTask respawnTimerTask = new RespawnTimerTask(gameManager, combatManager, this, 4);
-            respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 20L, 20L);
+            setRespawnTicks(80);
         }
     }
 
@@ -405,7 +393,6 @@ public class CBCPlayer {
             updateMultiKill();
 
             Player player = getPlayer();
-            this.respawning = true;
             Component titleComponent = Component.text("");
 
             String multiKillShow = "";
@@ -454,12 +441,10 @@ public class CBCPlayer {
     }
 
     public void playerSpawn() {
-
+        respawnTicks = 0;
         immune = true;
         new TempImmunityTask(gameManager, combatManager, this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
-
         playerSetup();
-
     }
 
     public void decrementLastPlayerHit() {
@@ -477,8 +462,17 @@ public class CBCPlayer {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     public void setTempImmune(long duration) {
+
+        if (tempImmunityTask != null) {
+            if (!tempImmunityTask.isCancelled()) {
+                tempImmunityTask.cancel();
+            }
+        }
+
         setImmune(true);
-        new TempImmunityTask(gameManager, combatManager, this, (int) (duration / 5)).runTaskTimer(CBCPlugin.getPlugin(), 0, 5);
+        tempImmunityTask = new TempImmunityTask(gameManager, combatManager, this, (int) (duration / 5));
+        tempImmunityTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 5);
+
     }
 
     public boolean isImmune() {
@@ -487,10 +481,9 @@ public class CBCPlayer {
 
     public void setImmune(boolean b) {
         immune = b;
-    }
-
-    public void setRespawning(boolean b) {
-        respawning = b;
+        if (!b) {
+            tempImmunityTask = null;
+        }
     }
 
     public void setTeam(CBCTeam<?> cbcTeam) {
@@ -618,8 +611,12 @@ public class CBCPlayer {
 
     // Name display in list
     public void updatePlayerListName () {
-        Component playerListName = Component.text("");
 
+        if (playerListSuffixes.isEmpty()) {
+            resetPlayerListName();
+        }
+
+        Component playerListName = Component.text("");
         playerListName = playerListName.append(getNameComponentWithTeamPrefix());
 
         for (Component suffix : playerListSuffixes) {
@@ -724,11 +721,9 @@ public class CBCPlayer {
     }
 
     public void healToFull () {
-
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
         playerEntity.setHealth(getMaxHealth());
-
     }
 
     public double getMaxHealth () {
@@ -751,10 +746,6 @@ public class CBCPlayer {
         gamePoints = pts;
     }
 
-    public String getLowercaseName () {
-        return getName().toLowerCase();
-    }
-
     public Component modifyDeathMessage (CBCPlayer playerKiller, Component deathMessage) {
         return deathMessage;
     }
@@ -770,4 +761,28 @@ public class CBCPlayer {
     public UUID getUUID() {
         return getOfflinePlayer().getUniqueId();
     }
+
+    public int getRespawnTicks () {
+        return respawnTicks;
+    }
+
+    public void setRespawnTicks (int ticks) {
+        this.respawnTicks = ticks;
+    }
+
+    public void respawnTick () {
+        respawnTicks--;
+    }
+
+    public Title getDeathTitle () {
+        return getRespawnTitle();
+    }
+
+    public Title getRespawnTitle () {
+        return Title.title(
+                Component.text("YOU DIED!").color(NamedTextColor.RED),
+                Component.text("Respawning in " + (((respawnTicks - 1) / 20) + 1)).color(NamedTextColor.YELLOW),
+                Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(1500), Duration.ofMillis(250)));
+    }
+
 }

@@ -68,19 +68,12 @@ public class TDMPlayer extends CBCPlayer {
 
         // The player will respawn, so we are overriding the old method
         if (isOnline() && getTeam() != null) {
-            // Remove potion effects
-            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-            }
+
+            clearEffects();
 
             // Respawn player
-            setRespawning(true);
+            setRespawnTicks(80);
 
-            // Find the amount of time that it takes for the players to respawn
-            int timeToRespawn = 4;
-            // Set up respawn timer
-            RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
-            respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
         }
     }
 

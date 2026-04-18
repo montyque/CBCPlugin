@@ -96,6 +96,14 @@ public class ShowdownPlayer extends CBCPlayer {
     }
 
     @Override
+    public Title getDeathTitle() {
+        return Title.title(
+                Component.text("YOU DIED!").color(NamedTextColor.RED),
+                Component.text("You've been eliminated!").color(NamedTextColor.YELLOW),
+                Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
+    }
+
+    @Override
     public void playerAfterKill (CBCPlayer playerKilled) {
 
         // Calculate points gained from kill

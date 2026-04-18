@@ -69,23 +69,10 @@ public class KOTHPlayer extends CBCPlayer {
 
         // If the player is online and has a team let them respawn
         if (isOnline() && getTeam() != null) {
-
-            // Remove potion effects
-            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-            }
-
+            clearEffects();
             if (!((KOTHTeam) getTeam()).isOutOfGame()) {
-                // Respawn player
-                setRespawning(true);
-
-                // Find the amount of time that it takes for the players to respawn
-                int timeToRespawn = 4;
-                // Set up respawn timer
-                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
-                respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
+                setRespawnTicks(80);
             }
-
         }
 
         // Update bossbar manager

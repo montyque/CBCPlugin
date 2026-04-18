@@ -353,8 +353,6 @@ public class RendezvousPlayer extends CBCPlayer {
     @Override
     public void playerAfterDeath (CBCPlayer playerKiller) {
 
-        clearPlayerListSuffixes();
-
         // The player will respawn, so we are overriding the old method
         if (isOnline() && getTeam() != null) {
 
@@ -364,15 +362,7 @@ public class RendezvousPlayer extends CBCPlayer {
             }
 
             if (!game.getPlayerTeam(this).isOutOfGame()) {
-
-                // Make sure team is still able to respawn
-                setRespawning(true);
-                // Find the amount of time that it takes for the players to respawn
-                int timeToRespawn = 4;
-                // Set up respawn timer
-                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
-                respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
-
+                setRespawnTicks(80);
             }
         }
 

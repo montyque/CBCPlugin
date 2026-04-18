@@ -130,8 +130,8 @@ public class PracticeManager {
 
         gameManager.addPlayer(playerObj);
         playerObj.playerSpawn();
-
         gameManager.setAudience(gameManager.getPlayerEntities());
+
     }
 
     public void playerLeave (PracticePlayer player) {
@@ -141,13 +141,14 @@ public class PracticeManager {
         }
         removePlayer(player);
         gameManager.removePlayer(player);
+        gameManager.setAudience(gameManager.getPlayerEntities());
 
     }
 
     public void removePlayer (PracticePlayer player) {
         player.setAlive(false);
         player.setImmune(false);
-        player.setRespawning(false);
+        player.setRespawnTicks(0);
         if (player.isOnline()) {
             player.getPlayer().clearTitle();
             player.getPlayer().teleport(new Location(world, -1069.5, 126.0, -1668.5));
@@ -163,8 +164,6 @@ public class PracticeManager {
                     Component.text("You have left the practice arena.").color(NamedTextColor.RED)
             );
         }
-
-        gameManager.setAudience(gameManager.getPlayerEntities());
 
     }
 

@@ -4,11 +4,9 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
 import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -59,31 +57,28 @@ public class KMationPlayer extends CBCPlayer {
         // The player will respawn, so we are overriding the old method
         if (isOnline()) {
 
-            // Remove potion effects
-            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-            }
+            clearEffects();
 
             // Check if player is eliminated
             if (!eliminated) {
-                // Respawn player
-                setRespawning(true);
-
-                // Find the amount of time that it takes for the players to respawn
-                int timeToRespawn = 3;
-                // Set up respawn timer
-                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
-                respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
-            } else {
-                Component titleComponent = Component.text("ELIMINATED").color(NamedTextColor.RED)
-                        .decorate(TextDecoration.BOLD);
-                Title diedTitle = Title.title(titleComponent, Component.text("Eliminated in Cycle #" + (cyclesSurvived + 1))
-                        .color(NamedTextColor.YELLOW), Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
-                getPlayer().showTitle(diedTitle);
+                setRespawnTicks(80);
             }
         }
 
         game.updateBossbarManager();
+
+    }
+
+    @Override
+    public Title getDeathTitle() {
+        if (eliminated) {
+            return Title.title(
+                    Component.text("ELIMINATED").color(NamedTextColor.RED),
+                    Component.text("Eliminated in Cycle " + (cyclesSurvived + 1))
+                    .color(NamedTextColor.YELLOW), Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
+        } else {
+            return getRespawnTitle();
+        }
     }
 
     @Override
@@ -140,7 +135,7 @@ public class KMationPlayer extends CBCPlayer {
         }
 
         if (isOnline()) getPlayer().setGameMode(GameMode.SPECTATOR);
-        setRespawning(false);
+        setRespawnTicks(0);
         playerAfterDeath(null);
     }
 

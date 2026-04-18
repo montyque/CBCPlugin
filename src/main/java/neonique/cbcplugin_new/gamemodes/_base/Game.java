@@ -113,7 +113,7 @@ public abstract class Game<
         // Reset all players
         for (CBCPlayer player : playerList.values()) {
             player.resetPlayer();
-            player.setRespawning(false);
+            player.setRespawnTicks(0);
             player.setAlive(false);
         }
 
@@ -234,6 +234,7 @@ public abstract class Game<
                 // Put player into spectator mode, they cannot come back into the game yet
                 playerEntity.setGameMode(GameMode.SPECTATOR);
                 cbcplayer.playerAfterDeath(null);
+                player.showTitle(cbcplayer.getDeathTitle());
 
                 isSpectator = false;
 
