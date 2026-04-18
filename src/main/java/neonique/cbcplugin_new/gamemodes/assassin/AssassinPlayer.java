@@ -5,7 +5,6 @@ import neonique.cbcplugin_new.enums.PlayerHeadType;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
 import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -227,21 +226,9 @@ public class AssassinPlayer extends CBCPlayer {
 
         // The player will respawn, so we are overriding the old method
         if (isOnline()) {
-
-            // Remove potion effects
-            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-            }
-
-            // Respawn player
-            setRespawning(true);
-
-            // Find the amount of time that it takes for the players to respawn
-            int timeToRespawn = 4;
-            // Set up respawn timer
-            RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
-            respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
-
+            clearEffects();
+            setRespawnTicks(80);
+            getDeathTitle();
         }
 
         game.getBossbarManager().update();

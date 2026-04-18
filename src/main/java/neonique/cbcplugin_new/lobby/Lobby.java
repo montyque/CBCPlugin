@@ -163,21 +163,21 @@ public class Lobby {
 
         // Create teams
         teams.put("red", new LobbyTeam(gameManager, this, "01", "red",
-                "Red", "R", Material.RED_STAINED_GLASS, NamedTextColor.RED, ChatColor.RED));
+                "Red", "R", Material.RED_STAINED_GLASS, NamedTextColor.RED));
         teams.put("blue", new LobbyTeam(gameManager, this, "02", "blue",
-                "Blue", "B", Material.BLUE_STAINED_GLASS, NamedTextColor.BLUE, ChatColor.BLUE));
+                "Blue", "B", Material.BLUE_STAINED_GLASS, NamedTextColor.BLUE));
         teams.put("green", new LobbyTeam(gameManager, this, "03", "green",
-                "Green", "G", Material.LIME_STAINED_GLASS, NamedTextColor.GREEN, ChatColor.GREEN));
+                "Green", "G", Material.LIME_STAINED_GLASS, NamedTextColor.GREEN));
         teams.put("yellow", new LobbyTeam(gameManager, this, "04", "yellow",
-                "Yellow", "Y", Material.YELLOW_STAINED_GLASS, NamedTextColor.YELLOW, ChatColor.YELLOW));
+                "Yellow", "Y", Material.YELLOW_STAINED_GLASS, NamedTextColor.YELLOW));
         teams.put("cyan", new LobbyTeam(gameManager, this, "05", "cyan",
-                "Cyan", "C", Material.CYAN_STAINED_GLASS, NamedTextColor.AQUA, ChatColor.AQUA));
+                "Cyan", "C", Material.CYAN_STAINED_GLASS, NamedTextColor.AQUA));
         teams.put("orange", new LobbyTeam(gameManager, this, "06", "orange",
-                "Orange", "O", Material.ORANGE_STAINED_GLASS, NamedTextColor.GOLD, ChatColor.GOLD));
+                "Orange", "O", Material.ORANGE_STAINED_GLASS, NamedTextColor.GOLD));
         teams.put("magenta", new LobbyTeam(gameManager, this, "07", "magenta",
-                "Magenta", "M", Material.MAGENTA_STAINED_GLASS, NamedTextColor.LIGHT_PURPLE, ChatColor.LIGHT_PURPLE));
+                "Magenta", "M", Material.MAGENTA_STAINED_GLASS, NamedTextColor.LIGHT_PURPLE));
         teams.put("purple", new LobbyTeam(gameManager, this, "08", "purple",
-                "Purple", "P", Material.PURPLE_STAINED_GLASS, NamedTextColor.DARK_PURPLE, ChatColor.DARK_PURPLE));
+                "Purple", "P", Material.PURPLE_STAINED_GLASS, NamedTextColor.DARK_PURPLE));
 
         // Creating spectator and FFA scoreboard teams
         ScoreboardManager scoreboardManager = CBCPlugin.getPlugin().getServer().getScoreboardManager();
@@ -185,6 +185,7 @@ public class Lobby {
         ffaTeam = scoreboard.registerNewTeam("09ffaLobby");
         ffaTeam.setAllowFriendlyFire(true); // Allow friendly fire
         ffaTeam.prefix(Component.text(" ■ ").color(NamedTextColor.WHITE));
+
         // If there's a team prefix, set it
         spectatorTeam = scoreboard.registerNewTeam("10spectatorLobby");
         spectatorTeam.setAllowFriendlyFire(true); // Allow friendly fire

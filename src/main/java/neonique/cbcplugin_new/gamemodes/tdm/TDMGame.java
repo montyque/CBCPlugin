@@ -263,6 +263,9 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
             // Check for winner of game
             checkWinner();
         }
+
+        updateBossbarManager();
+
     }
 
     public List<TDMTeam> getLeadingTeams() {

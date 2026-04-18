@@ -1,10 +1,8 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -205,40 +203,39 @@ public class CTFPlayer extends CBCPlayer {
 
         if (defensiveKillGive) ctfPlayerKiller.incrementDefensiveKills();
 
-        if (isOnline() && getTeam() != null) {
-
-            // Make sure team is still able to respawn
+        if (isOnline()) {
+            // Respawn player if their team is still able to respawn
             if (team.canRespawn()) {
-
-                setRespawning(true);
-
-                // Find the amount of time that it takes for the players to respawn
                 int timeToRespawn = game.getRespawnTime(team.getOnlinePlayers().size());
-                // Set up respawn timer
-                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
-                respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
-
-            } else {
-
-                // Player can no longer respawn
-                Component titleComponent = Component.text("YOU DIED!").color(NamedTextColor.RED)
-                        .decorate(TextDecoration.BOLD);
-                Title diedTitle = Title.title(titleComponent, Component.text("You've been eliminated!")
-                        .color(NamedTextColor.YELLOW), Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
-                getPlayer().showTitle(diedTitle);
-
+                setRespawnTicks(timeToRespawn * 20);
             }
         }
 
         if (!team.canRespawn()) {
             if (!eliminated) {
                 eliminatePlayer();
-                playerKiller.addGamePoints(FINAL_KILL_PTS);
+                if (playerKiller != null) {
+                    playerKiller.addGamePoints(FINAL_KILL_PTS);
+                }
             }
         }
 
         // Update sidebar
         game.updateServerSidebar();
+
+    }
+
+    @Override
+    public Title getDeathTitle() {
+        CTFTeam team = game.getPlayerTeam(this);
+        if (team.canRespawn()) {
+            return getRespawnTitle();
+        } else {
+            return Title.title(
+                    Component.text("YOU DIED!").color(NamedTextColor.RED),
+                    Component.text("You've been eliminated!").color(NamedTextColor.YELLOW),
+                    Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
+        }
     }
 
     @Override

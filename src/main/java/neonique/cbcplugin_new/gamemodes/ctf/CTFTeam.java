@@ -158,6 +158,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         }
 
         for (CTFPlayer player : getPlayers()) {
+            if (!player.isOnline()) continue;
             Set<Player> glowingPlayers = player.getGlowingPlayers();
             game.getGlowManager().updateGlowingList(player.getPlayer(), glowingPlayers);
         }

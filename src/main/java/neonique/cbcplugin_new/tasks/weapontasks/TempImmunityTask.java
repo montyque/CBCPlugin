@@ -39,10 +39,11 @@ public class TempImmunityTask extends BukkitRunnable {
             return;
         }
 
-        tick++;
         if (tick >= tickLimit) {
             player.setImmune(false);
             this.cancel();
         }
+        tick++;
+
     }
 }

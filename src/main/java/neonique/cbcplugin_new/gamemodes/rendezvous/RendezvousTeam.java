@@ -89,7 +89,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
         List<RendezvousPlayer> players = new ArrayList<>(getPlayers());
 
         // Sort players by name
-        players.sort(Comparator.comparing(RendezvousPlayer::getLowercaseName));
+        players.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
         List<RendezvousPlayer> playersNotListed = new ArrayList<>(getPlayers());
 
         // Go through each character in number order list
@@ -504,7 +504,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
                 player.playerAfterDeath(null);
             }
 
-            player.setRespawning(false);
+            player.setRespawnTicks(0);
 
             // Show title to players
             if (player.isOnline()) {

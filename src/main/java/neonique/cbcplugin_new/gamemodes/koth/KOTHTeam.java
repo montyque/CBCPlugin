@@ -98,7 +98,7 @@ public class KOTHTeam extends CBCTeam<KOTHPlayer> {
                 player.playerAfterDeath(null);
             }
 
-            player.setRespawning(false);
+            player.setRespawnTicks(0);
 
             // Show title to players
             if (player.isOnline()) {

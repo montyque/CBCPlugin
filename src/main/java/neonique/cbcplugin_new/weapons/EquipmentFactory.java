@@ -29,7 +29,7 @@ public class EquipmentFactory {
         chestplateMeta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
 
         // Set the trim of the chestplate
-        CBCTeam team = player.getTeam();
+        CBCTeam<?> team = player.getTeam();
         if (team != null) {
             TrimMaterial material = team.getTrimMaterial();
             TrimPattern pattern = trimService.getPlayerTrim(player.getOfflinePlayer().getUniqueId());
@@ -45,7 +45,7 @@ public class EquipmentFactory {
 
     public ItemStack getHelmet (CBCPlayer player) {
 
-        CBCTeam team = player.getTeam();
+        CBCTeam<?> team = player.getTeam();
         if (team != null) {
             return team.getGlassHead();
         }

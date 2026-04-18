@@ -100,27 +100,15 @@ public class HTGPlayer extends CBCPlayer {
         }
 
         // The player will respawn, so we are overriding the old method
-        if (isOnline() && getTeam() != null ) {
-
-            // Remove potion effects
-            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-            }
-
+        if (isOnline() && getTeam() != null) {
+            clearEffects();
             if (!((HTGTeam) getTeam()).isOutOfGame()) {
-                // Respawn player
-                setRespawning(true);
-
-                // Find the amount of time that it takes for the players to respawn
-                int timeToRespawn = 4;
-                // Set up respawn timer
-                RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
-                respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
-
+                setRespawnTicks(80);
             }
         }
 
-        game.getBossbarManager().update();
+        game.updateBossbarManager();
+
     }
 
     public HTGSpawn selectSpawn () {
@@ -183,14 +171,17 @@ public class HTGPlayer extends CBCPlayer {
 
         isHoldingGold = true;
 
-        // Heal player and give player absorption hearts
-        playerEntity.setHealth(20);
+        // Heal player with absorption hearts
+        healToFull();
         playerEntity.addPotionEffect(
                 new PotionEffect(PotionEffectType.ABSORPTION, 30000000, 0, false, false, false)
         );
         playerEntity.addPotionEffect(
                 new PotionEffect(PotionEffectType.GLOWING, 30000000, 0, false, false, false)
         );
+
+        // Give player temporary immunity for 0.75 seconds
+        setTempImmune(15);
 
         // Play sound for player
         playerEntity.playSound(getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 300, 2);

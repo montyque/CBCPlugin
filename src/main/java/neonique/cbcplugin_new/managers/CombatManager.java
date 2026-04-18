@@ -103,6 +103,7 @@ public class CombatManager {
     private SwimTimerTask swimTimerTask;
     private DayCycleTask dayCycleTask;
     private PlayerParticlesTask playerParticlesTask;
+    private RespawnTimerTask respawnTimerTask;
 
     // Time tracking variable
     private int timer;
@@ -192,6 +193,7 @@ public class CombatManager {
 
         // Activate tasks
         weaponReloadTask = new WeaponReloadTask(gameManager, this);
+        respawnTimerTask = new RespawnTimerTask(gameManager);
         projectileUpdateTask = new ProjectileUpdateTask(gameManager, projectileManager);
         voidTask = new VoidTask(gameManager, this);
         healPadTask = new HealPadDetectionTask(gameManager, this);
@@ -201,6 +203,7 @@ public class CombatManager {
 
 
         weaponReloadTask.runTaskTimer(plugin, 0, RELOAD_TASK_PERIOD);
+        respawnTimerTask.runTaskTimer(plugin, 0, 1L);
         projectileUpdateTask.runTaskTimer(plugin, 0, 1L);
         voidTask.runTaskTimer(plugin, 0, 1L);
         healPadTask.runTaskTimer(plugin, 0, 2L);
@@ -313,6 +316,7 @@ public class CombatManager {
         cancelTask(swimTimerTask);
         cancelTask(dashPadTask);
         cancelTask(playerParticlesTask);
+        cancelTask(respawnTimerTask);
 
         if (dayCycleTask != null) {
             dayCycleTask.cancel();
@@ -421,6 +425,8 @@ public class CombatManager {
                 gameManager.playSound(location, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 3F, (float) 1);
             }
 
+            // Show death title
+            playerKilledEntity.showTitle(playerKilled.getDeathTitle());
             playerKilled.updateActionBarDisplay(true);
 
         }

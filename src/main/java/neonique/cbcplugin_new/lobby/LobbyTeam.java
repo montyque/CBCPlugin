@@ -33,8 +33,6 @@ public class LobbyTeam {
     private final String prefix;
     private final Material glassHead;
     private final NamedTextColor color;
-    private final ChatColor chatColor;
-
     private final int colorNumber;
 
     // Scoreboard team
@@ -43,7 +41,7 @@ public class LobbyTeam {
     private final HashMap<UUID, LobbyPlayer> playersInTeam = new HashMap<>();
 
     public LobbyTeam(GameManager gameManager, Lobby lobby, String teamIdNum, String teamId, String teamName, String prefix,
-                     Material glassHead, NamedTextColor color, ChatColor chatColor) {
+                     Material glassHead, NamedTextColor color) {
 
         this.gameManager = gameManager;
         this.lobby = lobby;
@@ -54,7 +52,6 @@ public class LobbyTeam {
         this.prefix = prefix;
         this.color = color;
         this.glassHead = glassHead;
-        this.chatColor = chatColor;
 
         // Set scoreboard manager
         ScoreboardManager scoreboardManager = CBCPlugin.getPlugin().getServer().getScoreboardManager();
@@ -173,11 +170,8 @@ public class LobbyTeam {
         return color;
     }
 
-    public ChatColor getChatColor() {
-        return chatColor;
-    }
-
     public int getColorNumber() {
         return colorNumber;
     }
+
 }

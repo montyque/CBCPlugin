@@ -1,10 +1,8 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import neonique.cbcplugin_new.tasks.weapontasks.RespawnTimerTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -56,7 +54,7 @@ public class TagPlayer extends CBCPlayer {
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
 
-        setRespawning(false);
+        setRespawnTicks(0);
         setAlive(false); // Set player's alive state to false
         // Set gamemode of player to adventure and reset their stats
         resetPlayer();
@@ -141,15 +139,6 @@ public class TagPlayer extends CBCPlayer {
 
         if (!isTagger()) {
 
-            // The player will not respawn, so we are overriding the old method
-            if (isOnline()) {
-                Component titleComponent = Component.text("YOU DIED!").color(NamedTextColor.RED)
-                        .decorate(TextDecoration.BOLD);
-                Title diedTitle = Title.title(titleComponent, Component.text("You've been eliminated!")
-                        .color(NamedTextColor.YELLOW), Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
-                getPlayer().showTitle(diedTitle);
-            }
-
             // Died as evader, so give taggers points IF not already eliminated
             if (game.isRoundInPlay() && !alreadyEliminated) {
                 TagTeam taggerTeam = game.getTaggers();
@@ -166,23 +155,29 @@ public class TagPlayer extends CBCPlayer {
             }
 
             alreadyEliminated = true;
-        }
-        else {
-
-            // Respawn player as player is a tagger
-            setRespawning(true);
-
+        } else {
+            clearEffects();
             // Find the amount of time that it takes for the players to respawn
             int timeToRespawn = game.getTaggerRespawnTimer();
-            // Set up respawn timer
-            RespawnTimerTask respawnTimerTask = new RespawnTimerTask(getGameManager(), getCombatManager(), this, timeToRespawn + 1);
-            respawnTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 0L, 20L);
-
+            setRespawnTicks(timeToRespawn * 20);
         }
 
+        getDeathTitle();
         game.updateServerSidebar();
         game.updateBossbarManager();
 
+    }
+
+    @Override
+    public Title getDeathTitle() {
+        if (isTagger()) {
+            return getRespawnTitle();
+        } else {
+            return Title.title(
+                    Component.text("YOU DIED!").color(NamedTextColor.RED),
+                    Component.text("You've been eliminated!").color(NamedTextColor.YELLOW),
+                    Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
+        }
     }
 
     private void addEvaderKill() {
