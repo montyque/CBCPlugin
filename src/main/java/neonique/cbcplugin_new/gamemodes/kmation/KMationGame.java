@@ -70,7 +70,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
     }
 
     @Override
-    public KMationPlayer createGamemodePlayer (Player playerEntity) {
+    public KMationPlayer createPlayer(Player playerEntity) {
         return new KMationPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 

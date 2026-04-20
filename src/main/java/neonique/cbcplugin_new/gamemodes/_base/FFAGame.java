@@ -23,7 +23,7 @@ public abstract class FFAGame<P extends CBCPlayer, M extends CBCMap> extends Gam
 
     public void createPlayers (Collection<LobbyPlayer> players) {
         for (LobbyPlayer onlinePlayer : players) {
-            createPlayer(onlinePlayer.getPlayer());
+            createAndAddPlayer(onlinePlayer.getPlayer());
         }
     }
 

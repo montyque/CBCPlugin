@@ -24,13 +24,13 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
-public class PracticeManager {
+public class PracticeManager implements PlayerSession<PracticePlayer> {
 
     private final GameManager gameManager;
     private final CombatManager combatManager;
 
     // Saving players, so they can leave and join practice and still have their stats intact
-    private HashMap<UUID, PracticePlayer> allPracticePlayers;
+    private Map<UUID, PracticePlayer> players;
 
     private boolean enabled = false;
 
@@ -38,7 +38,7 @@ public class PracticeManager {
 
     private final World world;
 
-    private HashMap<String, CBCMap> practiceMaps;
+    private Map<String, CBCMap> practiceMaps;
 
     private CBCMap currentMap;
     private List<FFASpawnpoint> spawns;
@@ -73,7 +73,7 @@ public class PracticeManager {
         combatManager.activateWeapons();
         gameManager.resetPlayerList();
 
-        allPracticePlayers = new HashMap<>();
+        players = new HashMap<>();
 
         // Send message
         world.sendMessage(
@@ -118,31 +118,41 @@ public class PracticeManager {
         gameManager.setAudience(new HashSet<>());
     }
 
-    public void addPlayer (Player player) {
+    public void playerJoin(Player player) {
 
         PracticePlayer playerObj;
-        if (allPracticePlayers.containsKey(player.getUniqueId())) {
-            playerObj = allPracticePlayers.get(player.getUniqueId());
+        if (players.containsKey(player.getUniqueId())) {
+            playerObj = players.get(player.getUniqueId());
         } else {
-            playerObj = new PracticePlayer(gameManager, combatManager, this, player);
-            allPracticePlayers.put(player.getUniqueId(), playerObj);
+            playerObj = createPlayer(player);
         }
 
-        gameManager.addPlayer(playerObj);
         playerObj.playerSpawn();
         gameManager.setAudience(gameManager.getPlayerEntities());
 
     }
 
-    public void playerLeave (PracticePlayer player) {
+    public void playerLeave (Player playerEntity) {
+
+        PracticePlayer player = getPlayer(playerEntity);
 
         if (player.isAlive() && player.getLastPlayerHitBy() != null) {
             combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.LEAVE_PRACTICE, false);
         }
+
         removePlayer(player);
-        gameManager.removePlayer(player);
         gameManager.setAudience(gameManager.getPlayerEntities());
 
+    }
+
+    @Override
+    public PracticePlayer createPlayer(Player playerEntity) {
+        return new PracticePlayer(gameManager, combatManager, this, playerEntity);
+    }
+
+    @Override
+    public void addPlayer(PracticePlayer player) {
+        players.put(player.getUUID(), player);
     }
 
     public void removePlayer (PracticePlayer player) {
@@ -167,6 +177,16 @@ public class PracticeManager {
 
     }
 
+    @Override
+    public Collection<PracticePlayer> getPlayers() {
+        return players.values();
+    }
+
+    @Override
+    public Optional<PracticePlayer> getPlayerByUUID(UUID uuid) {
+        return Optional.ofNullable(players.get(uuid));
+    }
+
     public void disable() {
 
         if (!enabled) {
@@ -177,12 +197,12 @@ public class PracticeManager {
         combatManager.disableWeapons();
 
         // Teleport all players
-        for (CBCPlayer player : gameManager.getPlayers()) {
-            removePlayer((PracticePlayer) player);
+        for (PracticePlayer p : List.copyOf(getPlayers())) {
+            removePlayer(p);
         }
 
         gameManager.resetPlayerList();
-        allPracticePlayers.clear();
+        players.clear();
 
         // Send message
         world.sendMessage(
@@ -258,9 +278,8 @@ public class PracticeManager {
     }
 
     public void playerLeaveServer(Player player) {
-        if (gameManager.hasPlayer(player)) {
-            // Remove player from practice
-            this.playerLeave((PracticePlayer) gameManager.getPlayer(player));
+        if (hasPlayer(player)) {
+            this.playerLeave(player);
         }
     }
 }

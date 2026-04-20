@@ -20,11 +20,13 @@ public class BaseGameCommands {
 
     protected GameManager gameManager;
     protected CombatManager combatManager;
+    private Game<?, ?> game;
 
-    public BaseGameCommands (GameManager gm, CombatManager wm) {
-        gameManager = gm;
-        combatManager = wm;
+    public BaseGameCommands (Game<?, ?> game) {
+        this.game = game;
     }
+
+    public
 
     public boolean checkIfPerms (Player user, int userPerms, int permsNeeded) {
         if (userPerms < permsNeeded) {
@@ -209,4 +211,6 @@ public class BaseGameCommands {
         }
         return tabCompletions;
     }
+
+
 }

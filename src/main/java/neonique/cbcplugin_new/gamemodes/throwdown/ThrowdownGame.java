@@ -78,7 +78,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
     }
 
     @Override
-    public ThrowdownPlayer createGamemodePlayer (Player playerEntity) {
+    public ThrowdownPlayer createPlayer(Player playerEntity) {
         return new ThrowdownPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 

@@ -4,7 +4,6 @@ import neonique.cbcplugin_new.enums.ChatType;
 import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.managers.ChatManager;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
@@ -32,12 +31,11 @@ public class ChatCommand extends _BaseCommand {
 
         int level = args.length;
 
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player user)) {
             return true;
         }
 
         // Get user
-        Player user = (Player) sender;
         UUID userUUID = user.getUniqueId();
 
         // Check what chat user is in
@@ -67,7 +65,8 @@ public class ChatCommand extends _BaseCommand {
 
         // Check if player is trying to change to team, and check if they can do so
         if (newChatType == ChatType.TEAM) {
-            Game game = gameManager.getCurrentGame();
+
+            Game<?, ?> game = gameManager.getCurrentGame();
 
             // Check if game is over already
             if (game == null) {
@@ -87,15 +86,13 @@ public class ChatCommand extends _BaseCommand {
             }
 
             // Check if player is in game
-            if (!gameManager.hasPlayer(user)) {
-                user.sendMessage(Component.text("You are not on a team right now!4").color(NamedTextColor.YELLOW));
+            if (!game.hasPlayer(user)) {
+                user.sendMessage(Component.text("You are not on a team right now!").color(NamedTextColor.YELLOW));
                 return true;
             }
 
-            CBCPlayer cbcPlayer = gameManager.getPlayer(user);
-
             // Check if player has a team
-            if (cbcPlayer.getTeam() == null) {
+            if (game.getPlayer(user).getTeam() == null) {
                 user.sendMessage(Component.text("You are not on a team right now!").color(NamedTextColor.YELLOW));
                 return true;
             }
@@ -104,6 +101,7 @@ public class ChatCommand extends _BaseCommand {
         chatManager.setChatType(userUUID, newChatType);
         user.sendMessage(Component.text("You are now in " + newChatType + " chat.").color(NamedTextColor.GREEN));
         return true;
+
     }
 
     @Override

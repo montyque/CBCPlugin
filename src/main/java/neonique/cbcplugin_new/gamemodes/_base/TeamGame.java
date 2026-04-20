@@ -13,8 +13,7 @@ import org.bukkit.Sound;
 import java.time.Duration;
 import java.util.*;
 
-public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends CBCTeam<P>>
-        extends Game<P, M> {
+public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends CBCTeam<P>> extends Game<P, M> {
 
     // If teams should be restored after this game
     private boolean restoreTeamsAfterGame = true;
@@ -78,6 +77,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
             for (LobbyPlayer onlinePlayer : teamOnlinePlayers) {
                 // Create player and add them to the created team
                 P player = createPlayer(onlinePlayer.getPlayer());
+                addPlayer(player);
                 team.addPlayer(player);
             }
 

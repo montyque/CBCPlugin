@@ -12,7 +12,7 @@ import java.util.List;
 
 public class practice_leave {
 
-    public static void run(PracticeCommand command, Player user, String[] args, int perms) {
+    public static void run (PracticeCommand command, Player user, String[] args, int perms) {
 
         GameManager gameManager = command.gameManager;
 
@@ -26,7 +26,8 @@ public class practice_leave {
             return;
         }
 
-        gameManager.practiceManager.playerLeave((PracticePlayer) gameManager.getPlayer(user));
+        gameManager.practiceManager.playerLeave(user);
+
     }
 
     public static List<String> getTabCompletions (PracticeCommand command, String[] args, int perms) {

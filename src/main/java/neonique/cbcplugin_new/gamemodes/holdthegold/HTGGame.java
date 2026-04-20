@@ -73,7 +73,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
     }
 
     @Override
-    public HTGPlayer createGamemodePlayer (Player playerEntity) {
+    public HTGPlayer createPlayer(Player playerEntity) {
         return new HTGPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 

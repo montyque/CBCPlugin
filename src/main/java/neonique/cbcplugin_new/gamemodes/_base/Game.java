@@ -6,6 +6,7 @@ import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.enums.ResourcePackFont;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
+import neonique.cbcplugin_new.managers.PlayerSession;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -29,10 +30,7 @@ import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.newline;
 
-public abstract class Game<
-        P extends CBCPlayer,
-        M extends CBCMap
-        > {
+public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements PlayerSession<P> {
 
     private Component headerTitle = Component.text("");
 
@@ -43,7 +41,7 @@ public abstract class Game<
     private M map;
     private BaseGameCommands gameCommands;
 
-    private final HashMap<UUID, P> playerList = new HashMap<>();
+    private final Map<UUID, P> playerList = new HashMap<>();
     private boolean gameOver = false;
     private boolean nightVisionDisabled = false;
     private int gameLength = 0;
@@ -78,9 +76,19 @@ public abstract class Game<
         return map;
     }
 
-    public abstract void setupGame (GameContext ctx);
+    public void addPlayer (P player) {
+        playerList.put(player.getUUID(), player);
+    }
 
-    public abstract P createGamemodePlayer (Player playerEntity);
+    public Optional<P> getPlayerByUUID (UUID uuid) {
+        return Optional.ofNullable(playerList.get(uuid));
+    }
+
+    public void removePlayer (P player) {
+        playerList.remove(player.getUUID());
+    }
+
+    public abstract void setupGame (GameContext ctx);
 
     public abstract GameSidebarManager createSidebarManager ();
 
@@ -123,16 +131,6 @@ public abstract class Game<
         // Disable all combat functions
         getCombatManager().disableWeapons();
 
-    }
-
-    public P createPlayer (Player playerEntity) {
-
-        // Create player, add them to player lists and game manager
-        P player = createGamemodePlayer(playerEntity);
-        playerList.put(playerEntity.getUniqueId(), player);
-        gameManager.addPlayer(player);
-
-        return player;
     }
 
     public void createHeaderTitle () {
@@ -193,10 +191,6 @@ public abstract class Game<
         this.gameCommands = gameCommands;
     }
 
-    public P getPlayer(Player player) {
-        return playerList.getOrDefault(player.getUniqueId(), null);
-    }
-
     public List<P> getPlayers () {
         return List.copyOf(playerList.values());
     }
@@ -205,79 +199,36 @@ public abstract class Game<
         return List.copyOf(playerList.values());
     }
 
-    public P getPlayerByUUID (UUID uuid) {
-        return playerList.get(uuid);
-    }
-
-    public P addPlayer (Player playerEntity) {
-        return createPlayer(playerEntity);
-    }
-
-    public void removePlayer (CBCPlayer player) {
-        playerList.remove(player.getOfflinePlayer().getUniqueId());
-        gameManager.removePlayer(player);
-    }
-
-    public void playerJoinServer(Player player) {
-
-        UUID offlinePlayerId = player.getUniqueId();
-
-        boolean isSpectator = true;
+    public void playerJoinServer(Player playerEntity) {
 
         // Check if player is a player
-        for (Player playerEntity : gameManager.getPlayerEntities()) {
-            if (playerEntity.getUniqueId().equals(offlinePlayerId)) {
-
-                CBCPlayer cbcplayer = gameManager.getPlayer(playerEntity);
-                if (cbcplayer == null) return;
-
-                // Put player into spectator mode, they cannot come back into the game yet
-                playerEntity.setGameMode(GameMode.SPECTATOR);
-                cbcplayer.playerAfterDeath(null);
-                player.showTitle(cbcplayer.getDeathTitle());
-
-                isSpectator = false;
-
-                break;
-            }
-        }
-
-        if (isSpectator) {
-            // Player is a spectator, so teleport them to map and let them spectate
-            setPlayerSpectator(player);
+        if (hasPlayer(playerEntity)) {
+            P player = getPlayer(playerEntity);
+            playerEntity.setGameMode(GameMode.SPECTATOR);
+            playerEntity.showTitle(player.getDeathTitle());
+            player.playerAfterDeath(null);
+        } else {
+            setPlayerSpectator(playerEntity);
         }
 
         if (baseBossBarManager != null) {
-            baseBossBarManager.addPlayer(player);
+            baseBossBarManager.addPlayer(playerEntity);
         }
 
-        baseSidebarManager.addPlayerSidebar(player);
+        baseSidebarManager.addPlayerSidebar(playerEntity);
 
     }
 
-    public void playerLeaveServer(Player player) {
+    public void playerLeaveServer(Player playerEntity) {
 
-        UUID offlinePlayerId = player.getUniqueId();
-        // Check if player is a player
-        for (Player playerEntity : gameManager.getPlayerEntities()) {
-            if (playerEntity.getUniqueId().equals(offlinePlayerId)) {
-                CBCPlayer cbcplayer = gameManager.getPlayer(playerEntity);
-
-                // If player is alive kill them
-                if (cbcplayer == null) return;
-                if (cbcplayer.isAlive()) {
-                    if (cbcplayer.getLastPlayerHitBy() == null) {
-                        combatManager.playerDeath(cbcplayer, null, DeathCause.DISCONNECT, false);
-                    } else {
-                        combatManager.playerDeath(cbcplayer, cbcplayer.getLastPlayerHitBy(), DeathCause.DISCONNECT, false);
-                    }
-                }
-
-                return;
+        if (hasPlayer(playerEntity)) {
+            P player = getPlayer(playerEntity);
+            if (player.isAlive()) {
+                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.DISCONNECT, false);
             }
         }
 
-        baseSidebarManager.removePlayerSidebar(player);
+        baseSidebarManager.removePlayerSidebar(playerEntity);
 
     }
 

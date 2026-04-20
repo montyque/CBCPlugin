@@ -31,7 +31,7 @@ public class PracticePlayerTeleport implements Listener {
         Location practicePortalLocation = new Location(gameManager.getWorld(), -1069.5, 126.5, -1656.5);
         if (e.getFrom().distance(practicePortalLocation) < 5) {
             if (gameManager.hasPlayer(e.getPlayer())) return;
-            practiceManager.addPlayer(e.getPlayer());
+            practiceManager.playerJoin(e.getPlayer());
         }
 
         e.setCancelled(true);

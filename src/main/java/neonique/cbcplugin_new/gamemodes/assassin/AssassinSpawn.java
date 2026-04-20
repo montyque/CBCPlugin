@@ -9,28 +9,27 @@ import org.bukkit.util.Vector;
 
 public class AssassinSpawn extends Location {
 
-    private final GameManager gameManager;
+    private final AssassinGame game;
 
     private final boolean ignoreY;
     private final int enemyRadius;
 
-    public AssassinSpawn(World world, Vector vector, GameManager gameManager, int enemyRadius, boolean ignoreY) {
+    public AssassinSpawn (AssassinGame game, World world, Vector vector, int enemyRadius, boolean ignoreY) {
+
         super(world, vector.getX(), vector.getY(), vector.getZ());
-        this.gameManager = gameManager;
+        this.game = game;
         this.enemyRadius = enemyRadius;
         this.ignoreY = ignoreY;
+
     }
 
     public boolean isEnemyNearbySpawn(CBCPlayer ownPlayer)  {
+        return game.getPlayers().stream()
+                .filter(CBCPlayer::isOnline)
+                .filter(CBCPlayer::isAlive)
+                .filter(p -> !p.isAlly(ownPlayer))
+                .anyMatch(p -> calculateDistance(p.getPlayer().getLocation()) <= enemyRadius);
 
-        for (Player player : getNearbyPlayers(enemyRadius)) {
-            if (!this.gameManager.hasPlayer(player)) continue;
-            CBCPlayer cbcplayer = this.gameManager.getPlayer(player);
-            if (!cbcplayer.isAlive()) continue;
-            if (ownPlayer.isAlly(cbcplayer)) continue;
-            return true;
-        }
-        return false;
     }
 
     public double calculateDistance(Location location) {

@@ -15,7 +15,7 @@ import java.util.Objects;
 
 public class BaseTeamGameCommands extends BaseGameCommands {
 
-    private final TeamGame<?, ?, ?> game;
+    private final TeamGame<? extends CBCPlayer, ?, ?> game;
 
     public BaseTeamGameCommands(GameManager gm, CombatManager wm, TeamGame<?, ?, ?> game) {
         super(gm, wm);
@@ -53,7 +53,7 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         }
 
         if (removePlayerFromGame) {
-            game.removePlayer(player);
+            game.removePlayerByBase(player);
         }
 
     }
@@ -146,19 +146,18 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         CBCTeam<?> team = findTeam(user, args[2]);
         if (team == null) return;
 
-        CBCPlayer playerObj;
-        if (gameManager.getPlayer(playerEntity) == null) {
-            playerObj = game.addPlayer(playerEntity);
-            putPlayerOnTeam(playerObj, team, true);
+        if (game.getPlayer(playerEntity) == null) {
+            CBCPlayer p = game.createAndAddPlayer(playerEntity);
+            putPlayerOnTeam(p, team, true);
         } else {
-            playerObj = gameManager.getPlayer(playerEntity);
-            if (playerObj.getTeam() != null) {
-                if (Objects.equals(playerObj.getTeam().getTeamName(), team.getTeamName())) {
+            CBCPlayer p = game.getPlayer(playerEntity);
+            if (p.getTeam() != null) {
+                if (p.getTeam() == team) {
                     sendColorMessage(user, playerName + " is already on " + team.getTeamName() + "!", NamedTextColor.YELLOW);
                     return;
                 }
             }
-            putPlayerOnTeam(gameManager.getPlayer(playerEntity), team, false);
+            putPlayerOnTeam(p, team, false);
         }
         broadcastAction(user, "used /game join to put " + playerName + " on " + team.getTeamName());
     }

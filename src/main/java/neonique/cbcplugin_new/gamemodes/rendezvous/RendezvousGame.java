@@ -74,7 +74,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
     }
 
     @Override
-    public RendezvousPlayer createGamemodePlayer (Player playerEntity) {
+    public RendezvousPlayer createPlayer(Player playerEntity) {
         return new RendezvousPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 

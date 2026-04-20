@@ -80,7 +80,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
     }
 
     @Override
-    public KOTHPlayer createGamemodePlayer (Player playerEntity) {
+    public KOTHPlayer createPlayer(Player playerEntity) {
         return new KOTHPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 

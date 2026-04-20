@@ -59,7 +59,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
     }
 
     @Override
-    public AssassinPlayer createGamemodePlayer (Player playerEntity) {
+    public AssassinPlayer createPlayer(Player playerEntity) {
         return new AssassinPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 
@@ -274,28 +274,20 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
     }
 
     @Override
-    public void playerLeaveServer(Player player) {
-        super.playerLeaveServer(player);
+    public void playerLeaveServer(Player playerEntity) {
+        super.playerLeaveServer(playerEntity);
 
-        UUID offlinePlayerId = player.getUniqueId();
-
-        // Check if game has already had a winner
         if (getWinner() != null) return;
 
-        // Check if player is a player
-        for (Player playerEntity : getGameManager().getPlayerEntities()) {
-            if (playerEntity.getUniqueId().equals(offlinePlayerId)) {
-                CBCPlayer cbcplayer = getGameManager().getPlayer(playerEntity);
-                // Check if player is the target of any assassins, if so change their targets
-                for (AssassinPlayer assassinPlayer : getPlayers()) {
-                    if (assassinPlayer.getCurrentTarget() == cbcplayer) {
-                        // Change player's target
-                        if (assassinPlayer.isOnline()) {
-                            Player assassinPlayerEntity = assassinPlayer.getPlayer();
-                            assassinPlayerEntity.sendMessage(Component.text("Your target disconnected, so you've been given a new one!").color(NamedTextColor.YELLOW));
-                        }
-                        assassinPlayer.newTarget(true);
+        AssassinPlayer player = getPlayer(playerEntity);
+        if (player != null) {
+            for (AssassinPlayer p : getPlayers()) {
+                if (p.getCurrentTarget() == player) {
+                    if (p.isOnline()) {
+                        Player assassinPlayerEntity = p.getPlayer();
+                        assassinPlayerEntity.sendMessage(Component.text("Your current target disconnected, so you've been given a new one.").color(NamedTextColor.YELLOW));
                     }
+                    p.newTarget(true);
                 }
             }
         }

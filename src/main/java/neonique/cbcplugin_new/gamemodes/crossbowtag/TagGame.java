@@ -98,7 +98,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
     }
 
     @Override
-    public TagPlayer createGamemodePlayer (Player playerEntity) {
+    public TagPlayer createPlayer(Player playerEntity) {
         return new TagPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 

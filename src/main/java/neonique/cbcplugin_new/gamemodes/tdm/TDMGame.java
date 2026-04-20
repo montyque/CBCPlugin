@@ -64,7 +64,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
     }
 
     @Override
-    public TDMPlayer createGamemodePlayer (Player playerEntity) {
+    public TDMPlayer createPlayer(Player playerEntity) {
         return new TDMPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 

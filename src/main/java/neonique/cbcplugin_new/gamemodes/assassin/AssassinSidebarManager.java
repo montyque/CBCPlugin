@@ -121,7 +121,7 @@ public class AssassinSidebarManager extends GameSidebarManager {
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
         // Show client's stats if they are in the game
-        if (game.getPlayer(client) != null) {
+        if (game.hasPlayer(client)) {
 
             AssassinPlayer assassinPlayer = game.getPlayer(client);
 

@@ -76,7 +76,7 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
     }
 
     @Override
-    public CTFPlayer createGamemodePlayer (Player playerEntity) {
+    public CTFPlayer createPlayer(Player playerEntity) {
         return new CTFPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 

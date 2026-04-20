@@ -78,7 +78,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
     }
 
     @Override
-    public ShowdownPlayer createGamemodePlayer (Player playerEntity) {
+    public ShowdownPlayer createPlayer(Player playerEntity) {
         return new ShowdownPlayer(this, getGameManager(), getCombatManager(), playerEntity);
     }
 
@@ -522,11 +522,11 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
     }
 
     @Override
-    public void playerJoinServer(Player client) {
+    public void playerJoinServer(Player playerEntity) {
 
-        super.playerJoinServer(client);
+        super.playerJoinServer(playerEntity);
 
-        ShowdownPlayer player = getPlayer(client);
+        ShowdownPlayer player = getPlayer(playerEntity);
         if (player != null) {
 
             ShowdownTeam team = getPlayerTeam(player);
