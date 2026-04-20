@@ -15,8 +15,8 @@ public class ShowdownGameCommands extends BaseTeamGameCommands {
 
     private final ShowdownGame game;
 
-    public ShowdownGameCommands(GameManager gm, CombatManager wm, ShowdownGame game) {
-        super(gm, wm, game);
+    public ShowdownGameCommands(ShowdownGame game) {
+        super(game);
         this.game = game;
     }
 
@@ -28,11 +28,7 @@ public class ShowdownGameCommands extends BaseTeamGameCommands {
 
         // Kill player if player is alive
         if (player.isAlive()) {
-            if (player.getLastPlayerHitBy() != null) {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
-            } else {
-                combatManager.playerDeath(player, null, DeathCause.COMMAND, false);
-            }
+            game.getCombatManager().playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
         }
 
         removePlayerFromTeam(player, false);

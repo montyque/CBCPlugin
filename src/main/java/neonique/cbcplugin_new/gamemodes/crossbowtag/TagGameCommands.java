@@ -18,8 +18,8 @@ public class TagGameCommands extends BaseTeamGameCommands {
 
     private final TagGame game;
 
-    public TagGameCommands (GameManager gm, CombatManager wm, TagGame game) {
-        super(gm, wm, game);
+    public TagGameCommands (TagGame game) {
+        super(game);
         this.game = game;
     }
 
@@ -123,11 +123,7 @@ public class TagGameCommands extends BaseTeamGameCommands {
 
         // Kill player if player is alive
         if (player.isAlive()) {
-            if (player.getLastPlayerHitBy() != null) {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
-            } else {
-                combatManager.playerDeath(player, null, DeathCause.COMMAND, false);
-            }
+            game.getCombatManager().playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
         }
 
         removePlayerFromTeam(player, false);

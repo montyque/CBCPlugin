@@ -1,8 +1,6 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
 import neonique.cbcplugin_new.enums.DeathCause;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -11,14 +9,13 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class BaseTeamGameCommands extends BaseGameCommands {
 
     private final TeamGame<? extends CBCPlayer, ?, ?> game;
 
-    public BaseTeamGameCommands(GameManager gm, CombatManager wm, TeamGame<?, ?, ?> game) {
-        super(gm, wm);
+    public BaseTeamGameCommands(TeamGame<?, ?, ?> game) {
+        super(game);
         this.game = game;
     }
 
@@ -61,13 +58,7 @@ public class BaseTeamGameCommands extends BaseGameCommands {
     public void putPlayerOnTeam (CBCPlayer player, CBCTeam<?> team, boolean spawnImmediately) {
 
         // Kill player if player is alive
-        if (player.isAlive()) {
-            if (player.getLastPlayerHitBy() != null) {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
-            } else {
-                combatManager.playerDeath(player, null, DeathCause.COMMAND, false);
-            }
-        }
+        if (player.isAlive()) game.getCombatManager().playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
 
         removePlayerFromTeam(player, false);
         game.addPlayerToTeam(player, team);
@@ -83,15 +74,14 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         }
 
         if (spawnImmediately) {
-            combatManager.playerRespawn(player);
+            game.getCombatManager().playerRespawn(player);
         }
+
     }
 
     @Override
     public void run(Player user, String[] args, int perms) {
-        // Go through each base game command
         super.run(user, args, perms);
-        // Add gamemode specific commands
         if ("join".equals(args[0])) {
             join(user, args, perms);
         }

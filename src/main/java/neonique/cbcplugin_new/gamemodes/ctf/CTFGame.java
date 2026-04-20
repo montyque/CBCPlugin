@@ -117,7 +117,7 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
         this.flagsRemovedTimerIncrement = ctx.getIntVars().getOrDefault("flagsRemovedTimerAfterFirst", 600);
 
         // Setup game commands
-        setGameCommands(new CTFGameCommands(gameManager, combatManager, this));
+        setGameCommands(new CTFGameCommands(this));
 
         // Setup teams/players
         createTeams(ctx.getTeams());

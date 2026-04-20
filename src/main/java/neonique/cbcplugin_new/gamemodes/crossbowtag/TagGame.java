@@ -139,7 +139,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         combatManager.activateWeapons();
         gameManager.resetPlayerList();
 
-        setGameCommands(new TagGameCommands(gameManager, combatManager, this));
+        setGameCommands(new TagGameCommands(this));
 
         // Setup gamemode game variables
         this.roundLength = ctx.getIntVars().getOrDefault("roundLength", 150);

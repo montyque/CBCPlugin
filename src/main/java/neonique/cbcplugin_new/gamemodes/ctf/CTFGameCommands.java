@@ -13,8 +13,8 @@ public class CTFGameCommands extends BaseTeamGameCommands {
 
     private final CTFGame game;
 
-    public CTFGameCommands(GameManager gm, CombatManager wm, CTFGame game) {
-        super(gm, wm, game);
+    public CTFGameCommands(CTFGame game) {
+        super(game);
         this.game = game;
     }
 

@@ -11,8 +11,8 @@ public class TDMGameCommands extends BaseTeamGameCommands {
 
     private final TDMGame game;
 
-    public TDMGameCommands(GameManager gm, CombatManager wm, TDMGame game) {
-        super(gm, wm, game);
+    public TDMGameCommands(TDMGame game) {
+        super(game);
         this.game = game;
     }
 

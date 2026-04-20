@@ -7,8 +7,8 @@ import neonique.cbcplugin_new.managers.CombatManager;
 
 public class HTGGameCommands extends BaseTeamGameCommands {
 
-    public HTGGameCommands(GameManager gm, CombatManager wm, TeamGame<?, ?, ?> game) {
-        super(gm, wm, game);
+    public HTGGameCommands(TeamGame<?, ?, ?> game) {
+        super(game);
     }
 
 }

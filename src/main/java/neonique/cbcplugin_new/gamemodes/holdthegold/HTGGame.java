@@ -117,7 +117,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
         this.finalRunLength = Math.min(ctx.getIntVars().getOrDefault("finalRunLength", 7), pointsStart);
 
         // Setup game commands
-        setGameCommands(new HTGGameCommands(gameManager, combatManager, this));
+        setGameCommands(new HTGGameCommands(this));
 
         // Create teams and players
         HashMap<String, Location> teamSpawns = map.getTeamSpawns();

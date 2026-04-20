@@ -5,8 +5,8 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 
 public class RendezvousGameCommands extends BaseTeamGameCommands {
-    public RendezvousGameCommands(GameManager gm, CombatManager wm, RendezvousGame game) {
-        super(gm, wm, game);
+    public RendezvousGameCommands(RendezvousGame game) {
+        super(game);
     }
 
 }

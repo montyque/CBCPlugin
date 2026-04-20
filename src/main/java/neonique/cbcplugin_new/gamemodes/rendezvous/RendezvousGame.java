@@ -128,7 +128,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
         gameManager.resetPlayerList();
 
         // Set game commands
-        setGameCommands(new RendezvousGameCommands(gameManager, combatManager, this));
+        setGameCommands(new RendezvousGameCommands(this));
 
         // Setup gamemode game variables
         this.scoreStart = ctx.getIntVars().getOrDefault("checkpointsToWin", 8);

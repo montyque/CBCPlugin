@@ -21,14 +21,9 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
 
 import java.time.Duration;
 import java.util.*;
-
-import static neonique.cbcplugin_new.CBCPlugin.getGameManager;
 
 public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
 

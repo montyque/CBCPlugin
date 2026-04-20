@@ -143,7 +143,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
         this.suddenDeathEnabled = ctx.getBoolVars().getOrDefault("suddenDeathEnabled", true);
         this.playersGlow = ctx.getBoolVars().getOrDefault("playersGlow", true);
 
-        setGameCommands(new ShowdownGameCommands(gameManager, combatManager, this));
+        setGameCommands(new ShowdownGameCommands(this));
 
         // Create teams and players
         createTeams(ctx.getTeams());

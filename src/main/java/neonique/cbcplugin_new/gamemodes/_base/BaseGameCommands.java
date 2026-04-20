@@ -1,8 +1,6 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
 import neonique.cbcplugin_new.enums.DeathCause;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -12,21 +10,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class BaseGameCommands {
 
-    protected GameManager gameManager;
-    protected CombatManager combatManager;
-    private Game<?, ?> game;
+    private final Game<?, ?> game;
 
     public BaseGameCommands (Game<?, ?> game) {
         this.game = game;
     }
-
-    public
 
     public boolean checkIfPerms (Player user, int userPerms, int permsNeeded) {
         if (userPerms < permsNeeded) {
@@ -54,47 +49,31 @@ public class BaseGameCommands {
             return null;
         }
 
-        // Check if player is in CBC right now
-        try {
-            CBCPlayer playerObj = gameManager.getPlayer(targetedPlayer);
-            if (playerObj == null) {
-                sendColorMessage(user, name + " is not in the game right now!", NamedTextColor.YELLOW);
-                return null;
-            }
-            return playerObj;
-        } catch (NullPointerException e) {
+        CBCPlayer player = game.getPlayer(targetedPlayer);
+        if (player == null) {
             sendColorMessage(user, name + " is not in the game right now!", NamedTextColor.YELLOW);
             return null;
         }
+
+        return player;
+
     }
 
     public Set<String> getPlayerNamesOnline () {
-        Set<String> playerNames = new HashSet<>();
-        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            playerNames.add(player.getName());
-        }
-        return playerNames;
+        return Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
-    public Set<String> getPlayerNamesInGame (boolean mustBeAlive, boolean mustBeDead, boolean mustBeOnline) {
-        Set<String> playerNames = new HashSet<>();
-        for (CBCPlayer player : gameManager.getPlayers()) {
-            if (!player.isAlive() && mustBeAlive) {
-                continue;
-            }
-            if (player.isAlive() && mustBeDead) {
-                continue;
-            }
-            if (!player.isOnline() && mustBeOnline) {
-                continue;
-            }
-            playerNames.add(player.getName());
-        }
-        return playerNames;
+    public Set<String> getPlayerNamesInGame (Predicate<CBCPlayer> condition) {
+        return game.getPlayers().stream()
+                .filter(condition)
+                .map(CBCPlayer::getName)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public void broadcastAction (Player user, String message) {
-        gameManager.sendGlobalMessage(
+        game.getGameManager().sendGlobalMessage(
                 Component.text("[" + user.getName() + ": " + message + "]").decorate(TextDecoration.ITALIC).color(NamedTextColor.GRAY)
         );
     }
@@ -156,11 +135,7 @@ public class BaseGameCommands {
             return;
         }
 
-        if (playerObj.getLastPlayerHitBy() == null) {
-            combatManager.playerDeath(playerObj, null, DeathCause.COMMAND, false);
-        } else {
-            combatManager.playerDeath(playerObj, playerObj.getLastPlayerHitBy(), DeathCause.COMMAND, false);
-        }
+        game.getCombatManager().playerDeath(playerObj, playerObj.getLastPlayerHitBy(), DeathCause.COMMAND, false);
 
         sendColorMessage(user, playerName + " has been killed!", NamedTextColor.GREEN);
         broadcastAction(user, "used /game kill to kill " + playerName);
@@ -186,19 +161,18 @@ public class BaseGameCommands {
             return;
         }
 
-        combatManager.playerRespawn(playerObj);
+        game.getCombatManager().playerRespawn(playerObj);
 
         sendColorMessage(user, playerName + "has been revived!", NamedTextColor.GREEN);
         broadcastAction(user, "used /game revive to revive " + playerName);
+
     }
 
     public List<String> killTabCompletions(String[] args, int perms) {
         int level = args.length;
         List<String> tabCompletions = new ArrayList<>();
         if (perms < 1) return tabCompletions;
-        if (level == 2) {
-            tabCompletions = new ArrayList<>(getPlayerNamesInGame(true, false, true));
-        }
+        if (level == 2) tabCompletions = new ArrayList<>(getPlayerNamesInGame(p -> p.isOnline() && p.isAlive()));
         return tabCompletions;
     }
 
@@ -206,9 +180,7 @@ public class BaseGameCommands {
         int level = args.length;
         List<String> tabCompletions = new ArrayList<>();
         if (perms < 1) return tabCompletions;
-        if (level == 2) {
-            tabCompletions = new ArrayList<>(getPlayerNamesInGame(false, true, true));
-        }
+        if (level == 2) tabCompletions = new ArrayList<>(getPlayerNamesInGame(p -> p.isOnline() && !p.isAlive()));
         return tabCompletions;
     }
 

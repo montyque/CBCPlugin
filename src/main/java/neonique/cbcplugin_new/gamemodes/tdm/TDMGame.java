@@ -108,7 +108,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
         playersGlow = ctx.getBoolVars().getOrDefault("playersGlow", true);
 
         // Setup game commands
-        setGameCommands(new TDMGameCommands(gameManager, combatManager, this));
+        setGameCommands(new TDMGameCommands(this));
 
         createTeams(ctx.getTeams());
         teleportSpectators();

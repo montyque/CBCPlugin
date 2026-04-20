@@ -125,7 +125,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
         }
 
         // Setup game commands - TO DO LATER
-        setGameCommands(new BaseTeamGameCommands(gameManager, combatManager, this));
+        setGameCommands(new BaseTeamGameCommands(this));
 
         // Create teams and players
         HashMap<String, Set<Location>> teamSpawns = getMap().getTeamSpawns();
