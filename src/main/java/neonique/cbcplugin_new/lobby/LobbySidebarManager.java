@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.cbcevents.CBCEventTeam;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gameobjects.GamemodeOptions;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
-import neonique.cbcplugin_new.managers.CBCScoreboardManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.GlobalKillsManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;

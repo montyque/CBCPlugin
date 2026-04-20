@@ -8,6 +8,8 @@ import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.kmation.KMationCycleTimerTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.kmation.KMationStartGameTimer;
@@ -25,6 +27,8 @@ import org.bukkit.scoreboard.Team;
 
 import java.time.Duration;
 import java.util.*;
+
+import static neonique.cbcplugin_new.CBCPlugin.getGameManager;
 
 public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
 
@@ -48,9 +52,9 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
     private List<KMationSpawn> spawns;
 
     // Teams - for display only
-    private Team safeTeam;
-    private Team dangerTeam;
-    private Team eliminatedTeam;
+    private CBCScoreboardTeam safeTeam;
+    private CBCScoreboardTeam dangerTeam;
+    private CBCScoreboardTeam eliminatedTeam;
 
     // Listeners and tasks
     private KMationCycleTimerTask cycleTimerTask;
@@ -126,33 +130,25 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
         }
 
         // Create teams
-        ScoreboardManager scoreboardManager = CBCPlugin.getPlugin().getServer().getScoreboardManager();
-        // Team scoreboard object
-        Scoreboard scoreboard = scoreboardManager.getMainScoreboard();
+        CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();
 
         // Create safe team
-        safeTeam = scoreboard.registerNewTeam("01safe");
-        safeTeam.setCanSeeFriendlyInvisibles(false);
-        safeTeam.setAllowFriendlyFire(true); // Do not allow friendly fire
-        safeTeam.color(NamedTextColor.GREEN); // Set team color
+        safeTeam = scoreboardManager.registerNewTeam("01safe");
+        safeTeam.setSeeFriendlyInvisiblesEnabled(false);
+        safeTeam.setFriendlyFireEnabled(true); // Do not allow friendly fire
+        safeTeam.setColor(NamedTextColor.GREEN); // Set team color
 
         // Create danger team
-        dangerTeam = scoreboard.registerNewTeam("02danger");
-        dangerTeam.setCanSeeFriendlyInvisibles(false);
-        dangerTeam.setAllowFriendlyFire(true); // Do not allow friendly fire
-        dangerTeam.color(NamedTextColor.YELLOW); // Set team color
+        dangerTeam = scoreboardManager.registerNewTeam("02danger");
+        dangerTeam.setSeeFriendlyInvisiblesEnabled(false);
+        dangerTeam.setFriendlyFireEnabled(true); // Do not allow friendly fire
+        dangerTeam.setColor(NamedTextColor.YELLOW); // Set team color
 
         // Create eliminated team
-        eliminatedTeam = scoreboard.registerNewTeam("03eliminated");
-        eliminatedTeam.setCanSeeFriendlyInvisibles(false);
-        eliminatedTeam.setAllowFriendlyFire(true); // Do not allow friendly fire
-        eliminatedTeam.color(NamedTextColor.RED); // Set team color
-
-        if (gameManager.getCbcScoreboardManager().isActive()) {
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(safeTeam);
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(dangerTeam);
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(eliminatedTeam);
-        }
+        eliminatedTeam = scoreboardManager.registerNewTeam("03dead");
+        eliminatedTeam.setSeeFriendlyInvisiblesEnabled(false);
+        eliminatedTeam.setFriendlyFireEnabled(true); // Do not allow friendly fire
+        eliminatedTeam.setColor(NamedTextColor.RED); // Set team color
 
         // Check if game starts in final cycle
         if (getPlayers().size() <= maxPlayersInFinalCycle) finalCycle = true;
@@ -187,13 +183,9 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
         cancelTask(cycleTimerTask);
 
         // Unregister teams
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(safeTeam.getName());
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(dangerTeam.getName());
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(eliminatedTeam.getName());
-
-        safeTeam.unregister();
-        dangerTeam.unregister();
-        eliminatedTeam.unregister();
+        CBCScoreboardManager.getInstance().unregisterTeam(safeTeam);
+        CBCScoreboardManager.getInstance().unregisterTeam(dangerTeam);
+        CBCScoreboardManager.getInstance().unregisterTeam(eliminatedTeam);
 
     }
 
@@ -455,8 +447,8 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
     public void eliminatePlayer(KMationPlayer player) {
 
         player.eliminatePlayer();
-        // Add them to eliminated team
-        getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), eliminatedTeam);
+        eliminatedTeam.addEntityUUID(player.getUUID());
+
         // Send message
         getGameManager().sendGlobalMessage(
                 Component.text("").append(
@@ -479,9 +471,9 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
             if (!playersInLast.contains(player)) {
                 player.setInDanger(false);
                 if (player.isEliminated()) {
-                    getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), eliminatedTeam);
+                    eliminatedTeam.addEntityUUID(player.getUUID());
                 } else {
-                    getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), safeTeam);
+                    safeTeam.addEntityUUID(player.getUUID());
                 }
             }
         }
@@ -490,9 +482,9 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
             if (!oldPlayersInLast.contains(player)) {
                 player.setInDanger(true);
                 if (player.isEliminated()) {
-                    getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), eliminatedTeam);
+                    eliminatedTeam.addEntityUUID(player.getUUID());
                 } else {
-                    getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), dangerTeam);
+                    dangerTeam.addEntityUUID(player.getUUID());
                 }
             }
         }

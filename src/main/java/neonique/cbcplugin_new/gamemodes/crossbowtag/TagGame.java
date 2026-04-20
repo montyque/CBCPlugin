@@ -304,8 +304,8 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
                 }
 
                 // Make sure tagging team cannot see name tags of runners while blinded
-                getCBCScoreboardManager().setTeamOption(team.getTeamObject(),
-                        Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS);
+                team.scoreboardTeam().setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS);
+
             }
         }
 
@@ -432,10 +432,9 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
             player.setCanMove(true);
         }
 
+        // Turn on nametag visibility for all teams
         for (TagTeam team : getTeams()) {
-            // Turn on name tag visibility for all teams
-            getCBCScoreboardManager().setTeamOption(team.getTeamObject(),
-                    Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+            team.scoreboardTeam().setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
         }
 
         // Start round timer

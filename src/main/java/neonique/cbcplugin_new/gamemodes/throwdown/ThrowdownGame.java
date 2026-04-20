@@ -11,6 +11,8 @@ import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.throwdown.*;
 import net.kyori.adventure.text.Component;
@@ -38,8 +40,8 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
     private List<FFASpawnpoint> spawns;
 
     // Teams - for display only
-    private Team aliveTeam;
-    private Team elimTeam;
+    private CBCScoreboardTeam aliveTeam;
+    private CBCScoreboardTeam elimTeam;
 
     // Sudden death CONSTANTS
     private boolean suddenDeathEnabled;
@@ -117,26 +119,19 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         teleportSpectators();
 
         // Create teams
-        ScoreboardManager scoreboardManager = CBCPlugin.getPlugin().getServer().getScoreboardManager();
-        // Team scoreboard object
-        Scoreboard scoreboard = scoreboardManager.getMainScoreboard();
+        CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();
 
-        // Create safe team
-        aliveTeam = scoreboard.registerNewTeam("01alive");
-        aliveTeam.setCanSeeFriendlyInvisibles(false);
-        aliveTeam.setAllowFriendlyFire(true); // Do not allow friendly fire
-        aliveTeam.color(NamedTextColor.GREEN); // Set team color
+        // Create alive team
+        aliveTeam = scoreboardManager.registerNewTeam("01alive");
+        aliveTeam.setSeeFriendlyInvisiblesEnabled(false);
+        aliveTeam.setFriendlyFireEnabled(true); // Do not allow friendly fire
+        aliveTeam.setColor(NamedTextColor.GREEN); // Set team color
 
-        // Create danger team
-        elimTeam = scoreboard.registerNewTeam("02eliminated");
-        elimTeam.setCanSeeFriendlyInvisibles(false);
-        elimTeam.setAllowFriendlyFire(true); // Do not allow friendly fire
-        elimTeam.color(NamedTextColor.RED); // Set team color
-
-        if (gameManager.getCbcScoreboardManager().isActive()) {
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(aliveTeam);
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(elimTeam);
-        }
+        // Create eliminated team
+        elimTeam = scoreboardManager.registerNewTeam("02eliminated");
+        elimTeam.setSeeFriendlyInvisiblesEnabled(false);
+        elimTeam.setFriendlyFireEnabled(true); // Do not allow friendly fire
+        elimTeam.setColor(NamedTextColor.RED); // Set team color
 
         // Setup tasks
         new ThrowdownPlayerCounts(gameManager, this).runTaskTimer(CBCPlugin.getPlugin(), 0, 4);
@@ -189,7 +184,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
 
             if (!player.isOnline()) continue;
             player.teleportPlayerToSpawn(spawnOrder.get(spawnNum), getMap().getMapCentre());
-            getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), getAliveTeam());
+            aliveTeam.addEntityUUID(player.getUUID());
             spawnNum++;
 
         }
@@ -237,11 +232,8 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         cancelTask(sdTimerTask);
 
         // Unregister teams
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(aliveTeam.getName());
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(elimTeam.getName());
-
-        aliveTeam.unregister();
-        elimTeam.unregister();
+        CBCScoreboardManager.getInstance().unregisterTeam(aliveTeam);
+        CBCScoreboardManager.getInstance().unregisterTeam(elimTeam);
 
     }
 
@@ -543,11 +535,11 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         return roundsToWin;
     }
 
-    public Team getAliveTeam() {
+    public CBCScoreboardTeam getAliveTeam () {
         return aliveTeam;
     }
 
-    public Team getElimTeam() {
+    public CBCScoreboardTeam getElimTeam () {
         return elimTeam;
     }
 

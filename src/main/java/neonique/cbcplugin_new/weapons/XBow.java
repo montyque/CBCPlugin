@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.managers.CBCScoreboardManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
@@ -44,7 +44,8 @@ public class XBow implements CrossbowWeapon {
     public void fireWeapon(Arrow arrowFired) {
 
         Projectile projectile = fireProjectile(arrowFired);
-        owner.getGameManager().getCombatManager().getProjectileManager().addProjectile(projectile);
+        owner.getCombatManager().getProjectileManager().addProjectile(projectile);
+        owner.getCombatManager().xbowArrowTeam().addEntityUUID(arrowFired.getUniqueId());
         weaponReloader.startReload();
 
     }
@@ -110,7 +111,6 @@ public class XBow implements CrossbowWeapon {
         arrowFired.setPierceLevel(127);
         arrowFired.setGlowing(true);
         arrowFired.setVelocity(arrowFired.getVelocity().multiply(weaponOptions.getArrowVelocityModifier()));
-        CBCScoreboardManager.getInstance().addTeamEntry(arrowFired.getUniqueId().toString(), "xbowArrows");
 
         return new XbowArrow(owner, arrowFired);
 

@@ -12,6 +12,8 @@ import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.cbcevents.CBCEventPlayer;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.lobbytasks.GameCountdownTask;
 import neonique.cbcplugin_new.tasks.lobbytasks.LobbySidebarManagerTask;
 import neonique.cbcplugin_new.tasks.lobbytasks.PlayerSafetyTask;
@@ -78,8 +80,8 @@ public class Lobby {
     // Players and teams
     private HashMap<UUID, LobbyPlayer> players = new HashMap<>();
     private LinkedHashMap<String, LobbyTeam> teams = new LinkedHashMap<>();
-    private Team spectatorTeam;
-    private Team ffaTeam;
+    private CBCScoreboardTeam spectatorTeam;
+    private CBCScoreboardTeam ffaTeam;
 
     // Lobby sidebar manager
     private LobbySidebarManager sidebarManager;
@@ -180,21 +182,13 @@ public class Lobby {
                 "Purple", "P", Material.PURPLE_STAINED_GLASS, NamedTextColor.DARK_PURPLE));
 
         // Creating spectator and FFA scoreboard teams
-        ScoreboardManager scoreboardManager = CBCPlugin.getPlugin().getServer().getScoreboardManager();
-        Scoreboard scoreboard = scoreboardManager.getMainScoreboard();
-        ffaTeam = scoreboard.registerNewTeam("09ffaLobby");
-        ffaTeam.setAllowFriendlyFire(true); // Allow friendly fire
-        ffaTeam.prefix(Component.text(" ■ ").color(NamedTextColor.WHITE));
-
-        // If there's a team prefix, set it
-        spectatorTeam = scoreboard.registerNewTeam("10spectatorLobby");
-        spectatorTeam.setAllowFriendlyFire(true); // Allow friendly fire
-        spectatorTeam.prefix(Component.text(" □ ").color(NamedTextColor.WHITE));
-
-        if (gameManager.getCbcScoreboardManager().isActive()) {
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(ffaTeam);
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(spectatorTeam);
-        }
+        CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();
+        ffaTeam = scoreboardManager.registerNewTeam("09ffaLobby");
+        ffaTeam.setFriendlyFireEnabled(true);
+        ffaTeam.setPrefix(Component.text(" ■ ").color(NamedTextColor.WHITE));
+        spectatorTeam = scoreboardManager.registerNewTeam("10spectatorLobby");
+        spectatorTeam.setFriendlyFireEnabled(true);
+        spectatorTeam.setPrefix(Component.text(" □ ").color(NamedTextColor.WHITE));
 
         // Create lobby players for all online players
         for (Player player : CBCPlugin.getPlugin().getServer().getOnlinePlayers()) {
@@ -240,16 +234,12 @@ public class Lobby {
         EntityDamageEvent.getHandlerList().unregister(playerDamageListener);
 
         playerSafetyTask.cancel();
-
         sidebarManager.removeSidebar();
         lobbySidebarManagerTask.cancel();
 
         // Unregister all teams
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(ffaTeam.getName());
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(spectatorTeam.getName());
-
-        ffaTeam.unregister();
-        spectatorTeam.unregister();
+        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeam(ffaTeam);
+        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeam(spectatorTeam);
 
         for (LobbyTeam lobbyTeam : teams.values()) {
             // Remove all team objects
@@ -590,7 +580,7 @@ public class Lobby {
         player.playerListName(null);
 
         players.put(player.getUniqueId(), new LobbyPlayer(gameManager, this, player.getUniqueId()));
-        gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), ffaTeam);
+        ffaTeam.addEntityUUID(player.getUniqueId());
 
         // Remove potion effects
         if (gameManager.isPracticeActive()) {
@@ -649,9 +639,9 @@ public class Lobby {
         }
         playerTeam.removePlayer(player);
         if (!spectator) {
-            gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), ffaTeam);
+            ffaTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
         } else {
-            gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), spectatorTeam);
+            spectatorTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
         }
     }
 
@@ -671,7 +661,7 @@ public class Lobby {
         if (!player.isOnline()) return;
 
         playerLeaveTeam(player, true);
-        gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), spectatorTeam);
+        spectatorTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
         player.setSpectator();
         player.getPlayer().sendMessage(
                 Component.text("You are now a spectator. This means you cannot be added to any" +
@@ -684,7 +674,7 @@ public class Lobby {
 
         if (!player.isOnline()) return;
 
-        gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), ffaTeam);
+        ffaTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
 
         player.setNoSpectator();
         player.getPlayer().sendMessage(
@@ -804,7 +794,7 @@ public class Lobby {
                 // If player is not in team, set their team to spectator
                 if (player.getAssignedTeam() == null) {
                     if (!player.isSpectator()) {
-                        gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), spectatorTeam);
+                        spectatorTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
                     }
                 }
             }
@@ -835,7 +825,7 @@ public class Lobby {
             for (LobbyPlayer player : players.values()) {
                 // If player is not in team, set their team to not spectator
                 if (player.getAssignedTeam() == null && !player.isSpectator()) {
-                    gameManager.getCbcScoreboardManager().addTeamEntry(player.getName(), ffaTeam);
+                    ffaTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
                 }
             }
         }

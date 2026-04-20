@@ -1,8 +1,9 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -10,8 +11,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
 import java.util.*;
@@ -39,10 +38,11 @@ public abstract class CBCTeam<P extends CBCPlayer> {
     private final int colorNumber;
     private final TrimMaterial trimMaterial;
 
-    private final Team teamObject;
+    private final CBCScoreboardTeam scoreboardTeam;
 
     public CBCTeam(String teamId, String teamIdNum, String teamName, NamedTextColor teamColor,
                    String prefix, ItemStack item, ItemStack glassHead) {
+
         this.id = teamId;
         this.displayName = teamName;
         this.color = teamColor;
@@ -52,28 +52,26 @@ public abstract class CBCTeam<P extends CBCPlayer> {
         this.glassHead = glassHead;
 
         // Set scoreboard manager
-        ScoreboardManager scoreboardManager = CBCPlugin.getPlugin().getServer().getScoreboardManager();
-        // Team scoreboard object
-        Scoreboard scoreboard = scoreboardManager.getMainScoreboard();
+        GameManager gameManager = getGameManager();
+        CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();
 
         // Create new team
-        teamObject = scoreboard.registerNewTeam(teamIdNum + teamId);
-        teamObject.setCanSeeFriendlyInvisibles(true);
-        teamObject.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OTHER_TEAMS);
-        teamObject.setAllowFriendlyFire(false); // Do not allow friendly fire
-        teamObject.color(teamColor); // Set team color
+        scoreboardTeam = scoreboardManager.registerNewTeam(teamIdNum + teamId);
+        scoreboardTeam.setSeeFriendlyInvisiblesEnabled(true);
+        scoreboardTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OTHER_TEAMS);
+        scoreboardTeam.setFriendlyFireEnabled(false); // Do not allow friendly fire
+        scoreboardTeam.setColor(teamColor); // Set team color
+
         // If there's a team prefix, set it
         if (prefix != null) {
-            teamObject.prefix(
-                    Component.text(prefix + " ").color(color).decorate(TextDecoration.BOLD)
+            scoreboardTeam.setPrefix(
+                    Component.text(prefix + " ")
+                    .color(color)
+                    .decorate(TextDecoration.BOLD)
             );
         }
 
-        GameManager gameManager = getGameManager();
-
-        if (gameManager.getCbcScoreboardManager().isActive()) {
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(teamObject);
-        }
+        scoreboardManager.syncTeam(scoreboardTeam);
 
 
         if (teamColor == NamedTextColor.RED) specialCrossbowChar = '\uE110';
@@ -131,27 +129,24 @@ public abstract class CBCTeam<P extends CBCPlayer> {
         return color;
     }
 
-    public Team getTeamObject () {
-        return teamObject;
+    public CBCScoreboardTeam scoreboardTeam() {
+        return scoreboardTeam;
     }
 
     public void addPlayer (P player) {
         players.put(player.getOfflinePlayer().getUniqueId(), player);
-        getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), teamObject);
+        scoreboardTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
         player.setTeam(this);
     }
 
     public void removePlayer (P player) {
         players.remove(player.getOfflinePlayer().getUniqueId());
-        getGameManager().getCbcScoreboardManager().removeTeamEntry(player.getName(), teamObject);
+        scoreboardTeam.removeEntityUUID(player.getOfflinePlayer().getUniqueId());
         player.setTeam(null);
     }
 
     public void removeTeam () {
-        if (getGameManager().getCbcScoreboardManager().isActive()) {
-            getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(teamObject.getName());
-        }
-        teamObject.unregister();
+        getGameManager().getCbcScoreboardManager().unregisterTeam(scoreboardTeam);
     }
 
     public void replacePlayerEntityKey(Player origin, Player newPlayer) {

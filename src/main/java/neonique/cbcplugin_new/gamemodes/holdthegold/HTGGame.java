@@ -8,6 +8,8 @@ import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.holdthegold.*;
 import neonique.cbcplugin_new.util.StringUtil;
@@ -38,7 +40,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
     private HTGPlayer goldHolder = null;
     private boolean playerScored = false;
     private ArmorStand goldArmorStand = null;
-    private Team goldTeam;
+    private CBCScoreboardTeam goldTeam;
 
     private int teamsToWin = 1;
     private int teamsWon = 0;
@@ -142,12 +144,10 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
         }
 
         // Create gold team
-        goldTeam = CBCPlugin.getPlugin().getServer().getScoreboardManager().getMainScoreboard().registerNewTeam("goldColor");
-        goldTeam.color(NamedTextColor.GOLD);
-
-        if (gameManager.getCbcScoreboardManager().isActive()) {
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(goldTeam);
-        }
+        CBCScoreboardManager sbManager = gameManager.getCbcScoreboardManager();
+        CBCScoreboardTeam goldTeam = new CBCScoreboardTeam(sbManager, "goldTeam");
+        goldTeam.setColor(NamedTextColor.GOLD);
+        sbManager.registerTeam(goldTeam);
 
         // Summon gold
         summonGoldArmorStand(map.getGoldSpawn());
@@ -178,8 +178,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
 
         super.resetGame();
 
-        getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(goldTeam.getName());
-        goldTeam.unregister();
+        getGameManager().getCbcScoreboardManager().unregisterTeam(goldTeam);
 
         cancelTask(scoreTask);
         cancelTask(startGameTimer);
@@ -233,10 +232,8 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
 
         Objects.requireNonNull(goldArmorStand.getEquipment()).setHelmet(getGoldHead());
 
-        getGameManager().getCbcScoreboardManager().addTeamEntry(goldArmorStand.getUniqueId().toString(), goldTeam);
-        goldArmorStand.addPotionEffect(
-            new PotionEffect(PotionEffectType.GLOWING, 1000000, 0, false, false, false)
-        );
+        goldTeam.addEntityUUID(goldArmorStand.getUniqueId());
+        goldArmorStand.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 1000000, 0, false, false, false));
 
     }
 

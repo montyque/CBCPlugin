@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.managers.CBCScoreboardManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.weapons.projectiles.FlameArrow;
@@ -43,7 +42,8 @@ public class FlameZoner implements CrossbowWeapon {
     public void fireWeapon(Arrow arrowFired) {
 
         Projectile projectile = fireProjectile(arrowFired);
-        owner.getGameManager().getCombatManager().getProjectileManager().addProjectile(projectile);
+        owner.getCombatManager().getProjectileManager().addProjectile(projectile);
+        owner.getCombatManager().flameZoneArrowTeam().addEntityUUID(arrowFired.getUniqueId());
         weaponReloader.startReload();
 
     }
@@ -107,7 +107,6 @@ public class FlameZoner implements CrossbowWeapon {
         arrowFired.setDamage(1);
         arrowFired.setPierceLevel(20);
         arrowFired.setGlowing(true);
-        CBCScoreboardManager.getInstance().addTeamEntry(arrowFired.getUniqueId().toString(), "flameArrows");
 
         return new FlameArrow(owner, arrowFired, weaponOptions.getZoneRadius(),
                 (int) Math.round(weaponOptions.getZoneLife() * 20));

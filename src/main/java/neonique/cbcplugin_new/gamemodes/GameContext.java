@@ -54,4 +54,5 @@ public class GameContext {
     public Map<String, String> getStringVars() {
         return stringVars;
     }
+
 }

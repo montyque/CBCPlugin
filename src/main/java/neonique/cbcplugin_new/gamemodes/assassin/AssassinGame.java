@@ -10,6 +10,8 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.assassin.AssassinGlowUpdateTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.assassin.AssassinStartGameTimer;
@@ -36,7 +38,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
     private int targetChangeTimer;
 
     // Other variables
-    private Team inGameTeam;
+    private CBCScoreboardTeam inGameTeam;
     private final ResourcePackManager resourcePackManager;
 
     // Listeners and tasks
@@ -114,20 +116,12 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
             spawnNum++;
         }
 
-        // Create teams
-        ScoreboardManager scoreboardManager = CBCPlugin.getPlugin().getServer().getScoreboardManager();
-        // Team scoreboard object
-        Scoreboard scoreboard = scoreboardManager.getMainScoreboard();
-
-        // Create safe team
-        inGameTeam = scoreboard.registerNewTeam("01players");
-        inGameTeam.setCanSeeFriendlyInvisibles(false);
-        inGameTeam.setAllowFriendlyFire(true); // Allow friendly fire
-        inGameTeam.color(NamedTextColor.AQUA); // Set team color
-
-        if (gameManager.getCbcScoreboardManager().isActive()) {
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(inGameTeam);
-        }
+        CBCScoreboardManager sbManager = gameManager.getCbcScoreboardManager();
+        CBCScoreboardTeam inGameTeam = new CBCScoreboardTeam(sbManager, "01players");
+        inGameTeam.setColor(NamedTextColor.AQUA);
+        inGameTeam.setSeeFriendlyInvisiblesEnabled(false);
+        inGameTeam.setFriendlyFireEnabled(true);
+        sbManager.registerTeam(inGameTeam);
 
         updatePlacements();
 
@@ -144,7 +138,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
         // Set player's targets
         for (AssassinPlayer player : getPlayers()) {
             player.newTarget(false);
-            getGameManager().getCbcScoreboardManager().addTeamEntry(player.getName(), inGameTeam);
+            inGameTeam.addEntityUUID(player.getUUID());
         }
 
         // Setup listeners
@@ -272,8 +266,8 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
         cancelTask(glowUpdateTask);
 
         // Unregister teams
-        CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeamForAllClients(inGameTeam.getName());
-        inGameTeam.unregister();
+        CBCScoreboardManager sbManager = getGameManager().getCbcScoreboardManager();
+        sbManager.unregisterTeam(inGameTeam);
 
         glowManager.deactivate();
 

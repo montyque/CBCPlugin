@@ -10,6 +10,7 @@ import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.gamemodes._base.TeamGame;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
@@ -102,7 +103,7 @@ public class GameManager {
         practiceManager = new PracticeManager(this, combatManager);
         chatManager = new ChatManager(this);
         globalKillsManager = new GlobalKillsManager();
-        cbcScoreboardManager = new CBCScoreboardManager(this, Bukkit.getScoreboardManager());
+        cbcScoreboardManager = new CBCScoreboardManager(Bukkit.getScoreboardManager());
 
         gameState = GameState.DISABLED;
         lobby = new Lobby(this);

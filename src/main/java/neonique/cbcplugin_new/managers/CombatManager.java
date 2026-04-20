@@ -8,6 +8,8 @@ import neonique.cbcplugin_new.gameobjects.*;
 import neonique.cbcplugin_new.listeners.combat.*;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.weapontasks.*;
 import neonique.cbcplugin_new.weapons.EquipmentFactory;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
@@ -48,8 +50,8 @@ public class CombatManager {
     private final DeathMessageManager deathMessageManager;
 
     // Colors for glowing arrows
-    private Team flameZoneArrowTeam;
-    private Team xbowArrowTeam;
+    private CBCScoreboardTeam flameZoneArrowTeam;
+    private CBCScoreboardTeam xbowArrowTeam;
 
     // Amount of times to run reload task
     public final static int RELOAD_TASK_FREQUENCY = 20; // Per second
@@ -167,29 +169,11 @@ public class CombatManager {
         }
 
         // Create glowing arrow teams
-        // Create teams
-        ScoreboardManager scoreboardManager = CBCPlugin.getPlugin().getServer().getScoreboardManager();
-        // Team scoreboard object
-        Scoreboard scoreboard = scoreboardManager.getMainScoreboard();
-
-        // Create flame zone arrow color team
-        flameZoneArrowTeam = scoreboard.getTeam("flameArrows");
-        if (flameZoneArrowTeam == null) {
-            flameZoneArrowTeam = scoreboard.registerNewTeam("flameArrows");
-        }
-        flameZoneArrowTeam.color(NamedTextColor.GOLD); // Set team color
-
-        // Create xbow arrow color team
-        xbowArrowTeam = scoreboard.getTeam("xbowArrows");
-        if (xbowArrowTeam == null) {
-            xbowArrowTeam = scoreboard.registerNewTeam("xbowArrows");
-        }
-        xbowArrowTeam.color(NamedTextColor.AQUA); // Set team color
-
-        if (gameManager.getCbcScoreboardManager().isActive()) {
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(flameZoneArrowTeam);
-            gameManager.getCbcScoreboardManager().registerTeamForAllClients(xbowArrowTeam);
-        }
+        CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();
+        flameZoneArrowTeam = scoreboardManager.registerNewTeam("flameArrows");
+        flameZoneArrowTeam.setColor(NamedTextColor.GOLD);
+        xbowArrowTeam = scoreboardManager.registerNewTeam("flameArrows");
+        xbowArrowTeam.setColor(NamedTextColor.AQUA);
 
         // Activate tasks
         weaponReloadTask = new WeaponReloadTask(gameManager, this);
@@ -302,8 +286,8 @@ public class CombatManager {
         ProjectileHitEvent.getHandlerList().unregister(arrowHitPlayerListener);
         PlayerInteractEvent.getHandlerList().unregister(blockInteractListener);
 
-        flameZoneArrowTeam.unregister();
-        xbowArrowTeam.unregister();
+        gameManager.getCbcScoreboardManager().unregisterTeam(flameZoneArrowTeam);
+        gameManager.getCbcScoreboardManager().unregisterTeam(xbowArrowTeam);
 
         // Disable tasks
         cancelTask(weaponReloadTask);
@@ -692,5 +676,13 @@ public class CombatManager {
 
     public WeaponFactory getWeaponFactory() {
         return weaponFactory;
+    }
+
+    public CBCScoreboardTeam xbowArrowTeam() {
+        return xbowArrowTeam;
+    }
+
+    public CBCScoreboardTeam flameZoneArrowTeam() {
+        return flameZoneArrowTeam;
     }
 }

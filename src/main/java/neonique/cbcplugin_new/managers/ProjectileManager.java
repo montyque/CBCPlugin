@@ -76,5 +76,4 @@ public class ProjectileManager {
     public Projectile getProjectile(UUID uuid) {
         return projectiles.getOrDefault(uuid, null);
     }
-
 }

@@ -79,7 +79,7 @@ public class ThrowdownPlayer extends CBCPlayer {
         if (isOnline()) {
 
             // Put player on eliminated team
-            game.getGameManager().getCbcScoreboardManager().addTeamEntry(getName(), game.getElimTeam());
+            game.getElimTeam().addEntityUUID(getUUID());
 
             Component titleComponent = Component.text("YOU DIED!").color(NamedTextColor.RED)
                     .decorate(TextDecoration.BOLD);
