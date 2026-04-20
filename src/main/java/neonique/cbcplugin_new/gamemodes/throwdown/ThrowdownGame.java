@@ -4,6 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
+import neonique.cbcplugin_new.gamemodes.throwdown.tasks.*;
 import neonique.cbcplugin_new.gameobjects.DeathBorder;
 import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
@@ -14,7 +15,6 @@ import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
-import neonique.cbcplugin_new.tasks.gamemodetasks.throwdown.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -24,9 +24,6 @@ import org.bukkit.entity.Player;
 
 import org.bukkit.Location;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
 
 import java.time.Duration;
 import java.util.*;

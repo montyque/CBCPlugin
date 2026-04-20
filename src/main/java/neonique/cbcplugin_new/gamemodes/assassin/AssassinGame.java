@@ -8,22 +8,18 @@ import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
-import neonique.cbcplugin_new.tasks.gamemodetasks.assassin.AssassinGlowUpdateTask;
-import neonique.cbcplugin_new.tasks.gamemodetasks.assassin.AssassinStartGameTimer;
-import neonique.cbcplugin_new.tasks.gamemodetasks.assassin.AssassinTargetChangeTimer;
+import neonique.cbcplugin_new.gamemodes.assassin.tasks.AssassinGlowUpdateTask;
+import neonique.cbcplugin_new.gamemodes.assassin.tasks.AssassinStartGameTimer;
+import neonique.cbcplugin_new.gamemodes.assassin.tasks.AssassinTargetChangeTimer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 

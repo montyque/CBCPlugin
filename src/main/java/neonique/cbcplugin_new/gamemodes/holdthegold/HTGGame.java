@@ -4,6 +4,9 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
+import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGPlayerNearbyGold;
+import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGScoreTask;
+import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGStartGameTimer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -11,7 +14,6 @@ import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
-import neonique.cbcplugin_new.tasks.gamemodetasks.holdthegold.*;
 import neonique.cbcplugin_new.util.StringUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -26,7 +28,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
