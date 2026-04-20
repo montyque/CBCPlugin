@@ -125,7 +125,6 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
 
         // Enable weapons
         combatManager.activateWeapons();
-        gameManager.resetPlayerList();
 
         // Set game commands
         setGameCommands(new RendezvousGameCommands(this));

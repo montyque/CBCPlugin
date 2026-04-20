@@ -71,7 +71,6 @@ public class PracticeManager implements PlayerSession<PracticePlayer> {
 
         // Enable weapons
         combatManager.activateWeapons();
-        gameManager.resetPlayerList();
 
         players = new HashMap<>();
 
@@ -201,7 +200,6 @@ public class PracticeManager implements PlayerSession<PracticePlayer> {
             removePlayer(p);
         }
 
-        gameManager.resetPlayerList();
         players.clear();
 
         // Send message
@@ -247,9 +245,10 @@ public class PracticeManager implements PlayerSession<PracticePlayer> {
         }
 
         // Respawn every player
-        for (CBCPlayer player : gameManager.getPlayers()) {
+        for (CBCPlayer player : getPlayers()) {
             player.playerSpawn();
         }
+
     }
 
     public void setupMap (CBCMap map) {

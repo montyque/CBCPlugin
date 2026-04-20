@@ -109,7 +109,6 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
 
         // Enable weapons
         combatManager.activateWeapons();
-        gameManager.resetPlayerList();
 
         // Setup gamemode game variables
         this.flagsStart = ctx.getIntVars().getOrDefault("flagsStart", 4);
@@ -378,9 +377,9 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
         getCombatManager().disableAllHealPads();
 
         // Heal all players
-        for (CBCPlayer player : getGameManager().getAlivePlayers()) {
-            if (!player.isOnline()) continue;
-            player.getPlayer().setHealth(player.getMaxHealth());
+        for (CBCPlayer player : getPlayers()) {
+            if (!player.isAlive()) continue;
+            player.healToFull();
         }
 
         // Display title to everyone

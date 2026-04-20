@@ -176,9 +176,10 @@ public class CombatManager {
         xbowArrowTeam.setColor(NamedTextColor.AQUA);
 
         // Activate tasks
-        weaponReloadTask = new WeaponReloadTask(gameManager, this);
-        respawnTimerTask = new RespawnTimerTask(gameManager);
-        projectileUpdateTask = new ProjectileUpdateTask(gameManager, projectileManager);
+        weaponReloadTask = new WeaponReloadTask(gameManager.getPlayerRegistry());
+        respawnTimerTask = new RespawnTimerTask(gameManager.getPlayerRegistry(), this);
+        projectileUpdateTask = new ProjectileUpdateTask(gameManager.getPlayerRegistry(), projectileManager);
+
         voidTask = new VoidTask(gameManager, this);
         healPadTask = new HealPadDetectionTask(gameManager, this);
         resetPlayerLastHitTask = new ResetPlayerLastHitTask(gameManager);
@@ -657,8 +658,8 @@ public class CombatManager {
 
     public void setAllPlayersImmune (boolean b) {
         allPlayersImmune = b;
-        for (CBCPlayer player : gameManager.getAlivePlayers()) {
-            player.setImmune(allPlayersImmune);
+        for (CBCPlayer player : gameManager.getPlayerRegistry().getPlayers()) {
+            if (player.isAlive()) player.setImmune(allPlayersImmune);
         }
     }
 

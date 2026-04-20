@@ -8,33 +8,33 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class ShowdownTimeAliveTask extends BukkitRunnable {
 
-    private final GameManager gameManager;
     private final ShowdownGame game;
 
-    public ShowdownTimeAliveTask(GameManager gameManager, ShowdownGame showdownGame) {
+    public ShowdownTimeAliveTask(ShowdownGame showdownGame) {
 
-        this.gameManager = gameManager;
         this.game = showdownGame;
 
     }
 
     @Override
     public void run() {
+
         if (game.isGameOver()) {
             this.cancel();
             return;
         }
 
-        // Check if round is in play
         if (game.isRoundNotInPlay()) {
             this.cancel();
             return;
         }
 
-        for (CBCPlayer player : gameManager.getAlivePlayers()) {
-            ((ShowdownPlayer) player).incrementPlayerSecondsAlive();
+        for (ShowdownPlayer player : game.getPlayers()) {
+            if (player.isAlive()) continue;
+            player.incrementPlayerSecondsAlive();
         }
 
         game.updateServerSidebar();
+
     }
 }

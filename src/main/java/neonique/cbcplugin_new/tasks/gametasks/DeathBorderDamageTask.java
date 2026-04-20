@@ -3,22 +3,23 @@ package neonique.cbcplugin_new.tasks.gametasks;
 import neonique.cbcplugin_new.gameobjects.DeathBorder;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class DeathBorderDamageTask extends BukkitRunnable {
 
-    GameManager gameManager;
-    CombatManager combatManager;
-    DeathBorder border;
+    private final PlayerRegistry playerRegistry;
+    private final CombatManager combatManager;
+    private final DeathBorder border;
 
     private final int WARN_DISTANCE = 8;
 
-    public DeathBorderDamageTask (GameManager gameManager, DeathBorder border) {
+    public DeathBorderDamageTask (PlayerRegistry playerRegistry, CombatManager combatManager, DeathBorder border) {
+        this.playerRegistry = playerRegistry;
+        this.combatManager = combatManager;
         this.border = border;
-        this.gameManager = gameManager;
-        this.combatManager = gameManager.combatManager;
     }
 
     @Override
@@ -33,7 +34,7 @@ public class DeathBorderDamageTask extends BukkitRunnable {
             return;
         }
 
-        for (CBCPlayer player : gameManager.getAlivePlayers()) {
+        for (CBCPlayer player : playerRegistry.getPlayers()) {
             if (player.isOnline()) {
                 border.checkIfPlayerOutsideBorder(player);
             }

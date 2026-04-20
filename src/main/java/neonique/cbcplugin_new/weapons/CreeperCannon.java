@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.projectiles.CBCCreeper;
@@ -44,10 +45,9 @@ public class CreeperCannon implements CrossbowWeapon {
     }
 
     @Override
-    public void fireWeapon(Arrow arrowFired) {
+    public void fireWeapon (Arrow arrowFired, ProjectileManager projManager) {
 
-        Projectile projectile = fireProjectile(arrowFired);
-        owner.getGameManager().getCombatManager().getProjectileManager().addProjectile(projectile);
+        Projectile projectile = fireProjectile(arrowFired, projManager);
         weaponReloader.startReload();
 
     }
@@ -108,7 +108,7 @@ public class CreeperCannon implements CrossbowWeapon {
     }
 
     @Override
-    public Projectile fireProjectile(Arrow arrowFired) {
+    public Projectile fireProjectile(Arrow arrowFired, ProjectileManager projManager) {
 
         arrowFired.setDamage(0);
         Vector arrowVelocity = arrowFired.getVelocity();
@@ -138,7 +138,9 @@ public class CreeperCannon implements CrossbowWeapon {
         data.set(verKbKey, PersistentDataType.DOUBLE, weaponOptions.getVerticalKnockbackCoefficient());
         data.set(allyDamageRatioKey, PersistentDataType.DOUBLE, weaponOptions.getCreeperAllyDamageRatio());
 
-        return new CBCCreeper(owner, creeperFired);
+        CBCCreeper proj = new CBCCreeper(owner, creeperFired);
+        projManager.addProjectile(proj);
+        return proj;
 
     }
 

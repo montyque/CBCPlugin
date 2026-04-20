@@ -131,7 +131,7 @@ public abstract class BaseStartGameTimer extends BukkitRunnable {
         if (team != null) {
             textColor = team.getColor();
             teamColor = team.getColor();
-        }
+        }i l
 
         String gamemodeUnicode = game.getGamemode().getUnicodeIcon(teamColor);
 

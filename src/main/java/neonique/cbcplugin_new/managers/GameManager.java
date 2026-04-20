@@ -48,6 +48,7 @@ public class GameManager {
     private final Lobby lobby;
 
     private HashMap<UUID, CBCPlayer> playerList;
+    private PlayerRegistry playerRegistry;
 
     private final UUID worldUUID;
 
@@ -386,6 +387,8 @@ public class GameManager {
             weaponFactory.setXbowVar((XbowPreset) lobby.getWeaponPreset(WeaponType.XBOW));
             lobby.putTeamOverridesPresetsIntoWeaponManager();
 
+            playerRegistry.bind(currentGame);
+
         } catch (Exception e) {
 
             e.printStackTrace();
@@ -448,14 +451,12 @@ public class GameManager {
             }
         }
 
-        // Clear player list
-        resetPlayerList();
-
         // Clear chat settings
         chatManager.clearChatManager();
 
         // Reset the game
         currentGame.resetGame();
+        playerRegistry.clear();
 
         // Setup lobby
         startLobby();
@@ -764,5 +765,9 @@ public class GameManager {
 
     public CombatManager getCombatManager() {
         return combatManager;
+    }
+
+    public PlayerRegistry getPlayerRegistry() {
+        return playerRegistry;
     }
 }

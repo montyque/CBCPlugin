@@ -1,17 +1,18 @@
 package neonique.cbcplugin_new.tasks.weapontasks;
 
 import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class ProjectileUpdateTask extends BukkitRunnable {
 
-    private final GameManager gameManager;
+    private final PlayerRegistry playerRegistry;
     private final ProjectileManager projectileManager;
 
-    public ProjectileUpdateTask (GameManager gameManager, ProjectileManager projectileManager) {
-        this.gameManager = gameManager;
+    public ProjectileUpdateTask (PlayerRegistry playerRegistry, ProjectileManager projectileManager) {
+        this.playerRegistry = playerRegistry;
         this.projectileManager = projectileManager;
     }
 
@@ -22,7 +23,7 @@ public class ProjectileUpdateTask extends BukkitRunnable {
     }
 
     public void updateFlames () {
-        for (CBCPlayer player : gameManager.getPlayers()) {
+        for (CBCPlayer player : playerRegistry.getPlayers()) {
             player.getFlameDamager().update();
         }
     }

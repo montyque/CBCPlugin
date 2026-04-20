@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
@@ -41,11 +42,9 @@ public class XBow implements CrossbowWeapon {
     }
 
     @Override
-    public void fireWeapon(Arrow arrowFired) {
+    public void fireWeapon(Arrow arrowFired, ProjectileManager projManager) {
 
-        Projectile projectile = fireProjectile(arrowFired);
-        owner.getCombatManager().getProjectileManager().addProjectile(projectile);
-        owner.getCombatManager().xbowArrowTeam().addEntityUUID(arrowFired.getUniqueId());
+        Projectile projectile = fireProjectile(arrowFired, projManager);
         weaponReloader.startReload();
 
     }
@@ -103,7 +102,7 @@ public class XBow implements CrossbowWeapon {
     }
 
     @Override
-    public Projectile fireProjectile(Arrow arrowFired) {
+    public Projectile fireProjectile(Arrow arrowFired, ProjectileManager projManager) {
 
         arrowFired.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
         arrowFired.setInvulnerable(true);
@@ -112,7 +111,9 @@ public class XBow implements CrossbowWeapon {
         arrowFired.setGlowing(true);
         arrowFired.setVelocity(arrowFired.getVelocity().multiply(weaponOptions.getArrowVelocityModifier()));
 
-        return new XbowArrow(owner, arrowFired);
+        Projectile proj = new XbowArrow(owner, arrowFired);
+        projManager.addProjectile(proj);
+        projManager.xbowArrowTeam().addEntityUUID(proj.getProjectileEntityUUID());
 
     }
 

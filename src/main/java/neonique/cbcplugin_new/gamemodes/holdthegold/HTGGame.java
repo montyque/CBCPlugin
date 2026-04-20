@@ -105,7 +105,6 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
 
         // Enable weapons
         combatManager.activateWeapons();
-        gameManager.resetPlayerList();
 
         // Setup default game variables
         setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());

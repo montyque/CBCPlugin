@@ -30,11 +30,11 @@ public class PlayerRegistry {
                 .collect(Collectors.toSet());
     }
 
-    public Optional<? extends CBCPlayer> getPlayerByUUID (UUID uuid) {
-        return activeSession.getPlayerByUUID(uuid);
+    public CBCPlayer getPlayerByUUID (UUID uuid) {
+        return activeSession.getPlayerByUUID(uuid).orElse(null);
     }
 
-    public Optional<? extends CBCPlayer> getPlayer (Player player) {
+    public CBCPlayer getPlayer (Player player) {
         return getPlayerByUUID(player.getUniqueId());
     }
 }

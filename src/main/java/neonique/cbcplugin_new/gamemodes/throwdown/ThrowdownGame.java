@@ -107,7 +107,6 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
 
         // Enable weapons
         combatManager.activateWeapons();
-        gameManager.resetPlayerList();
 
         // Setup gamemode game variables
         this.roundsToWin = ctx.getIntVars().getOrDefault("pointsToWin", 3);

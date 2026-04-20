@@ -130,7 +130,6 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
 
         // Enable weapons
         combatManager.activateWeapons();
-        gameManager.resetPlayerList();
 
         // Setup game listeners and tasks
         CBCPlugin plugin = CBCPlugin.getPlugin();
@@ -250,7 +249,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
         roundStartCountdown = false;
 
         // Start counting player alive time
-        new ShowdownTimeAliveTask(getGameManager(), this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
+        new ShowdownTimeAliveTask(this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
 
         // Start sudden death mechanisms
         if (suddenDeathEnabled) {

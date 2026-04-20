@@ -1,16 +1,17 @@
 package neonique.cbcplugin_new.managers;
 
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class ProjectileManager {
 
-    private final HashMap<UUID, Projectile> projectiles = new HashMap<>();
+    private final Map<UUID, Projectile> projectiles = new HashMap<>();
+
+    private CBCScoreboardTeam flameZoneArrowTeam;
+    private CBCScoreboardTeam xbowArrowTeam;
 
     /**
      * Updates the state of every projectile in the projectiles list.
@@ -75,5 +76,13 @@ public class ProjectileManager {
     @Nullable
     public Projectile getProjectile(UUID uuid) {
         return projectiles.getOrDefault(uuid, null);
+    }
+
+    public CBCScoreboardTeam xbowArrowTeam() {
+        return xbowArrowTeam;
+    }
+
+    public CBCScoreboardTeam flameZoneArrowTeam() {
+        return flameZoneArrowTeam;
     }
 }

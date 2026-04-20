@@ -1,8 +1,10 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
+import neonique.cbcplugin_new.weapons.projectiles.CBCCreeper;
 import neonique.cbcplugin_new.weapons.projectiles.FlameArrow;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 import net.kyori.adventure.key.Key;
@@ -39,11 +41,9 @@ public class FlameZoner implements CrossbowWeapon {
     }
 
     @Override
-    public void fireWeapon(Arrow arrowFired) {
+    public void fireWeapon(Arrow arrowFired, ProjectileManager projManager) {
 
-        Projectile projectile = fireProjectile(arrowFired);
-        owner.getCombatManager().getProjectileManager().addProjectile(projectile);
-        owner.getCombatManager().flameZoneArrowTeam().addEntityUUID(arrowFired.getUniqueId());
+        Projectile projectile = fireProjectile(arrowFired, projManager);
         weaponReloader.startReload();
 
     }
@@ -100,7 +100,7 @@ public class FlameZoner implements CrossbowWeapon {
     }
 
     @Override
-    public Projectile fireProjectile(Arrow arrowFired) {
+    public Projectile fireProjectile(Arrow arrowFired, ProjectileManager projManager) {
 
         arrowFired.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
         arrowFired.setInvulnerable(true);
@@ -108,8 +108,11 @@ public class FlameZoner implements CrossbowWeapon {
         arrowFired.setPierceLevel(20);
         arrowFired.setGlowing(true);
 
-        return new FlameArrow(owner, arrowFired, weaponOptions.getZoneRadius(),
+        FlameArrow proj = new FlameArrow(owner, arrowFired, weaponOptions.getZoneRadius(),
                 (int) Math.round(weaponOptions.getZoneLife() * 20));
+        projManager.addProjectile(proj);
+        projManager.flameZoneArrowTeam().addEntityUUID(arrowFired.getUniqueId());
+        return proj;
 
     }
 

@@ -1,18 +1,12 @@
 package neonique.cbcplugin_new.listeners.combat;
 
-import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.WeaponType;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.managers.PlayerRegistry;
+import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.CBCInventory;
-import neonique.cbcplugin_new.weapons.CrossbowWeapon;
 import neonique.cbcplugin_new.weapons.InventorySlot;
 import neonique.cbcplugin_new.weapons.WeaponSlot;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -23,16 +17,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Objects;
+import java.util.Optional;
 
 public class CrossbowFiredListener implements Listener {
 
-    private final GameManager gameManager;
-    private final CombatManager combatManager;
+    private final PlayerRegistry playerRegistry;
+    private final ProjectileManager projectileManager;
 
-    public CrossbowFiredListener(GameManager gameManager, CombatManager combatManager) {
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
+    public CrossbowFiredListener(PlayerRegistry playerRegistry, ProjectileManager projectileManager) {
+        this.playerRegistry = playerRegistry;
+        this.projectileManager = projectileManager;
     }
 
     @EventHandler
@@ -41,39 +35,37 @@ public class CrossbowFiredListener implements Listener {
         ItemStack itemFired = e.getBow();
         Entity projectileFired = e.getProjectile();
 
-        assert itemFired != null;
-
-        if (itemFired.getType() != Material.CROSSBOW) {
-            return;
+        if (itemFired == null) return;
+        if (itemFired.getType() == Material.CROSSBOW && projectileFired instanceof Arrow arrowFired) {
+            crossbowFired(e.getEntity(), itemFired, arrowFired);
         }
 
-        if (!(projectileFired instanceof Arrow arrowFired)) {
-            return;
+    }
+
+    public void crossbowFired (Entity entityFired, ItemStack itemFired, Arrow arrowFired) {
+
+        CBCPlayer playerSource = playerRegistry.getPlayerByUUID(entityFired.getUniqueId());
+        if (playerSource == null) return;
+
+        Optional<Integer> itemSlotId = getItemSlotId(itemFired);
+        if (itemSlotId.isEmpty()) return;
+
+        InventorySlot slotFrom = playerSource.getInventory().getSlot(itemSlotId.get());
+
+        if (slotFrom instanceof WeaponSlot weaponSlot) {
+            weaponSlot.getWeapon().fireWeapon(arrowFired, projectileManager);
+            if (entityFired instanceof Player playerEntity) {
+                playerEntity.playSound(playerEntity.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 10, 2);
+            }
         }
 
-        Entity entityFired = e.getEntity();
-        if (!(entityFired instanceof Player playerFired)) {
-            return;
-        }
+    }
 
-        if (!(this.gameManager.hasPlayer(playerFired))) {
-            return;
-        }
-
-        CBCPlayer cbcPlayerFired = this.gameManager.getPlayer(playerFired);
-
-        // Check what weapon player fired from
-        ItemMeta itemFiredMeta = itemFired.getItemMeta();
+    public Optional<Integer> getItemSlotId (ItemStack item) {
+        ItemMeta itemFiredMeta = item.getItemMeta();
         PersistentDataContainer itemFiredTags = itemFiredMeta.getPersistentDataContainer();
         Integer itemSlotId = itemFiredTags.get(CBCInventory.slotKey, PersistentDataType.INTEGER);
-        if (itemSlotId == null) return;
-
-        InventorySlot slotFrom = cbcPlayerFired.getInventory().getSlot(itemSlotId);
-        if (slotFrom instanceof WeaponSlot weaponSlot) {
-            weaponSlot.getWeapon().fireWeapon(arrowFired);
-            playerFired.playSound(playerFired.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 10, 2);
-        }
-
+        return Optional.ofNullable(itemSlotId);
     }
 
 }

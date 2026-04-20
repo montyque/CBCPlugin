@@ -95,7 +95,6 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
 
         // Enable weapons
         combatManager.activateWeapons();
-        gameManager.resetPlayerList();
 
         // Setup gamemode specific game variables
         gameByTimer = ctx.getBoolVars().getOrDefault("gameByTimer", true);

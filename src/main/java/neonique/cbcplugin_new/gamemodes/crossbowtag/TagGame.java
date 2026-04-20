@@ -137,7 +137,6 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
         // Enable weapons
         combatManager.activateWeapons();
-        gameManager.resetPlayerList();
 
         setGameCommands(new TagGameCommands(this));
 

@@ -68,7 +68,7 @@ public class DeathBorder {
 
         borderShrinkTask = new DeathBorderShrinkTask(this);
         borderShrinkTask.runTaskTimer(CBCPlugin.getPlugin(), 0, (long) shrinkRate * 3L);
-        borderDamageTask = new DeathBorderDamageTask(gameManager, this);
+        borderDamageTask = new DeathBorderDamageTask(gameManager.getPlayerRegistry(), gameManager.getCombatManager(), this);
         borderDamageTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
     }
