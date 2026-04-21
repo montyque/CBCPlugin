@@ -182,7 +182,7 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
 
     public BaseGameCommands getGameCommands() {
         if (gameCommands == null) {
-            return new BaseGameCommands(gameManager, combatManager);
+            return new BaseGameCommands(this);
         }
         return gameCommands;
     }
@@ -332,7 +332,7 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
     public void teleportSpectators () {
         // Go through all players that aren't in the game
         for (Player player : world.getPlayers()) {
-            if (!gameManager.hasPlayer(player)) {
+            if (!hasPlayer(player)) {
                 setPlayerSpectator(player);
             }
         }

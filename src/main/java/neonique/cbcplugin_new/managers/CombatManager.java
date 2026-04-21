@@ -134,8 +134,8 @@ public class CombatManager {
 
         // Create instances of listeners
         entityDamagePlayerListener = new EntityDamagePlayerListener(gameManager, this);
-        crossbowFiredListener = new CrossbowFiredListener(gameManager, this);
-        playerItemListener = new PlayerItemListener(gameManager, this);
+        crossbowFiredListener = new CrossbowFiredListener(gameManager.getPlayerRegistry(), projectileManager);
+        playerItemListener = new PlayerItemListener(gameManager.getPlayerRegistry());
         playerMiscDamageListener = new PlayerMiscDamageListener(gameManager, this);
         playerDeathListener = new PlayerDeathListener(gameManager, this);
         lavaDamageListener = new LavaDamageListener(gameManager, this);
@@ -175,17 +175,18 @@ public class CombatManager {
         xbowArrowTeam = scoreboardManager.registerNewTeam("flameArrows");
         xbowArrowTeam.setColor(NamedTextColor.AQUA);
 
+
+
         // Activate tasks
         weaponReloadTask = new WeaponReloadTask(gameManager.getPlayerRegistry());
         respawnTimerTask = new RespawnTimerTask(gameManager.getPlayerRegistry(), this);
         projectileUpdateTask = new ProjectileUpdateTask(gameManager.getPlayerRegistry(), projectileManager);
 
         voidTask = new VoidTask(gameManager, this);
-        healPadTask = new HealPadDetectionTask(gameManager, this);
+        healPadTask = new HealPadDetectionTask(this, gameManager.getPlayerRegistry());
         resetPlayerLastHitTask = new ResetPlayerLastHitTask(gameManager);
         weaponManagerTimerTask = new WeaponManagerTimerTask(this);
         playerParticlesTask = new PlayerParticlesTask(gameManager);
-
 
         weaponReloadTask.runTaskTimer(plugin, 0, RELOAD_TASK_PERIOD);
         respawnTimerTask.runTaskTimer(plugin, 0, 1L);

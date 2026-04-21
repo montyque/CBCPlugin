@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.listeners.combat;
 
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -22,14 +21,13 @@ import java.util.Set;
 
 public class PlayerItemListener implements Listener {
 
-    private final GameManager gameManager;
-    private CombatManager combatManager;
+    private final PlayerRegistry playerRegistry;
 
     private final Set<Material> DISALLOWED_ITEM_DROPS = new HashSet<>();
 
-    public PlayerItemListener(GameManager gameManager, CombatManager combatManager) {
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
+    public PlayerItemListener (PlayerRegistry playerRegistry) {
+
+        this.playerRegistry = playerRegistry;
 
         // All items below are disallowed to be dropped
         DISALLOWED_ITEM_DROPS.add(Material.CROSSBOW);
@@ -44,30 +42,21 @@ public class PlayerItemListener implements Listener {
     @EventHandler
     public void changeHand(PlayerItemHeldEvent e) {
 
-        Player player = e.getPlayer();
-        // Verify that player is in game
-        if (!gameManager.hasPlayer(player)) {
-            return;
-        }
+        Player playerEntity = e.getPlayer();
+        CBCPlayer player = playerRegistry.getPlayer(playerEntity);
+        if (player == null) return;
+        player.updateActionBarDisplay(true);
 
-        CBCPlayer cbcPlayer = gameManager.getPlayer(player);
-
-        if (!cbcPlayer.isOnline()) return;
-        cbcPlayer.updateActionBarDisplay(true);
     }
 
     @EventHandler
     public void dropItem(PlayerDropItemEvent e) {
 
-        Player player = e.getPlayer();
-        // Verify that player is in game
-        if (!gameManager.hasPlayer(player)) {
-            return;
-        }
+        Player playerEntity = e.getPlayer();
+        CBCPlayer player = playerRegistry.getPlayer(playerEntity);
+        if (player == null) return;
 
-        // Check if item material is in disallowed items
         if (DISALLOWED_ITEM_DROPS.contains(e.getItemDrop().getItemStack().getType())) {
-            // Cancel event
             e.setCancelled(true);
         }
     }
@@ -77,29 +66,24 @@ public class PlayerItemListener implements Listener {
 
         // Verify that the entity is a player
         Entity entity = e.getEntity();
-        if (!(entity instanceof Player player)) {
+        if (!(entity instanceof Player playerEntity)) {
             return;
         }
 
-        // Verify that player is in game
-        if (!gameManager.hasPlayer(player)) {
-            return;
-        }
-        // Check if item material is in disallowed items
+        CBCPlayer player = playerRegistry.getPlayer(playerEntity);
+        if (player == null) return;
+
         if (DISALLOWED_ITEM_DROPS.contains(e.getItem().getItemStack().getType())) {
-            // Cancel event
             e.setCancelled(true);
         }
+
     }
 
     @EventHandler
     public void swapItem(PlayerSwapHandItemsEvent e) {
 
-        Player player = e.getPlayer();
-        // Verify that player is in game
-        if (!gameManager.hasPlayer(player)) {
-            return;
-        }
+        CBCPlayer player = playerRegistry.getPlayer(e.getPlayer());
+        if (player == null) return;
 
         if (DISALLOWED_ITEM_DROPS.contains(e.getMainHandItem().getType())) {
             // Cancel event

@@ -105,6 +105,7 @@ public class GameManager {
         chatManager = new ChatManager(this);
         globalKillsManager = new GlobalKillsManager();
         cbcScoreboardManager = new CBCScoreboardManager(Bukkit.getScoreboardManager());
+        playerRegistry = new PlayerRegistry();
 
         gameState = GameState.DISABLED;
         lobby = new Lobby(this);

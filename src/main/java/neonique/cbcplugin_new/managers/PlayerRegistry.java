@@ -37,4 +37,9 @@ public class PlayerRegistry {
     public CBCPlayer getPlayer (Player player) {
         return getPlayerByUUID(player.getUniqueId());
     }
+
+    public boolean hasPlayer (Player player) {
+        return getPlayerByUUID(player.getUniqueId()) != null;
+    }
+
 }
