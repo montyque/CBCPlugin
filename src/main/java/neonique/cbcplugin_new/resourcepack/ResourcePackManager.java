@@ -1,8 +1,8 @@
 package neonique.cbcplugin_new.resourcepack;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCause;
-import neonique.cbcplugin_new.enums.WeaponType;
+import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.weapons.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;

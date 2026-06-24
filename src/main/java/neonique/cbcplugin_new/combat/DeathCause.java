@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.enums;
+package neonique.cbcplugin_new.combat;
 
 public enum DeathCause {
     CREEPER, FLAMEZONE, XBOW, MELEE, VOID, LAVA, DROWN, DISCONNECT, LEAVE_PRACTICE, COMMAND, DEATH_BORDER, NATURAL, XBOW_PIGLIN

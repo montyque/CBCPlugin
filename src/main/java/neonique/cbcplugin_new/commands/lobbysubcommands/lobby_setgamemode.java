@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.commands.lobbysubcommands;
 
 import neonique.cbcplugin_new.commands.LobbyCommand;
-import neonique.cbcplugin_new.enums.GameState;
+import neonique.cbcplugin_new.managers.GameState;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.managers.GameManager;
 import net.kyori.adventure.text.Component;

@@ -2,7 +2,6 @@ package neonique.cbcplugin_new.managers;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.ChatType;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;

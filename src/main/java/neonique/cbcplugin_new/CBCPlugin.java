@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new;
 
 import neonique.cbcplugin_new.commands.*;
-import neonique.cbcplugin_new.enums.GameState;
+import neonique.cbcplugin_new.managers.GameState;
 import neonique.cbcplugin_new.services.ArmorTrimService;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;

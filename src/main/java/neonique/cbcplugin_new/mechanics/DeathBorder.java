@@ -1,8 +1,8 @@
 package neonique.cbcplugin_new.mechanics;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCause;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gametasks.DeathBorderDamageTask;

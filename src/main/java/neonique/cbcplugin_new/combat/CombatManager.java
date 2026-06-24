@@ -1,9 +1,11 @@
-package neonique.cbcplugin_new.managers;
+package neonique.cbcplugin_new.combat;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
+import neonique.cbcplugin_new.managers.DeathMessageManager;
+import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.mechanics.*;
 import neonique.cbcplugin_new.listeners.combat.*;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;

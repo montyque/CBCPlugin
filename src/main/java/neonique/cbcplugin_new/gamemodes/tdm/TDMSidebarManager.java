@@ -2,9 +2,8 @@ package neonique.cbcplugin_new.gamemodes.tdm;
 
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

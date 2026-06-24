@@ -1,8 +1,8 @@
 package neonique.cbcplugin_new.listeners.combat;
 
-import neonique.cbcplugin_new.enums.DeathCause;
+import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

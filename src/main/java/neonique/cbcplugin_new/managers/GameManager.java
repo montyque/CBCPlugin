@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.managers;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
-import neonique.cbcplugin_new.enums.*;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.BaseGameCommands;
@@ -12,6 +12,7 @@ import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
+import neonique.cbcplugin_new.weapons.WeaponType;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.mechanics.GamemodeOptions;

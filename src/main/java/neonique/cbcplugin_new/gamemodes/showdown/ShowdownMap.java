@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.mechanics.DeathBorderShape;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
 

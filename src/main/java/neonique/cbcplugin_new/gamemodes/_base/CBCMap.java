@@ -4,7 +4,7 @@ package neonique.cbcplugin_new.gamemodes._base;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.enums.DeathCause;
+import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinMap;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagMap;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFMap;
@@ -22,7 +22,7 @@ import neonique.cbcplugin_new.mechanics.HealthPad;
 import neonique.cbcplugin_new.mechanics.JumpPad;
 import neonique.cbcplugin_new.managers.DeathMessageGenerator;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;

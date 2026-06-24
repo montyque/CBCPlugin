@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;

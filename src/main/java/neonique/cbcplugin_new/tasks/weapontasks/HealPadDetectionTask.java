@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.tasks.weapontasks;
 
 import neonique.cbcplugin_new.mechanics.HealthPad;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import org.bukkit.Location;

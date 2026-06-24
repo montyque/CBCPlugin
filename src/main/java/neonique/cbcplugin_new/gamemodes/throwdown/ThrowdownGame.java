@@ -10,7 +10,7 @@ import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;

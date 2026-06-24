@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.commands.cbceventsubcommands;
 import neonique.cbcplugin_new.cbcevents.CBCEventTeam;
 import neonique.cbcplugin_new.commands.CBCEventCommand;
 import neonique.cbcplugin_new.commands._SubCommand;
-import neonique.cbcplugin_new.enums.GameState;
+import neonique.cbcplugin_new.managers.GameState;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.cbcevents.CBCEventPlayer;

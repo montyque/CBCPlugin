@@ -13,7 +13,7 @@ import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import net.kyori.adventure.text.Component;

@@ -1,8 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.tdm;
 
 import neonique.cbcplugin_new.gamemodes._base.BaseTeamGameCommands;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import java.util.List;

@@ -3,9 +3,9 @@ package neonique.cbcplugin_new.listeners.combat;
 // This listener is used to check for both creeper, X-Bow and melee damage
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCause;
+import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.managers.ProjectileManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.CreeperCannon;
@@ -15,7 +15,6 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;

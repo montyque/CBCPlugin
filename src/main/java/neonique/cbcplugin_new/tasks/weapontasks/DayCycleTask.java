@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.tasks.weapontasks;
 
-import neonique.cbcplugin_new.enums.WeaponsState;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 

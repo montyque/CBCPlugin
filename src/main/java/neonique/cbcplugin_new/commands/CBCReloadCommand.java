@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.commands;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.GameState;
 import neonique.cbcplugin_new.managers.GameManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

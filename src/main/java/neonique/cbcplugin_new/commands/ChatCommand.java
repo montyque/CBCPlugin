@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.commands;
 
-import neonique.cbcplugin_new.enums.ChatType;
+import neonique.cbcplugin_new.managers.ChatType;
 import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.managers.ChatManager;
 import neonique.cbcplugin_new.managers.GameManager;

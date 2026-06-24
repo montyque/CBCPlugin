@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.PracticeManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;

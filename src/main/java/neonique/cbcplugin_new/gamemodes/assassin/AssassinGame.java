@@ -7,7 +7,7 @@ import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;

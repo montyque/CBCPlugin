@@ -1,9 +1,5 @@
 package neonique.cbcplugin_new.commands;
 
-import neonique.cbcplugin_new.enums.ChatType;
-import neonique.cbcplugin_new.gamemodes._base.Game;
-import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousPlayer;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;

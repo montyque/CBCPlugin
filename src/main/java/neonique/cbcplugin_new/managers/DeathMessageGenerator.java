@@ -1,10 +1,8 @@
 package neonique.cbcplugin_new.managers;
 
-import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCause;
+import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 

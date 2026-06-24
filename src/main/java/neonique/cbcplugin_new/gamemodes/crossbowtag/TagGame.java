@@ -9,7 +9,7 @@ import neonique.cbcplugin_new.listeners.gamemodes.TagTeleportListener;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.tasks.TagNextRoundTimer;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.tasks.TagRoundTimer;

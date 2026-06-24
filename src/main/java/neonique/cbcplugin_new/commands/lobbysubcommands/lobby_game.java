@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.commands.lobbysubcommands;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.commands.LobbyCommand;
-import neonique.cbcplugin_new.enums.WeaponType;
+import neonique.cbcplugin_new.weapons.WeaponType;
 import neonique.cbcplugin_new.services.WeaponPresetService;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
@@ -11,7 +11,7 @@ import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;

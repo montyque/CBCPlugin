@@ -1,11 +1,11 @@
 package neonique.cbcplugin_new.playerclasses;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathCause;
+import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
 import neonique.cbcplugin_new.weapons.*;
 import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;

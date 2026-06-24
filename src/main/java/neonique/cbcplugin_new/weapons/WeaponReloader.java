@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.weapons;
 
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 
 public class WeaponReloader {
 

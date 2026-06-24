@@ -10,7 +10,7 @@ import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGStartGameTimer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
+import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;

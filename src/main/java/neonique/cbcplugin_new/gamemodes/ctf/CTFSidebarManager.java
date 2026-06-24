@@ -1,18 +1,12 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes._base.*;
-import neonique.cbcplugin_new.gamemodes.crossbowtag.TagPlayer;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
