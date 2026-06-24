@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.managers;
+package neonique.cbcplugin_new.combat;
 
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;

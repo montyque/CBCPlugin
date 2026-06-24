@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.listeners.combat;
+package neonique.cbcplugin_new.combat.listeners;
 
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;

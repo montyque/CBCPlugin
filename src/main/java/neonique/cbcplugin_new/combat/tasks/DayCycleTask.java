@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.tasks.weapontasks;
+package neonique.cbcplugin_new.combat.tasks;
 
 import neonique.cbcplugin_new.combat.CombatManager;
 import org.bukkit.World;

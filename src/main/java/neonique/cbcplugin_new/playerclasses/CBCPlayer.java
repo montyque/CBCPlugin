@@ -6,7 +6,7 @@ import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.tasks.weapontasks.TempImmunityTask;
+import neonique.cbcplugin_new.combat.tasks.TempImmunityTask;
 import neonique.cbcplugin_new.weapons.*;
 import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;
 import net.kyori.adventure.text.Component;

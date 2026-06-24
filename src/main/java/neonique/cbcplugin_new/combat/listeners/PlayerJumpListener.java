@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.listeners.combat;
+package neonique.cbcplugin_new.combat.listeners;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import neonique.cbcplugin_new.managers.GameManager;
