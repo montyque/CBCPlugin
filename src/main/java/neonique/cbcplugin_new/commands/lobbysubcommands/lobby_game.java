@@ -6,7 +6,7 @@ import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.services.WeaponPresetService;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
-import neonique.cbcplugin_new.gameobjects.OverallPreset;
+import neonique.cbcplugin_new.mechanics.OverallPreset;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.lobby.LobbyTeam;

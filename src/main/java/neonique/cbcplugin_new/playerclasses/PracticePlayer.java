@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.playerclasses;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
+import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.PracticeManager;
 import neonique.cbcplugin_new.managers.CombatManager;

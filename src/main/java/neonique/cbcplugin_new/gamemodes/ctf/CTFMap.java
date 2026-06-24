@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
-import neonique.cbcplugin_new.enums.DeathBorderShape;
+import neonique.cbcplugin_new.mechanics.DeathBorderShape;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;

@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.tasks.gametasks;
 
-import neonique.cbcplugin_new.gameobjects.DeathBorder;
+import neonique.cbcplugin_new.mechanics.DeathBorder;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class DeathBorderShrinkTask extends BukkitRunnable {

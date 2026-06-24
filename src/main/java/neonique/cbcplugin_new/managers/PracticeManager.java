@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.managers;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
-import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
+import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.listeners.practice.PracticePlayerTeleport;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.playerclasses.PracticePlayer;

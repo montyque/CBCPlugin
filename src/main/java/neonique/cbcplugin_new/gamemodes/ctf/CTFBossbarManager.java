@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
-import neonique.cbcplugin_new.enums.ResourcePackFont;
+import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;

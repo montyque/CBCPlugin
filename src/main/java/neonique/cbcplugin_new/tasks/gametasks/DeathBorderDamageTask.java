@@ -1,11 +1,9 @@
 package neonique.cbcplugin_new.tasks.gametasks;
 
-import neonique.cbcplugin_new.gameobjects.DeathBorder;
-import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class DeathBorderDamageTask extends BukkitRunnable {

@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.tasks.weapontasks;
 
-import neonique.cbcplugin_new.gameobjects.HealthPad;
+import neonique.cbcplugin_new.mechanics.HealthPad;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class HealPadTimerTask extends BukkitRunnable {

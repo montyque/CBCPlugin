@@ -1,17 +1,12 @@
 package neonique.cbcplugin_new.weapons;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.WeaponType;
-import neonique.cbcplugin_new.gameobjects.OverallPreset;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

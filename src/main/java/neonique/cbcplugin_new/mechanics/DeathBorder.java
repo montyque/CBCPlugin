@@ -1,9 +1,7 @@
-package neonique.cbcplugin_new.gameobjects;
+package neonique.cbcplugin_new.mechanics;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.DeathBorderShape;
 import neonique.cbcplugin_new.enums.DeathCause;
-import neonique.cbcplugin_new.gamemodes._base.Game;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;

@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.tasks.weapontasks;
 
-import neonique.cbcplugin_new.gameobjects.DashPad;
+import neonique.cbcplugin_new.mechanics.DashPad;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;

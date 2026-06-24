@@ -7,7 +7,7 @@ import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.ctf.tasks.CTFGlowManagerTask;
 import neonique.cbcplugin_new.gamemodes.ctf.tasks.CTFPlayersNearbyFlags;
 import neonique.cbcplugin_new.gamemodes.ctf.tasks.CTFStartGameTimer;
-import neonique.cbcplugin_new.gameobjects.DeathBorder;
+import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.listeners.gamemodes.CTFTeleportListener;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.lobby.LobbyTeam;

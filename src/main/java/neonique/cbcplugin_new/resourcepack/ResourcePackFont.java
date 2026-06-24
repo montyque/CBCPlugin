@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.enums;
+package neonique.cbcplugin_new.resourcepack;
 
 import net.kyori.adventure.key.Key;
 

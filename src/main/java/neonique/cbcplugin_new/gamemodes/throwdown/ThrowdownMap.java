@@ -1,9 +1,9 @@
 package neonique.cbcplugin_new.gamemodes.throwdown;
 
-import neonique.cbcplugin_new.enums.DeathBorderShape;
+import neonique.cbcplugin_new.mechanics.DeathBorderShape;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
-import neonique.cbcplugin_new.gameobjects.DeathBorder;
-import neonique.cbcplugin_new.gameobjects.FFASpawnpoint;
+import neonique.cbcplugin_new.mechanics.DeathBorder;
+import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;
 import org.bukkit.configuration.file.YamlConfiguration;

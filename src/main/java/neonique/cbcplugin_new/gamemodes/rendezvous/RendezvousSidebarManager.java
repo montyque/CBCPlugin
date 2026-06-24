@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.rendezvous;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.PlayerHeadType;
+import neonique.cbcplugin_new.resourcepack.PlayerHeadType;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;

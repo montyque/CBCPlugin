@@ -2,10 +2,10 @@ package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.enums.ResourcePackFont;
+import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.enums.WeaponType;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
-import neonique.cbcplugin_new.gameobjects.*;
+import neonique.cbcplugin_new.mechanics.*;
 import neonique.cbcplugin_new.listeners.lobby.MenuClickEvent;
 import neonique.cbcplugin_new.listeners.lobby.PlayerDamageListener;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
@@ -34,9 +34,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

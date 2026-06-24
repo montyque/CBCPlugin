@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.assassin;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.PlayerHeadType;
+import neonique.cbcplugin_new.resourcepack.PlayerHeadType;
 import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
 import neonique.cbcplugin_new.misc.ClientSidebar;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;

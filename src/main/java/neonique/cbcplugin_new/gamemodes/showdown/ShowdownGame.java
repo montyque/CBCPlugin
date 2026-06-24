@@ -5,7 +5,7 @@ import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.showdown.tasks.*;
-import neonique.cbcplugin_new.gameobjects.DeathBorder;
+import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;

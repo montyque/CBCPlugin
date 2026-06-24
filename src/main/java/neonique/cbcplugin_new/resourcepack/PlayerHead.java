@@ -1,6 +1,5 @@
 package neonique.cbcplugin_new.resourcepack;
 
-import neonique.cbcplugin_new.enums.PlayerHeadType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 

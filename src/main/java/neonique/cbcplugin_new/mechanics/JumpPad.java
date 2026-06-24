@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.gameobjects;
+package neonique.cbcplugin_new.mechanics;
 
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.CombatManager;

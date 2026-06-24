@@ -14,7 +14,7 @@ import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
-import neonique.cbcplugin_new.gameobjects.GamemodeOptions;
+import neonique.cbcplugin_new.mechanics.GamemodeOptions;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.listeners.GameJoinListener;
 import neonique.cbcplugin_new.listeners.GameLeaveListener;

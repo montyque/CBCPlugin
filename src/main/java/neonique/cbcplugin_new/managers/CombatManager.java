@@ -4,7 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.enums.DeathCause;
 import neonique.cbcplugin_new.gamemodes._base.CBCMap;
-import neonique.cbcplugin_new.gameobjects.*;
+import neonique.cbcplugin_new.mechanics.*;
 import neonique.cbcplugin_new.listeners.combat.*;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 
@@ -29,9 +29,6 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
 
 import java.time.Duration;
 import java.util.*;

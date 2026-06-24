@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.enums.PlayerHeadType;
+import neonique.cbcplugin_new.resourcepack.PlayerHeadType;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.util.TextUtil;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.normalText;
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 import static neonique.cbcplugin_new.util.TextUtil.getComponentSpaceOfLength;
 import static neonique.cbcplugin_new.util.TextUtil.timerToText;
