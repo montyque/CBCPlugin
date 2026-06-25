@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.weapons.WeaponType;
@@ -162,21 +163,21 @@ public class Lobby {
 
         // Create teams
         teams.put("red", new LobbyTeam(gameManager, this, "01", "red",
-                "Red", "R", Material.RED_STAINED_GLASS, NamedTextColor.RED));
+                "Red", "R", TeamColor.RED));
         teams.put("blue", new LobbyTeam(gameManager, this, "02", "blue",
-                "Blue", "B", Material.BLUE_STAINED_GLASS, NamedTextColor.BLUE));
+                "Blue", "B", TeamColor.BLUE));
         teams.put("green", new LobbyTeam(gameManager, this, "03", "green",
-                "Green", "G", Material.LIME_STAINED_GLASS, NamedTextColor.GREEN));
+                "Green", "G", TeamColor.GREEN));
         teams.put("yellow", new LobbyTeam(gameManager, this, "04", "yellow",
-                "Yellow", "Y", Material.YELLOW_STAINED_GLASS, NamedTextColor.YELLOW));
+                "Yellow", "Y", TeamColor.YELLOW));
         teams.put("cyan", new LobbyTeam(gameManager, this, "05", "cyan",
-                "Cyan", "C", Material.CYAN_STAINED_GLASS, NamedTextColor.AQUA));
+                "Cyan", "C", TeamColor.CYAN));
         teams.put("orange", new LobbyTeam(gameManager, this, "06", "orange",
-                "Orange", "O", Material.ORANGE_STAINED_GLASS, NamedTextColor.GOLD));
+                "Orange", "O", TeamColor.ORANGE));
         teams.put("magenta", new LobbyTeam(gameManager, this, "07", "magenta",
-                "Magenta", "M", Material.MAGENTA_STAINED_GLASS, NamedTextColor.LIGHT_PURPLE));
+                "Magenta", "M", TeamColor.MAGENTA));
         teams.put("purple", new LobbyTeam(gameManager, this, "08", "purple",
-                "Purple", "P", Material.PURPLE_STAINED_GLASS, NamedTextColor.DARK_PURPLE));
+                "Purple", "P", TeamColor.PURPLE));
 
         // Creating spectator and FFA scoreboard teams
         CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();

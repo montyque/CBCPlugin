@@ -87,7 +87,7 @@ public class TagSidebarManager extends GameSidebarManager {
 
         // Add team one letter prefix
         teamComponent = teamComponent.append(
-                Component.text(team.getPrefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD)
+                Component.text(team.prefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD)
         );
 
         // Adding team name to team string

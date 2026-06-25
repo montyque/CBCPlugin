@@ -1,6 +1,5 @@
 package neonique.cbcplugin_new.core;
 
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import net.kyori.adventure.text.Component;
@@ -12,8 +11,6 @@ import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static neonique.cbcplugin_new.CBCPlugin.getGameManager;
 
 public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
 
@@ -111,9 +108,7 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
         player.setTeam(null);
     }
 
-    public void removeTeam () {
-        getGameManager().getCbcScoreboardManager().unregisterTeam(scoreboardTeam);
-    }
+    public void removeTeam () {}
 
     public void replacePlayerEntityKey(Player origin, Player newPlayer) {
         if (players.containsKey(origin.getUniqueId())) {

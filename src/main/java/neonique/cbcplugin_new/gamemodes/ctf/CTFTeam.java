@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.*;
@@ -282,6 +283,12 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         bannerState.update();
 
         // Set direction of banner
+        Rotatable blockData = getRotatable(block);
+
+        block.setBlockData(blockData);
+    }
+
+    private Rotatable getRotatable(Block block) {
         Rotatable blockData = (Rotatable) block.getBlockData();
         float yaw = flagLocation.getYaw() % 360f;
         if (yaw >= (360f / 16f) && yaw < (360f / 16f) * 3f) {
@@ -301,8 +308,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         } else {
             blockData.setRotation(BlockFace.SOUTH);
         }
-
-        block.setBlockData(blockData);
+        return blockData;
     }
 
     public boolean canRespawn() {

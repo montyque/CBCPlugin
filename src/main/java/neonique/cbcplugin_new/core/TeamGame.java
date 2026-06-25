@@ -92,6 +92,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
 
         // Remove all teams
         for (T team : teams.values()) {
+            getGameManager().getCbcScoreboardManager().unregisterTeam(team.scoreboardTeam());
             team.removeTeam();
         }
 
