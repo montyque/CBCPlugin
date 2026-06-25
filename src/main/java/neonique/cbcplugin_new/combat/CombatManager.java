@@ -4,7 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.listeners.*;
 import neonique.cbcplugin_new.combat.tasks.*;
-import neonique.cbcplugin_new.gamemodes._base.CBCMap;
+import neonique.cbcplugin_new.core.CBCMap;
 import neonique.cbcplugin_new.managers.DeathMessageManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.mechanics.*;

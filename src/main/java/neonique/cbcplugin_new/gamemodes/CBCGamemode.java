@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes;
 
-import neonique.cbcplugin_new.gamemodes._base.Game;
+import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;

@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.kmation;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.core.FFAGame;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;

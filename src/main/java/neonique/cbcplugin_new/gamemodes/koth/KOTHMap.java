@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.koth;
 
-import neonique.cbcplugin_new.gamemodes._base.CBCMap;
+import neonique.cbcplugin_new.core.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import org.bukkit.Location;

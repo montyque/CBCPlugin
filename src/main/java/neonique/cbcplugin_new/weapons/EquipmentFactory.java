@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.weapons;
 
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
+import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.services.ArmorTrimService;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import org.bukkit.Material;

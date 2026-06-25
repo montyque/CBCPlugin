@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.tasks.gamemodetasks;
 
-import neonique.cbcplugin_new.gamemodes._base.Game;
+import neonique.cbcplugin_new.core.Game;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class IncrementGameTimeTask extends BukkitRunnable {

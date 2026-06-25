@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.gamemodes._base;
+package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;

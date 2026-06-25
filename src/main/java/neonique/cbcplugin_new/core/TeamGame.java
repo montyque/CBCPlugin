@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.gamemodes._base;
+package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;

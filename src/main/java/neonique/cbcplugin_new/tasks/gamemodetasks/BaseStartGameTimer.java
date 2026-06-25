@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.tasks.gamemodetasks;
 
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.gamemodes._base.Game;
+import neonique.cbcplugin_new.core.CBCTeam;
+import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.util.TextUtil;

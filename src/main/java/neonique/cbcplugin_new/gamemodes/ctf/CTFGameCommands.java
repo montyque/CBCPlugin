@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
-import neonique.cbcplugin_new.gamemodes._base.BaseTeamGameCommands;
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
+import neonique.cbcplugin_new.core.BaseTeamGameCommands;
+import neonique.cbcplugin_new.core.CBCTeam;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 

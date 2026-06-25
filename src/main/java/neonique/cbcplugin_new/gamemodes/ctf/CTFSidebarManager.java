@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
+import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.misc.ClientSidebar;
 import neonique.cbcplugin_new.util.TextUtil;

@@ -1,6 +1,5 @@
 package neonique.cbcplugin_new.gamemodes.tdm;
 
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.util.StringUtil;

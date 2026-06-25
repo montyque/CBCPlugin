@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.gamemodes._base;
+package neonique.cbcplugin_new.core;
 
 // This class represents a CBC map - with a name, heal pads, other game mechanics, etc.
 

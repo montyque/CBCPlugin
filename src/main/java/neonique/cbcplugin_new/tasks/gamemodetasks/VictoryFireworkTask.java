@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.tasks.gamemodetasks;
 
-import neonique.cbcplugin_new.gamemodes._base.CBCTeam;
-import neonique.cbcplugin_new.gamemodes._base.CBCMap;
+import neonique.cbcplugin_new.core.CBCTeam;
+import neonique.cbcplugin_new.core.CBCMap;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;

@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.weapons.WeaponType;
-import neonique.cbcplugin_new.gamemodes._base.CBCMap;
+import neonique.cbcplugin_new.core.CBCMap;
 import neonique.cbcplugin_new.mechanics.*;
 import neonique.cbcplugin_new.listeners.lobby.MenuClickEvent;
 import neonique.cbcplugin_new.listeners.lobby.PlayerDamageListener;

@@ -1,5 +1,7 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
+import neonique.cbcplugin_new.core.CBCTeam;
+import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;

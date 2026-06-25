@@ -1,6 +1,8 @@
 package neonique.cbcplugin_new.gamemodes.koth;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.core.BaseTeamGameCommands;
+import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
