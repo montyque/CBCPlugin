@@ -55,7 +55,7 @@ public class ChatManager implements Listener {
         // Check if player has a team
         if (cbcPlayer.getTeam() == null) return;
         CBCTeam<?> team = cbcPlayer.getTeam();
-        NamedTextColor color = cbcPlayer.getTeam().getColor();
+        NamedTextColor color = cbcPlayer.getTeam().textColor();
 
         // Get current message
         Component message = e.message();
@@ -80,12 +80,12 @@ public class ChatManager implements Listener {
     public Component getChatComponentWithTeam (Player player, Component message, CBCTeam<?> team) {
 
         // Add team component to the message
-        Component msg = getTeamComponent(team.getColor());
+        Component msg = getTeamComponent(team.textColor());
 
         msg = msg.append(Component.text("<").color(NamedTextColor.WHITE)).append(
-                Component.text(team.getPrefix() + " ").color(team.getColor()).decorate(TextDecoration.BOLD)
+                Component.text(team.getPrefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD)
         ).append(
-                player.displayName().color(team.getColor())
+                player.displayName().color(team.textColor())
         ).append(
                 Component.text("> ").color(NamedTextColor.WHITE)
         ).append(message.color(NamedTextColor.WHITE));

@@ -71,7 +71,7 @@ public class CTFPlayer extends CBCPlayer {
         getInventory().setHelmetOverride(flagTeam.getBannerItem());
 
         // Add flag
-        List<Component> suffixes = new ArrayList<>(Collections.singletonList(Component.text("⚑ ").color(flagTeam.getColor())));
+        List<Component> suffixes = new ArrayList<>(Collections.singletonList(Component.text("⚑ ").color(flagTeam.textColor())));
         setPlayerListSuffixes(suffixes);
 
         // Send message
@@ -79,13 +79,13 @@ public class CTFPlayer extends CBCPlayer {
                 Component.newline().append(Component.text("FLAG PICKED UP > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
                         .append(getNameComponent())
                         .append(Component.text(" has picked up the ").color(NamedTextColor.WHITE))
-                        .append(Component.text("⚑ " + teamWithFlagPickedUp.getTeamName() + " Flag").color(teamWithFlagPickedUp.getColor()).decorate(TextDecoration.BOLD))
+                        .append(Component.text("⚑ " + teamWithFlagPickedUp.name() + " Flag").color(teamWithFlagPickedUp.textColor()).decorate(TextDecoration.BOLD))
                         .append(Component.text(".").color(NamedTextColor.WHITE)).append(Component.newline())
         );
 
         // Display title
         Title title = Title.title(
-                Component.text("⚑ Picked up " + flagTeam.getTeamName() + " Flag!").color(flagTeam.getColor()).decorate(TextDecoration.BOLD),
+                Component.text("⚑ Picked up " + flagTeam.name() + " Flag!").color(flagTeam.textColor()).decorate(TextDecoration.BOLD),
                 Component.text("Run back to your flag to capture it!").color(NamedTextColor.WHITE),
                 Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1000), Duration.ofMillis(150))
         );
@@ -107,12 +107,12 @@ public class CTFPlayer extends CBCPlayer {
         Component flagCaptureComponent = Component.newline().append(Component.text("FLAG CAPTURED > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
                 .append(getNameComponent())
                 .append(Component.text(" has captured the ").color(NamedTextColor.WHITE))
-                .append(Component.text("⚑ " + teamCaptured.getTeamName() + " Flag").color(teamCaptured.getColor()).decorate(TextDecoration.BOLD))
+                .append(Component.text("⚑ " + teamCaptured.name() + " Flag").color(teamCaptured.textColor()).decorate(TextDecoration.BOLD))
                 .append(Component.text("!").color(NamedTextColor.WHITE));
 
         // Display title
         Title title = Title.title(
-                Component.text("⚑ Captured " + teamCaptured.getTeamName() + " Flag!").color(teamCaptured.getColor()).decorate(TextDecoration.BOLD),
+                Component.text("⚑ Captured " + teamCaptured.name() + " Flag!").color(teamCaptured.textColor()).decorate(TextDecoration.BOLD),
                 Component.text("+1 Flags Captured").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD).decorate(TextDecoration.ITALIC),
                 Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(500), Duration.ofMillis(150))
         );
@@ -121,7 +121,7 @@ public class CTFPlayer extends CBCPlayer {
         // Send message
         if (teamCaptured.getFlagsLeft() == 1) {
             getGameManager().sendGlobalMessage(
-                    flagCaptureComponent.append(Component.text( " " + teamCaptured.getTeamName() + " Team").color(teamCaptured.getColor()).decorate(TextDecoration.BOLD))
+                    flagCaptureComponent.append(Component.text( " " + teamCaptured.name() + " Team").color(teamCaptured.textColor()).decorate(TextDecoration.BOLD))
                             .append(Component.text(" will no longer respawn!").color(NamedTextColor.WHITE))
                             .append(Component.newline())
             );
@@ -159,7 +159,7 @@ public class CTFPlayer extends CBCPlayer {
                 Component.text("FLAG DROPPED > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD)
                         .append(getNameComponent())
                         .append(Component.text(" dropped the ").color(NamedTextColor.WHITE))
-                        .append(Component.text("⚑ " + flagDropped.getTeamName() + " Flag").color(flagDropped.getColor()).decorate(TextDecoration.BOLD))
+                        .append(Component.text("⚑ " + flagDropped.name() + " Flag").color(flagDropped.textColor()).decorate(TextDecoration.BOLD))
                         .append(Component.text("!").color(NamedTextColor.WHITE))
         );
 

@@ -375,7 +375,7 @@ public class CombatManager {
                 Color fireworkColor = Color.WHITE;
 
                 if (playerKilled.getTeam() != null) {
-                    fireworkColor = Color.fromRGB(playerKilled.getTeam().getColor().value());
+                    fireworkColor = Color.fromRGB(playerKilled.getTeam().textColor().value());
                 }
 
                 fireworkMeta.addEffect(FireworkEffect.builder().withColor(fireworkColor)

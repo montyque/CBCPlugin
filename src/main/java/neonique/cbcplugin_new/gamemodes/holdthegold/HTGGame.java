@@ -68,9 +68,9 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
 
     @Override
     public HTGTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new HTGTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
+        return new HTGTeam(this, team.id(),
+                Integer.toString(teamNum), team.name(), team.getColor(),
+                team.prefix(), team.getIconItem(), team.getGlassHead()
         );
     }
 
@@ -128,9 +128,9 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
         for (HTGTeam team : getTeams()) {
 
             // Setup team's spawn
-            Location spawn = teamSpawns.get(team.getTeamId());
+            Location spawn = teamSpawns.get(team.id());
             if (spawn == null) {
-                throw new IllegalArgumentException("Team with id '" + team.getTeamId() + "' does not have a spawn!");
+                throw new IllegalArgumentException("Team with id '" + team.id() + "' does not have a spawn!");
             }
 
             team.setStartSpawn(spawn);
@@ -291,7 +291,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
             if (team.getScore() <= finalRunLength) {
                 team.setScore(finalRunLength);
                 getGameManager().sendGlobalMessage(
-                        Component.text(team.getTeamName() + "'s score has been reset to " + finalRunLength + "!").color(team.getColor()).decorate(TextDecoration.BOLD)
+                        Component.text(team.name() + "'s score has been reset to " + finalRunLength + "!").color(team.textColor()).decorate(TextDecoration.BOLD)
                 );
             } else {
                 if (playerScored) {
@@ -341,13 +341,13 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
             getGameManager().playGlobalSound(Sound.BLOCK_NOTE_BLOCK_BIT, 100, 2);
             if (teamScoring.getScore() == 1) {
                 getGameManager().sendGlobalMessage(
-                        Component.text(teamScoring.getTeamName() + " is 1 point away from winning!")
-                                .color(teamScoring.getColor()).decorate(TextDecoration.BOLD)
+                        Component.text(teamScoring.name() + " is 1 point away from winning!")
+                                .color(teamScoring.textColor()).decorate(TextDecoration.BOLD)
                 );
             } else {
                 getGameManager().sendGlobalMessage(
-                        Component.text(teamScoring.getTeamName() + " is " + teamScoring.getScore() + " points away from winning!")
-                                .color(teamScoring.getColor()).decorate(TextDecoration.BOLD)
+                        Component.text(teamScoring.name() + " is " + teamScoring.getScore() + " points away from winning!")
+                                .color(teamScoring.textColor()).decorate(TextDecoration.BOLD)
                 );
             }
         }
@@ -368,7 +368,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
                 getGameManager().sendGlobalMessage(
                         Component.newline()
                                 .append(Component.text("GAME PLACEMENT > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                                .append(Component.text(teamScoring.getTeamName()).decorate(TextDecoration.BOLD).color(teamScoring.getColor()))
+                                .append(Component.text(teamScoring.name()).decorate(TextDecoration.BOLD).color(teamScoring.textColor()))
                                 .append(Component.text(" has placed " + StringUtil.getPlacementString(teamsWon) + "!").color(NamedTextColor.WHITE))
                                 .append(Component.newline())
                 );

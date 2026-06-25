@@ -64,7 +64,7 @@ public class HTGPostGameStats extends PostGameStats {
         List<Component> loreList = new ArrayList<>();
         addLoreField(loreList, "Map", game.getMap().getMapName(), NamedTextColor.GREEN);
         if (game.getWinner() != null) {
-            addLoreField(loreList, "Winner", game.getWinner().getTeamName(), game.getWinner().getColor());
+            addLoreField(loreList, "Winner", game.getWinner().name(), game.getWinner().textColor());
         }
 
         // Get final score
@@ -73,7 +73,7 @@ public class HTGPostGameStats extends PostGameStats {
         teamsByScore.sort(Comparator.comparingInt(HTGTeam::getScore));
         int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
         for (HTGTeam team : teamsByScore) {
-            finalScore = finalScore.append(Component.text(team.getScore()).color(team.getColor()));
+            finalScore = finalScore.append(Component.text(team.getScore()).color(team.textColor()));
             i++;
             if (i != teamsByScore.size()) {
                 finalScore = finalScore.append(Component.text(" - ").color(NamedTextColor.WHITE));
@@ -97,7 +97,7 @@ public class HTGPostGameStats extends PostGameStats {
         HTGTeam team = game.getTypedTeam(rawTeam);
 
         // Create item for team statistics
-        ItemStack teamItem = team.getItem().clone();
+        ItemStack teamItem = team.getIconItem().clone();
         ItemMeta teamItemMeta = teamItem.getItemMeta();
         List<Component> teamLoreList = new ArrayList<>();
 
@@ -207,7 +207,7 @@ public class HTGPostGameStats extends PostGameStats {
         teamsByScore.sort(Comparator.comparingInt(HTGTeam::getScore));
         int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
         for (HTGTeam team : teamsByScore) {
-            finalScore = finalScore.append(Component.text(team.getScore()).color(team.getColor()));
+            finalScore = finalScore.append(Component.text(team.getScore()).color(team.textColor()));
             i++;
             if (i != teamsByScore.size()) {
                 finalScore = finalScore.append(Component.text("-").color(NamedTextColor.WHITE));

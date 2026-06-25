@@ -91,7 +91,7 @@ public class RendezvousCheckpoint extends Location {
 
         BlockDisplay blockDisplay = (BlockDisplay) markerEntity;
         blockDisplay.setBlock(Bukkit.createBlockData(Material.DIAMOND_BLOCK));
-        blockDisplay.setGlowColorOverride(Color.fromRGB(team.getColor().value()));
+        blockDisplay.setGlowColorOverride(Color.fromRGB(team.textColor().value()));
         blockDisplay.setGlowing(true);
         blockDisplay.setTransformation(
                 new Transformation(new Vector3f(-0.5f, 0f, -0.5f), new AxisAngle4f(0, 0, 0, 0),
@@ -143,16 +143,16 @@ public class RendezvousCheckpoint extends Location {
         }
 
         // Create component
-        Component hologramName = Component.text(team.getPrefix() + " ").color(team.getColor()).decorate(TextDecoration.BOLD);
+        Component hologramName = Component.text(team.getPrefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD);
 
         hologramName = hologramName.append(Component.text(coloredTitle.toString())
-                .color(team.getColor()).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE));
+                .color(team.textColor()).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE));
 
         hologramName = hologramName.append(Component.text(whiteTitle.toString())
                 .color(NamedTextColor.GRAY).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE));
 
         hologramName = hologramName.append(Component.text(" " + String.format(java.util.Locale.US,"%.1f", timeUntilCapture) + "s")
-                .color(team.getColor()).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE));
+                .color(team.textColor()).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE));
 
         entity.customName(hologramName);
     }

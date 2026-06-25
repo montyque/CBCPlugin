@@ -35,7 +35,7 @@ public class ShowdownGameCommands extends BaseTeamGameCommands {
         if (player.isOnline()) {
             player.getPlayer().sendMessage(
                     Component.text("You have been added to ").color(NamedTextColor.GREEN).append(
-                            Component.text(team.getTeamName()).color(team.getColor())
+                            Component.text(team.name()).color(team.textColor())
                     ).append(
                             Component.text(" team!").color(NamedTextColor.GREEN)
                     ).decorate(TextDecoration.BOLD)

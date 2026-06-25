@@ -347,7 +347,7 @@ public class Lobby {
             LobbyTeam team = teamsAvailable.get(teamId);
 
             // Create item
-            ItemStack item = team.getItem();
+            ItemStack item = team.getIconItem();
 
             ItemMeta itemMeta = item.getItemMeta();
             if (itemSlot < maxTeams) {
@@ -765,7 +765,7 @@ public class Lobby {
             // Check if no teams are disallowed
             if (mapSelected.getTeamsAllowed() != null) {
                 for (LobbyTeam team : getTeamsWithOnlinePlayers()) {
-                    if (!mapSelected.getTeamsAllowed().contains(team.getTeamId())) {
+                    if (!mapSelected.getTeamsAllowed().contains(team.id())) {
                         return 6;
                     }
                 }
@@ -1070,7 +1070,7 @@ public class Lobby {
     public List<String> getLobbyTeamIds() {
         List<String> lobbyTeamIds = new ArrayList<>();
         for (LobbyTeam team : getTeamsSet()) {
-            lobbyTeamIds.add(team.getTeamId());
+            lobbyTeamIds.add(team.id());
         }
         return lobbyTeamIds;
     }

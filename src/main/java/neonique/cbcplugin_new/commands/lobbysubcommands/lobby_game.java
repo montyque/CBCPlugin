@@ -103,8 +103,8 @@ public class lobby_game {
                     Set<LobbyTeam> teamsWithOnlinePlayers = lobby.getTeamsWithOnlinePlayers();
                     Set<String> invalidTeams = new HashSet<>();
                     for (LobbyTeam team : teamsWithOnlinePlayers) {
-                        if (!lobby.getMapSelected().getTeamsAllowed().contains(team.getTeamId())) {
-                            invalidTeams.add(team.getTeamId());
+                        if (!lobby.getMapSelected().getTeamsAllowed().contains(team.id())) {
+                            invalidTeams.add(team.id());
                         }
                     }
                     errorMessage = Component.text("There are invalid teams with players in them! The teams: ").color(NamedTextColor.YELLOW)

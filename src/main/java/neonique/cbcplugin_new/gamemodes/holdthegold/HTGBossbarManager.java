@@ -38,7 +38,7 @@ public class HTGBossbarManager extends GameBossBarManager {
         List<HTGTeam> teams = new ArrayList<>(game.getTeams());
         int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
         for (HTGTeam team : teams) {
-            currentScore = currentScore.append(smallText(String.valueOf(team.getScore())).color(team.getColor()));
+            currentScore = currentScore.append(smallText(String.valueOf(team.getScore())).color(team.textColor()));
             i++;
             if (i != teams.size()) {
                 currentScore = currentScore.append(smallText("-").color(NamedTextColor.WHITE));
@@ -56,7 +56,7 @@ public class HTGBossbarManager extends GameBossBarManager {
             }
             else {
                 goldComponent = smallRaisedText("GOLD HELD BY ").color(NamedTextColor.GOLD).append(
-                        smallRaisedText(goldHolder.getName()).color(goldHolder.getTeam().getColor())
+                        smallRaisedText(goldHolder.getName()).color(goldHolder.getTeam().textColor())
                 );
             }
 
@@ -64,7 +64,7 @@ public class HTGBossbarManager extends GameBossBarManager {
         }
         else {
             HTGTeam winner = game.getWinner();
-            setServerText(3, smallRaisedText(winner.getTeamName() + " WINS!").color(winner.getColor()));
+            setServerText(3, smallRaisedText(winner.name() + " WINS!").color(winner.textColor()));
         }
 
         updateClientBars();
@@ -115,10 +115,10 @@ public class HTGBossbarManager extends GameBossBarManager {
                 // Create component
                 Component playerComponent;
                 if (game.getGameLength() == 0) {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.textColor());
                 }
                 else {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.textColor());
                 }
 
                 // Check if player has gold

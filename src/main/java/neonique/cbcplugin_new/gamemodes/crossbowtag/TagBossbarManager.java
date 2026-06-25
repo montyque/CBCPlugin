@@ -42,7 +42,7 @@ public class TagBossbarManager extends GameBossBarManager {
         TagTeam taggers = game.getTaggers();
         if (taggers != null) {
 
-            NamedTextColor taggersColor = game.getTaggers().getColor();
+            NamedTextColor taggersColor = game.getTaggers().textColor();
 
             // If evader release timer is greater than 0, show release timer
             if (evaderReleaseTimer > 0) {
@@ -94,7 +94,7 @@ public class TagBossbarManager extends GameBossBarManager {
                 row4 = row4.append(smallRaisedText("ELIMINATIONS WORTH ").color(NamedTextColor.WHITE));
 
                 if (taggers != null) {
-                    NamedTextColor taggersColor = game.getTaggers().getColor();
+                    NamedTextColor taggersColor = game.getTaggers().textColor();
                     row4 = row4.append(smallRaisedText(game.getCurrentEvaderKillValue() + " POINTS").color(taggersColor));
                 }
 
@@ -104,7 +104,7 @@ public class TagBossbarManager extends GameBossBarManager {
         }
         else {
             TagTeam winningTeam = game.getWinner();
-            setServerText(3, smallRaisedText(winningTeam.getTeamName() + " WINS!").color(winningTeam.getColor()));
+            setServerText(3, smallRaisedText(winningTeam.name() + " WINS!").color(winningTeam.textColor()));
         }
 
         updateClientBars();
@@ -155,16 +155,16 @@ public class TagBossbarManager extends GameBossBarManager {
                 // Create component
                 Component playerComponent;
                 if (game.getGameLength() == 0) {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.textColor());
                 }
                 else {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.textColor());
                 }
 
                 // Check if player is a tagger
                 if (isTagger) {
                     // Add icon to show they are a tagger
-                    playerComponent = playerComponent.append(Component.text("\uF808\uF802\uE470\uF801").color(team.getColor()));
+                    playerComponent = playerComponent.append(Component.text("\uF808\uF802\uE470\uF801").color(team.textColor()));
                 }
 
                 teamComponent = teamComponent.append(playerComponent);

@@ -1,12 +1,13 @@
 package neonique.cbcplugin_new.lobby;
 
+import neonique.cbcplugin_new.core.TeamColor;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,88 +15,43 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 // This class is used for storing the players in a team in the lobby
-public class LobbyTeam {
+public class LobbyTeam implements TeamLike {
 
     private final GameManager gameManager;
     private final Lobby lobby;
 
     // Team information
     private final String teamIdNum;
-    private final String teamId;
-    private final String teamName;
+    private final String id;
+    private final String name;
     private final String prefix;
-    private final Material glassHead;
-    private final NamedTextColor color;
-    private final int colorNumber;
+    private final TeamColor teamColor;
 
     private final CBCScoreboardTeam scoreboardTeam;
 
     private final HashMap<UUID, LobbyPlayer> playersInTeam = new HashMap<>();
 
-    public LobbyTeam(GameManager gameManager, Lobby lobby, String teamIdNum, String teamId, String teamName, String prefix,
-                     Material glassHead, NamedTextColor color) {
+    public LobbyTeam(GameManager gameManager, Lobby lobby, String teamIdNum, String id,
+                     String name, String prefix, TeamColor teamColor) {
 
         this.gameManager = gameManager;
         this.lobby = lobby;
 
         this.teamIdNum = teamIdNum;
-        this.teamId = teamId;
-        this.teamName = teamName;
+        this.id = id;
+        this.name = name;
         this.prefix = prefix;
-        this.color = color;
-        this.glassHead = glassHead;
-
+        this.teamColor = teamColor;
         scoreboardTeam = registerTeam();
-
-        if (color == NamedTextColor.RED) colorNumber = 0;
-        else if (color == NamedTextColor.BLUE) colorNumber = 1;
-        else if (color == NamedTextColor.GREEN) colorNumber = 2;
-        else if (color == NamedTextColor.YELLOW) colorNumber = 3;
-        else if (color == NamedTextColor.AQUA) colorNumber = 4;
-        else if (color == NamedTextColor.GOLD) colorNumber = 5;
-        else if (color == NamedTextColor.LIGHT_PURPLE) colorNumber = 6;
-        else if (color == NamedTextColor.DARK_PURPLE) colorNumber = 7;
-        else colorNumber = 9;
 
     }
 
     public CBCScoreboardTeam registerTeam () {
-
         CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();
-        CBCScoreboardTeam team = scoreboardManager.registerNewTeam(teamIdNum + teamId + "Lobby");
+        CBCScoreboardTeam team = scoreboardManager.registerNewTeam(teamIdNum + id + "Lobby");
         team.setFriendlyFireEnabled(true);
-        team.setPrefix(Component.text(" ■ ").color(color));
+        team.setPrefix(Component.text(" ■ ").color(textColor()));
         return team;
-
-    }
-
-    public ItemStack getItem() {
-        ItemStack item = new ItemStack(Material.WHITE_DYE);
-        ItemMeta itemMeta = item.getItemMeta();
-
-        // Set item title
-        Component itemTitle = Component.text(teamName).color(color)
-                .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-        itemMeta.displayName(itemTitle);
-        List<Component> loreList = new ArrayList<>();
-        itemMeta.lore(loreList);
-
-        itemMeta.setCustomModelData(colorNumber + 1);
-
-        item.setItemMeta(itemMeta);
-        return item;
-    }
-
-    public ItemStack getGlassHead() {
-        ItemStack item = new ItemStack(glassHead);
-        ItemMeta itemMeta = item.getItemMeta();
-        // Set item title
-        Component itemTitle = Component.text(teamName + " Glass Head").color(color)
-                .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-        itemMeta.displayName(itemTitle);
-        itemMeta.addEnchant(Enchantment.BINDING_CURSE, 1, false);
-        item.setItemMeta(itemMeta);
-        return item;
     }
 
     public void addPlayer(LobbyPlayer player) {
@@ -135,23 +91,27 @@ public class LobbyTeam {
         gameManager.getCbcScoreboardManager().unregisterTeam(scoreboardTeam);
     }
 
-    public String getTeamId() {
-        return teamId;
+    public String id () {
+        return id;
     }
 
-    public String getTeamName() {
-        return teamName;
+    public String name () {
+        return name;
     }
 
-    public String getPrefix() {
+    public TeamColor teamColor () {
+        return teamColor;
+    }
+
+    public String prefix () {
         return prefix;
     }
 
-    public NamedTextColor getColor() {
+    public NamedTextColor getColor () {
         return color;
     }
 
-    public int getColorNumber() {
+    public int getColorNumber () {
         return colorNumber;
     }
 

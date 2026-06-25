@@ -35,8 +35,8 @@ public class ShowdownStartRoundTimer extends BaseStartGameTimer {
         TextColor textColor = game.getGamemodeColor();
         NamedTextColor teamColor = NamedTextColor.WHITE;
         if (team != null) {
-            textColor = team.getColor();
-            teamColor = team.getColor();
+            textColor = team.textColor();
+            teamColor = team.textColor();
         }
 
         String gamemodeUnicode = game.getGamemode().getUnicodeIcon(teamColor);

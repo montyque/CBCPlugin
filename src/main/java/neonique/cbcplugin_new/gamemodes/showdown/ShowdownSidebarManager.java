@@ -79,14 +79,14 @@ public class ShowdownSidebarManager extends GameSidebarManager {
 
         // Adding crossbow char to team string
         teamComponent = teamComponent.append(
-                Component.text(team.getPrefix() + " ").color(team.getColor()).decorate(TextDecoration.BOLD)
+                Component.text(team.getPrefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD)
         );
 
         // Adding team name to team string
-        String teamName = team.getTeamName() + " Team";
+        String teamName = team.name() + " Team";
         int teamNameLength = TextUtil.getPixelLengthOfText(teamName);
         teamComponent = teamComponent.append(
-                Component.text(teamName).color(team.getColor())
+                Component.text(teamName).color(team.textColor())
         );
 
         // Add space to make teams even

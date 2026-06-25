@@ -138,7 +138,7 @@ public class MenuClickEvent implements Listener {
             Collection<LobbyTeam> teamSet = lobby.getTeamsSet();
             HashMap<Integer, LobbyTeam> numberToTeam = new HashMap<>();
             for (LobbyTeam team : teamSet) {
-                numberToTeam.put(team.getColorNumber() + 1, team);
+                numberToTeam.put(team.getColor().value() + 1, team);
             }
 
             Set<LobbyTeam> teamsSelected = new HashSet<>();

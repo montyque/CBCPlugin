@@ -27,7 +27,7 @@ public class KOTHHillParticlesTask extends BukkitRunnable {
 
         NamedTextColor color = NamedTextColor.WHITE;
         if (game.getPointControlTeam() != null) {
-            color = game.getPointControlTeam().getColor();
+            color = game.getPointControlTeam().textColor();
         }
 
         this.hill.playParticles(color);

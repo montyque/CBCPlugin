@@ -114,7 +114,7 @@ public class CTFPostGameStats extends PostGameStats {
         List<Component> loreList = new ArrayList<>();
         addLoreField(loreList, "Map", game.getMap().getMapName(), NamedTextColor.GREEN);
         if (game.getWinner() != null) {
-            addLoreField(loreList, "Winner", game.getWinner().getTeamName(), game.getWinner().getColor());
+            addLoreField(loreList, "Winner", game.getWinner().name(), game.getWinner().textColor());
         }
 
         addLoreBlankLine(loreList);
@@ -133,7 +133,7 @@ public class CTFPostGameStats extends PostGameStats {
         CTFTeam team = game.getTypedTeam(rawTeam);
 
         // Create item for team statistics
-        ItemStack teamItem = team.getItem().clone();
+        ItemStack teamItem = team.getIconItem().clone();
         ItemMeta teamItemMeta = teamItem.getItemMeta();
         List<Component> teamLoreList = new ArrayList<>();
 

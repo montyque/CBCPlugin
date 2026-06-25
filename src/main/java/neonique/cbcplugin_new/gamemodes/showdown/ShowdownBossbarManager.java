@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.managers.GameBossBarManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.attribute.Attribute;
@@ -36,7 +35,7 @@ public class ShowdownBossbarManager extends GameBossBarManager {
         if (game.getRoundWinner() != null) {
             // Round has ended, show round winner
             ShowdownTeam roundWinner = game.getRoundWinner();
-            roundInfo = roundInfo.append(smallText(" \uE000 " + roundWinner.getTeamName() + " WIN").color(roundWinner.getColor()));
+            roundInfo = roundInfo.append(smallText(" \uE000 " + roundWinner.name() + " WIN").color(roundWinner.textColor()));
         }
         else {
             if (game.isSuddenDeath()) {
@@ -102,10 +101,10 @@ public class ShowdownBossbarManager extends GameBossBarManager {
                 // Create component
                 Component playerComponent;
                 if (game.isRoundStartCountdown()) {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.textColor());
                 }
                 else {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.textColor());
                 }
 
                 teamComponent = teamComponent.append(playerComponent);

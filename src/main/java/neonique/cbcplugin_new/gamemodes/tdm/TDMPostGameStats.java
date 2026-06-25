@@ -62,7 +62,7 @@ public class TDMPostGameStats extends PostGameStats {
         Collections.reverse(teamsByScore);
         int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
         for (TDMTeam team : teamsByScore) {
-            finalScore = finalScore.append(Component.text(team.getKills()).color(team.getColor()));
+            finalScore = finalScore.append(Component.text(team.getKills()).color(team.textColor()));
             i++;
             if (i != teamsByScore.size()) {
                 finalScore = finalScore.append(Component.text("-").color(NamedTextColor.WHITE));
@@ -98,7 +98,7 @@ public class TDMPostGameStats extends PostGameStats {
         List<Component> loreList = new ArrayList<>();
         addLoreField(loreList, "Map", game.getMap().getMapName(), NamedTextColor.GREEN);
         if (game.getWinner() != null) {
-            addLoreField(loreList, "Winner", game.getWinner().getTeamName(), game.getWinner().getColor());
+            addLoreField(loreList, "Winner", game.getWinner().name(), game.getWinner().textColor());
         }
         // Add final score to lore
         Component teamScoreLore = Component.text("Score: ").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
@@ -107,7 +107,7 @@ public class TDMPostGameStats extends PostGameStats {
         Collections.reverse(teamsByScore);
         int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
         for (TDMTeam team : teamsByScore) {
-            teamScoreLore = teamScoreLore.append(Component.text(team.getKills()).color(team.getColor()).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+            teamScoreLore = teamScoreLore.append(Component.text(team.getKills()).color(team.textColor()).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
             i++;
             if (i != teamsByScore.size()) {
                 teamScoreLore = teamScoreLore.append(Component.text(" - ").color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
@@ -131,7 +131,7 @@ public class TDMPostGameStats extends PostGameStats {
         TDMTeam team = game.getTypedTeam(rawTeam);
 
         // Create item for team statistics
-        ItemStack teamItem = team.getItem().clone();
+        ItemStack teamItem = team.getIconItem().clone();
         ItemMeta teamItemMeta = teamItem.getItemMeta();
         List<Component> teamLoreList = new ArrayList<>();
 

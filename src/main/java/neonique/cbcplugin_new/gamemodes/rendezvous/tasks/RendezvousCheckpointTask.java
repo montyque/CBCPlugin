@@ -45,11 +45,11 @@ public class RendezvousCheckpointTask extends BukkitRunnable {
 
             // Play particles for checkpoint
             if (!checkpointsParticles.contains(targetCheckpoint)) {
-                targetCheckpoint.playParticles(team.getColor(), true);
+                targetCheckpoint.playParticles(team.textColor(), true);
                 checkpointsParticles.add(targetCheckpoint);
             }
             else {
-                targetCheckpoint.playParticles(team.getColor(), false);
+                targetCheckpoint.playParticles(team.textColor(), false);
             }
 
             // Check if team has a runner

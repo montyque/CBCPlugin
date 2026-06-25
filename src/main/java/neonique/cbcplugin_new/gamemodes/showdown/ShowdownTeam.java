@@ -54,7 +54,7 @@ public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
         // Send message
         game.getGameManager().sendGlobalMessage(
                 Component.text("TEAM ELIMINATED > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
-                        .append(Component.text(getTeamName()).decorate(TextDecoration.BOLD).color(getColor()))
+                        .append(Component.text(name()).decorate(TextDecoration.BOLD).color(textColor()))
                         .append(Component.text(" has been eliminated!").decoration(TextDecoration.BOLD, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
         );
     }
@@ -66,7 +66,7 @@ public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
         // Send message
         game.getGameManager().sendGlobalMessage(
                 Component.text("TEAM REVIVED > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
-                        .append(Component.text(getTeamName()).decorate(TextDecoration.BOLD).color(getColor()))
+                        .append(Component.text(name()).decorate(TextDecoration.BOLD).color(textColor()))
                         .append(Component.text(" has been revived as at least one member is back alive!").decoration(TextDecoration.BOLD, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
         );
 

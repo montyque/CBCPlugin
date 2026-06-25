@@ -464,7 +464,7 @@ public class ResourcePackManager {
 
         String hotbarIconChar = "\uE219";
         if (team != null) {
-            NamedTextColor teamColor = team.getColor();
+            NamedTextColor teamColor = team.textColor();
             if (teamColor == NamedTextColor.RED) hotbarIconChar = "\uE210";
             else if (teamColor == NamedTextColor.BLUE) hotbarIconChar = "\uE211";
             else if (teamColor == NamedTextColor.GREEN) hotbarIconChar = "\uE212";

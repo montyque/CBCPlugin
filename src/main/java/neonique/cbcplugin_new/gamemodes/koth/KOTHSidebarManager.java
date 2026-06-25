@@ -85,14 +85,14 @@ public class KOTHSidebarManager extends GameSidebarManager {
 
         // Adding crossbow char to team string
         teamComponent = teamComponent.append(
-                Component.text(team.getPrefix() + " ").color(team.getColor()).decorate(TextDecoration.BOLD)
+                Component.text(team.getPrefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD)
         );
 
         // Adding team name to team string
-        int teamNameLength = TextUtil.getPixelLengthOfText(team.getTeamName() + " Team");
+        int teamNameLength = TextUtil.getPixelLengthOfText(team.name() + " Team");
 
         teamComponent = teamComponent.append(
-                Component.text(team.getTeamName() + " Team").color(team.getColor())
+                Component.text(team.name() + " Team").color(team.textColor())
         );
 
         // Add space to make teams even

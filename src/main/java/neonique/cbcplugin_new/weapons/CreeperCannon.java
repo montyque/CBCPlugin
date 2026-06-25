@@ -129,7 +129,7 @@ public class CreeperCannon implements CrossbowWeapon {
 
         // Change name of creeper depending on team name
         if (owner.getTeam() != null) {
-            creeperFired.customName(Component.text(owner.getTeam().getTeamName() + "Creeper"));
+            creeperFired.customName(Component.text(owner.getTeam().name() + "Creeper"));
         }
 
         // Add data to creeper used when creeper does damage

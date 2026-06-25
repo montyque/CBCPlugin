@@ -70,7 +70,7 @@ public class RendezvousPlayer extends CBCPlayer {
             }
         }
 
-        Component progressComponent = smallText(coloredTitle.toString()).color(getTeam().getColor())
+        Component progressComponent = smallText(coloredTitle.toString()).color(getTeam().textColor())
                 .append(smallText(whiteTitle.toString()).color(NamedTextColor.WHITE));
 
         getPlayer().showTitle(Title.title(blankComponent(), progressComponent,
@@ -100,7 +100,7 @@ public class RendezvousPlayer extends CBCPlayer {
         addGamePoints(CHECKPOINT_CAPTURE);
 
         // Show title to player
-        NamedTextColor color = team.getColor();
+        NamedTextColor color = team.textColor();
         Title title =  Title.title(
                 Component.text("Checkpoint cleared!").color(color).decorate(TextDecoration.BOLD),
                 Component.text("+1 Checkpoints").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD).decorate(TextDecoration.ITALIC),

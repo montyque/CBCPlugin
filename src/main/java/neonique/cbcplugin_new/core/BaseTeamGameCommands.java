@@ -42,7 +42,7 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         if (player.isOnline()) {
             player.getPlayer().sendMessage(
                     Component.text("You have been removed from ").color(NamedTextColor.YELLOW).append(
-                            Component.text(currentTeam.getTeamName()).color(currentTeam.getColor())
+                            Component.text(currentTeam.name()).color(currentTeam.textColor())
                     ).append(
                             Component.text(" team.").color(NamedTextColor.YELLOW)
                     )
@@ -66,7 +66,7 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         if (player.isOnline()) {
             player.getPlayer().sendMessage(
                     Component.text("You have been added to ").color(NamedTextColor.GREEN).append(
-                            Component.text(team.getTeamName()).color(team.getColor())
+                            Component.text(team.name()).color(team.textColor())
                     ).append(
                             Component.text(" team!").color(NamedTextColor.GREEN)
                     ).decorate(TextDecoration.BOLD)
@@ -143,13 +143,13 @@ public class BaseTeamGameCommands extends BaseGameCommands {
             CBCPlayer p = game.getPlayer(playerEntity);
             if (p.getTeam() != null) {
                 if (p.getTeam() == team) {
-                    sendColorMessage(user, playerName + " is already on " + team.getTeamName() + "!", NamedTextColor.YELLOW);
+                    sendColorMessage(user, playerName + " is already on " + team.name() + "!", NamedTextColor.YELLOW);
                     return;
                 }
             }
             putPlayerOnTeam(p, team, false);
         }
-        broadcastAction(user, "used /game join to put " + playerName + " on " + team.getTeamName());
+        broadcastAction(user, "used /game join to put " + playerName + " on " + team.name());
     }
 
     public List<String> joinTabComplete(Player user, String[] args, int perms) {

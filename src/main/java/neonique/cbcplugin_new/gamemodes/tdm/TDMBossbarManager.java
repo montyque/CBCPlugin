@@ -34,7 +34,7 @@ public class TDMBossbarManager extends GameBossBarManager {
         List<TDMTeam> teamsByScore = new ArrayList<>(game.getTeams());
         int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
         for (TDMTeam team : teamsByScore) {
-            finalScore = finalScore.append(smallText(String.valueOf(team.getKills())).color(team.getColor()));
+            finalScore = finalScore.append(smallText(String.valueOf(team.getKills())).color(team.textColor()));
             i++;
             if (i != teamsByScore.size()) {
                 finalScore = finalScore.append(smallText("-").color(NamedTextColor.WHITE));
@@ -46,7 +46,7 @@ public class TDMBossbarManager extends GameBossBarManager {
         // Show timer
         if (game.getWinner() != null) {
             TDMTeam winningTeam = game.getWinner();
-            gameInfo = gameInfo.append(smallText(winningTeam.getTeamName() + " WINS!").color(winningTeam.getColor()));
+            gameInfo = gameInfo.append(smallText(winningTeam.name() + " WINS!").color(winningTeam.textColor()));
         }
         else {
             if (game.isOvertime()) {
@@ -74,11 +74,11 @@ public class TDMBossbarManager extends GameBossBarManager {
             Component placeComponent;
             if (team.isTied()) {
                 placeComponent = smallRaisedText("TIED FOR ").color(NamedTextColor.WHITE)
-                        .append(smallRaisedText(StringUtil.getPlacementString(team.getPlacement())).color(team.getColor()));
+                        .append(smallRaisedText(StringUtil.getPlacementString(team.getPlacement())).color(team.textColor()));
             }
             else {
                 placeComponent = smallRaisedText("CURRENTLY IN ").color(NamedTextColor.WHITE)
-                        .append(smallRaisedText(StringUtil.getPlacementString(team.getPlacement())).color(team.getColor()));
+                        .append(smallRaisedText(StringUtil.getPlacementString(team.getPlacement())).color(team.textColor()));
             }
 
             for (CBCPlayer player : team.getPlayers()) {
@@ -134,7 +134,7 @@ public class TDMBossbarManager extends GameBossBarManager {
 
                 // Create component
                 Component playerComponent;
-                playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.getColor());
+                playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.textColor());
 
                 teamComponent = teamComponent.append(playerComponent);
                 // Add a space in between each player

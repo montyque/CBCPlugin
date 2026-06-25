@@ -75,9 +75,9 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
 
     @Override
     public KOTHTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new KOTHTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
+        return new KOTHTeam(this, team.id(),
+                Integer.toString(teamNum), team.name(), team.getColor(),
+                team.prefix(), team.getIconItem(), team.getGlassHead()
         );
     }
 
@@ -137,7 +137,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
         for (KOTHTeam team : getTeams()) {
 
             team.setScore(pointsStart);
-            team.setTeamSpawns(teamSpawns.get(team.getTeamId()));
+            team.setTeamSpawns(teamSpawns.get(team.id()));
 
             List<Location> teamSpawnList = new ArrayList<>(team.getTeamSpawns());
             Collections.shuffle(teamSpawnList);
@@ -286,7 +286,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
 
         // Play title and sound to all players on team
         Title title =  Title.title(
-                Component.text("Point captured!").color(team.getColor()).decorate(TextDecoration.BOLD),
+                Component.text("Point captured!").color(team.textColor()).decorate(TextDecoration.BOLD),
                 Component.space(),
                 Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(1000), Duration.ofMillis(500))
         );
@@ -307,7 +307,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
         );
 
         // Play hill particles
-        hill.particlesOnCapture(team.getColor());
+        hill.particlesOnCapture(team.textColor());
 
         // Start scoring
         scoreTask = new KOTHScoreTask(this);
@@ -316,7 +316,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
         // Update sidebar manager
         updateServerSidebar();
 
-        changeBlocks(team.getMaterialColorName(), team.getColor());
+        changeBlocks(team.getMaterialColorName(), team.textColor());
 
     }
 
@@ -406,7 +406,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
                 getGameManager().sendGlobalMessage(
                         Component.newline()
                                 .append(Component.text("GAME PLACEMENT > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                                .append(Component.text(pointControlTeam.getTeamName()).decorate(TextDecoration.BOLD).color(pointControlTeam.getColor()))
+                                .append(Component.text(pointControlTeam.name()).decorate(TextDecoration.BOLD).color(pointControlTeam.textColor()))
                                 .append(Component.text(" has placed " + StringUtil.getPlacementString(teamsWon) + "!").color(NamedTextColor.WHITE))
                                 .append(Component.newline())
                 );

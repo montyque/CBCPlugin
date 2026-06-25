@@ -91,7 +91,7 @@ public class CTFGameCommands extends BaseTeamGameCommands {
         CTFTeam ctfTeam = game.getTypedTeam(team);
         ctfTeam.setFlagsLeft(newFlagAmount);
 
-        sendColorMessage(user, "Set flags left amount for " + ctfTeam.getTeamName() + " Team to " + newFlagAmount + "!", NamedTextColor.GREEN);
-        broadcastAction(user, "set flags left amount for " + ctfTeam.getTeamName() + " Team to " + newFlagAmount);
+        sendColorMessage(user, "Set flags left amount for " + ctfTeam.name() + " Team to " + newFlagAmount + "!", NamedTextColor.GREEN);
+        broadcastAction(user, "set flags left amount for " + ctfTeam.name() + " Team to " + newFlagAmount);
     }
 }

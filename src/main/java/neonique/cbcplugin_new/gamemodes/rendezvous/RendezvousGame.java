@@ -68,9 +68,9 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
 
     @Override
     public RendezvousTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new RendezvousTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
+        return new RendezvousTeam(this, team.id(),
+                Integer.toString(teamNum), team.name(), team.getColor(),
+                team.prefix(), team.getIconItem(), team.getGlassHead()
         );
     }
 
@@ -163,7 +163,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
         // Teleport all players
         for (RendezvousTeam team : getTeams()) {
 
-            team.setSpawns(teamStartSpawns.get(team.getTeamId()));
+            team.setSpawns(teamStartSpawns.get(team.id()));
 
             List<Location> teamSpawnList = new ArrayList<>(team.getSpawns());
             Collections.shuffle(teamSpawnList);
@@ -180,7 +180,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
             }
 
             // Select a player's runner
-            String teamId = team.getTeamId();
+            String teamId = team.id();
             String runnerOrderString = ctx.getStringVars().getOrDefault("_" + teamId + "RunnerOrder", "0").toLowerCase();
 
             team.setRunnerQueue(runnerOrderString);
@@ -335,7 +335,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
             getGameManager().sendGlobalMessage(
                     Component.newline()
                             .append(Component.text("GAME PLACEMENT > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                            .append(Component.text(team.getTeamName()).decorate(TextDecoration.BOLD).color(team.getColor()))
+                            .append(Component.text(team.name()).decorate(TextDecoration.BOLD).color(team.textColor()))
                             .append(Component.text(" has placed " + StringUtil.getPlacementString(teamsWon) + "!").color(NamedTextColor.WHITE))
                             .append(Component.newline())
             );

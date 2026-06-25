@@ -58,9 +58,9 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
 
     @Override
     public TDMTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new TDMTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
+        return new TDMTeam(this, team.id(),
+                Integer.toString(teamNum), team.name(), team.getColor(),
+                team.prefix(), team.getIconItem(), team.getGlassHead()
         );
     }
 
@@ -116,7 +116,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
         // Teleport all players
         for (TDMTeam team : getTeams()) {
 
-            team.setSpawns(teamSpawns.get(team.getTeamId()));
+            team.setSpawns(teamSpawns.get(team.id()));
             List<Location> teamSpawnList = new ArrayList<>(team.getSpawns());
             Collections.shuffle(teamSpawnList);
 

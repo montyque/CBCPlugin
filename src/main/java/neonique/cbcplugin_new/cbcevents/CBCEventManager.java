@@ -319,7 +319,7 @@ public class CBCEventManager {
         if (winner == null) return;
 
         // Find winning team
-        CBCEventTeam winningTeam = getTeam(winner.getTeamId());
+        CBCEventTeam winningTeam = getTeam(winner.id());
         if (winningTeam == null) return;
 
         // Set game winner and store game

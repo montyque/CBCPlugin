@@ -409,7 +409,7 @@ public class CBCPlayer {
 
             NamedTextColor color = NamedTextColor.WHITE;
             if (playerKilled.getTeam() != null) {
-                color = playerKilled.getTeam().getColor();
+                color = playerKilled.getTeam().textColor();
             }
 
             Component deathCauseIcon = getDeathCauseIcon(directDeathCause, true, color);
@@ -585,7 +585,7 @@ public class CBCPlayer {
     public Component getNameComponent() {
         NamedTextColor textColor = NamedTextColor.WHITE;
         if (team != null) {
-            textColor = team.getColor();
+            textColor = team.textColor();
         }
         return Component.text(getName()).color(textColor);
     }
@@ -593,7 +593,7 @@ public class CBCPlayer {
     public Component getNameComponent(ResourcePackFont font) {
         NamedTextColor textColor = NamedTextColor.WHITE;
         if (team != null) {
-            textColor = team.getColor();
+            textColor = team.textColor();
         }
         return setTextFont(getName(), font).color(textColor);
     }
@@ -602,7 +602,7 @@ public class CBCPlayer {
         Component prefix = Component.text("");
         NamedTextColor textColor = NamedTextColor.WHITE;
         if (team != null) {
-            textColor = team.getColor();
+            textColor = team.textColor();
             prefix = Component.text(team.getPrefix() + " ").color(textColor).decorate(TextDecoration.BOLD);
         }
         return prefix.append(Component.text(getName()).color(textColor).decoration(TextDecoration.BOLD,

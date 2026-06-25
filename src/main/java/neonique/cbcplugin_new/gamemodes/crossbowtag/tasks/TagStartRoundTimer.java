@@ -36,8 +36,8 @@ public class TagStartRoundTimer extends BaseStartGameTimer {
         TextColor textColor = game.getGamemodeColor();
         NamedTextColor teamColor = NamedTextColor.WHITE;
         if (team != null) {
-            textColor = team.getColor();
-            teamColor = team.getColor();
+            textColor = team.textColor();
+            teamColor = team.textColor();
         }
 
         String gamemodeUnicode = game.getGamemode().getUnicodeIcon(teamColor);
@@ -65,11 +65,11 @@ public class TagStartRoundTimer extends BaseStartGameTimer {
                 TagTeam taggers = game.getTaggers();
                 if (taggers != null) {
                     if (taggers == team) {
-                        subtitleComponent = Component.text("YOU ARE A TAGGER").decorate(TextDecoration.BOLD).color(taggers.getColor());
+                        subtitleComponent = Component.text("YOU ARE A TAGGER").decorate(TextDecoration.BOLD).color(taggers.textColor());
                     }
                     else {
                         subtitleComponent = Component.text("Taggers: ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
-                                .append(Component.text(taggers.getTeamName()).decorate(TextDecoration.BOLD).color(taggers.getColor()));
+                                .append(Component.text(taggers.name()).decorate(TextDecoration.BOLD).color(taggers.textColor()));
                     }
                 }
             }

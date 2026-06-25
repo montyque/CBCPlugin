@@ -85,7 +85,7 @@ public class KOTHTeam extends CBCTeam<KOTHPlayer> {
 
         outOfGame = true;
 
-        Component titleComponent = Component.text(StringUtil.getPlacementString(place).toUpperCase() + " PLACE").decorate(TextDecoration.BOLD).color(getColor());
+        Component titleComponent = Component.text(StringUtil.getPlacementString(place).toUpperCase() + " PLACE").decorate(TextDecoration.BOLD).color(textColor());
         Component subtitleComponent = Component.text("You've earned your spot!");
 
         Title title = Title.title(titleComponent, subtitleComponent, TextUtil.titleTimes(0, 3000, 700));

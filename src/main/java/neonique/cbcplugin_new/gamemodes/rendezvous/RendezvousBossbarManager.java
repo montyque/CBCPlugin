@@ -39,7 +39,7 @@ public class RendezvousBossbarManager extends GameBossBarManager {
         List<RendezvousTeam> teams = new ArrayList<>(game.getTeams());
         int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
         for (RendezvousTeam team : teams) {
-            currentScore = currentScore.append(smallText(String.valueOf(team.getScore())).color(team.getColor()));
+            currentScore = currentScore.append(smallText(String.valueOf(team.getScore())).color(team.textColor()));
             i++;
             if (i != teams.size()) {
                 currentScore = currentScore.append(smallText("-").color(NamedTextColor.WHITE));
@@ -123,16 +123,16 @@ public class RendezvousBossbarManager extends GameBossBarManager {
                 // Create component
                 Component playerComponent;
                 if (game.getGameLength() == 0) {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.textColor());
                 }
                 else {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.textColor());
                 }
 
                 // Check if player has gold
                 if (player.isPlayerRunner()) {
                     // Add gold icon
-                    playerComponent = playerComponent.append(Component.text("\uF808\uF802\uE470\uF801").color(team.getColor()));
+                    playerComponent = playerComponent.append(Component.text("\uF808\uF802\uE470\uF801").color(team.textColor()));
                 }
 
                 teamComponent = teamComponent.append(playerComponent);

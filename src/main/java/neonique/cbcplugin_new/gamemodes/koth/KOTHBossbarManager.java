@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.koth;
 
 import neonique.cbcplugin_new.managers.GameBossBarManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.attribute.Attribute;
@@ -41,12 +40,12 @@ public class KOTHBossbarManager extends GameBossBarManager {
             middle = smallText(" POINT VACANT ").color(NamedTextColor.WHITE);
         }
         else {
-            middle = smallText(" " + game.getPointControlTeam().getTeamName() + " CONTROL ").color(game.getPointControlTeam().getColor());
+            middle = smallText(" " + game.getPointControlTeam().name() + " CONTROL ").color(game.getPointControlTeam().textColor());
         }
 
         NamedTextColor barColor = NamedTextColor.GRAY;
         if (game.getPointCaptureTeam() != null) {
-            barColor = game.getPointCaptureTeam().getColor();
+            barColor = game.getPointCaptureTeam().textColor();
         }
         // Calculate percentage of bar that should be filled
         float barPercentage = (float) game.getPointCaptureProgress() / (float) game.getPointCaptureMax();
@@ -84,7 +83,7 @@ public class KOTHBossbarManager extends GameBossBarManager {
         List<KOTHTeam> teams = new ArrayList<>(game.getTeams());
         int i = 0; // Number used to track the amount of teams added to the component - this is used for the dashes between numbers
         for (KOTHTeam team : teams) {
-            currentScore = currentScore.append(smallRaisedText(String.valueOf(team.getScore())).color(team.getColor()));
+            currentScore = currentScore.append(smallRaisedText(String.valueOf(team.getScore())).color(team.textColor()));
             i++;
             if (i != teams.size()) {
                 currentScore = currentScore.append(smallRaisedText("-").color(NamedTextColor.WHITE));
@@ -139,16 +138,16 @@ public class KOTHBossbarManager extends GameBossBarManager {
                 // Create component
                 Component playerComponent;
                 if (game.getGameLength() == 0) {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.textColor());
                 }
                 else {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.textColor());
                 }
 
                 // Check if player is in hill
                 if (player.isInHill()) {
                     // Add outline around player
-                    playerComponent = playerComponent.append(Component.text("\uF808\uF802\uE470\uF801").color(team.getColor()));
+                    playerComponent = playerComponent.append(Component.text("\uF808\uF802\uE470\uF801").color(team.textColor()));
                 }
 
                 teamComponent = teamComponent.append(playerComponent);

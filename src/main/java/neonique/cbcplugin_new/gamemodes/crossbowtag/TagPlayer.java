@@ -121,7 +121,7 @@ public class TagPlayer extends CBCPlayer {
             return deathMessage;
         }
 
-        NamedTextColor color = game.getTaggers().getColor();
+        NamedTextColor color = game.getTaggers().textColor();
         if (color == null) {
             color = NamedTextColor.WHITE;
         }
@@ -267,7 +267,7 @@ public class TagPlayer extends CBCPlayer {
             // Send message
             getGameManager().sendGlobalMessage(
                     Component.text(getName() + " has been eliminated by default, granting taggers " +
-                            taggerTeam.getTeamName() + " " + game.getCurrentEvaderKillValue() + " points.").color(taggerTeam.getColor())
+                            taggerTeam.name() + " " + game.getCurrentEvaderKillValue() + " points.").color(taggerTeam.textColor())
             );
         }
         alreadyEliminated = true;

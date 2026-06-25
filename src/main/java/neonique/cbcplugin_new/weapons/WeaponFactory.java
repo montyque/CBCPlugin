@@ -25,7 +25,7 @@ public class WeaponFactory {
 
         List<CrossbowWeapon> weapons = new ArrayList<>();
 
-        String teamId = player.getTeam() != null ? player.getTeam().getTeamId() : null;
+        String teamId = player.getTeam() != null ? player.getTeam().id() : null;
         CreeperPreset playerCreeperVar = creeperTeamOverrides.containsKey(teamId) ? creeperTeamOverrides.get(teamId) : creeperVar;
         FlamePreset playerFlameVar = flameTeamOverrides.containsKey(teamId) ? flameTeamOverrides.get(teamId) : flameVar;
         XbowPreset playerXbowVar = xbowTeamOverrides.containsKey(teamId) ? xbowTeamOverrides.get(teamId) : xbowVar;

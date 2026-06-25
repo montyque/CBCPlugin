@@ -89,7 +89,7 @@ public class DeathMessageManager {
 
         NamedTextColor color = NamedTextColor.WHITE;
         if (playerKilled.getTeam() != null) {
-            color = playerKilled.getTeam().getColor();
+            color = playerKilled.getTeam().textColor();
         }
 
         Component deathIcon = getDeathCauseIcon(cause, playerKiller != null, color).append(Component.space());

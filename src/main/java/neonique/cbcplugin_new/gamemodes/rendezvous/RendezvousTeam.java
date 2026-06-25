@@ -267,7 +267,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
             if (player.isPlayerRunner()) {
 
                 // Play title to the runner
-                Component titleComponent = Component.text("You're the runner!").color(getColor())
+                Component titleComponent = Component.text("You're the runner!").color(textColor())
                         .decorate(TextDecoration.BOLD);
 
                 Component subtitleComponent = Component.text("Run to the new checkpoint!").color(NamedTextColor.WHITE);
@@ -281,7 +281,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
             } else {
 
                 // Play title to all non runners
-                Component titleComponent = Component.text("Runner switch!").color(getColor())
+                Component titleComponent = Component.text("Runner switch!").color(textColor())
                         .decorate(TextDecoration.BOLD);
                 Component subtitleComponent = Component.text("New runner is ").color(NamedTextColor.WHITE)
                         .append(runner.getNameComponent());
@@ -299,7 +299,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
                         .append(runner.getNameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
                         .append(Component.text(" is the new runner for ").color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
-                        .append(Component.text(getTeamName()).color(getColor())
+                        .append(Component.text(name()).color(textColor())
                                 .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
                         .append(Component.text("!").color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
@@ -491,7 +491,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
 
         outOfGame = true;
 
-        Component titleComponent = Component.text(StringUtil.getPlacementString(place).toUpperCase() + " PLACE").decorate(TextDecoration.BOLD).color(getColor());
+        Component titleComponent = Component.text(StringUtil.getPlacementString(place).toUpperCase() + " PLACE").decorate(TextDecoration.BOLD).color(textColor());
         Component subtitleComponent = Component.text("You've earned your spot!");
 
         Title title = Title.title(titleComponent, subtitleComponent, TextUtil.titleTimes(0, 3000, 700));
@@ -623,7 +623,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
         if (next == runner) return;
 
         // Display warning to next runner
-        Component warningComponent = smallText("YOU'RE THE NEXT RUNNER!").color(getColor());
+        Component warningComponent = smallText("YOU'RE THE NEXT RUNNER!").color(textColor());
         next.getPlayer().showTitle(Title.title(blankComponent(), warningComponent,titleTimes(0, 1500, 0)));
 
     }

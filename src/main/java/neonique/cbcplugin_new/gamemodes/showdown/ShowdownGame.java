@@ -72,9 +72,9 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
 
     @Override
     public ShowdownTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new ShowdownTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
+        return new ShowdownTeam(this, team.id(),
+                Integer.toString(teamNum), team.name(), team.getColor(),
+                team.prefix(), team.getIconItem(), team.getGlassHead()
         );
     }
 
@@ -193,7 +193,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
             }
         } else {
             for (ShowdownTeam team : getTeams()) {
-                ShowdownSpawn spawn = nonRandomTeamSpawns.get(team.getTeamId());
+                ShowdownSpawn spawn = nonRandomTeamSpawns.get(team.id());
                 team.setRoundSpawn(spawn);
                 team.teleportPlayers(spawn);
             }
@@ -316,8 +316,8 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
             gameWon(team);
         } else {
             // Display title of round win
-            Component titleToDisplay = Component.text(team.getTeamName().toUpperCase() + " WINS ROUND " + roundNumber + "!")
-                            .decorate(TextDecoration.BOLD).color(team.getColor());
+            Component titleToDisplay = Component.text(team.name().toUpperCase() + " WINS ROUND " + roundNumber + "!")
+                            .decorate(TextDecoration.BOLD).color(team.textColor());
 
             getGameManager().sendGlobalTitle(Title.title(titleToDisplay, Component.space(),
                     Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(3000), Duration.ofMillis(500))));
@@ -326,7 +326,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
             getGameManager().sendGlobalMessage(
                     Component.newline()
                             .append(Component.text("ROUND WIN > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                            .append(Component.text(team.getTeamName()).decorate(TextDecoration.BOLD).color(team.getColor()))
+                            .append(Component.text(team.name()).decorate(TextDecoration.BOLD).color(team.textColor()))
                             .append(Component.text(" has won the round!").color(NamedTextColor.WHITE))
                             .append(Component.newline())
             );
@@ -551,7 +551,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
 
         for (int rd = 1; rd <= maxRounds; rd++) {
             if (roundWinOrder.size() >= rd) {
-                footer = footer.append(smallText("■").color(roundWinOrder.get(rd - 1).getColor()));
+                footer = footer.append(smallText("■").color(roundWinOrder.get(rd - 1).textColor()));
             } else {
                 if (rd == roundNumber) {
                     footer = footer.append(smallText("□").color(NamedTextColor.WHITE));

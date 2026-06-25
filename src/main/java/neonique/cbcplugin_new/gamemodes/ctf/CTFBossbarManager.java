@@ -52,7 +52,7 @@ public class CTFBossbarManager extends GameBossBarManager {
                             setClientText(playerEntity, 2, smallText("TEAM ELIMINATED").color(NamedTextColor.RED));
                         } else {
                             setClientText(playerEntity, 2, smallText("ELIMINATED - ").color(NamedTextColor.RED).append(
-                                    smallText(checkPlural("%s PLAYER%s LEFT", alive).toUpperCase()).color(team.getColor())));
+                                    smallText(checkPlural("%s PLAYER%s LEFT", alive).toUpperCase()).color(team.textColor())));
                         }
                     } else {
                         setClientText(playerEntity, 2, flagComponent);
@@ -64,7 +64,7 @@ public class CTFBossbarManager extends GameBossBarManager {
             CTFTeam winner = game.getWinner();
             for (CTFPlayer player : game.getPlayers()) {
                 if (player.isOnline()) {
-                    setClientText(player.getPlayer(), 2, smallText(winner.getTeamName() + " WINS!").color(winner.getColor()));
+                    setClientText(player.getPlayer(), 2, smallText(winner.name() + " WINS!").color(winner.textColor()));
                 }
             }
         }
@@ -104,7 +104,7 @@ public class CTFBossbarManager extends GameBossBarManager {
     public Component getTeamStatus (CTFTeam team) {
 
         Component flagComponent = Component.text("");
-        TextColor teamColor = team.getColor();
+        TextColor teamColor = team.textColor();
         int flagsLeft = team.getFlagsLeft();
 
         if (flagsLeft > 0)
@@ -119,18 +119,18 @@ public class CTFBossbarManager extends GameBossBarManager {
                 }
             } else {
                 flagComponent = smallText(checkPlural("FLAG SAFE AT BASE - %s FLAG%s REMAINING", flagsLeft))
-                        .color(team.getColor());
+                        .color(team.textColor());
             }
         else {
             int alive = team.getAlivePlayers().size();
             if (alive > 1) {
                 flagComponent = smallText("FINAL LIFE - NO FLAGS REMAINING - ").color(NamedTextColor.GOLD).append(
-                        smallText(alive + " PLAYERS LEFT").color(team.getColor())
+                        smallText(alive + " PLAYERS LEFT").color(team.textColor())
                 );
             }
             else {
                 flagComponent = smallText("FINAL LIFE - NO FLAGS REMAINING - ").color(NamedTextColor.GOLD).append(
-                        smallText("LAST PLAYER ALIVE").color(team.getColor())
+                        smallText("LAST PLAYER ALIVE").color(team.textColor())
                 );
             }
         }
@@ -181,10 +181,10 @@ public class CTFBossbarManager extends GameBossBarManager {
                 // Create component
                 Component playerComponent;
                 if (game.getGameLength() == 0) {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isOnline(), team.textColor());
                 }
                 else {
-                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.getColor());
+                    playerComponent = getPlayerHeadDisplay(player, healthDec, player.isAlive(), team.textColor());
                 }
 
                 teamComponent = teamComponent.append(playerComponent);

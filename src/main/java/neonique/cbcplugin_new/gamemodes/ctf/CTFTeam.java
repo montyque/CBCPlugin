@@ -101,7 +101,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         hologramUUID = hologram.getUniqueId();
 
         hologram.setCustomNameVisible(true);
-        hologram.customName(Component.text("⚑ " + getTeamName() + " Flag ⚑").color(getColor()).decorate(TextDecoration.BOLD));
+        hologram.customName(Component.text("⚑ " + name() + " Flag ⚑").color(textColor()).decorate(TextDecoration.BOLD));
 
     }
 
@@ -111,7 +111,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
 
         // Play sound and title to all players on team
         Title title = Title.title(
-                Component.text("Your flag was picked up!").color(getColor()).decorate(TextDecoration.BOLD),
+                Component.text("Your flag was picked up!").color(textColor()).decorate(TextDecoration.BOLD),
                 Component.text("picked up by ").color(NamedTextColor.WHITE)
                         .append(player.getNameComponent()),
                 Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1000), Duration.ofMillis(150))
@@ -200,7 +200,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         DyeColor bannerSecondaryColor = null;
         PatternType bannerPattern = null;
 
-        switch (getTeamName()) {
+        switch (name()) {
             case "Red":
                 bannerPrimaryColor = Material.RED_BANNER;
                 bannerSecondaryColor = DyeColor.ORANGE;
@@ -244,7 +244,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         DyeColor bannerSecondaryColor = null;
         PatternType bannerPattern = null;
 
-        switch (getTeamName()) {
+        switch (name()) {
             case "Red":
                 bannerPrimaryColor = Material.RED_BANNER;
                 bannerSecondaryColor = DyeColor.ORANGE;
@@ -328,7 +328,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         // Send message
         game.getGameManager().sendGlobalMessage(
                 Component.newline().append(Component.text("TEAM ELIMINATED > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
-                        .append(Component.text(getTeamName() + " Team").color(getColor()))
+                        .append(Component.text(name() + " Team").color(textColor()))
                         .append(Component.text(" has been eliminated!").color(NamedTextColor.WHITE)).append(Component.newline())
         );
 
@@ -343,7 +343,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         // Send message
         game.getGameManager().sendGlobalMessage(
                 Component.newline().append(Component.text("TEAM REVIVED > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
-                        .append(Component.text(getTeamName() + " Team").color(getColor()))
+                        .append(Component.text(name() + " Team").color(textColor()))
                         .append(Component.text(" has been revived!").color(NamedTextColor.WHITE)).append(Component.newline())
         );
 
@@ -426,7 +426,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
 
         if (flagsLeft == 0) {
             playersRespawn = false;
-            title = Component.text("Your flags are gone!").color(getColor()).decorate(TextDecoration.BOLD);
+            title = Component.text("Your flags are gone!").color(textColor()).decorate(TextDecoration.BOLD);
 
             if (flagCapturer != null) {
                 subtitle = Component.text("Captured by ").color(NamedTextColor.WHITE)
@@ -445,12 +445,12 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         }
         else {
             if (flagCapturer != null) {
-                title = Component.text("Your flag was captured!").color(getColor()).decorate(TextDecoration.BOLD);
+                title = Component.text("Your flag was captured!").color(textColor()).decorate(TextDecoration.BOLD);
                 subtitle = Component.text("Captured by ").color(NamedTextColor.WHITE)
                         .append(flagCapturer.getNameComponent())
                         .append(Component.text(" - " + flagsLeft + " ⚑ left").color(NamedTextColor.WHITE));
             } else {
-                title = Component.text("Flag lost!").color(getColor()).decorate(TextDecoration.BOLD);
+                title = Component.text("Flag lost!").color(textColor()).decorate(TextDecoration.BOLD);
                 subtitle = Component.text("Flag removed by timer ").color(NamedTextColor.WHITE)
                         .append(Component.text(" - " + flagsLeft + " ⚑ left").color(NamedTextColor.WHITE));
             }

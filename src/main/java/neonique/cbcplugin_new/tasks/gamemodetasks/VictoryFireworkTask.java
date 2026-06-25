@@ -76,7 +76,7 @@ public class VictoryFireworkTask extends BukkitRunnable {
 
         if (winningTeam != null) {
             // Team exists, so make the firework that color
-            return builder.withColor(Color.fromRGB(winningTeam.getColor().value()));
+            return builder.withColor(Color.fromRGB(winningTeam.textColor().value()));
         }
         else {
             // Team does not exist, so make the firework the four CBC colours

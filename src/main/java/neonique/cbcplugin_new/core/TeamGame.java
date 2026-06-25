@@ -34,7 +34,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
 
     public T getTypedTeam (CBCTeam<?> team) {
         if (team == null) return null;
-        return teams.get(team.getTeamId());
+        return teams.get(team.id());
     }
 
     public void addPlayerToTeam (CBCPlayer player, CBCTeam<?> team) {
@@ -105,8 +105,8 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
         winningTeam = team;
 
         // Display title of game win
-        Component titleToDisplay = Component.text(team.getTeamName().toUpperCase() + " WINS!")
-                .decorate(TextDecoration.BOLD).color(team.getColor());
+        Component titleToDisplay = Component.text(team.name().toUpperCase() + " WINS!")
+                .decorate(TextDecoration.BOLD).color(team.textColor());
 
         gameManager.sendGlobalTitle(Title.title(titleToDisplay, Component.space(),
                 Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(3000), Duration.ofMillis(500))));
@@ -115,7 +115,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
         gameManager.sendGlobalMessage(
                 Component.newline()
                         .append(Component.text("GAME WIN > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                        .append(Component.text(team.getTeamName()).decorate(TextDecoration.BOLD).color(team.getColor()))
+                        .append(Component.text(team.name()).decorate(TextDecoration.BOLD).color(team.textColor()))
                         .append(Component.text(" has won the game!").color(NamedTextColor.WHITE))
                         .append(Component.newline())
         );
@@ -141,7 +141,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
     public HashMap<UUID, String> getPlayersTeamIds () {
         HashMap<UUID, String> playersTeamIds = new HashMap<>();
         for (T team : teams.values()) {
-            String teamId = team.getTeamId();
+            String teamId = team.id();
             for (CBCPlayer player : team.getPlayers()) {
                 playersTeamIds.put(player.getOfflinePlayer().getUniqueId(), teamId);
             }

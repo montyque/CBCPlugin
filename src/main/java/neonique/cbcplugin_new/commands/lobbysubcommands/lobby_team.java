@@ -161,7 +161,7 @@ public class lobby_team {
                 Collection<LobbyTeam> teamCollection = lobby.getTeamsSet();
                 LobbyTeam teamFound = null;
                 for (LobbyTeam team : teamCollection) {
-                    if (team.getTeamId().equals(args[3])) {
+                    if (team.id().equals(args[3])) {
                         teamFound = team;
                         break;
                     }
@@ -189,7 +189,7 @@ public class lobby_team {
                 user.sendMessage(
                         Component.text(playerName).color(teamFound.getColor())
                                 .append(Component.text(" has been added to team ").color(NamedTextColor.WHITE))
-                                .append(Component.text(teamFound.getTeamName()).color(teamFound.getColor()))
+                                .append(Component.text(teamFound.name()).color(teamFound.getColor()))
                                 .append(Component.text("!").color(NamedTextColor.WHITE))
                 );
 
@@ -230,7 +230,7 @@ public class lobby_team {
                 }
                 else if (level == 4) {
                     for (LobbyTeam team : lobby.getTeamsSet()) {
-                        tabCompletions.add(team.getTeamId());
+                        tabCompletions.add(team.id());
                     }
                 }
             }

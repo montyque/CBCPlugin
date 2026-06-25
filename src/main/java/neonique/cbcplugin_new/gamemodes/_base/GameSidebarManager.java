@@ -117,7 +117,7 @@ public abstract class GameSidebarManager {
         // Get team icon for gamemode
         String gamemodeIcon;
         if (player.getTeam() != null) {
-            gamemodeIcon = gamemode.getUnicodeIcon(player.getTeam().getColor());
+            gamemodeIcon = gamemode.getUnicodeIcon(player.getTeam().textColor());
         }
         else {
             gamemodeIcon = gamemode.getUnicodeIcon(NamedTextColor.WHITE);

@@ -72,9 +72,9 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
 
     @Override
     public CTFTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new CTFTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
+        return new CTFTeam(this, team.id(),
+                Integer.toString(teamNum), team.name(), team.getColor(),
+                team.prefix(), team.getIconItem(), team.getGlassHead()
         );
     }
 
@@ -141,7 +141,7 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
                 team.setBaseVariables(randomFlagLocations.get(index), randomBaseSpawns.get(index));
             }
             else {
-                team.setBaseVariables(nonRandomFlagLocations.get(team.getTeamId()), nonRandomBaseSpawns.get(team.getTeamId()));
+                team.setBaseVariables(nonRandomFlagLocations.get(team.id()), nonRandomBaseSpawns.get(team.id()));
             }
 
             // Teleport all players to their spawn

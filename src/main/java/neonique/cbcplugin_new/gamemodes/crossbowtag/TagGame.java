@@ -105,9 +105,9 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
     @Override
     public TagTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new TagTeam(this, team.getTeamId(),
-                Integer.toString(teamNum), team.getTeamName(), team.getColor(),
-                team.getPrefix(), team.getItem(), team.getGlassHead()
+        return new TagTeam(this, team.id(),
+                Integer.toString(teamNum), team.name(), team.getColor(),
+                team.prefix(), team.getIconItem(), team.getGlassHead()
         );
     }
 
@@ -161,7 +161,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         // Set team spawns
         for (TagTeam team : getTeams()) {
 
-            String teamId = team.getTeamId();
+            String teamId = team.id();
 
             // Set tagger spawns
             if (map.isTaggerSpawnsEqual()) {
@@ -401,7 +401,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
             // Play title to count down release of taggers
             Component titleComponent = blankComponent();
             Component subtitleComponent = Component.text("Taggers released in ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
-                        .append(Component.text(taggerReleaseTimer).decorate(TextDecoration.BOLD).color(taggers.getColor()));
+                        .append(Component.text(taggerReleaseTimer).decorate(TextDecoration.BOLD).color(taggers.textColor()));
             // Show title
             // Iterate through each player in the world
             for (Player player : getWorld().getPlayers()) {
@@ -583,7 +583,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
         // Display title of round being over
         Component title = Component.text("ROUND OVER!")
-                .decorate(TextDecoration.BOLD).color(taggers.getColor());
+                .decorate(TextDecoration.BOLD).color(taggers.textColor());
         Component subtitle;
         Component roundOverMessage;
 
@@ -595,13 +595,13 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
             // If the round was not ended by a timer, show how long it took for the taggers to kill everyone
             subtitle = Component.text("Taggers finished in ").color(NamedTextColor.WHITE)
-                    .append(Component.text(roundSurviveTimer + "s " + "(+" + bonusPoints + " points)").color(taggers.getColor()));
+                    .append(Component.text(roundSurviveTimer + "s " + "(+" + bonusPoints + " points)").color(taggers.textColor()));
 
             roundOverMessage = Component.newline()
                     .append(Component.text("ROUND OVER > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                    .append(Component.text(taggers.getTeamName()).decorate(TextDecoration.BOLD).color(taggers.getColor()))
+                    .append(Component.text(taggers.name()).decorate(TextDecoration.BOLD).color(taggers.textColor()))
                     .append(Component.text(" killed all evaders in " + roundSurviveTimer + " seconds, earning a bonus of ").color(NamedTextColor.WHITE))
-                    .append(Component.text(bonusPoints).color(taggers.getColor()))
+                    .append(Component.text(bonusPoints).color(taggers.textColor()))
                     .append(Component.text(" points!").color(NamedTextColor.WHITE))
                     .append(Component.newline());
 
@@ -615,19 +615,19 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
             int totalEvaders = getEvaders().size();
             int evadersKilled = getEvaders().size() - evadersAlive;
             if (evadersAlive == 1) {
-                subtitle = Component.text("1").color(taggers.getColor())
+                subtitle = Component.text("1").color(taggers.textColor())
                         .append(Component.text(" evader survived").color(NamedTextColor.WHITE));
             } else {
-                subtitle = Component.text(evadersAlive).color(taggers.getColor())
+                subtitle = Component.text(evadersAlive).color(taggers.textColor())
                         .append(Component.text(" evaders survived").color(NamedTextColor.WHITE));
             }
 
             // Send message
             roundOverMessage = Component.newline()
                         .append(Component.text("ROUND OVER > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                        .append(Component.text(taggers.getTeamName()).decorate(TextDecoration.BOLD).color(taggers.getColor()))
+                        .append(Component.text(taggers.name()).decorate(TextDecoration.BOLD).color(taggers.textColor()))
                         .append(Component.text(" were able to kill ").color(NamedTextColor.WHITE))
-                        .append(Component.text(evadersKilled + "/" + totalEvaders).color(taggers.getColor()))
+                        .append(Component.text(evadersKilled + "/" + totalEvaders).color(taggers.textColor()))
                         .append(Component.text(" evaders! ").color(NamedTextColor.WHITE))
                         .append(Component.text("All surviving evaders earn ").color(NamedTextColor.WHITE))
                         .append(Component.text(SURVIVAL_BONUS + " bonus points.").color(NamedTextColor.GREEN))
@@ -742,7 +742,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
         NamedTextColor taggerColor = NamedTextColor.AQUA;
         if (taggers != null) {
-            taggerColor = taggers.getColor();
+            taggerColor = taggers.textColor();
         }
 
         footerComponent = smallText("ROUND " + roundNumber + " - ").color(taggerColor).decorate(TextDecoration.BOLD);
@@ -753,7 +753,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
             NamedTextColor color = NamedTextColor.GRAY;
             if (rd < taggerOrder.size()) {
                 TagTeam team = taggerOrder.get(rd);
-                color = team.getColor();
+                color = team.textColor();
             }
 
             if (roundNumber == rd + 1) {
