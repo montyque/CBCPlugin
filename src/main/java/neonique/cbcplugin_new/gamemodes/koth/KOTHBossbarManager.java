@@ -116,7 +116,7 @@ public class KOTHBossbarManager extends GameBossBarManager {
 
             Component teamComponent = Component.text("");
 
-            Collection<KOTHPlayer> players = team.getPlayers();
+            Collection<KOTHPlayer> players = team.players();
 
             for (KOTHPlayer player : players) {
 

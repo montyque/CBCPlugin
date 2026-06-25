@@ -7,11 +7,20 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public interface TeamLike {
 
     String id ();
     String name ();
     TeamColor teamColor ();
+    Collection<? extends PlayerLike> players ();
+
+    default String prefix () {
+        return name().substring(0, 1).toUpperCase();
+    }
 
     default NamedTextColor textColor () {
         return teamColor().color();
@@ -38,6 +47,12 @@ public interface TeamLike {
         itemMeta.addEnchant(Enchantment.BINDING_CURSE, 1, false);
         item.setItemMeta(itemMeta);
         return item;
+    }
+
+    default Collection<? extends PlayerLike> onlinePlayers() {
+        return players().stream()
+                .filter(PlayerLike::isOnline)
+                .collect(Collectors.toSet());
     }
 
 }

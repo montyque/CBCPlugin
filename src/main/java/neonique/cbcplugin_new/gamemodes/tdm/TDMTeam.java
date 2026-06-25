@@ -1,6 +1,8 @@
 package neonique.cbcplugin_new.gamemodes.tdm;
 
 import neonique.cbcplugin_new.core.CBCTeam;
+import neonique.cbcplugin_new.core.TeamLike;
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -21,9 +23,8 @@ public class TDMTeam extends CBCTeam<TDMPlayer> {
     int placement = 1;
     boolean tied = true;
 
-    public TDMTeam(TDMGame game, String teamId, String teamIdNum, String teamName, NamedTextColor teamColor,
-                   String prefix, ItemStack item, ItemStack glassHead) {
-        super(teamId, teamIdNum, teamName, teamColor, prefix, item, glassHead);
+    public TDMTeam (TDMGame game, TeamLike originalTeam, String teamIdNum) {
+        super(originalTeam, teamIdNum);
         this.game = game;
     }
 
@@ -74,7 +75,7 @@ public class TDMTeam extends CBCTeam<TDMPlayer> {
     }
 
     public List<TDMPlayer> sortPlayersByKills () {
-        List<TDMPlayer> playerList = new ArrayList<>(getPlayers());
+        List<TDMPlayer> playerList = new ArrayList<>(players());
         playerList.sort(Comparator.comparingInt(TDMPlayer::getKills).reversed());
         return playerList;
     }

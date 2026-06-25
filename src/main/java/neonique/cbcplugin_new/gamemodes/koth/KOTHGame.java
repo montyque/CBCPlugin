@@ -3,15 +3,17 @@ package neonique.cbcplugin_new.gamemodes.koth;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.BaseTeamGameCommands;
 import neonique.cbcplugin_new.core.TeamGame;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
+import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousTeam;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.gamemodes.koth.tasks.KOTHHillParticlesTask;
 import neonique.cbcplugin_new.gamemodes.koth.tasks.KOTHHillTask;
@@ -74,11 +76,8 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
     }
 
     @Override
-    public KOTHTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new KOTHTeam(this, team.id(),
-                Integer.toString(teamNum), team.name(), team.getColor(),
-                team.prefix(), team.getIconItem(), team.getGlassHead()
-        );
+    public KOTHTeam createGamemodeTeam (TeamLike team, int teamNum) {
+        return new KOTHTeam(this, team, Integer.toString(teamNum));
     }
 
     @Override
@@ -143,7 +142,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
             Collections.shuffle(teamSpawnList);
 
             int playerinc = 0; // Increments every time we teleport a player
-            for (KOTHPlayer player : team.getPlayers()) {
+            for (KOTHPlayer player : team.players()) {
                 // Reset player to get ready for game and teleport to spawn
                 player.resetPlayer();
                 // Teleports player to a spawn not already used
@@ -193,7 +192,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
         super.gameWon(team);
 
         // Add bonus points for winning
-        for (KOTHPlayer player : team.getPlayers()) {
+        for (KOTHPlayer player : team.players()) {
             player.addGamePoints(40);
         }
 
@@ -238,7 +237,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
 
         // Initialise all players
         for (KOTHTeam team : getTeams()) {
-            for (KOTHPlayer player : team.getPlayers()) {
+            for (KOTHPlayer player : team.players()) {
                 if (!player.isOnline()) continue;
                 player.playerRefresh();
             }
@@ -291,7 +290,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
                 Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(1000), Duration.ofMillis(500))
         );
 
-        for (CBCPlayer player : team.getPlayers()) {
+        for (CBCPlayer player : team.players()) {
             if (!player.isOnline()) continue;
             Player playerEntity = player.getPlayer();
             playerEntity.playSound(playerEntity.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 300, 1);

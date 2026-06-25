@@ -2,16 +2,18 @@ package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.showdown.tasks.*;
+import neonique.cbcplugin_new.gamemodes.tdm.TDMTeam;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -71,11 +73,8 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
     }
 
     @Override
-    public ShowdownTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new ShowdownTeam(this, team.id(),
-                Integer.toString(teamNum), team.name(), team.getColor(),
-                team.prefix(), team.getIconItem(), team.getGlassHead()
-        );
+    public ShowdownTeam createGamemodeTeam (TeamLike team, int teamNum) {
+        return new ShowdownTeam(this, team, Integer.toString(teamNum));
     }
 
     @Override
@@ -386,7 +385,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
         super.gameWon(team);
 
         // Add bonus points for winning
-        for (CBCPlayer player : team.getPlayers()) {
+        for (CBCPlayer player : team.players()) {
             player.addGamePoints(40);
         }
 

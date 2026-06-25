@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.koth;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.combat.tasks.TempImmunityTask;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

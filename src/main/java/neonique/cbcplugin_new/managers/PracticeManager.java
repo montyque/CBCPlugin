@@ -6,7 +6,7 @@ import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.core.CBCMap;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.listeners.practice.PracticePlayerTeleport;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.playerclasses.PracticePlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

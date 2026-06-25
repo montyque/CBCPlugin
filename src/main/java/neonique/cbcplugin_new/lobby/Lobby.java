@@ -1077,7 +1077,7 @@ public class Lobby {
 
     public NamedTextColor getColorForTeamId(String teamId) {
         if (getTeams().get(teamId) != null) {
-            return getTeams().get(teamId).getColor();
+            return getTeams().get(teamId).textColor();
         } else {
             return null;
         }

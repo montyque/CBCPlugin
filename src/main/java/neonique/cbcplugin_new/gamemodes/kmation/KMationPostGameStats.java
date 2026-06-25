@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.kmation;
 
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

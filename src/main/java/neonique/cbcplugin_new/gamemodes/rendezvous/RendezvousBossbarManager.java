@@ -101,7 +101,7 @@ public class RendezvousBossbarManager extends GameBossBarManager {
 
             Component teamComponent = Component.text("");
 
-            Collection<RendezvousPlayer> players = team.getPlayers();
+            Collection<RendezvousPlayer> players = team.players();
 
             for (RendezvousPlayer player : players) {
 

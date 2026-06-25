@@ -1,10 +1,7 @@
 package neonique.cbcplugin_new.listeners.gamemodes;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagPlayer;
-import neonique.cbcplugin_new.gamemodes.ctf.CTFPlayer;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;

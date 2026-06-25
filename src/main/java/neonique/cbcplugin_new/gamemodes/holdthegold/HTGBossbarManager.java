@@ -93,7 +93,7 @@ public class HTGBossbarManager extends GameBossBarManager {
             int j = 0;
 
             Component teamComponent = Component.text("");
-            Collection<HTGPlayer> players = team.getPlayers();
+            Collection<HTGPlayer> players = team.players();
 
             for (HTGPlayer player : players) {
 

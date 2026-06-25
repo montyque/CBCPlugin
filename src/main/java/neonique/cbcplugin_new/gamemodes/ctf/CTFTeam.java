@@ -1,7 +1,10 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
 import neonique.cbcplugin_new.core.CBCTeam;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.TeamLike;
+import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
+import neonique.cbcplugin_new.lobby.LobbyTeam;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -46,9 +49,8 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
 
     private int teamTimeAlive = 0;
 
-    public CTFTeam(CTFGame game, String teamId, String teamIdNum, String teamName, NamedTextColor teamColor,
-                   String prefix, ItemStack item, ItemStack glassHead) {
-        super(teamId, teamIdNum, teamName, teamColor, prefix, item, glassHead);
+    public CTFTeam (CTFGame game, TeamLike originalTeam, String teamIdNum) {
+        super(originalTeam, teamIdNum);
         this.game = game;
         flagsLeft = game.getFlagsStart();
     }
@@ -117,7 +119,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
                 Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1000), Duration.ofMillis(150))
         );
 
-        for (CTFPlayer teamPlayer : getPlayers()) {
+        for (CTFPlayer teamPlayer : players()) {
             if (teamPlayer.isOnline()) {
 
                 Set<Player> glowingPlayers = teamPlayer.getGlowingPlayers();
@@ -157,7 +159,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
             flagLocation.getBlock().setType(Material.AIR);
         }
 
-        for (CTFPlayer player : getPlayers()) {
+        for (CTFPlayer player : players()) {
             if (!player.isOnline()) continue;
             Set<Player> glowingPlayers = player.getGlowingPlayers();
             game.getGlowManager().updateGlowingList(player.getPlayer(), glowingPlayers);
@@ -358,7 +360,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
     public void checkIfEliminated() {
 
         int nonEliminatedPlayers = 0;
-        for (CTFPlayer player : getPlayers()) {
+        for (CTFPlayer player : players()) {
             if (!player.isEliminated()) {
                 nonEliminatedPlayers++;
             }
@@ -410,7 +412,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
 
     public void allyPickedUpFlag() {
 
-        for (CBCPlayer player : getPlayers()) {
+        for (CBCPlayer player : players()) {
             if (player.isOnline()) {
                 player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 300, 2);
             }
@@ -456,7 +458,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
             }
         }
 
-        for (CTFPlayer teamPlayer : getPlayers()) {
+        for (CTFPlayer teamPlayer : players()) {
             if (teamPlayer.isOnline()) {
                 Player entity = teamPlayer.getPlayer();
                 entity.playSound(entity.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 200, 1);

@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes._base;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.resourcepack.PlayerHeadType;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;

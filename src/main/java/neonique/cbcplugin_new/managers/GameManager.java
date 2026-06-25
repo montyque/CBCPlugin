@@ -20,7 +20,7 @@ import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.listeners.GameJoinListener;
 import neonique.cbcplugin_new.listeners.GameLeaveListener;
 import neonique.cbcplugin_new.lobby.Lobby;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;

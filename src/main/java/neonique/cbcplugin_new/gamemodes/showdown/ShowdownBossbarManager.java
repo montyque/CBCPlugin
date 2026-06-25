@@ -79,7 +79,7 @@ public class ShowdownBossbarManager extends GameBossBarManager {
 
             Component teamComponent = Component.text("");
 
-            Collection<ShowdownPlayer> players = team.getPlayers();
+            Collection<ShowdownPlayer> players = team.players();
 
             for (ShowdownPlayer player : players) {
 

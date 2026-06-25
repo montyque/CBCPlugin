@@ -2,12 +2,14 @@ package neonique.cbcplugin_new.gamemodes.holdthegold;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGPlayerNearbyGold;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGScoreTask;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGStartGameTimer;
+import neonique.cbcplugin_new.gamemodes.koth.KOTHTeam;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -67,11 +69,8 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
     }
 
     @Override
-    public HTGTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new HTGTeam(this, team.id(),
-                Integer.toString(teamNum), team.name(), team.getColor(),
-                team.prefix(), team.getIconItem(), team.getGlassHead()
-        );
+    public HTGTeam createGamemodeTeam (TeamLike team, int teamNum) {
+        return new HTGTeam(this, team, Integer.toString(teamNum));
     }
 
     @Override
@@ -137,7 +136,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
             team.createSpawnBox();
 
             // Teleport all players to their spawn
-            for (HTGPlayer player : team.getPlayers()) {
+            for (HTGPlayer player : team.players()) {
                 player.resetPlayer();
                 player.teleportPlayerToSpawn(spawn, map.getGoldSpawn());
             }
@@ -168,7 +167,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
         super.gameWon(team);
 
         // Add bonus points for winning
-        for (HTGPlayer player : team.getPlayers()) {
+        for (HTGPlayer player : team.players()) {
             player.addGamePoints(40);
         }
 
@@ -201,7 +200,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
             team.removeSpawnBox();
 
             // Initialise all players
-            for (HTGPlayer player : team.getPlayers()) {
+            for (HTGPlayer player : team.players()) {
                 if (!player.isOnline()) continue;
                 player.playerSetup(2);
                 player.setTempImmune(60);

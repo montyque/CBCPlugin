@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.koth;
 
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 
 import neonique.cbcplugin_new.util.CosSineTable;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -10,9 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 public class KOTHHill {
 

@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.tdm;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -136,14 +136,14 @@ public class TDMPostGameStats extends PostGameStats {
         List<Component> teamLoreList = new ArrayList<>();
 
         int teamTotalKills = 0;
-        for (CBCPlayer player : team.getPlayers()) {
+        for (CBCPlayer player : team.players()) {
             teamTotalKills += player.getKills();
         }
 
         addLoreField(teamLoreList, "Total Kills", String.valueOf(teamTotalKills), NamedTextColor.GREEN);
 
         // Sort players by kills
-        List<TDMPlayer> teamPlayersByKills = new ArrayList<>(team.getPlayers());
+        List<TDMPlayer> teamPlayersByKills = new ArrayList<>(team.players());
         teamPlayersByKills.sort(Comparator.comparingInt(TDMPlayer::getKills).reversed());
 
         // Add team most kills and team most time alive

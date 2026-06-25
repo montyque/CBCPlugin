@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.combat.tasks;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Set;

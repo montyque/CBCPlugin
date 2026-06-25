@@ -1,9 +1,10 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.core.CBCTeam;
-import net.kyori.adventure.text.format.NamedTextColor;
+import neonique.cbcplugin_new.core.TeamLike;
+import neonique.cbcplugin_new.lobby.LobbyTeam;
 import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
+
 import java.util.*;
 
 public class TagTeam extends CBCTeam<TagPlayer> {
@@ -25,12 +26,9 @@ public class TagTeam extends CBCTeam<TagPlayer> {
     private float evaderPoints = 0;
     private float taggerPoints = 0;
 
-    public TagTeam (TagGame game, String teamId, String teamIdNum, String teamName, NamedTextColor teamColor,
-                          String prefix, ItemStack item, ItemStack glassHead) {
-        super(teamId, teamIdNum, teamName, teamColor, prefix, item, glassHead);
-
+    public TagTeam (TagGame game, TeamLike originalTeam, String teamIdNum) {
+        super(originalTeam, teamIdNum);
         this.game = game;
-
     }
 
     public void setupRound () {
@@ -48,7 +46,7 @@ public class TagTeam extends CBCTeam<TagPlayer> {
         Collections.shuffle(teamSpawnList);
 
         int playerinc = 0; // Increments every time we teleport a player
-        for (TagPlayer player : getPlayers()) {
+        for (TagPlayer player : players()) {
 
             player.setEliminated(false);
 
@@ -138,7 +136,7 @@ public class TagTeam extends CBCTeam<TagPlayer> {
 
     public Set<TagPlayer> getInGamePlayers() {
         Set<TagPlayer> inGamePlayers = new HashSet<>();
-        for (TagPlayer player : getPlayers()) {
+        for (TagPlayer player : players()) {
             player.setEliminated(false);
             if (player.isInGame()) {
                 inGamePlayers.add(player);

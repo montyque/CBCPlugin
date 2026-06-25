@@ -8,7 +8,7 @@ import neonique.cbcplugin_new.core.CBCMap;
 import neonique.cbcplugin_new.managers.DeathMessageManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.mechanics.*;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;

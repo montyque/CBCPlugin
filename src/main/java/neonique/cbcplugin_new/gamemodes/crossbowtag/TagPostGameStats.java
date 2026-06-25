@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.crossbowtag;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -267,14 +267,14 @@ public class TagPostGameStats extends PostGameStats {
         addLoreField(teamLoreList, "Evader Points", String.valueOf(team.getIntEvaderPoints()), NamedTextColor.GREEN);
 
         int teamTotalKills = 0;
-        for (TagPlayer player : team.getPlayers()) {
+        for (TagPlayer player : team.players()) {
             teamTotalKills += player.getKills();
         }
 
         addLoreField(teamLoreList, "Total Kills", String.valueOf(teamTotalKills), NamedTextColor.GREEN);
 
         // Get list of teams (this is converting the CBC players to tag players)
-        List<TagPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
+        List<TagPlayer> teamPlayersList = new ArrayList<>(team.players());
 
         // Sort players by points scored
         List<TagPlayer> teamPlayersByPointsScored = new ArrayList<>(teamPlayersList);

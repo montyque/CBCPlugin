@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.gamemodes.ctf;
 
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -206,7 +206,7 @@ public class CTFPlayer extends CBCPlayer {
         if (isOnline()) {
             // Respawn player if their team is still able to respawn
             if (team.canRespawn()) {
-                int timeToRespawn = game.getRespawnTime(team.getOnlinePlayers().size());
+                int timeToRespawn = game.getRespawnTime(team.onlinePlayers().size());
                 setRespawnTicks(timeToRespawn * 20);
             }
         }
@@ -251,7 +251,7 @@ public class CTFPlayer extends CBCPlayer {
 
         // Morale boosts
         // Check if teammate is currently holding a flag
-        for (CTFPlayer teammate : game.getPlayerTeam(this).getPlayers()) {
+        for (CTFPlayer teammate : game.getPlayerTeam(this).players()) {
 
             if (teammate == this) continue;
             if (!teammate.isAlive()) continue;
@@ -361,7 +361,7 @@ public class CTFPlayer extends CBCPlayer {
 
         CTFTeam team = game.getPlayerTeam(this);
 
-        Set<Player> glowingPlayers = team.getPlayers().stream()
+        Set<Player> glowingPlayers = team.players().stream()
                 .filter(CTFPlayer::isAlive)
                 .filter(p -> p != this)
                 .map(CBCPlayer::getPlayer)

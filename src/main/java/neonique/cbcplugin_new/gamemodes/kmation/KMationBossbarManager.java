@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.kmation;
 
 import neonique.cbcplugin_new.managers.GameBossBarManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.util.StringUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

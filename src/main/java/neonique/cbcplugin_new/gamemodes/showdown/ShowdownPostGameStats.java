@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.showdown;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -215,19 +215,19 @@ public class ShowdownPostGameStats extends PostGameStats {
         addLoreField(teamLoreList, "Rounds Won", String.valueOf(team.getRoundsWon()), NamedTextColor.GREEN);
 
         int teamTotalKills = 0;
-        for (CBCPlayer player : team.getPlayers()) {
+        for (CBCPlayer player : team.players()) {
             teamTotalKills += player.getKills();
         }
 
         addLoreField(teamLoreList, "Total Kills", String.valueOf(teamTotalKills), NamedTextColor.GREEN);
 
-        List<ShowdownPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
+        List<ShowdownPlayer> teamPlayersList = new ArrayList<>(team.players());
 
         // Sort players by kills
-        List<ShowdownPlayer> teamPlayersByKills = new ArrayList<>(team.getPlayers());
+        List<ShowdownPlayer> teamPlayersByKills = new ArrayList<>(team.players());
         teamPlayersByKills.sort(Comparator.comparingInt(ShowdownPlayer::getKills).reversed());
 
-        List<ShowdownPlayer> teamPlayersByTimeAlive = new ArrayList<>(team.getPlayers());
+        List<ShowdownPlayer> teamPlayersByTimeAlive = new ArrayList<>(team.players());
         teamPlayersByTimeAlive.sort(Comparator.comparingInt(ShowdownPlayer::getPlayerSecondsAlive).reversed());
 
         // Add team most kills and team most time alive

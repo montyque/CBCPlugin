@@ -2,9 +2,11 @@ package neonique.cbcplugin_new.gamemodes.tdm;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
+import neonique.cbcplugin_new.gamemodes.crossbowtag.TagTeam;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
@@ -57,11 +59,8 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
     }
 
     @Override
-    public TDMTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new TDMTeam(this, team.id(),
-                Integer.toString(teamNum), team.name(), team.getColor(),
-                team.prefix(), team.getIconItem(), team.getGlassHead()
-        );
+    public TDMTeam createGamemodeTeam (TeamLike team, int teamNum) {
+        return new TDMTeam(this, team, Integer.toString(teamNum));
     }
 
     @Override
@@ -122,7 +121,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
 
             // Spawn each player in the team in different spawnpoints
             int playerinc = 0;
-            for (TDMPlayer player : team.getPlayers()) {
+            for (TDMPlayer player : team.players()) {
                 player.resetPlayer();
                 player.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()));
                 playerinc++;
@@ -175,7 +174,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
 
         // Initialise all players
         for (TDMTeam team : getTeams()) {
-            for (TDMPlayer player : team.getPlayers()) {
+            for (TDMPlayer player : team.players()) {
                 if (player.isOnline()) {
                     player.playerRefresh();
                 }
@@ -309,7 +308,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
             Collections.shuffle(teamSpawnList);
 
             int playerInc = 0;
-            for (TDMPlayer player : team.getOnlinePlayers()) {
+            for (TDMPlayer player : team.onlinePlayers()) {
                 if (player.isRespawning()) {
                     getCombatManager().playerRespawn(player);
                 } else {
@@ -364,7 +363,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
         super.gameWon(team);
 
         // Add bonus points for winning
-        for (TDMPlayer player : team.getPlayers()) {
+        for (TDMPlayer player : team.players()) {
             player.addGamePoints(40);
         }
 

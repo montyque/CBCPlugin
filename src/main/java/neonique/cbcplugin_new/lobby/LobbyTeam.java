@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.lobby;
 
+import neonique.cbcplugin_new.core.PlayerLike;
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -7,11 +8,8 @@ import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+
 import java.util.*;
 
 // This class is used for storing the players in a team in the lobby
@@ -107,12 +105,8 @@ public class LobbyTeam implements TeamLike {
         return prefix;
     }
 
-    public NamedTextColor getColor () {
-        return color;
-    }
-
-    public int getColorNumber () {
-        return colorNumber;
+    public Collection<? extends PlayerLike> players () {
+        return playersInTeam.values();
     }
 
 }

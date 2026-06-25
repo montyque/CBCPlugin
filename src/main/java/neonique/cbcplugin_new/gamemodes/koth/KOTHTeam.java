@@ -1,7 +1,9 @@
 package neonique.cbcplugin_new.gamemodes.koth;
 
 import neonique.cbcplugin_new.core.CBCTeam;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.core.TeamLike;
+import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
 import neonique.cbcplugin_new.util.StringUtil;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
@@ -39,18 +41,17 @@ public class KOTHTeam extends CBCTeam<KOTHPlayer> {
     private String materialColorName = "";
 
 
-    public KOTHTeam(KOTHGame game, String teamId, String teamIdNum, String teamName, NamedTextColor teamColor,
-                   String prefix, ItemStack item, ItemStack glassHead) {
-        super(teamId, teamIdNum, teamName, teamColor, prefix, item, glassHead);
+    public KOTHTeam (KOTHGame game, TeamLike originalTeam, String teamIdNum) {
+        super(originalTeam, teamIdNum);
         this.game = game;
 
-        if (teamColor == NamedTextColor.RED) {
+        if (textColor() == NamedTextColor.RED) {
             materialColorName = "RED";
-        } else if (teamColor == NamedTextColor.BLUE) {
+        } else if (textColor() == NamedTextColor.BLUE) {
             materialColorName = "BLUE";
-        } else if (teamColor == NamedTextColor.GREEN) {
+        } else if (textColor() == NamedTextColor.GREEN) {
             materialColorName = "LIME";
-        } else if (teamColor == NamedTextColor.YELLOW) {
+        } else if (textColor() == NamedTextColor.YELLOW) {
             materialColorName = "YELLOW";
         }
 
@@ -62,7 +63,7 @@ public class KOTHTeam extends CBCTeam<KOTHPlayer> {
         pointsScored++;
 
         // Give point defended to any player in the point
-        for (KOTHPlayer player : getPlayers()) {
+        for (KOTHPlayer player : players()) {
             if (player.isInHill()) {
                 player.addPointDefended();
             }
@@ -74,7 +75,7 @@ public class KOTHTeam extends CBCTeam<KOTHPlayer> {
 
         // Get all team members and check if they are in hill
         // Give point defended to any player in the point
-        for (KOTHPlayer player : getPlayers()) {
+        for (KOTHPlayer player : players()) {
             if (player.isInHill()) {
                 player.addHillCapture();
             }
@@ -90,7 +91,7 @@ public class KOTHTeam extends CBCTeam<KOTHPlayer> {
 
         Title title = Title.title(titleComponent, subtitleComponent, TextUtil.titleTimes(0, 3000, 700));
 
-        for (CBCPlayer player : getPlayers()) {
+        for (CBCPlayer player : players()) {
             // Kill player if still alive
             if (player.isAlive()) {
                 // Set player unalive

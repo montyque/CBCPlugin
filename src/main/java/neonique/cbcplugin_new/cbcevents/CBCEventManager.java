@@ -10,7 +10,7 @@ import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.tasks.FireworkTask;
 import neonique.cbcplugin_new.util.TextUtil;

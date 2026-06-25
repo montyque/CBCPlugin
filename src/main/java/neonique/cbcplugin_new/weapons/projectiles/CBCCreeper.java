@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.weapons.projectiles;
 
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.entity.Creeper;

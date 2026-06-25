@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.kmation;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.combat.tasks.TempImmunityTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

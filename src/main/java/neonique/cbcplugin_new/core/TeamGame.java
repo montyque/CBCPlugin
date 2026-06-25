@@ -3,7 +3,6 @@ package neonique.cbcplugin_new.core;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -30,7 +29,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
      * @param team The LobbyTeam to create the team from.
      * @param teamNum The number that is assigned to the team.
      */
-    public abstract T createGamemodeTeam (LobbyTeam team, int teamNum);
+    public abstract T createGamemodeTeam (TeamLike team, int teamNum);
 
     public T getTypedTeam (CBCTeam<?> team) {
         if (team == null) return null;
@@ -55,27 +54,25 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
         restoreTeamsAfterGame = boolVars.getOrDefault("restoreTeamsAfterGame", true);
     }
 
-    /**
-     * Creates the game's teams.
-     * @param lobbyTeams A list of all the teams registered in the lobby
-     */
-    public void createTeams (LinkedHashMap<String, LobbyTeam> lobbyTeams) {
+
+    public void createTeams (Map<String, ? extends TeamLike> originalTeams) {
 
         int teamNum = 1;
 
         // Go through each lobby team and add its team information to a team
-        for (String teamId : lobbyTeams.keySet()) {
-            LobbyTeam lobbyTeam = lobbyTeams.get(teamId);
+        for (String teamId : originalTeams.keySet()) {
+
+            TeamLike originalTeam = originalTeams.get(teamId);
 
             // Only create the team if the team has players
-            if (lobbyTeam.getOnlinePlayers().isEmpty()) continue;
-            Set<LobbyPlayer> teamOnlinePlayers = lobbyTeam.getOnlinePlayers();
+            Collection<? extends PlayerLike> teamOnlinePlayers = originalTeams.get(teamId).onlinePlayers();
+            if (teamOnlinePlayers.isEmpty()) continue;
 
-            // Create team
-            T team = createGamemodeTeam(lobbyTeam, teamNum);
+            // Create team and register on scoreboard manager
+            T team = createGamemodeTeam(originalTeam, teamNum);
+            team.registerTeam(getGameManager().getCbcScoreboardManager());
 
-            for (LobbyPlayer onlinePlayer : teamOnlinePlayers) {
-                // Create player and add them to the created team
+            for (PlayerLike onlinePlayer : teamOnlinePlayers) {
                 P player = createPlayer(onlinePlayer.getPlayer());
                 addPlayer(player);
                 team.addPlayer(player);
@@ -84,6 +81,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
             // Add team to team list
             teams.put(teamId, team);
             teamNum++;
+
         }
     }
 
@@ -142,7 +140,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
         HashMap<UUID, String> playersTeamIds = new HashMap<>();
         for (T team : teams.values()) {
             String teamId = team.id();
-            for (CBCPlayer player : team.getPlayers()) {
+            for (CBCPlayer player : team.players()) {
                 playersTeamIds.put(player.getOfflinePlayer().getUniqueId(), teamId);
             }
         }

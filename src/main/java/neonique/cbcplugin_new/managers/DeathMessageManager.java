@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.managers;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 

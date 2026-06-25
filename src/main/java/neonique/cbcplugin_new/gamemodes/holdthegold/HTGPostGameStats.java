@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.holdthegold;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -103,7 +103,7 @@ public class HTGPostGameStats extends PostGameStats {
 
         // Find team's total kills and total defensive kills
         int teamTotalKills = 0;
-        for (CBCPlayer player : team.getPlayers()) {
+        for (CBCPlayer player : team.players()) {
             teamTotalKills += player.getKills();
         }
 
@@ -112,7 +112,7 @@ public class HTGPostGameStats extends PostGameStats {
         addLoreField(teamLoreList, "Total Gold Score", String.valueOf(team.getGoldScore()), NamedTextColor.GREEN);
         addLoreBlankLine(teamLoreList);
 
-        List<HTGPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
+        List<HTGPlayer> teamPlayersList = new ArrayList<>(team.players());
 
         addLoreBlankLine(teamLoreList);
 

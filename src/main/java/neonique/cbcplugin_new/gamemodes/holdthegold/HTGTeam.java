@@ -1,17 +1,17 @@
 package neonique.cbcplugin_new.gamemodes.holdthegold;
 
 import neonique.cbcplugin_new.core.CBCTeam;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.TeamLike;
+import neonique.cbcplugin_new.lobby.LobbyTeam;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.util.StringUtil;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 public class HTGTeam extends CBCTeam<HTGPlayer> {
 
@@ -30,10 +30,8 @@ public class HTGTeam extends CBCTeam<HTGPlayer> {
     int placement = 1;
     boolean tied = true;
 
-    public HTGTeam(HTGGame game, String teamId, String teamIdNum, String teamName, NamedTextColor teamColor,
-                   String prefix, ItemStack item, ItemStack glassHead) {
-        super(teamId, teamIdNum, teamName, teamColor, prefix, item, glassHead);
-
+    public HTGTeam (HTGGame game, TeamLike originalTeam, String teamIdNum) {
+        super(originalTeam, teamIdNum);
         this.game = game;
         score = game.getStartScore();
     }
@@ -110,7 +108,7 @@ public class HTGTeam extends CBCTeam<HTGPlayer> {
 
         Title title = Title.title(titleComponent, subtitleComponent, TextUtil.titleTimes(0, 3000, 700));
 
-        for (CBCPlayer player : getPlayers()) {
+        for (CBCPlayer player : players()) {
             // Kill player if still alive
             if (player.isAlive()) {
                 // Set player unalive

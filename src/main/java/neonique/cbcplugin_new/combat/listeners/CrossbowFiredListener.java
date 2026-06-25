@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.combat.listeners;
 
 import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.combat.ProjectileManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.weapons.CBCInventory;
 import neonique.cbcplugin_new.weapons.InventorySlot;
 import neonique.cbcplugin_new.weapons.WeaponSlot;

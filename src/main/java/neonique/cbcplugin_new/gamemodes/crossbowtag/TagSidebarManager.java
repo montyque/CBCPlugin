@@ -115,9 +115,9 @@ public class TagSidebarManager extends GameSidebarManager {
         // Display the current taggers
         String gamemodeIconTeam = CBCGamemode.SHOWDOWN.getUnicodeIcon(NamedTextColor.YELLOW);
         if (!team.isTeamTaggers()) {
-            if (!team.getAlivePlayers().isEmpty()) {
+            if (!team.alivePlayers().isEmpty()) {
                 teamComponent = teamComponent.append(
-                        Component.text(team.getAlivePlayers().size() + "\uE881").color(NamedTextColor.GREEN)
+                        Component.text(team.alivePlayers().size() + "\uE881").color(NamedTextColor.GREEN)
                 );
             } else {
                 teamComponent = teamComponent.append(
@@ -126,7 +126,7 @@ public class TagSidebarManager extends GameSidebarManager {
             }
         } else {
             teamComponent = teamComponent.append(
-                    Component.text(team.getPlayers().size()).color(NamedTextColor.YELLOW).append(Component.text(gamemodeIconTeam).color(NamedTextColor.WHITE))
+                    Component.text(team.players().size()).color(NamedTextColor.YELLOW).append(Component.text(gamemodeIconTeam).color(NamedTextColor.WHITE))
             );
         }
 

@@ -291,7 +291,7 @@ public class LobbySidebarManager {
                 LobbyTeam playerTeam = lobbyPlayer.getAssignedTeam();
                 clientStringList.add(normalText(TextUtil.getSpaceOfLength(8))
                         .append(smallText("TEAM: ").color(NamedTextColor.YELLOW))
-                        .append(smallText("■ " + playerTeam.name()).color(playerTeam.getColor())));
+                        .append(smallText("■ " + playerTeam.name()).color(playerTeam.textColor())));
             } else {
                 if (lobbyPlayer.isSpectator()) {
                     clientStringList.add(normalText(TextUtil.getSpaceOfLength(8))

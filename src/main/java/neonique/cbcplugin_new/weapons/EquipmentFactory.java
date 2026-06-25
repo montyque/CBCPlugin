@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.services.ArmorTrimService;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;

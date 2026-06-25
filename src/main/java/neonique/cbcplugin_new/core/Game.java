@@ -13,7 +13,6 @@ import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.tasks.gamemodetasks.UpdateBossbarsTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.VictoryFireworkTask;

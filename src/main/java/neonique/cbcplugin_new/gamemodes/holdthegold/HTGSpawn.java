@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.holdthegold;
 
 import neonique.cbcplugin_new.managers.PlayerSession;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;

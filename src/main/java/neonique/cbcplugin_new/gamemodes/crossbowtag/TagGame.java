@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
@@ -104,11 +105,8 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
     }
 
     @Override
-    public TagTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new TagTeam(this, team.id(),
-                Integer.toString(teamNum), team.name(), team.getColor(),
-                team.prefix(), team.getIconItem(), team.getGlassHead()
-        );
+    public TagTeam createGamemodeTeam (TeamLike team, int teamNum) {
+        return new TagTeam(this, team, Integer.toString(teamNum));
     }
 
     public GameSidebarManager createSidebarManager () {
@@ -177,8 +175,8 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
             }
 
             // Get maximum amount of players on one team
-            if (maxScorePerSecond < team.getPlayers().size()) {
-                maxScorePerSecond = team.getPlayers().size();
+            if (maxScorePerSecond < team.players().size()) {
+                maxScorePerSecond = team.players().size();
             }
         }
 
@@ -205,7 +203,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
         super.gameWon(team);
 
-        for (TagPlayer player : team.getPlayers()) {
+        for (TagPlayer player : team.players()) {
             player.setBonusGameScore(40);
         }
 

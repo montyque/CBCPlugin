@@ -4,7 +4,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.core.Game;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -63,7 +63,7 @@ public class ChatManager implements Listener {
         Component newMsg = getChatComponentWithTeam(player, message, team);
 
         // Only send current messages to teammates
-        for (CBCPlayer teammate : team.getOnlinePlayers()) {
+        for (CBCPlayer teammate : team.onlinePlayers()) {
             Player teammateEntity = teammate.getPlayer();
             teammateEntity.sendMessage(newMsg);
         }

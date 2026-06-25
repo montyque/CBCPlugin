@@ -1,6 +1,8 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.core.CBCTeam;
+import neonique.cbcplugin_new.core.TeamLike;
+import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousGame;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -15,10 +17,9 @@ public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
     private boolean teamAlive;
     private ShowdownSpawn currentRoundSpawn;
 
-    public ShowdownTeam(ShowdownGame showdownGame, String teamId, String teamName, String teamNumId, NamedTextColor teamColor,
-                        String prefix, ItemStack item, ItemStack glassHead) {
-        super(teamId, teamName, teamNumId, teamColor, prefix, item, glassHead);
-        this.game = showdownGame;
+    public ShowdownTeam (ShowdownGame game, TeamLike originalTeam, String teamIdNum) {
+        super(originalTeam, teamIdNum);
+        this.game = game;
         roundsWon = 0;
         teamAlive = false;
     }
@@ -28,7 +29,7 @@ public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
     }
 
     public void teleportPlayers (ShowdownSpawn spawn) {
-        for (ShowdownPlayer player : getOnlinePlayers()) {
+        for (ShowdownPlayer player : onlinePlayers()) {
             player.teleportPlayerToSpawn(spawn, game.getMap().getMapCentre());
             player.playerSetupRound();
         }
@@ -41,9 +42,9 @@ public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
 
     public int updatePlayersLeftAlive (boolean checkAlive) {
         if (checkAlive) {
-            playersLeftAlive = getAlivePlayers().size();
+            playersLeftAlive = alivePlayers().size();
         } else {
-            playersLeftAlive = getOnlinePlayers().size();
+            playersLeftAlive = onlinePlayers().size();
         }
         return playersLeftAlive;
     }

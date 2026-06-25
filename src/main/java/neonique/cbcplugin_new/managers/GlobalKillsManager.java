@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.managers;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;

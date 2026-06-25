@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.gamemodes.ctf;
 
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -41,10 +41,10 @@ public class CTFBossbarManager extends GameBossBarManager {
         if (game.getWinner() == null) {
             for (CTFTeam team : game.getTeams()) {
 
-                int alive = team.getAlivePlayers().size();
+                int alive = team.alivePlayers().size();
                 Component flagComponent = getTeamStatus(team);
 
-                for (CTFPlayer player : team.getPlayers()) {
+                for (CTFPlayer player : team.players()) {
                     if (!player.isOnline()) continue;
                     Player playerEntity = player.getPlayer();
                     if (player.isEliminated()) {
@@ -122,7 +122,7 @@ public class CTFBossbarManager extends GameBossBarManager {
                         .color(team.textColor());
             }
         else {
-            int alive = team.getAlivePlayers().size();
+            int alive = team.alivePlayers().size();
             if (alive > 1) {
                 flagComponent = smallText("FINAL LIFE - NO FLAGS REMAINING - ").color(NamedTextColor.GOLD).append(
                         smallText(alive + " PLAYERS LEFT").color(team.textColor())
@@ -159,7 +159,7 @@ public class CTFBossbarManager extends GameBossBarManager {
 
             Component teamComponent = Component.text("");
 
-            Collection<CTFPlayer> players = team.getPlayers();
+            Collection<CTFPlayer> players = team.players();
 
             for (CBCPlayer player : players) {
 

@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.gamemodes._base;
 
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.core.Game;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -83,7 +83,7 @@ public abstract class PostGameStats {
                 }
 
                 // Get players from team and sort them
-                List<CBCPlayer> teamPlayers = new ArrayList<>(team.getPlayers());
+                List<CBCPlayer> teamPlayers = new ArrayList<>(team.players());
                 teamPlayers = sortPlayers(teamPlayers);
 
                 // Go through each player and place them in the inventory list

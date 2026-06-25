@@ -1,10 +1,8 @@
 package neonique.cbcplugin_new.gamemodes.assassin;
 
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class AssassinSpawn extends Location {

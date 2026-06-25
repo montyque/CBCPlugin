@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
-import org.bukkit.entity.Player;
+import neonique.cbcplugin_new.core.CBCPlayer;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.ProjectileManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 import neonique.cbcplugin_new.weapons.projectiles.XbowArrow;

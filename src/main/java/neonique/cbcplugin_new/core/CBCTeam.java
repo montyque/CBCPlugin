@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.lobby.LobbyTeam;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import net.kyori.adventure.text.Component;
@@ -32,11 +31,11 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
     private final TeamColor teamColor;
     private CBCScoreboardTeam scoreboardTeam;
 
-    public CBCTeam (LobbyTeam lobbyTeam, String teamIdNum) {
-        this.id = lobbyTeam.id();
-        this.name = lobbyTeam.name();
-        this.teamColor = lobbyTeam.teamColor();
-        this.prefix = lobbyTeam.prefix();
+    public CBCTeam (TeamLike originalTeam, String teamIdNum) {
+        this.id = originalTeam.id();
+        this.name = originalTeam.name();
+        this.teamColor = originalTeam.teamColor();
+        this.prefix = originalTeam.prefix();
         this.teamIdNum = teamIdNum;
     }
 
@@ -68,16 +67,16 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
 
     }
 
-    public Collection<P> getPlayers () {
+    public Collection<P> players () {
         return players.values();
     }
 
-    public Collection<P> getAlivePlayers () {
-        return getPlayers().stream().filter(CBCPlayer::isAlive).collect(Collectors.toSet());
+    public Collection<P> alivePlayers() {
+        return players().stream().filter(CBCPlayer::isAlive).collect(Collectors.toSet());
     }
 
-    public Set<P> getOnlinePlayers () {
-        return getPlayers().stream().filter(CBCPlayer::isOnline).collect(Collectors.toSet());
+    public Set<P> onlinePlayers() {
+        return players().stream().filter(CBCPlayer::isOnline).collect(Collectors.toSet());
     }
 
     public String name () {
@@ -92,7 +91,7 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
         return teamColor;
     }
 
-    public String getPrefix () {
+    public String prefix () {
         return prefix;
     }
 
@@ -169,7 +168,7 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
     }
 
     public void playGlobalSound(Sound sound, float volume, float pitch) {
-        for (P player : getPlayers()) {
+        for (P player : players()) {
             if (player.isOnline()) {
                 Player playerEntity = player.getPlayer();
                 playerEntity.playSound(playerEntity.getLocation(),  sound, volume, pitch);

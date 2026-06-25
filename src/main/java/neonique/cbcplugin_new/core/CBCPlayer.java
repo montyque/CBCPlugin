@@ -1,9 +1,8 @@
-package neonique.cbcplugin_new.playerclasses;
+package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
-import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.combat.tasks.TempImmunityTask;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 
-public class CBCPlayer {
+public class CBCPlayer implements PlayerLike {
 
     private final GameManager gameManager;
 
@@ -92,6 +91,10 @@ public class CBCPlayer {
         }
     }
 
+    public UUID uuid () {
+        return playerUUID;
+    }
+
     // Set player to alive or dead
     public void setAlive(boolean alive) {
         this.alive = alive;
@@ -105,29 +108,6 @@ public class CBCPlayer {
     // Return true or false if this player is respawning
     public boolean isRespawning () {
         return respawnTicks > 0;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    // PLAYER ENTITY RELATED FUNCTIONS
-    ////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Return the entity Player object
-    public Player getPlayer () {
-        OfflinePlayer player = Bukkit.getOfflinePlayer(playerUUID);
-        if (player.getPlayer() != null) {
-            return player.getPlayer();
-        } else {
-            return null;
-        }
-    }
-
-    public OfflinePlayer getOfflinePlayer () {
-        return Bukkit.getOfflinePlayer(playerUUID);
-    }
-
-    public boolean isOnline () {
-        OfflinePlayer player = Bukkit.getOfflinePlayer(playerUUID);
-        return player.isOnline();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -603,7 +583,7 @@ public class CBCPlayer {
         NamedTextColor textColor = NamedTextColor.WHITE;
         if (team != null) {
             textColor = team.textColor();
-            prefix = Component.text(team.getPrefix() + " ").color(textColor).decorate(TextDecoration.BOLD);
+            prefix = Component.text(team.prefix() + " ").color(textColor).decorate(TextDecoration.BOLD);
         }
         return prefix.append(Component.text(getName()).color(textColor).decoration(TextDecoration.BOLD,
                 TextDecoration.State.FALSE));

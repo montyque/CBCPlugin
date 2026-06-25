@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.ctf;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -141,7 +141,7 @@ public class CTFPostGameStats extends PostGameStats {
         int teamTotalKills = 0;
         int teamTotalDKills = 0;
         int teamTotalCaptures = 0;
-        for (CTFPlayer player : team.getPlayers()) {
+        for (CTFPlayer player : team.players()) {
             teamTotalKills += player.getKills();
             teamTotalDKills += player.getDefensiveKills();
             teamTotalCaptures += player.getFlagsCaptured();
@@ -167,7 +167,7 @@ public class CTFPostGameStats extends PostGameStats {
         }
 
         // Get list of teams (this is converting the CBC players to showdown players)
-        List<CTFPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
+        List<CTFPlayer> teamPlayersList = new ArrayList<>(team.players());
 
         addLoreBlankLine(teamLoreList);
 

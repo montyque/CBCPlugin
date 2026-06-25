@@ -1,10 +1,12 @@
 package neonique.cbcplugin_new.gamemodes.rendezvous;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.core.TeamLike;
+import neonique.cbcplugin_new.gamemodes.koth.KOTHGame;
 import neonique.cbcplugin_new.resourcepack.PlayerHeadType;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.util.StringUtil;
 import neonique.cbcplugin_new.util.TextUtil;
@@ -63,10 +65,8 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
     // Queue show
     private Component footerQueueComponent;
 
-    public RendezvousTeam(RendezvousGame game, String teamId, String teamIdNum, String teamName, NamedTextColor teamColor,
-                   String prefix, ItemStack item, ItemStack glassHead) {
-        super(teamId, teamIdNum, teamName, teamColor, prefix, item, glassHead);
-
+    public RendezvousTeam (RendezvousGame game, TeamLike originalTeam, String teamIdNum) {
+        super(originalTeam, teamIdNum);
         this.game = game;
         this.score = game.getScoreStart();
 
@@ -86,11 +86,11 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
         }
 
         // Get players
-        List<RendezvousPlayer> players = new ArrayList<>(getPlayers());
+        List<RendezvousPlayer> players = new ArrayList<>(players());
 
         // Sort players by name
         players.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
-        List<RendezvousPlayer> playersNotListed = new ArrayList<>(getPlayers());
+        List<RendezvousPlayer> playersNotListed = new ArrayList<>(players());
 
         // Go through each character in number order list
         for (String chr : numberOrder.split("")) {
@@ -123,7 +123,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
     }
 
     public void shuffleRunnerQueue () {
-        List<RendezvousPlayer> players = new ArrayList<>(getPlayers());
+        List<RendezvousPlayer> players = new ArrayList<>(players());
         Collections.shuffle(players);
         runnerQueue = players;
     }
@@ -202,7 +202,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
             footerQueueComponent = footerQueueComponent.append(playerHeadComponent);
         }
 
-        for (CBCPlayer player : getPlayers()) {
+        for (CBCPlayer player : players()) {
             if (!player.isOnline()) continue;
             player.getPlayer().sendPlayerListFooter(footerQueueComponent);
         }
@@ -244,7 +244,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
         }
 
         // Make the runner glow
-        for (RendezvousPlayer player : getPlayers()) {
+        for (RendezvousPlayer player : players()) {
             if (!player.isAlive()) continue;
             if (player.isPlayerRunner()) {
                 player.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1,
@@ -259,7 +259,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
 
     public void changeInRunner () {
 
-        for (RendezvousPlayer player : getPlayers()) {
+        for (RendezvousPlayer player : players()) {
 
             if (!player.isOnline()) break;
             Player playerEntity = player.getPlayer();
@@ -496,7 +496,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
 
         Title title = Title.title(titleComponent, subtitleComponent, TextUtil.titleTimes(0, 3000, 700));
 
-        for (RendezvousPlayer player : getPlayers()) {
+        for (RendezvousPlayer player : players()) {
             // Kill player if still alive
             if (player.isAlive()) {
                 // Set player unalive
@@ -656,7 +656,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
 
             // Change runner to player
             setRunnerNextPlayerInQueue();
-            for (CBCPlayer plr : getOnlinePlayers()) {
+            for (CBCPlayer plr : onlinePlayers()) {
                 plr.getPlayer().sendMessage(
                         Component.text("This team had no runner, so you were automatically assigned to be the runner.").color(NamedTextColor.YELLOW)
                 );
@@ -684,7 +684,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
             setRunnerNextPlayerInQueue();
 
             // Send message to team
-            for (CBCPlayer plr : getOnlinePlayers()) {
+            for (CBCPlayer plr : onlinePlayers()) {
                 plr.getPlayer().sendMessage(
                         Component.text("Your current runner was removed from your team, so your team's runner has switched.").color(NamedTextColor.YELLOW)
                 );

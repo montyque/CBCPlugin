@@ -7,7 +7,7 @@ import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.combat.ProjectileManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.weapons.CreeperCannon;
 import neonique.cbcplugin_new.weapons.projectiles.*;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;

@@ -99,12 +99,12 @@ public class CTFSidebarManager extends GameSidebarManager {
         } else {
             if (team.getFlagsLeft() <= 0) {
                 teamComponent = teamComponent.append(
-                        Component.text(team.getAlivePlayers().size() + "\uE881 ").color(NamedTextColor.GOLD)
+                        Component.text(team.alivePlayers().size() + "\uE881 ").color(NamedTextColor.GOLD)
                 );
             }
             else {
                 teamComponent = teamComponent.append(
-                        Component.text(team.getAlivePlayers().size() + "\uE881 ").color(NamedTextColor.GREEN)
+                        Component.text(team.alivePlayers().size() + "\uE881 ").color(NamedTextColor.GREEN)
                 );
             }
         }

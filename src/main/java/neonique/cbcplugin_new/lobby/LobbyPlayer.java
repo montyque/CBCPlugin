@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.lobby;
 
+import neonique.cbcplugin_new.core.PlayerLike;
 import neonique.cbcplugin_new.managers.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -9,15 +10,14 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class LobbyPlayer {
+public class LobbyPlayer implements PlayerLike {
 
-    GameManager gameManager;
+    private GameManager gameManager;
 
-    Lobby lobby;
-    UUID playerUUID;
-
-    LobbyTeam assignedTeam;
-    boolean spectator = false;
+    private Lobby lobby;
+    private UUID playerUUID;
+    private LobbyTeam assignedTeam;
+    private boolean spectator = false;
 
     public LobbyPlayer(GameManager gameManager, Lobby lobby, UUID playerUUID) {
         this.gameManager = gameManager;
@@ -37,25 +37,8 @@ public class LobbyPlayer {
         }
     }
 
-    public String getName() {
-        return getOfflinePlayer().getName();
-    }
-
-    public OfflinePlayer getOfflinePlayer() {
-        return Bukkit.getOfflinePlayer(playerUUID);
-    }
-
-    public Player getPlayer() {
-        OfflinePlayer player = Bukkit.getOfflinePlayer(playerUUID);
-        if (player.getPlayer() != null) {
-            return player.getPlayer();
-        } else {
-            return null;
-        }
-    }
-
-    public boolean isOnline() {
-        return getOfflinePlayer().isOnline();
+    public UUID uuid () {
+        return playerUUID;
     }
 
     public void setSpectator() {

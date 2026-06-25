@@ -187,9 +187,9 @@ public class lobby_team {
                 lobby.playerJoinTeam(player, teamFound, true);
 
                 user.sendMessage(
-                        Component.text(playerName).color(teamFound.getColor())
+                        Component.text(playerName).color(teamFound.textColor())
                                 .append(Component.text(" has been added to team ").color(NamedTextColor.WHITE))
-                                .append(Component.text(teamFound.name()).color(teamFound.getColor()))
+                                .append(Component.text(teamFound.name()).color(teamFound.textColor()))
                                 .append(Component.text("!").color(NamedTextColor.WHITE))
                 );
 

@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gametasks.DeathBorderDamageTask;
 import neonique.cbcplugin_new.tasks.gametasks.DeathBorderShrinkTask;
 import net.kyori.adventure.text.Component;

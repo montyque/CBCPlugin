@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.weapons.projectiles;
 
 import neonique.cbcplugin_new.combat.DeathCause;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;

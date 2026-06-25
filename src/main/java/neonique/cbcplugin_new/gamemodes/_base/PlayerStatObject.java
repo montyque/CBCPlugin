@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 
 public class PlayerStatObject {
 

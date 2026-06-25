@@ -2,9 +2,11 @@ package neonique.cbcplugin_new.gamemodes.rendezvous;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownTeam;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
@@ -67,11 +69,8 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
     }
 
     @Override
-    public RendezvousTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new RendezvousTeam(this, team.id(),
-                Integer.toString(teamNum), team.name(), team.getColor(),
-                team.prefix(), team.getIconItem(), team.getGlassHead()
-        );
+    public RendezvousTeam createGamemodeTeam (TeamLike team, int teamNum) {
+        return new RendezvousTeam(this, team, Integer.toString(teamNum));
     }
 
     @Override
@@ -169,7 +168,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
             Collections.shuffle(teamSpawnList);
 
             int playerinc = 0; // Increments every time we teleport a player
-            for (RendezvousPlayer player : team.getPlayers()) {
+            for (RendezvousPlayer player : team.players()) {
 
                 player.resetPlayer();
 
@@ -211,7 +210,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
     public void gameWon (RendezvousTeam team) {
 
         super.gameWon(team);
-        for (RendezvousPlayer player : team.getPlayers()) {
+        for (RendezvousPlayer player : team.players()) {
             player.addGamePoints(40);
         }
 
@@ -257,7 +256,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
 
         // Initialise all players
         for (RendezvousTeam team : getTeams()) {
-            for (RendezvousPlayer player : team.getOnlinePlayers()) {
+            for (RendezvousPlayer player : team.onlinePlayers()) {
                 player.playerSetup(2);
                 player.setTempImmune(60);
                 if (player.isPlayerRunner()) {

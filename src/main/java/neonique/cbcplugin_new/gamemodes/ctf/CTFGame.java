@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.gamemodes.ctf;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
@@ -15,7 +16,7 @@ import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -71,11 +72,8 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
     }
 
     @Override
-    public CTFTeam createGamemodeTeam (LobbyTeam team, int teamNum) {
-        return new CTFTeam(this, team.id(),
-                Integer.toString(teamNum), team.name(), team.getColor(),
-                team.prefix(), team.getIconItem(), team.getGlassHead()
-        );
+    public CTFTeam createGamemodeTeam (TeamLike team, int teamNum) {
+        return new CTFTeam(this, team, Integer.toString(teamNum));
     }
 
     @Override
@@ -145,7 +143,7 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
             }
 
             // Teleport all players to their spawn
-            for (CTFPlayer player : team.getPlayers()) {
+            for (CTFPlayer player : team.players()) {
                 player.resetPlayer();
                 player.teleportPlayerToSpawn(team.getPlayerSpawn(), map.getMapCentre());
             }
@@ -179,7 +177,7 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
     @Override
     public void gameWon (CTFTeam team) {
         super.gameWon(team);
-        for (CTFPlayer player : team.getPlayers()) {
+        for (CTFPlayer player : team.players()) {
             player.addGamePoints(40);
         }
         canCaptureOrTake = false;
@@ -256,7 +254,7 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
 
         // Initialise all players
         for (CTFTeam team : getTeams()) {
-            for (CTFPlayer player : team.getPlayers()) {
+            for (CTFPlayer player : team.players()) {
                 player.playerSetup(2);
                 player.setTempImmune(60);
 

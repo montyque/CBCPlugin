@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.tdm;
 
 import neonique.cbcplugin_new.managers.GameBossBarManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.util.StringUtil;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
@@ -81,7 +81,7 @@ public class TDMBossbarManager extends GameBossBarManager {
                         .append(smallRaisedText(StringUtil.getPlacementString(team.getPlacement())).color(team.textColor()));
             }
 
-            for (CBCPlayer player : team.getPlayers()) {
+            for (CBCPlayer player : team.players()) {
                 if (player.isOnline()) {
                     Player playerEntity = player.getPlayer();
                     setClientText(playerEntity, 3, placeComponent);
@@ -113,7 +113,7 @@ public class TDMBossbarManager extends GameBossBarManager {
 
             Component teamComponent = Component.text("");
 
-            Collection<TDMPlayer> players = team.getPlayers();
+            Collection<TDMPlayer> players = team.players();
 
             for (TDMPlayer player : players) {
 

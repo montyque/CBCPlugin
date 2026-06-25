@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.combat.listeners;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.rendezvous;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.gamemodes._base.PlayerStatObject;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.playerclasses.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -181,7 +181,7 @@ public class RendezvousPostGameStats extends PostGameStats {
         int teamTotalKills = 0;
         int teamTotalEnemyRunnersKilled = 0;
         int teamTotalMoraleBoostsGiven = 0;
-        for (RendezvousPlayer player : team.getPlayers()) {
+        for (RendezvousPlayer player : team.players()) {
             teamTotalKills += player.getKills();
             teamTotalEnemyRunnersKilled += player.getEnemyRunnersKilled();
             teamTotalMoraleBoostsGiven += player.getMoraleBoostsGiven();
@@ -197,7 +197,7 @@ public class RendezvousPostGameStats extends PostGameStats {
         addLoreField(teamLoreList, "Runner Deaths", String.valueOf(team.getRunnerDeaths()), NamedTextColor.RED);
 
         // Get list of teams (this is converting the CBC players to Rendezvous players)
-        List<RendezvousPlayer> teamPlayersList = new ArrayList<>(team.getPlayers());
+        List<RendezvousPlayer> teamPlayersList = new ArrayList<>(team.players());
 
         addLoreBlankLine(teamLoreList);
 
