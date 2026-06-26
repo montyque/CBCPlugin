@@ -18,7 +18,7 @@ import neonique.cbcplugin_new.gamemodes.tdm.TDMSpawn;
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownMap;
 import neonique.cbcplugin_new.mechanics.DashPad;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
-import neonique.cbcplugin_new.mechanics.HealthPad;
+import neonique.cbcplugin_new.mapmechanics.HealthPad;
 import neonique.cbcplugin_new.mechanics.JumpPad;
 import neonique.cbcplugin_new.managers.DeathMessageGenerator;
 import neonique.cbcplugin_new.managers.GameManager;

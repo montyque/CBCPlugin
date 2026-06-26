@@ -7,6 +7,7 @@ import neonique.cbcplugin_new.combat.tasks.*;
 import neonique.cbcplugin_new.core.CBCMap;
 import neonique.cbcplugin_new.managers.DeathMessageManager;
 import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.mapmechanics.HealthPad;
 import neonique.cbcplugin_new.mechanics.*;
 import neonique.cbcplugin_new.core.CBCPlayer;
 
@@ -95,7 +96,7 @@ public class CombatManager {
     private WeaponReloadTask weaponReloadTask;
     private ProjectileUpdateTask projectileUpdateTask;
     private VoidTask voidTask;
-    private HealPadDetectionTask healPadTask;
+    private HealPadTask healPadTask;
     private ResetPlayerLastHitTask resetPlayerLastHitTask;
     private WeaponManagerTimerTask weaponManagerTimerTask;
     private JumpPadTask jumpPadTask;
@@ -181,7 +182,7 @@ public class CombatManager {
         projectileUpdateTask = new ProjectileUpdateTask(gameManager.getPlayerRegistry(), projectileManager);
 
         voidTask = new VoidTask(gameManager, this);
-        healPadTask = new HealPadDetectionTask(this, gameManager.getPlayerRegistry());
+        healPadTask = new HealPadTask(this, gameManager.getPlayerRegistry());
         resetPlayerLastHitTask = new ResetPlayerLastHitTask(gameManager);
         weaponManagerTimerTask = new WeaponManagerTimerTask(this);
         playerParticlesTask = new PlayerParticlesTask(gameManager);
@@ -515,17 +516,6 @@ public class CombatManager {
 
     public int getHealPadHealing() {
         return 6;
-    }
-
-    public Set<Entity> getHealthPadItemList () {
-        Set<Entity> itemList = new HashSet<>();
-        for (HealthPad pad : getHealthPadList()) {
-            Entity item = pad.getItem();
-            if (item != null) {
-                itemList.add(item);
-            }
-        }
-        return itemList;
     }
 
     public boolean isVoidKill() {
