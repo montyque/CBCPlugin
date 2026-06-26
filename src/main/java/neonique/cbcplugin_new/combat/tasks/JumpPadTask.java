@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.combat.tasks;
 
-import neonique.cbcplugin_new.mechanics.JumpPad;
+import neonique.cbcplugin_new.mapmechanics.JumpPad;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
@@ -38,12 +38,12 @@ public class JumpPadTask extends BukkitRunnable {
             // Make particles
             for (int i = 0; i < 2; i++) {
                 Random random = new Random();
-                gameManager.getWorld().spawnParticle(Particle.SNEEZE, jumpPad.clone().add(random.nextDouble() * 2 - 1, 0.5, random.nextDouble() * 2 - 1),
+                gameManager.getWorld().spawnParticle(Particle.SNEEZE, jumpPad.location().clone().add(random.nextDouble() * 2 - 1, 0.5, random.nextDouble() * 2 - 1),
                         0, 0d, 0.5d, 0d, 0.5);
             }
 
             // Get list of nearby players
-            Collection<Player> playersNearby = jumpPad.getNearbyEntitiesByType(Player.class, 5);
+            Collection<Player> playersNearby = jumpPad.location().getNearbyEntitiesByType(Player.class, 5);
             for (Player playerEntity : playersNearby) {
                 // Check if each player is in game
                 if (!gameManager.hasPlayer(playerEntity)) continue;

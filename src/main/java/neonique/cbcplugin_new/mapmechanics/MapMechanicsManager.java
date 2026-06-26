@@ -29,6 +29,11 @@ public class MapMechanicsManager {
         HealthPadMechanic healthPadMechanic = new HealthPadMechanic(map.getHealthPads());
         register(healthPadMechanic);
 
+        JumpPadMechanic jumpPadMechanic = new JumpPadMechanic(map.getJumpPads());
+        register(jumpPadMechanic);
+
+        DashPadMechanic dashPadMechanic = new DashPadMechanic(map.getDashPads());
+        register(dashPadMechanic);
 
     }
 

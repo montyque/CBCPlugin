@@ -1,43 +1,29 @@
-package neonique.cbcplugin_new.mechanics;
+package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import neonique.cbcplugin_new.managers.PlayerRegistry;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DashPad {
 
-    private final boolean enabled;
-
-    private final GameManager gameManager;
-    private final CombatManager combatManager;
-
-    private final Set<Location> blocks;
+    private final Set<Location> checkLocations;
     private final Vector velocity;
 
-    private final HashMap<CBCPlayer, Integer> cooldown;
+    private final Map<CBCPlayer, Integer> cooldown;
 
-    public DashPad (GameManager gameManager, CombatManager combatManager, Vector startBlock, Vector endBlock, Vector velocity) {
-
-        enabled = true;
-
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
+    public DashPad (Location startBlock, Location endBlock, Vector velocity) {
 
         this.velocity = velocity;
-
-        // Create locations
-        blocks = new HashSet<>();
+        this.checkLocations = new HashSet<>();
         double lowerX = Math.min(startBlock.getX(), endBlock.getX());
         double higherX = Math.max(startBlock.getX(), endBlock.getX());
         double lowerY = Math.min(startBlock.getY(), endBlock.getY());
@@ -45,48 +31,54 @@ public class DashPad {
         double lowerZ = Math.min(startBlock.getZ(), endBlock.getZ());
         double higherZ = Math.max(startBlock.getZ(), endBlock.getZ());
 
+        World w = startBlock.getWorld();
         for (double x = lowerX; x <= higherX; x++) {
             for (double y = lowerY; y <= higherY; y++) {
                 for (double z = lowerZ; z <= higherZ; z++) {
-                    blocks.add(new Location(gameManager.getWorld(), x, y, z));
+                    checkLocations.add(new Location(w, x, y, z));
                 }
             }
         }
 
         cooldown = new HashMap<>();
 
-        System.out.println("Created new dash pad");
     }
 
-    public void playerPressed (CBCPlayer player) {
+    public DashPad (GameManager gameManager, CombatManager combatManager, Vector startBlock, Vector endBlock, Vector velocity) {
+        this(
+                new Location(gameManager.getWorld(), startBlock.getX(), startBlock.getY(), startBlock.getZ()),
+                new Location(gameManager.getWorld(), endBlock.getX(), endBlock.getY(), endBlock.getZ()),
+                velocity
+        );
+    }
 
-        if (!player.isOnline()) return;
-        if (cooldown.containsKey(player)) return;
+    public Collection<CBCPlayer> getPlayersOnPad (PlayerRegistry registry) {
+        return checkLocations.stream()
+                .flatMap(l -> l.getNearbyPlayers(1).stream())
+                .distinct()
+                .filter(registry::hasPlayer)
+                .map(registry::getPlayer)
+                .filter(CBCPlayer::isAlive)
+                .filter(p -> cooldown.getOrDefault(p, 0) == 0)
+                .collect(Collectors.toUnmodifiableSet());
+    }
 
-        // Launch player
-        player.getPlayer().setVelocity(velocity);
-        player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_3, 100F, 1.5F);
+    public void launchPlayer (CBCPlayer player) {
+
+        // Launch player with the given velocity
+        Player entity = player.getPlayer();
+        entity.setVelocity(velocity);
+        entity.playSound(player.getPlayer().getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_3, 100F, 1.5F);
         cooldown.put(player, 10);
 
-        // Particle effect
+        // Give the player a particle trail
         new BukkitRunnable() {
 
-            int tick = 0;
+            private int tick = 0;
             @Override
             public void run() {
 
-                if (!combatManager.isDashPadsEnabled()) {
-                    this.cancel();
-                    return;
-                }
-
                 if (!player.isOnline()) {
-                    this.cancel();
-                    return;
-                }
-
-                Player playerEntity = player.getPlayer();
-                if (playerEntity == null) {
                     this.cancel();
                     return;
                 }
@@ -117,17 +109,8 @@ public class DashPad {
 
     }
 
-    public Set<Location> getBlocks() {
-        return blocks;
+    public void updateCooldowns () {
+        cooldown.replaceAll((p, c) -> Math.max(c - 1, 0));
     }
 
-    public void refreshCooldowns() {
-        for (CBCPlayer player : new HashSet<>(cooldown.keySet())) {
-            if (cooldown.getOrDefault(player, 20) == 1) {
-                cooldown.remove(player);
-            } else {
-                cooldown.put(player, cooldown.get(player) - 1);
-            }
-        }
-    }
 }

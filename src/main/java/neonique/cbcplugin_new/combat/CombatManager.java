@@ -7,8 +7,9 @@ import neonique.cbcplugin_new.combat.tasks.*;
 import neonique.cbcplugin_new.core.CBCMap;
 import neonique.cbcplugin_new.managers.DeathMessageManager;
 import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.mapmechanics.DashPad;
 import neonique.cbcplugin_new.mapmechanics.HealthPad;
-import neonique.cbcplugin_new.mechanics.*;
+import neonique.cbcplugin_new.mapmechanics.JumpPad;
 import neonique.cbcplugin_new.core.CBCPlayer;
 
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
@@ -77,9 +78,9 @@ public class CombatManager {
     private Location voidTeleport = null;
     private Collection<HealthPad> healthPadList = new HashSet<>();
     private boolean jumpPadsEnabled = false;
-    private Set<JumpPad> jumpPadList = new HashSet<>();
+    private Collection<JumpPad> jumpPadList = new HashSet<>();
     private boolean dashPadsEnabled = false;
-    private Set<DashPad> dashPadList = new HashSet<>();
+    private Collection<DashPad> dashPadList = new HashSet<>();
 
     // Event listeners used
     private final CrossbowFiredListener crossbowFiredListener;
@@ -539,7 +540,7 @@ public class CombatManager {
         return jumpPadsEnabled;
     }
 
-    public void setJumpPadList(Set<JumpPad> newJumpPadList) {
+    public void setJumpPadList(Collection<JumpPad> newJumpPadList) {
         clearJumpPadList();
         jumpPadList = newJumpPadList;
     }
@@ -548,7 +549,7 @@ public class CombatManager {
         jumpPadList.clear();
     }
 
-    public Set<JumpPad> getJumpPadList() {
+    public Collection<JumpPad> getJumpPadList() {
         return jumpPadList;
     }
 
@@ -561,7 +562,7 @@ public class CombatManager {
         return dashPadsEnabled;
     }
 
-    public void setDashPadList(Set<DashPad> newDashPadList) {
+    public void setDashPadList(Collection<DashPad> newDashPadList) {
         clearDashPadList();
         dashPadList = newDashPadList;
     }
@@ -570,7 +571,7 @@ public class CombatManager {
         dashPadList.clear();
     }
 
-    public Set<DashPad> getDashPadList() {
+    public Collection<DashPad> getDashPadList() {
         return dashPadList;
     }
 

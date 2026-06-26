@@ -16,10 +16,11 @@ import neonique.cbcplugin_new.gamemodes.showdown.ShowdownMap;
 import neonique.cbcplugin_new.gamemodes.tdm.TDMMap;
 import neonique.cbcplugin_new.gamemodes.tdm.TDMSpawn;
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownMap;
-import neonique.cbcplugin_new.mechanics.DashPad;
+import neonique.cbcplugin_new.mapmechanics.DashPad;
+import neonique.cbcplugin_new.mapmechanics.JumpPadMechanic;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.mapmechanics.HealthPad;
-import neonique.cbcplugin_new.mechanics.JumpPad;
+import neonique.cbcplugin_new.mapmechanics.JumpPad;
 import neonique.cbcplugin_new.managers.DeathMessageGenerator;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -358,11 +359,12 @@ public class CBCMap {
         return jumpPadsEnabled;
     }
 
-    public Set<JumpPad> getJumpPads() {
+    public Collection<JumpPad> getJumpPads() {
         if (!jumpPadsEnabled) return null;
-        Set<JumpPad> jumpPads = new HashSet<>();
+        List<JumpPad> jumpPads = new ArrayList<>();
         for (Vector jumpPadVector : jumpPadCoordinates) {
-            jumpPads.add(new JumpPad(gameManager, combatManager, jumpPadVector));
+            Location location = new Location(getWorld(), jumpPadVector.getX(), jumpPadVector.getY(), jumpPadVector.getZ());
+            jumpPads.add(new JumpPad(location));
         }
         return jumpPads;
     }
@@ -371,14 +373,14 @@ public class CBCMap {
         return dashPadsEnabled;
     }
 
-    public Set<DashPad> getDashPads() {
-
-        Set<DashPad> dashPads = new HashSet<>();
+    public Collection<DashPad> getDashPads() {
+        List<DashPad> dashPads = new ArrayList<>();
         for (Vector[] vec : dashPadCoordinates) {
-            dashPads.add(new DashPad(gameManager, combatManager, vec[0], vec[1], vec[2]));
+            Location startLoc = new Location(getWorld(), vec[0].getX(), vec[0].getY(), vec[0].getZ());
+            Location endLoc = new Location(getWorld(), vec[1].getX(), vec[1].getY(), vec[1].getZ());
+            dashPads.add(new DashPad(startLoc, endLoc, vec[2]));
         }
         return dashPads;
-
     }
 
     public int getVoidPlane() {
