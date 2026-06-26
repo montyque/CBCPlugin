@@ -345,10 +345,11 @@ public class CBCMap {
         return blockSymbol;
     }
 
-    public Set<HealthPad> getHealthPads() {
-        Set<HealthPad> healthPads = new HashSet<>();
+    public Collection<HealthPad> getHealthPads() {
+        List<HealthPad> healthPads = new ArrayList<>();
         for (Vector healthPadVector : healthPadCoordinates) {
-            healthPads.add(new HealthPad(gameManager, combatManager, healthPadVector));
+            Location location = new Location(getWorld(), healthPadVector.getX(), healthPadVector.getY(), healthPadVector.getZ());
+            healthPads.add(new HealthPad(location));
         }
         return healthPads;
     }
@@ -358,9 +359,7 @@ public class CBCMap {
     }
 
     public Set<JumpPad> getJumpPads() {
-
         if (!jumpPadsEnabled) return null;
-
         Set<JumpPad> jumpPads = new HashSet<>();
         for (Vector jumpPadVector : jumpPadCoordinates) {
             jumpPads.add(new JumpPad(gameManager, combatManager, jumpPadVector));

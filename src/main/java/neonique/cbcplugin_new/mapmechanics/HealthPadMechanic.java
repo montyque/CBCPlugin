@@ -5,18 +5,17 @@ import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.managers.PlayerRegistry;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.List;
-
+import java.util.Collection;
 
 public class HealthPadMechanic implements MapMechanic {
 
-    private final List<HealthPad> healthPads;
+    private final Collection<HealthPad> healthPads;
 
     private PlayerRegistry registry;
     private CombatManager combatManager;
     private BukkitRunnable updateTask;
 
-    public HealthPadMechanic (List<HealthPad> healthPads) {
+    public HealthPadMechanic (Collection<HealthPad> healthPads) {
         this.healthPads = healthPads;
     }
 

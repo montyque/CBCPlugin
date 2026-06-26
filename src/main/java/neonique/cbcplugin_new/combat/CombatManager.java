@@ -75,7 +75,7 @@ public class CombatManager {
 
     // Map variables
     private Location voidTeleport = null;
-    private Set<HealthPad> healthPadList = new HashSet<>();
+    private Collection<HealthPad> healthPadList = new HashSet<>();
     private boolean jumpPadsEnabled = false;
     private Set<JumpPad> jumpPadList = new HashSet<>();
     private boolean dashPadsEnabled = false;
@@ -482,7 +482,7 @@ public class CombatManager {
     }
 
     // Heal pad related methods
-    public void setHealthPadList(Set<HealthPad> newHealthPadList) {
+    public void setHealthPadList(Collection<HealthPad> newHealthPadList) {
         clearHealthPadList();
         healthPadList = newHealthPadList;
     }
@@ -506,7 +506,7 @@ public class CombatManager {
         }
     }
 
-    public Set<HealthPad> getHealthPadList() {
+    public Collection<HealthPad> getHealthPadList() {
         return healthPadList;
     }
 
