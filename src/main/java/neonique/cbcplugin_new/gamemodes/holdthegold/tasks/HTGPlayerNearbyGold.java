@@ -25,7 +25,7 @@ public class HTGPlayerNearbyGold extends BukkitRunnable {
 
         // Check if gold is not held by player
         if (game.isGoldHeld()) {
-            game.getGoldHolder().setLastValidPosition();
+            game.getGoldHolder().updateLastValidPosition();
             return;
         }
 

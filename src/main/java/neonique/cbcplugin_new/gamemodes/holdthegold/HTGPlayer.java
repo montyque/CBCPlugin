@@ -47,18 +47,8 @@ public class HTGPlayer extends CBCPlayer {
         this.game = game;
     }
 
-    public void setLastValidPosition() {
-        if (isOnline() && isAlive()) {
-            Location nPlayerLoc = getPlayer().getLocation().clone();
-            Location playerLoc = getPlayer().getLocation().clone();
-            for (int y = playerLoc.getBlockY(); y > game.getGameManager().combatManager.getVoidPlane(); y--) {
-                playerLoc.setY(y);
-                if (playerLoc.getBlock().isSolid()) {
-                    lastValidPosition = new Location(nPlayerLoc.getWorld(), nPlayerLoc.getBlockX(), nPlayerLoc.getBlockY(), nPlayerLoc.getBlockZ());
-                    break;
-                }
-            }
-        }
+    public void updateLastValidPosition() {
+        lastValidPosition = getPlayer().getLocation();
     }
 
     public Location getLastValidPosition() {
@@ -197,7 +187,7 @@ public class HTGPlayer extends CBCPlayer {
         playerEntity.showTitle(title);
 
         // Update position
-        setLastValidPosition();
+        updateLastValidPosition();
     }
 
     public void dropGold() {
