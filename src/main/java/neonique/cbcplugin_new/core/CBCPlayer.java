@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.mapmechanics.SwimTimer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -21,6 +22,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,9 +71,7 @@ public class CBCPlayer implements PlayerLike {
     private final FlameDamager flameDamager = new FlameDamager(this);
 
     // Other fields
-    private int swimTimer = 0;
-    private int swimTimerDamageTick = 0;
-    private boolean onJumpPad = false;
+    private SwimTimer swimTimer = null;
 
     // Display in player list
     private List<Component> playerListSuffixes;
@@ -86,9 +86,6 @@ public class CBCPlayer implements PlayerLike {
 
         playerListSuffixes = new ArrayList<>();
 
-        if (combatManager.isSwimTimerEnabled()) {
-            swimTimer = combatManager.getSwimTimerLength();
-        }
     }
 
     public UUID uuid () {
@@ -331,9 +328,7 @@ public class CBCPlayer implements PlayerLike {
         this.alive = false;
 
         // Reset variables
-        if (combatManager.isSwimTimerEnabled()) {
-            this.swimTimer = combatManager.getSwimTimerLength();
-        }
+        resetSwimTimer();
         flameDamager.resetFlameDamager();
         lastPlayerHitBy = null;
         timeDamaged.clear();
@@ -497,62 +492,30 @@ public class CBCPlayer implements PlayerLike {
         }
 
     }
-    public void swimTimerDecrement() {
 
-        if (!isOnline()) return;
-        Player player = getPlayer();
-
-        if (swimTimer > 0) {
-            swimTimer--;
-        } else {
-            // Damage player
-            if (swimTimerDamageTick == 0) {
-                swimTimerDamageTick = 10;
-
-                player.getWorld().playSound(
-                        player.getLocation(), Sound.ENTITY_PLAYER_HURT_DROWN, 1, 1
-                );
-
-                player.getWorld().spawnParticle(Particle.BUBBLE, player.getLocation(), 10, null);
-
-                // Damage player
-                if (player.getHealth() <= 1) {
-                    if (lastPlayerHitBy != null) {
-                        combatManager.playerDeath(this, lastPlayerHitBy, DeathCause.DROWN, false);
-                    } else {
-                        combatManager.playerDeath(this, null, DeathCause.DROWN, false);
-                    }
-                } else {
-                    // Damage player
-                    player.setHealth(player.getHealth() - 1);
-                }
-            } else {
-                swimTimerDamageTick--;
-            }
-        }
-        updateSwimTimerBubbles();
+    public void startSwimTimer (int length) {
+        swimTimer = new SwimTimer(length, 5);
     }
 
-    public void swimTimerIncrement() {
-        if (swimTimer < combatManager.getSwimTimerLength()) {
-            swimTimer += 2;
-            updateSwimTimerBubbles();
-            if (swimTimer > combatManager.getSwimTimerLength()) {
-                swimTimer = combatManager.getSwimTimerLength();
-            }
-        }
+    public SwimTimer getSwimTimer () {
+        return swimTimer;
     }
 
-    public void updateSwimTimerBubbles() {
+    public boolean hasSwimTimer () {
+        return swimTimer != null;
+    }
 
+    public void resetSwimTimer () {
+        swimTimer = null;
+    }
+
+    public void updateSwimTimerBubbles () {
         if (!isOnline()) return;
         Player player = getPlayer();
-
-        if (swimTimer > 0) {
-            player.setRemainingAir(Math.round(300 * ((float) swimTimer / (float) combatManager.getSwimTimerLength())));
-        } else {
-            player.setRemainingAir(-50);
-        }
+        if (swimTimer != null) {
+            if (swimTimer.empty()) player.setRemainingAir(-50);
+            else player.setRemainingAir(Math.round(300 * swimTimer.getFraction()));
+        } else player.setRemainingAir(300);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -676,13 +639,10 @@ public class CBCPlayer implements PlayerLike {
     }
 
     public Set<CBCPlayer> damagingPlayersInLastTime (int ticks) {
-
         int currentTime = combatManager.getTimer();
-
         return timeDamaged.keySet().stream()
                 .filter(p -> (currentTime - timeDamaged.get(p)) < ticks)
                 .collect(Collectors.toSet());
-
     }
 
     public void resetAllAttributes () {

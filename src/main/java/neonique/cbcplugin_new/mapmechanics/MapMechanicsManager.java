@@ -35,6 +35,11 @@ public class MapMechanicsManager {
         DashPadMechanic dashPadMechanic = new DashPadMechanic(map.getDashPads());
         register(dashPadMechanic);
 
+        if (map.isSwimTimerEnabled()) {
+            SwimTimerMechanic swimTimerMechanic = new SwimTimerMechanic(300);
+            register(swimTimerMechanic);
+        }
+
     }
 
     public void register (MapMechanic mechanic) {

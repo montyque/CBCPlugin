@@ -513,6 +513,10 @@ public class CBCMap {
         return swimTimerEnabled;
     }
 
+    public int getSwimTimerLength () {
+        return swimTimerLength;
+    }
+
     public boolean isInstaKillLava() {
         return instakillLava;
     }
