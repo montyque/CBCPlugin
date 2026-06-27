@@ -88,8 +88,8 @@ public class DeathMessageManager {
         }
 
         NamedTextColor color = NamedTextColor.WHITE;
-        if (playerKilled.getTeam() != null) {
-            color = playerKilled.getTeam().textColor();
+        if (playerKilled.team() != null) {
+            color = playerKilled.team().textColor();
         }
 
         Component deathIcon = getDeathCauseIcon(cause, playerKiller != null, color).append(Component.space());
@@ -99,7 +99,7 @@ public class DeathMessageManager {
 
     public Component getKillStreakMessage(CBCPlayer playerKiller) {
 
-        Component playerComponent = playerKiller.getNameComponent().decorate(TextDecoration.BOLD);
+        Component playerComponent = playerKiller.nameComponent().decorate(TextDecoration.BOLD);
 
         if (playerKiller.getKillStreak() == 5) {
             return playerComponent.append(Component.text(" is on a killing spree!").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD));
@@ -117,7 +117,7 @@ public class DeathMessageManager {
 
         int killStreak = playerKilled.getKillStreak();
 
-        Component playerKilledComponent = playerKilled.getNameComponent();
+        Component playerKilledComponent = playerKilled.nameComponent();
 
         if (playerKiller == null) {
             return playerKilledComponent
@@ -130,7 +130,7 @@ public class DeathMessageManager {
                     .append(Component.text("'s kill streak of ").color(NamedTextColor.WHITE))
                     .append(Component.text(killStreak).color(NamedTextColor.GREEN))
                     .append(Component.text(" has been ended by ").color(NamedTextColor.WHITE))
-                    .append(playerKiller.getNameComponent())
+                    .append(playerKiller.nameComponent())
                     .append(Component.text("!").color(NamedTextColor.WHITE))
                     .decorate(TextDecoration.BOLD);
         }

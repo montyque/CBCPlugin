@@ -48,9 +48,9 @@ public class DeathMessage {
 
             // Return a death message with both the killed player's name and the killer's name
             return Component.text(beforeKilled).color(NamedTextColor.GRAY)
-                    .append(playerKilled.getNameComponent())
+                    .append(playerKilled.nameComponent())
                     .append(Component.text(afterKilled).color(NamedTextColor.GRAY))
-                    .append(playerKiller.getNameComponent())
+                    .append(playerKiller.nameComponent())
                     .append(Component.text(afterKiller).color(NamedTextColor.GRAY));
 
         }
@@ -60,7 +60,7 @@ public class DeathMessage {
             // Return a death message with just the killed player's name
             return Component.text()
                     .content(beforeKilled).color(NamedTextColor.GRAY)
-                    .append(playerKilled.getNameComponent())
+                    .append(playerKilled.nameComponent())
                     .append(Component.text().content(afterKilled).color(NamedTextColor.GRAY)).build();
 
         }

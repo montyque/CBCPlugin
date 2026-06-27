@@ -156,7 +156,7 @@ public abstract class PostGameStats {
     }
 
     public Component createPlayerNameComponent(CBCPlayer player) {
-        return player.getNameComponent();
+        return player.nameComponent();
     }
 
     public String getTimeFormat(int timeInSeconds) {
@@ -253,7 +253,7 @@ public abstract class PostGameStats {
         int i = 0;
 
         for (CBCPlayer player : list) {
-            component = component.append(player.getNameComponent());
+            component = component.append(player.nameComponent());
             if (listSize - 1 > i) {
                 component = component.append(Component.text(", ").color(NamedTextColor.WHITE));
             }
@@ -268,7 +268,7 @@ public abstract class PostGameStats {
 
         List<String> names = new ArrayList<>();
         for (CBCPlayer player : list) {
-            names.add(player.getName());
+            names.add(player.name());
         }
 
         return String.join(", ", names);

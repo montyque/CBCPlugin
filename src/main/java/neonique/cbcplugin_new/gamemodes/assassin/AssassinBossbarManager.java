@@ -37,7 +37,7 @@ public class AssassinBossbarManager extends GameBossBarManager {
 
             if (game.getWinner() != null) {
                 CBCPlayer winningPlayer = game.getWinner();
-                topRow = smallText(winningPlayer.getName().toUpperCase() + " WINS!")
+                topRow = smallText(winningPlayer.name().toUpperCase() + " WINS!")
                         .color(NamedTextColor.GREEN);
             }
             else {
@@ -47,7 +47,7 @@ public class AssassinBossbarManager extends GameBossBarManager {
                 if (target == null) {
                     topRow = topRow.append(smallText("NONE").color(NamedTextColor.YELLOW));
                 } else {
-                    topRow = topRow.append(smallText(target.getName()).color(NamedTextColor.AQUA));
+                    topRow = topRow.append(smallText(target.name()).color(NamedTextColor.AQUA));
 
                     // Add change target timer as display
                     int playerChangeTargetTimer = player.getTargetChangeTimer();

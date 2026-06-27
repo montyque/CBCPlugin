@@ -113,7 +113,7 @@ public class CTFBossbarManager extends GameBossBarManager {
                 if (flagHolder != null) {
                     flagComponent = smallText("!! ").color(NamedTextColor.RED).append(
                                     smallText("FLAG STOLEN BY ").color(teamColor)
-                            .append(flagHolder.getNameComponent(ResourcePackFont.SMALL_5X5))
+                            .append(flagHolder.nameComponent(ResourcePackFont.SMALL_5X5))
                             .append(smallText(checkPlural(" - %s FLAG%s REMAINING", flagsLeft)
                                     .toUpperCase()).color(teamColor)));
                 }

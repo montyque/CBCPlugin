@@ -124,7 +124,7 @@ public class AssassinPostGameStats extends PostGameStats {
         List<Component> loreList = new ArrayList<>();
         addLoreField(loreList, "Map", game.getMap().getMapName(), NamedTextColor.GREEN);
         if (game.getWinner() != null) {
-            addLoreField(loreList, "Winner", game.getWinner().getName(), NamedTextColor.GOLD);
+            addLoreField(loreList, "Winner", game.getWinner().name(), NamedTextColor.GOLD);
         }
 
         loreList.add(Component.text(" "));
@@ -166,7 +166,7 @@ public class AssassinPostGameStats extends PostGameStats {
         playerItemMeta.setOwningPlayer(player.getOfflinePlayer());
 
         playerItemMeta.displayName(
-                player.getNameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                player.nameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
         );
 
         List<Component> playerLoreList = new ArrayList<>();

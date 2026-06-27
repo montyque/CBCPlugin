@@ -77,7 +77,7 @@ public class CTFPlayer extends CBCPlayer {
         // Send message
         getGameManager().sendGlobalMessage(
                 Component.newline().append(Component.text("FLAG PICKED UP > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
-                        .append(getNameComponent())
+                        .append(nameComponent())
                         .append(Component.text(" has picked up the ").color(NamedTextColor.WHITE))
                         .append(Component.text("⚑ " + teamWithFlagPickedUp.name() + " Flag").color(teamWithFlagPickedUp.textColor()).decorate(TextDecoration.BOLD))
                         .append(Component.text(".").color(NamedTextColor.WHITE)).append(Component.newline())
@@ -105,7 +105,7 @@ public class CTFPlayer extends CBCPlayer {
         getGameManager().playSound(getPlayer().getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 17, 1);
 
         Component flagCaptureComponent = Component.newline().append(Component.text("FLAG CAPTURED > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
-                .append(getNameComponent())
+                .append(nameComponent())
                 .append(Component.text(" has captured the ").color(NamedTextColor.WHITE))
                 .append(Component.text("⚑ " + teamCaptured.name() + " Flag").color(teamCaptured.textColor()).decorate(TextDecoration.BOLD))
                 .append(Component.text("!").color(NamedTextColor.WHITE));
@@ -157,7 +157,7 @@ public class CTFPlayer extends CBCPlayer {
 
         getGameManager().sendGlobalMessage(
                 Component.text("FLAG DROPPED > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD)
-                        .append(getNameComponent())
+                        .append(nameComponent())
                         .append(Component.text(" dropped the ").color(NamedTextColor.WHITE))
                         .append(Component.text("⚑ " + flagDropped.name() + " Flag").color(flagDropped.textColor()).decorate(TextDecoration.BOLD))
                         .append(Component.text("!").color(NamedTextColor.WHITE))
@@ -191,7 +191,7 @@ public class CTFPlayer extends CBCPlayer {
         if (teamWithFlagPickedUp != null) {
             // Give a defensive kill to the player if they are on the team
             if (ctfPlayerKiller != null) {
-                if (ctfPlayerKiller.getTeam() == teamWithFlagPickedUp) {
+                if (ctfPlayerKiller.team() == teamWithFlagPickedUp) {
                     defensiveKillGive = true;
                     // Give extra points for killing flag holder
                     playerKiller.addGamePoints(FLAGHOLDER_KILL_PTS);
@@ -255,14 +255,14 @@ public class CTFPlayer extends CBCPlayer {
 
             if (teammate == this) continue;
             if (!teammate.isAlive()) continue;
-            if (teammate.getFlagHeld() != ctfPlayerKilled.getTeam()) continue;
+            if (teammate.getFlagHeld() != ctfPlayerKilled.team()) continue;
 
             teammate.addHealing(4);
 
             if (isOnline()) {
                 getPlayer().sendMessage(
                         Component.text("Morale Boost given to ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
-                                .append(Component.text(teammate.getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                                .append(Component.text(teammate.name()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                                 .append(Component.text("! (Teammate receives +2 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                 );
             }
@@ -270,7 +270,7 @@ public class CTFPlayer extends CBCPlayer {
             moraleBoostsGiven++;
             teammate.getPlayer().sendMessage(
                     Component.text("Morale Boost received from ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
-                            .append(Component.text(getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                            .append(Component.text(name()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                             .append(Component.text("! ( +2 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
             );
 
@@ -291,7 +291,7 @@ public class CTFPlayer extends CBCPlayer {
         // Send message
         getGameManager().sendGlobalMessage(
                 Component.text("PLAYER ELIMINATION > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD)
-                        .append(getNameComponent())
+                        .append(nameComponent())
                         .append(Component.text(" has been eliminated!").color(NamedTextColor.WHITE))
         );
 
@@ -304,8 +304,8 @@ public class CTFPlayer extends CBCPlayer {
     public void playerSpawn() {
 
         if (!isOnline()) return;
-        if (getTeam() == null) return;
-        if (!(getTeam() instanceof CTFTeam team)) return;
+        if (team() == null) return;
+        if (!(team() instanceof CTFTeam team)) return;
 
         teleportPlayerToSpawn(team.getPlayerSpawn(), game.getMap().getMapCentre());
         playerSetup();

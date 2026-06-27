@@ -56,7 +56,7 @@ public class HTGBossbarManager extends GameBossBarManager {
             }
             else {
                 goldComponent = smallRaisedText("GOLD HELD BY ").color(NamedTextColor.GOLD).append(
-                        smallRaisedText(goldHolder.getName()).color(goldHolder.getTeam().textColor())
+                        smallRaisedText(goldHolder.name()).color(goldHolder.team().textColor())
                 );
             }
 

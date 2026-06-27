@@ -348,7 +348,7 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
     }
 
     public Set<String> getPlayerNames() {
-        return playerList.values().stream().map(CBCPlayer::getName).collect(Collectors.toSet());
+        return playerList.values().stream().map(CBCPlayer::name).collect(Collectors.toSet());
     }
 
     public void setHeaderTitle (Component component) {

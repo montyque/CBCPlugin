@@ -460,7 +460,7 @@ public class ResourcePackManager {
         return null;
     }
 
-    public static Component getHotbarIcon (CBCTeam team, boolean showingReloadBars) {
+    public static Component getHotbarIcon (CBCTeam<?> team, boolean showingReloadBars) {
 
         String hotbarIconChar = "\uE219";
         if (team != null) {
@@ -483,7 +483,7 @@ public class ResourcePackManager {
         }
     }
 
-    public static Component getDeathCauseIcon (DeathCause cause, boolean isKiller, NamedTextColor color) {
+    public static Component getDeathCauseIcon (DeathCause cause, boolean isKiller, TextColor color) {
 
         if (color == null) {
             color = NamedTextColor.WHITE;

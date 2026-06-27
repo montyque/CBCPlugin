@@ -85,7 +85,7 @@ public class TagGameCommands extends BaseTeamGameCommands {
         // Try find player
         for (TagPlayer player : players) {
             // Check if name matches with second argument (non case sensitive)
-            if (player.getName().equalsIgnoreCase(args[1])) {
+            if (player.name().equalsIgnoreCase(args[1])) {
                 playerTargeted = player;
                 break;
             }
@@ -100,11 +100,11 @@ public class TagGameCommands extends BaseTeamGameCommands {
         String inGameState = args[2];
         if (inGameState.equalsIgnoreCase("true")) {
             // Set player's in game state to true
-            sendColorMessage(user, playerTargeted.getName() + " is now set as In-Game.", NamedTextColor.GREEN);
+            sendColorMessage(user, playerTargeted.name() + " is now set as In-Game.", NamedTextColor.GREEN);
             playerTargeted.setInGame(true);
         } else if (inGameState.equalsIgnoreCase("false")) {
             // Set player's in game state to true
-            sendColorMessage(user, playerTargeted.getName() + " is now set as NOT In-Game.", NamedTextColor.GREEN);
+            sendColorMessage(user, playerTargeted.name() + " is now set as NOT In-Game.", NamedTextColor.GREEN);
             playerTargeted.setInGame(false);
         }
         else {
@@ -178,7 +178,7 @@ public class TagGameCommands extends BaseTeamGameCommands {
         CBCPlayer playerObj = findPlayerInGame(user, args[1]);
 
         if (playerObj == null) return;
-        String playerName = playerObj.getName();
+        String playerName = playerObj.name();
 
         if (playerObj.isAlive()) {
             sendColorMessage(user, playerName + " is currently alive! You can only use this command on dead players.", NamedTextColor.YELLOW);
@@ -189,7 +189,7 @@ public class TagGameCommands extends BaseTeamGameCommands {
             sendColorMessage(user, playerName + " does not have a TagPlayer object.", NamedTextColor.YELLOW);
             return;
         }
-        if (!(tagPlayer.getTeam() instanceof TagTeam team)) {
+        if (!(tagPlayer.team() instanceof TagTeam team)) {
             sendColorMessage(user, playerName + " does not have a TagTeam object.", NamedTextColor.YELLOW);
             return;
         }

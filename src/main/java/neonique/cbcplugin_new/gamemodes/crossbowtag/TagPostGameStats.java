@@ -198,7 +198,7 @@ public class TagPostGameStats extends PostGameStats {
         playerItemMeta.setOwningPlayer(player.getOfflinePlayer());
 
         playerItemMeta.displayName(
-                player.getNameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                player.nameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
         );
 
         List<Component> playerLoreList = new ArrayList<>();
@@ -293,15 +293,15 @@ public class TagPostGameStats extends PostGameStats {
             teamLoreList.add(Component.text(" "));
 
             TagPlayer mostPointsScoredPlayer = teamPlayersByPointsScored.get(0);
-            addLoreField(teamLoreList, "Most Points Scored", mostPointsScoredPlayer.getName()
+            addLoreField(teamLoreList, "Most Points Scored", mostPointsScoredPlayer.name()
                     + " (" + mostPointsScoredPlayer.getIntPointsScored() + ")", NamedTextColor.GREEN);
 
             TagPlayer mostTimeSurvivedPlayer = teamPlayersByTimeSurvived.get(0);
-            addLoreField(teamLoreList, "Most Time Survived", mostTimeSurvivedPlayer.getName()
+            addLoreField(teamLoreList, "Most Time Survived", mostTimeSurvivedPlayer.name()
                     + " (" + getTimeFormat(mostTimeSurvivedPlayer.getSecondsSurvived()) + ")", NamedTextColor.GREEN);
 
             TagPlayer mostEvadersKilledPlayer = teamPlayersByEvaderKills.get(0);
-            addLoreField(teamLoreList, "Most Evaders Killed", mostEvadersKilledPlayer.getName()
+            addLoreField(teamLoreList, "Most Evaders Killed", mostEvadersKilledPlayer.name()
                     + " (" + mostEvadersKilledPlayer.getEvadersKilled() + ")", NamedTextColor.GREEN);
         }
 

@@ -53,7 +53,7 @@ public class KOTHPlayer extends CBCPlayer {
             killPts += HILL_KILL_PTS;
         }
 
-        if (kothPlayerKilled.getTeam() == game.getPointControlTeam()) {
+        if (kothPlayerKilled.team() == game.getPointControlTeam()) {
             killPts += HOLDER_KILL_PTS;
         }
 
@@ -67,9 +67,9 @@ public class KOTHPlayer extends CBCPlayer {
     public void playerAfterDeath (CBCPlayer playerKiller) {
 
         // If the player is online and has a team let them respawn
-        if (isOnline() && getTeam() != null) {
+        if (isOnline() && team() != null) {
             clearEffects();
-            if (!((KOTHTeam) getTeam()).isOutOfGame()) {
+            if (!((KOTHTeam) team()).isOutOfGame()) {
                 setRespawnTicks(80);
             }
         }
@@ -98,7 +98,7 @@ public class KOTHPlayer extends CBCPlayer {
         }
 
         // Teleport player to spawn point
-        teleportPlayerToSpawn(((KOTHTeam) getTeam()).getPlayerSpawn());
+        teleportPlayerToSpawn(((KOTHTeam) team()).getPlayerSpawn());
 
         playerRefresh();
     }

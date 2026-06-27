@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.weapons.projectiles;
 
 import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
@@ -163,8 +164,8 @@ public class CBCCreeper extends PlayerProjectile {
     private Particle.DustOptions getParticleOptions () {
 
         Color particleColor = Color.fromRGB(255, 255, 255);
-        if (getSource().getTeam() != null) {
-            NamedTextColor teamColor = getSource().getTeam().textColor();
+        if (getSource().team() != null) {
+            TextColor teamColor = getSource().nameColor();
             particleColor = Color.fromRGB(teamColor.red(), teamColor.green(), teamColor.blue());
         }
 

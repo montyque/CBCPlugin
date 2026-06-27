@@ -1,8 +1,7 @@
 package neonique.cbcplugin_new.core;
 
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -124,7 +123,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
 
         // Set all alive players to immune
         getCombatManager().setAllPlayersImmune(true);
-        getCombatManager().setVoidKill(false);
+        getCombatManager().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(v -> v.setKillOnVoid(false));
 
         // Play fireworks
         playVictoryFireworks(team);
@@ -154,8 +153,8 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
 
     public T getPlayerTeam (P player) {
         if (player == null) return null;
-        if (player.getTeam() == null) return null;
-        return getTypedTeam(player.getTeam());
+        if (player.team() == null) return null;
+        return getTypedTeam(player.team());
     }
 
     public LinkedHashMap<String, T> getGeneralTeamList () {

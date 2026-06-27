@@ -78,12 +78,12 @@ public class AssassinSidebarManager extends GameSidebarManager {
             nameColor = NamedTextColor.YELLOW;
         }
         playerComponent = playerComponent.append(
-                Component.text(player.getName()).color(nameColor)
+                Component.text(player.name()).color(nameColor)
         );
 
         // Add space to make names even
         int playerNameMaxLength = 100;
-        int playerNameLength = TextUtil.getPixelLengthOfText(player.getName());
+        int playerNameLength = TextUtil.getPixelLengthOfText(player.name());
         playerComponent = playerComponent.append(getComponentSpaceOfLength(playerNameMaxLength - playerNameLength));
 
 

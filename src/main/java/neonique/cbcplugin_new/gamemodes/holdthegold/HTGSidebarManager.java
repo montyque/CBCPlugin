@@ -109,8 +109,8 @@ public class HTGSidebarManager extends GameSidebarManager {
         // Check who is holding the gold
         Component goldIcon = Component.text("\uF822\uE460").color(NamedTextColor.WHITE);
         if (game.getGoldHolder() != null) {
-            if (game.getGoldHolder().getTeam() != null) {
-                if (game.getGoldHolder().getTeam() == team) {
+            if (game.getGoldHolder().team() != null) {
+                if (game.getGoldHolder().team() == team) {
                     goldIcon = Component.text("\uF822\uE461").color(NamedTextColor.WHITE);
                 }
             }

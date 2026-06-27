@@ -11,7 +11,7 @@ import neonique.cbcplugin_new.weapons.*;
 import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -22,14 +22,13 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 
-public class CBCPlayer implements PlayerLike {
+public class CBCPlayer implements TeamPlayerLike {
 
     private final GameManager gameManager;
 
@@ -99,7 +98,7 @@ public class CBCPlayer implements PlayerLike {
 
     // Return true or false if this player is alive
     public boolean isAlive() {
-        return (this.alive);
+        return alive;
     }
 
     // Return true or false if this player is respawning
@@ -112,7 +111,7 @@ public class CBCPlayer implements PlayerLike {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     // Get player's team
-    public CBCTeam<?> getTeam () {
+    public CBCTeam<?> team() {
         return team;
     }
 
@@ -126,7 +125,7 @@ public class CBCPlayer implements PlayerLike {
     }
 
     public boolean isInSameTeam (CBCPlayer player) {
-        return (player.getTeam() != null && player.getTeam() == this.team);
+        return (player.team() != null && player.team() == this.team);
     }
 
     public boolean isPlayerEntityAliveEnemy (Player playerEntity) {
@@ -355,17 +354,14 @@ public class CBCPlayer implements PlayerLike {
                 multiKillShow = "V ";
             }
 
-            NamedTextColor color = NamedTextColor.WHITE;
-            if (playerKilled.getTeam() != null) {
-                color = playerKilled.getTeam().textColor();
-            }
+            TextColor color = playerKilled.nameColor();
 
             Component deathCauseIcon = getDeathCauseIcon(directDeathCause, true, color);
 
             Component subtitle = smallText(multiKillShow).color(NamedTextColor.AQUA).append(
                     deathCauseIcon
             ).append(Component.space()).append(
-                    playerKilled.getNameComponent(ResourcePackFont.DEFAULT)
+                    playerKilled.nameComponent(ResourcePackFont.DEFAULT)
             );
 
             Title killTitle = Title.title(titleComponent, subtitle, Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(500)));
@@ -396,7 +392,6 @@ public class CBCPlayer implements PlayerLike {
     }
 
     public void decrementLastPlayerHit() {
-
         if (lastPlayerHitByReset > 0) {
             lastPlayerHitByReset--;
             if (lastPlayerHitByReset == 0) {
@@ -494,36 +489,6 @@ public class CBCPlayer implements PlayerLike {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // DISPLAY FUNCTIONS
     ////////////////////////////////////////////////////////////////////////////////////////////
-    public String getName() {
-        return getOfflinePlayer().getName();
-    }
-
-    public Component getNameComponent() {
-        NamedTextColor textColor = NamedTextColor.WHITE;
-        if (team != null) {
-            textColor = team.textColor();
-        }
-        return Component.text(getName()).color(textColor);
-    }
-
-    public Component getNameComponent(ResourcePackFont font) {
-        NamedTextColor textColor = NamedTextColor.WHITE;
-        if (team != null) {
-            textColor = team.textColor();
-        }
-        return setTextFont(getName(), font).color(textColor);
-    }
-
-    public Component getNameComponentWithTeamPrefix() {
-        Component prefix = Component.text("");
-        NamedTextColor textColor = NamedTextColor.WHITE;
-        if (team != null) {
-            textColor = team.textColor();
-            prefix = Component.text(team.prefix() + " ").color(textColor).decorate(TextDecoration.BOLD);
-        }
-        return prefix.append(Component.text(getName()).color(textColor).decoration(TextDecoration.BOLD,
-                TextDecoration.State.FALSE));
-    }
 
     // Name display in list
     public void updatePlayerListName () {
@@ -533,7 +498,7 @@ public class CBCPlayer implements PlayerLike {
         }
 
         Component playerListName = Component.text("");
-        playerListName = playerListName.append(getNameComponentWithTeamPrefix());
+        playerListName = playerListName.append(nameComponentWithTeamPrefix());
 
         for (Component suffix : playerListSuffixes) {
             playerListName = playerListName.append(Component.text(" "));
@@ -599,7 +564,7 @@ public class CBCPlayer implements PlayerLike {
         // Show icon if needing to show icon
         if (showIcon) {
             // Remove shadow from crossbow hot bar icon
-            Component hotbarIcon = noShadowText(getHotbarIcon(getTeam(), actionBarDisplay != null));
+            Component hotbarIcon = noShadowText(getHotbarIcon(team(), actionBarDisplay != null));
             if (actionBarDisplay == null) {
                 actionBarDisplay = hotbarIcon;
             } else {

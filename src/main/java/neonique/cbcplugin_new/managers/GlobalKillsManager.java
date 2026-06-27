@@ -84,10 +84,10 @@ public class GlobalKillsManager {
             int newGlobalKills = currentKills + gameKills;
 
             if (gameKills == 1) {
-                CBCPlugin.getPlugin().getLogger().info(player.getName() + " had 1 game kill, increasing their total to " + newGlobalKills);
+                CBCPlugin.getPlugin().getLogger().info(player.name() + " had 1 game kill, increasing their total to " + newGlobalKills);
             }
             else {
-                CBCPlugin.getPlugin().getLogger().info(player.getName() + " had " + gameKills + " game kills, increasing their total to " + newGlobalKills);
+                CBCPlugin.getPlugin().getLogger().info(player.name() + " had " + gameKills + " game kills, increasing their total to " + newGlobalKills);
             }
 
             // Save player kills to the global kills section

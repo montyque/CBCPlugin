@@ -165,7 +165,7 @@ public class ShowdownPostGameStats extends PostGameStats {
         playerItemMeta.setOwningPlayer(player.getOfflinePlayer());
 
         playerItemMeta.displayName(
-                player.getNameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                player.nameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
         );
 
         List<Component> playerLoreList = new ArrayList<>();
@@ -235,11 +235,11 @@ public class ShowdownPostGameStats extends PostGameStats {
 
             teamLoreList.add(Component.text(" "));
             ShowdownPlayer mostKillsPlayer = teamPlayersByKills.get(0);
-            addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.getName()
+            addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.name()
                     + " (" + mostKillsPlayer.getKills() + ")", NamedTextColor.GREEN);
 
             ShowdownPlayer mostTimeAlivePlayer = teamPlayersByTimeAlive.get(0);
-            addLoreField(teamLoreList, "Most Time Alive", mostTimeAlivePlayer.getName()
+            addLoreField(teamLoreList, "Most Time Alive", mostTimeAlivePlayer.name()
                     + " (" + getTimeFormat(mostTimeAlivePlayer.getPlayerSecondsAlive()) + ")", NamedTextColor.GREEN);
         }
 

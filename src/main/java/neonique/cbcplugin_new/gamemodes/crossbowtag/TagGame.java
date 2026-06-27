@@ -8,7 +8,6 @@ import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.TagNoMove;
 import neonique.cbcplugin_new.listeners.gamemodes.TagTeleportListener;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -349,7 +348,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         // Make it so evaders can move and make them alive
         noMoveListener.setEvadersMove(true);
         for (TagPlayer player : getPlayers()) {
-            if (player.getTeam() != taggers) {
+            if (player.team() != taggers) {
                 if (!player.isOnline()) {
                     if (!player.isInGame()) continue;
                     player.automaticElimination();
@@ -424,7 +423,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
 
         for (TagPlayer player : getPlayers()) {
-            if (player.getTeam() == taggers) {
+            if (player.team() == taggers) {
                 player.playerStartRound();
             }
             player.setCanMove(true);
@@ -825,7 +824,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         TagPlayer player = getPlayer(playerEntity);
         if (player == null) return;
 
-        TagTeam team = getTypedTeam(player.getTeam());
+        TagTeam team = getTypedTeam(player.team());
         if (team == null) return;
 
         // If player is tagger and joined before taggers released, put them in

@@ -41,7 +41,7 @@ public class CTFPlayersNearbyFlags extends BukkitRunnable {
                 if (playerEntity.getLocation().getY() - flagLocation.getY() < -1) continue;
 
                 // Check if the player is picking up an enemy flag or capturing a flag at their own base
-                if (player.getTeam() != team) {
+                if (player.team() != team) {
 
                     // Check if this team has a flag that can be picked up
                     if (!team.isFlagAtBase()) continue;

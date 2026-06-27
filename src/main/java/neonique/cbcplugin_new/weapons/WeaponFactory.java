@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
@@ -25,7 +26,9 @@ public class WeaponFactory {
 
         List<CrossbowWeapon> weapons = new ArrayList<>();
 
-        String teamId = player.getTeam() != null ? player.getTeam().id() : null;
+        String teamId = player.teamOptional()
+                .map(TeamLike::id)
+                .orElse(null);
         CreeperPreset playerCreeperVar = creeperTeamOverrides.containsKey(teamId) ? creeperTeamOverrides.get(teamId) : creeperVar;
         FlamePreset playerFlameVar = flameTeamOverrides.containsKey(teamId) ? flameTeamOverrides.get(teamId) : flameVar;
         XbowPreset playerXbowVar = xbowTeamOverrides.containsKey(teamId) ? xbowTeamOverrides.get(teamId) : xbowVar;

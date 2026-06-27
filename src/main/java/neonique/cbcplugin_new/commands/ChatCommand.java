@@ -92,7 +92,7 @@ public class ChatCommand extends _BaseCommand {
             }
 
             // Check if player has a team
-            if (game.getPlayer(user).getTeam() == null) {
+            if (game.getPlayer(user).team() == null) {
                 user.sendMessage(Component.text("You are not on a team right now!").color(NamedTextColor.YELLOW));
                 return true;
             }

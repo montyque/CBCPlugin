@@ -2,7 +2,6 @@ package neonique.cbcplugin_new.gamemodes.rendezvous;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamLike;
-import neonique.cbcplugin_new.gamemodes.koth.KOTHGame;
 import neonique.cbcplugin_new.resourcepack.PlayerHeadType;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -89,7 +88,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
         List<RendezvousPlayer> players = new ArrayList<>(players());
 
         // Sort players by name
-        players.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
+        players.sort((p1, p2) -> p1.name().compareToIgnoreCase(p2.name()));
         List<RendezvousPlayer> playersNotListed = new ArrayList<>(players());
 
         // Go through each character in number order list
@@ -284,7 +283,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
                 Component titleComponent = Component.text("Runner switch!").color(textColor())
                         .decorate(TextDecoration.BOLD);
                 Component subtitleComponent = Component.text("New runner is ").color(NamedTextColor.WHITE)
-                        .append(runner.getNameComponent());
+                        .append(runner.nameComponent());
                 Title title = Title.title(titleComponent, subtitleComponent, Title.Times.times(
                         Duration.ofMillis(250), Duration.ofMillis(2000), Duration.ofMillis(250)
                 ));
@@ -296,7 +295,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
         // Send message
         gameManager.sendGlobalMessage(
                 Component.text("RUNNER SWAP > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
-                        .append(runner.getNameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                        .append(runner.nameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
                         .append(Component.text(" is the new runner for ").color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
                         .append(Component.text(name()).color(textColor())

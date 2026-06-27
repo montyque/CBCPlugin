@@ -128,12 +128,12 @@ public class HTGPostGameStats extends PostGameStats {
         // Add team most kills and team most time alive
         if (!teamPlayersList.isEmpty()) {
             HTGPlayer mostKillsPlayer = teamPlayersByKills.get(0);
-            addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.getName()
+            addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.name()
                     + " (" + mostKillsPlayer.getKills() + ")", NamedTextColor.GREEN);
 
             // Add team most kills and team most time alive
             HTGPlayer mostGoldScorePlayer = teamPlayersByGoldScore.get(0);
-            addLoreField(teamLoreList, "Most Gold Score", mostGoldScorePlayer.getName()
+            addLoreField(teamLoreList, "Most Gold Score", mostGoldScorePlayer.name()
                     + " (" + mostGoldScorePlayer.getGoldScore() + ")", NamedTextColor.GREEN);
         }
 
@@ -154,7 +154,7 @@ public class HTGPostGameStats extends PostGameStats {
         playerItemMeta.setOwningPlayer(player.getOfflinePlayer());
 
         playerItemMeta.displayName(
-                player.getNameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                player.nameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
         );
 
         List<Component> playerLoreList = new ArrayList<>();

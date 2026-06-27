@@ -2,8 +2,6 @@ package neonique.cbcplugin_new.gamemodes.ctf;
 
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.core.TeamLike;
-import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -22,7 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.*;
@@ -116,7 +113,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         Title title = Title.title(
                 Component.text("Your flag was picked up!").color(textColor()).decorate(TextDecoration.BOLD),
                 Component.text("picked up by ").color(NamedTextColor.WHITE)
-                        .append(player.getNameComponent()),
+                        .append(player.nameComponent()),
                 Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1000), Duration.ofMillis(150))
         );
 
@@ -438,7 +435,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
 
             if (flagCapturer != null) {
                 subtitle = Component.text("Captured by ").color(NamedTextColor.WHITE)
-                        .append(flagCapturer.getNameComponent())
+                        .append(flagCapturer.nameComponent())
                         .append(Component.text(" - no more respawning!").color(NamedTextColor.WHITE));
             } else {
                 subtitle = Component.text("Flag removed by timer").color(NamedTextColor.WHITE)
@@ -455,7 +452,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
             if (flagCapturer != null) {
                 title = Component.text("Your flag was captured!").color(textColor()).decorate(TextDecoration.BOLD);
                 subtitle = Component.text("Captured by ").color(NamedTextColor.WHITE)
-                        .append(flagCapturer.getNameComponent())
+                        .append(flagCapturer.nameComponent())
                         .append(Component.text(" - " + flagsLeft + " ⚑ left").color(NamedTextColor.WHITE));
             } else {
                 title = Component.text("Flag lost!").color(textColor()).decorate(TextDecoration.BOLD);

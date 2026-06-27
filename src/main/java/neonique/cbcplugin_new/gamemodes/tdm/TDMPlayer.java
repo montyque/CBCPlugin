@@ -66,7 +66,7 @@ public class TDMPlayer extends CBCPlayer {
     public void playerAfterDeath (CBCPlayer playerKiller) {
 
         // The player will respawn, so we are overriding the old method
-        if (isOnline() && getTeam() != null) {
+        if (isOnline() && team() != null) {
 
             clearEffects();
 
@@ -104,7 +104,7 @@ public class TDMPlayer extends CBCPlayer {
         if (game.isRandomSpawns()) {
             teleportPlayerToSpawn(selectSpawn());
         } else {
-            teleportPlayerToSpawn(((TDMTeam) getTeam()).getPlayerSpawn());
+            teleportPlayerToSpawn(((TDMTeam) team()).getPlayerSpawn());
         }
 
         playerRefresh();

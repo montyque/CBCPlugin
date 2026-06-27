@@ -214,17 +214,17 @@ public class RendezvousPostGameStats extends PostGameStats {
         if (!teamPlayersList.isEmpty()) {
             // Add team most kills and team most time alive
             RendezvousPlayer mostKillsPlayer = teamPlayersByKills.get(0);
-            addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.getName()
+            addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.name()
                     + " (" + mostKillsPlayer.getKills() + ")", NamedTextColor.GREEN);
 
             // Add team most kills and team most time alive
             RendezvousPlayer mostCheckpointsClearedPlayer = teamPlayersByCheckpointsCleared.get(0);
-            addLoreField(teamLoreList, "Most Checkpoints Cleared", mostCheckpointsClearedPlayer.getName()
+            addLoreField(teamLoreList, "Most Checkpoints Cleared", mostCheckpointsClearedPlayer.name()
                     + " (" + mostCheckpointsClearedPlayer.getCheckpointsCleared() + ")", NamedTextColor.GREEN);
 
             // Add team most kills and team most time alive
             RendezvousPlayer mostEnemyRunnersKilledPlayer = teamPlayersByEnemyRunnersKilled.get(0);
-            addLoreField(teamLoreList, "Most Enemy Runners Killed", mostEnemyRunnersKilledPlayer.getName()
+            addLoreField(teamLoreList, "Most Enemy Runners Killed", mostEnemyRunnersKilledPlayer.name()
                     + " (" + mostEnemyRunnersKilledPlayer.getEnemyRunnersKilled() + ")", NamedTextColor.GREEN);
         }
 
@@ -245,7 +245,7 @@ public class RendezvousPostGameStats extends PostGameStats {
         playerItemMeta.setOwningPlayer(player.getOfflinePlayer());
 
         playerItemMeta.displayName(
-                player.getNameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                player.nameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
         );
 
         List<Component> playerLoreList = new ArrayList<>();

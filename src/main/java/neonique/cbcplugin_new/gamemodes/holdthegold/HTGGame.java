@@ -9,8 +9,6 @@ import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGPlayerNearbyGold;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGScoreTask;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGStartGameTimer;
-import neonique.cbcplugin_new.gamemodes.koth.KOTHTeam;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -261,7 +259,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
         // Send message
         getGameManager().sendGlobalMessage(
                 Component.newline().append(Component.text("GOLD PICKED UP > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
-                        .append(player.getNameComponent())
+                        .append(player.nameComponent())
                         .append(Component.text(" has picked up the gold!").color(NamedTextColor.WHITE))
         );
 
@@ -304,7 +302,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
         // Send message
         getGameManager().sendGlobalMessage(
                 Component.newline().append(Component.text("GOLD DROPPED > ").color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD))
-                        .append(goldHolder.getNameComponent())
+                        .append(goldHolder.nameComponent())
                         .append(Component.text(" has dropped the gold!").color(NamedTextColor.WHITE))
                         .append(Component.newline())
         );

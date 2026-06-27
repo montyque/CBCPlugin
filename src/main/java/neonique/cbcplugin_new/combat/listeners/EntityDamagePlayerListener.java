@@ -158,7 +158,7 @@ public class EntityDamagePlayerListener implements Listener {
             CBCPlayer sourcePlayer = playerProjectile.getSource();
 
             // Check if the shooter and the player are not allied
-            if (player.isAlly(sourcePlayer) && player.getTeam() != sourcePlayer.getTeam()) {
+            if (player.isAlly(sourcePlayer) && player.team() != sourcePlayer.team()) {
                 // Prevent the player from taking damage
                 e.setCancelled(true);
                 return;

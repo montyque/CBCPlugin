@@ -73,7 +73,7 @@ public class KMationPostGameStats extends PostGameStats {
         List<Component> loreList = new ArrayList<>();
         addLoreField(loreList, "Map", game.getMap().getMapName(), NamedTextColor.GREEN);
         if (game.getWinner() != null) {
-            addLoreField(loreList, "Winner", game.getWinner().getName(), NamedTextColor.GREEN);
+            addLoreField(loreList, "Winner", game.getWinner().name(), NamedTextColor.GREEN);
         }
 
         addLoreBlankLine(loreList);
@@ -107,7 +107,7 @@ public class KMationPostGameStats extends PostGameStats {
             playerItemMeta.setOwningPlayer(player.getOfflinePlayer());
 
             playerItemMeta.displayName(
-                    player.getNameComponent().color(NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    player.nameComponent().color(NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
             );
 
             List<Component> playerLoreList = new ArrayList<>();

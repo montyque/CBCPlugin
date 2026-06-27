@@ -88,8 +88,8 @@ public class KMationSidebarManager extends GameSidebarManager {
         else {
             nameColor = NamedTextColor.GREEN;
         }
-        String playerName = player.getName();
-        playerComponent = playerComponent.append(player.getNameComponent().color(nameColor));
+        String playerName = player.name();
+        playerComponent = playerComponent.append(player.nameComponent().color(nameColor));
 
         // Add space to make names even
         int playerNameMaxLength = 100;

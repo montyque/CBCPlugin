@@ -40,7 +40,7 @@ public abstract class FFAGame<P extends CBCPlayer, M extends CBCMap> extends Gam
         Component titleToDisplay = Component.text("GAME OVER")
                 .decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN);
 
-        Component subtitleToDisplay = Component.text(player.getName()).color(NamedTextColor.GREEN).append(
+        Component subtitleToDisplay = Component.text(player.name()).color(NamedTextColor.GREEN).append(
                 Component.text(" has won the game!").color(NamedTextColor.WHITE)).decorate(TextDecoration.BOLD);
 
         gameManager.sendGlobalTitle(Title.title(titleToDisplay, subtitleToDisplay,
@@ -50,7 +50,7 @@ public abstract class FFAGame<P extends CBCPlayer, M extends CBCMap> extends Gam
         gameManager.sendGlobalMessage(
                 Component.newline()
                         .append(Component.text("GAME WIN > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                        .append(Component.text(player.getName()).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN))
+                        .append(Component.text(player.name()).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN))
                         .append(Component.text(" has won the game!").color(NamedTextColor.WHITE))
                         .append(Component.newline())
         );

@@ -95,7 +95,7 @@ public class TagPlayer extends CBCPlayer {
         setTempImmune(60);
 
         // Teleport player back to tagger spawn
-        TagTeam tagTeam = game.getTypedTeam(getTeam());
+        TagTeam tagTeam = game.getTypedTeam(team());
         teleportPlayerToSpawn(tagTeam.getRandomTaggerSpawn(), game.getMap().getMapCentre());
 
         if (isTagger()) {
@@ -189,7 +189,7 @@ public class TagPlayer extends CBCPlayer {
 
     public boolean isTagger () {
         // Check if player is a tagger or not
-        return game.getTaggers() == getTeam();
+        return game.getTaggers() == team();
     }
 
     public void playerSurvivedSecond () {
@@ -202,9 +202,9 @@ public class TagPlayer extends CBCPlayer {
     public void playerSurviveScore () {
 
         // Give team score increase of one
-        if (getTeam() == null) return;
+        if (team() == null) return;
 
-        TagTeam tagTeam = game.getTypedTeam(getTeam());
+        TagTeam tagTeam = game.getTypedTeam(team());
         float multiplier = (float) game.getMaxScorePerSecond() / tagTeam.getInGamePlayers().size();
 
         tagTeam.playerSurvivalScore(1 * multiplier);
@@ -219,8 +219,8 @@ public class TagPlayer extends CBCPlayer {
         roundsSurvived++;
 
         // Give team score increase of one
-        if (getTeam() == null) return;
-        TagTeam tagTeam = game.getTypedTeam(getTeam());
+        if (team() == null) return;
+        TagTeam tagTeam = game.getTypedTeam(team());
 
         tagTeam.playerSurvivalScore(survivalBonus);
         pointsScored += survivalBonus;
@@ -266,7 +266,7 @@ public class TagPlayer extends CBCPlayer {
             taggerTeam.evaderKill();
             // Send message
             getGameManager().sendGlobalMessage(
-                    Component.text(getName() + " has been eliminated by default, granting taggers " +
+                    Component.text(name() + " has been eliminated by default, granting taggers " +
                             taggerTeam.name() + " " + game.getCurrentEvaderKillValue() + " points.").color(taggerTeam.textColor())
             );
         }

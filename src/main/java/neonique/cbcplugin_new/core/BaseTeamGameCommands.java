@@ -33,7 +33,7 @@ public class BaseTeamGameCommands extends BaseGameCommands {
 
     public void removePlayerFromTeam (CBCPlayer player, boolean removePlayerFromGame) {
 
-        CBCTeam<?> currentTeam = player.getTeam();
+        CBCTeam<?> currentTeam = player.team();
         if (currentTeam == null) return;
 
         game.removePlayerFromTeam(player, currentTeam);
@@ -140,8 +140,8 @@ public class BaseTeamGameCommands extends BaseGameCommands {
             putPlayerOnTeam(p, team, true);
         } else {
             CBCPlayer p = game.getPlayer(playerEntity);
-            if (p.getTeam() != null) {
-                if (p.getTeam() == team) {
+            if (p.team() != null) {
+                if (p.team() == team) {
                     sendColorMessage(user, playerName + " is already on " + team.name() + "!", NamedTextColor.YELLOW);
                     return;
                 }

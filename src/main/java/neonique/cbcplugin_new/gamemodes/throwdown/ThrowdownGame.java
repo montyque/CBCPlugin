@@ -320,7 +320,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
             Component titleToDisplay = Component.text("ROUND OVER")
                     .decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN);
 
-            Component subtitleToDisplay = Component.text(player.getName()).color(NamedTextColor.GREEN).append(
+            Component subtitleToDisplay = Component.text(player.name()).color(NamedTextColor.GREEN).append(
                     Component.text(" has won the the round!").color(NamedTextColor.WHITE)).decorate(TextDecoration.BOLD);
 
             getGameManager().sendGlobalTitle(Title.title(titleToDisplay, subtitleToDisplay,
@@ -330,7 +330,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
             getGameManager().sendGlobalMessage(
                     Component.newline()
                             .append(Component.text("ROUND WIN > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                            .append(Component.text(player.getName()).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN))
+                            .append(Component.text(player.name()).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN))
                             .append(Component.text(" has won the round!").color(NamedTextColor.WHITE))
                             .append(Component.newline())
             );
@@ -523,7 +523,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
                 .thenComparing(Comparator.comparingInt(ThrowdownPlayer::getRoundsWon).reversed())
                 .thenComparing(Comparator.comparingInt(ThrowdownPlayer::getKills).reversed())
                 .thenComparing(Comparator.comparingInt(ThrowdownPlayer::getPlayerSecondsAlive).reversed())
-                .thenComparing(ThrowdownPlayer::getName)
+                .thenComparing(ThrowdownPlayer::name)
         );
         return playerList;
     }

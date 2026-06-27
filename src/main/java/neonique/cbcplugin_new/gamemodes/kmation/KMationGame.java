@@ -449,7 +449,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
                 Component.text("").append(
                         Component.text("❌ > ").decorate(TextDecoration.BOLD)
                 ).append(
-                        Component.text(player.getName()).color(NamedTextColor.RED)
+                        Component.text(player.name()).color(NamedTextColor.RED)
                 ).append(
                         Component.text(" has been eliminated.").color(NamedTextColor.WHITE)
                 )
@@ -605,7 +605,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
                 .thenComparing(Comparator.comparingInt(KMationPlayer::getCyclesSurvived).reversed())
                 .thenComparing(Comparator.comparingInt(KMationPlayer::getCycleKills).reversed())
                 .thenComparing(Comparator.comparingInt(KMationPlayer::getKills).reversed())
-                .thenComparing(KMationPlayer::getName)
+                .thenComparing(KMationPlayer::name)
         );
 
         if (descending) {

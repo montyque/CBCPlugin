@@ -53,9 +53,9 @@ public class ChatManager implements Listener {
         CBCPlayer cbcPlayer = gameManager.getPlayer(player);
 
         // Check if player has a team
-        if (cbcPlayer.getTeam() == null) return;
-        CBCTeam<?> team = cbcPlayer.getTeam();
-        NamedTextColor color = cbcPlayer.getTeam().textColor();
+        if (cbcPlayer.team() == null) return;
+        CBCTeam<?> team = cbcPlayer.team();
+        NamedTextColor color = cbcPlayer.team().textColor();
 
         // Get current message
         Component message = e.message();

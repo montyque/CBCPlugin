@@ -118,8 +118,8 @@ public abstract class BaseStartGameTimer extends BukkitRunnable {
 
         CBCTeam<?> team = null;
         if (gameManager.hasPlayer(player)) {
-            if (gameManager.getPlayer(player).getTeam() != null) {
-                team = gameManager.getPlayer(player).getTeam();
+            if (gameManager.getPlayer(player).team() != null) {
+                team = gameManager.getPlayer(player).team();
             }
         }
 
@@ -131,7 +131,7 @@ public abstract class BaseStartGameTimer extends BukkitRunnable {
         if (team != null) {
             textColor = team.textColor();
             teamColor = team.textColor();
-        }i l
+        }
 
         String gamemodeUnicode = game.getGamemode().getUnicodeIcon(teamColor);
 

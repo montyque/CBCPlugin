@@ -36,7 +36,7 @@ public class ThrowdownBossbarManager extends GameBossBarManager {
         if (game.getRoundWinner() != null) {
             // Round has ended, show round winner
             ThrowdownPlayer roundWinner = game.getRoundWinner();
-            roundInfo = roundInfo.append(smallText(" \uE000 " + roundWinner.getName() + " WIN").color(NamedTextColor.GREEN));
+            roundInfo = roundInfo.append(smallText(" \uE000 " + roundWinner.name() + " WIN").color(NamedTextColor.GREEN));
         }
         else {
             if (game.isSuddenDeath()) {

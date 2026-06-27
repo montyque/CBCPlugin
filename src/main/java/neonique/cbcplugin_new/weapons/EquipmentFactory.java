@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.core.CBCTeam;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.services.ArmorTrimService;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Material;
@@ -29,9 +30,9 @@ public class EquipmentFactory {
         chestplateMeta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
 
         // Set the trim of the chestplate
-        CBCTeam<?> team = player.getTeam();
+        TeamLike team = player.team();
         if (team != null) {
-            TrimMaterial material = team.getTrimMaterial();
+            TrimMaterial material = team.teamColor().trimMat();
             TrimPattern pattern = trimService.getPlayerTrim(player.getOfflinePlayer().getUniqueId());
             ArmorTrim armorTrim = new ArmorTrim(material, pattern);
             armorChestplateMeta.setTrim(armorTrim);
@@ -44,13 +45,9 @@ public class EquipmentFactory {
     }
 
     public ItemStack getHelmet (CBCPlayer player) {
-
-        CBCTeam<?> team = player.getTeam();
-        if (team != null) {
-            return team.getGlassHead();
-        }
-        return null;
-
+        return player.teamOptional()
+                .map(TeamLike::getGlassHead)
+                .orElse(null);
     }
 
 }

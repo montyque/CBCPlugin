@@ -69,11 +69,15 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
     }
 
     public Collection<P> alivePlayers() {
-        return players().stream().filter(CBCPlayer::isAlive).collect(Collectors.toSet());
+        return players().stream()
+                .filter(CBCPlayer::isAlive)
+                .collect(Collectors.toSet());
     }
 
     public Set<P> onlinePlayers() {
-        return players().stream().filter(CBCPlayer::isOnline).collect(Collectors.toSet());
+        return players().stream()
+                .filter(CBCPlayer::isOnline)
+                .collect(Collectors.toSet());
     }
 
     public String name () {
@@ -110,18 +114,6 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
 
     public void removeTeam () {}
 
-    public void replacePlayerEntityKey(Player origin, Player newPlayer) {
-        if (players.containsKey(origin.getUniqueId())) {
-            P cbcPlayer = players.get(origin.getUniqueId());
-            players.remove(origin.getUniqueId());
-            players.put(newPlayer.getUniqueId(), cbcPlayer);
-        }
-    }
-
-    public char getSpecialCrossbowChar() {
-        return (char) ('\uE110' + getColorNumber());
-    }
-
     public TrimMaterial getTrimMaterial () {
         return teamColor.trimMat();
     }
@@ -140,9 +132,9 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
     }
 
     public boolean isAlly (CBCPlayer player) {
-        if (player.getTeam() == null) return false;
-        if (player.getTeam() == this) return true;
-        return otherAlliedTeams.contains(player.getTeam());
+        if (player.team() == null) return false;
+        if (player.team() == this) return true;
+        return otherAlliedTeams.contains(player.team());
 
     }
 

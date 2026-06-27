@@ -26,6 +26,14 @@ public interface TeamLike {
         return teamColor().color();
     }
 
+    default Component nameComponent () {
+        return Component.text(name()).color(textColor());
+    }
+
+    default Component prefixComponent () {
+        return Component.text(prefix()).color(textColor());
+    }
+
     default ItemStack getIconItem () {
         ItemStack item = teamColor().getLetterItem();
         ItemMeta meta = item.getItemMeta();

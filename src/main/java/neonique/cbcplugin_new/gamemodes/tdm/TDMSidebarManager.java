@@ -178,7 +178,7 @@ public class TDMSidebarManager extends GameSidebarManager {
                     playerComponent = playerComponent.append(Component.text(placementString).color(NamedTextColor.WHITE));
                 }
 
-                String playerName = teamMember.getName();
+                String playerName = teamMember.name();
 
                 // Add player name
                 playerComponent = playerComponent.append(Component.text(playerName).color(team.textColor()));

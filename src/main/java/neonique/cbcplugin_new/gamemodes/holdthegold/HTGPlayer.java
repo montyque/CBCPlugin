@@ -72,7 +72,7 @@ public class HTGPlayer extends CBCPlayer {
 
         // Check if player killed someone while their teammate has the gold
         if (game.getGoldHolder() != null) {
-            if (game.getGoldHolder().getTeam() == getTeam()) {
+            if (game.getGoldHolder().team() == team()) {
                 if (game.getGoldHolder() == this) {
                     killPts += KILL_WITH_GOLD_PTS;
                 } else {
@@ -99,9 +99,9 @@ public class HTGPlayer extends CBCPlayer {
         }
 
         // The player will respawn, so we are overriding the old method
-        if (isOnline() && getTeam() != null) {
+        if (isOnline() && team() != null) {
             clearEffects();
-            if (!((HTGTeam) getTeam()).isOutOfGame()) {
+            if (!((HTGTeam) team()).isOutOfGame()) {
                 setRespawnTicks(80);
             }
         }
@@ -164,7 +164,7 @@ public class HTGPlayer extends CBCPlayer {
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
 
-        HTGTeam team = (HTGTeam) getTeam();
+        HTGTeam team = (HTGTeam) team();
         this.timesPickedUp++;
         team.incrementTimesPickedUp();
 
@@ -218,7 +218,7 @@ public class HTGPlayer extends CBCPlayer {
         pointsScored++;
 
         int goldPts = GOLD_SCORE_PTS;
-        if (getTeam() != null) {
+        if (team() != null) {
             if (team.getScore() <= 7) {
                 goldPts += GOLD_SCORE_WITHIN_7_PTS;
             }

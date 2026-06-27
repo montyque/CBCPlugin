@@ -150,7 +150,7 @@ public class TDMPostGameStats extends PostGameStats {
         if (!teamPlayersByKills.isEmpty()) {
             addLoreBlankLine(teamLoreList);
             TDMPlayer mostKillsPlayer = teamPlayersByKills.get(0);
-            addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.getName()
+            addLoreField(teamLoreList, "Most Kills", mostKillsPlayer.name()
                     + " (" + mostKillsPlayer.getKills() + ")", NamedTextColor.GREEN);
         }
 
@@ -170,7 +170,7 @@ public class TDMPostGameStats extends PostGameStats {
         playerItemMeta.setOwningPlayer(player.getOfflinePlayer());
 
         playerItemMeta.displayName(
-                player.getNameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                player.nameComponent().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
         );
 
         List<Component> playerLoreList = new ArrayList<>();

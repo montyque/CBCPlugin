@@ -148,8 +148,8 @@ public class KOTHSidebarManager extends GameSidebarManager {
         if (player != null) {
 
             // Check if player's team is on team order on sidebar
-            if (player.getTeam() != null) {
-                KOTHTeam team = (KOTHTeam) player.getTeam();
+            if (player.team() != null) {
+                KOTHTeam team = (KOTHTeam) player.team();
                 if (teamOrderOnSidebar.containsKey(team)) {
 
                     int slot = teamOrderOnSidebar.get(team);

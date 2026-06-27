@@ -51,7 +51,7 @@ public class RendezvousPlayer extends CBCPlayer {
     public void checkpointCapturingTitle (float progress) {
 
         if (!isAlive()) return;
-        if (getTeam() == null) return;
+        if (team() == null) return;
 
         String title = "CAPTURING CHECKPOINT";
 
@@ -70,7 +70,7 @@ public class RendezvousPlayer extends CBCPlayer {
             }
         }
 
-        Component progressComponent = smallText(coloredTitle.toString()).color(getTeam().textColor())
+        Component progressComponent = smallText(coloredTitle.toString()).color(team().textColor())
                 .append(smallText(whiteTitle.toString()).color(NamedTextColor.WHITE));
 
         getPlayer().showTitle(Title.title(blankComponent(), progressComponent,
@@ -89,7 +89,7 @@ public class RendezvousPlayer extends CBCPlayer {
 
         getGameManager().sendGlobalMessage(
                         Component.text("CHECKPOINT > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
-                        .append(getNameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                        .append(nameComponent().decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
                         .append(Component.text(" has cleared a checkpoint!").color(NamedTextColor.WHITE)
                                 .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
         );
@@ -151,14 +151,14 @@ public class RendezvousPlayer extends CBCPlayer {
             if (isOnline()) {
                 getPlayer().sendMessage(
                         Component.text("Morale Boost given to ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
-                                .append(Component.text(teamRunner.getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                                .append(Component.text(teamRunner.name()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                                 .append(Component.text("! (Teammate receives + 3.0 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                 );
             }
 
             teamRunner.getPlayer().sendMessage(
                     Component.text("Morale Boost received from ").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC)
-                            .append(Component.text(getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
+                            .append(Component.text(name()).color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
                             .append(Component.text("! ( + 3.0 ❤)").color(NamedTextColor.GREEN).decorate(TextDecoration.ITALIC))
             );
 
@@ -352,7 +352,7 @@ public class RendezvousPlayer extends CBCPlayer {
     public void playerAfterDeath (CBCPlayer playerKiller) {
 
         // The player will respawn, so we are overriding the old method
-        if (isOnline() && getTeam() != null) {
+        if (isOnline() && team() != null) {
 
             // Remove potion effects
             for (PotionEffect effect : getPlayer().getActivePotionEffects()) {

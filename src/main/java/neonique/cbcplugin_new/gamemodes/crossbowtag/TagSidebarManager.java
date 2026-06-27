@@ -165,8 +165,8 @@ public class TagSidebarManager extends GameSidebarManager {
         if (tagPlayer != null) {
 
             // Check if player's team is on team order on sidebar
-            if (tagPlayer.getTeam() != null) {
-                TagTeam team = (TagTeam) tagPlayer.getTeam();
+            if (tagPlayer.team() != null) {
+                TagTeam team = (TagTeam) tagPlayer.team();
                 if (teamOrderOnSidebar.containsKey(team)) {
 
                     int slot = teamOrderOnSidebar.get(team);

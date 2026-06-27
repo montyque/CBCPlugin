@@ -33,7 +33,7 @@ public class KMationBossbarManager extends GameBossBarManager {
         // If there's a winner then set bossbar
         if (game.getWinner() != null) {
             CBCPlayer winningPlayer = game.getWinner();
-            cycleInfo = smallText(winningPlayer.getName().toUpperCase() + " WINS!")
+            cycleInfo = smallText(winningPlayer.name().toUpperCase() + " WINS!")
                     .color(NamedTextColor.GREEN);
         }
         // Display timer

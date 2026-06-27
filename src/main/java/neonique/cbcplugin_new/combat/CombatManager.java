@@ -362,8 +362,8 @@ public class CombatManager {
 
                 Color fireworkColor = Color.WHITE;
 
-                if (playerKilled.getTeam() != null) {
-                    fireworkColor = Color.fromRGB(playerKilled.getTeam().textColor().value());
+                if (playerKilled.team() != null) {
+                    fireworkColor = Color.fromRGB(playerKilled.nameColor().value());
                 }
 
                 fireworkMeta.addEffect(FireworkEffect.builder().withColor(fireworkColor)
@@ -460,9 +460,9 @@ public class CombatManager {
         return voidPlane > 0;
     }*/
 
-    /*public void setVoidKill(boolean b) {
-        voidKill = b;
-    }*/
+    public void setVoidKill(boolean b) {
+        mapMechanicsManager.getMechanicsOfType(VoidMechanic.class).forEach(v -> v.setKillOnVoid(b));
+    }
 
     /*public double getVoidPlane() {
         return voidPlane;

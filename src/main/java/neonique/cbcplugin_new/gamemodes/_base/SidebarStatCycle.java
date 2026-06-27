@@ -98,8 +98,8 @@ public class SidebarStatCycle<T extends CBCPlayer> {
         playerComponent = playerComponent.append(getComponentSpaceOfLength(4));
 
         // Add player name
-        String playerName = player.getName();
-        playerComponent = playerComponent.append(player.getNameComponent());
+        String playerName = player.name();
+        playerComponent = playerComponent.append(player.nameComponent());
 
         // Add space to make names even
         int playerNameLength = TextUtil.getPixelLengthOfText(playerName);

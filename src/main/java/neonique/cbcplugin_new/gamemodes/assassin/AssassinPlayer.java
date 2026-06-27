@@ -77,7 +77,7 @@ public class AssassinPlayer extends CBCPlayer {
         // Get head component of target player
         Component subtitleComponent = game.getResourcePackManager().getPlayerHeadComponent(
                 PlayerHeadType.NORMAL, currentTarget.getOfflinePlayer()
-        ).append(Component.text(" " + currentTarget.getName()).color(NamedTextColor.AQUA));
+        ).append(Component.text(" " + currentTarget.name()).color(NamedTextColor.AQUA));
 
         getPlayer().showTitle(
                 Title.title(titleComponent, subtitleComponent, titleTimes(300, 2000, 300))
