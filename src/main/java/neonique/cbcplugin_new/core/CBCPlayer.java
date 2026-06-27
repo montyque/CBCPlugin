@@ -256,33 +256,6 @@ public class CBCPlayer implements PlayerLike {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
-    // JUMP PAD FUNCTIONS
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    public void jumpPadPressed () {
-
-        if (!isOnline()) return;
-        Player player = getPlayer();
-
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 10, 11, false, false, false));
-
-        if (!onJumpPad) {
-            onJumpPad = true;
-        }
-    }
-
-    public void jumpPadOff () {
-
-        onJumpPad = false;
-
-        if (!isOnline()) return;
-        Player player = getPlayer();
-
-        player.removePotionEffect(PotionEffectType.JUMP_BOOST);
-        giveEffects();
-
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // DAMAGING, PLAYER KILL AND PLAYER DEATH FUNCTIONS
     ////////////////////////////////////////////////////////////////////////////////////////////
 

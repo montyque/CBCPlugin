@@ -49,10 +49,6 @@ public class JumpPad {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public void jumpPadPressed (CBCPlayer player) {
-        player.jumpPadPressed();
-    }
-
     public Location location () {
         return location;
     }
