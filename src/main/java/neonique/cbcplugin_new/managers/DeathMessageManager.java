@@ -12,7 +12,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.util.*;
 
-import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.getDeathCauseIcon;
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 
 public class DeathMessageManager {
@@ -63,12 +62,10 @@ public class DeathMessageManager {
         DeathMessageGenerator dmGenerator;
         if (overrideDeathMessages.containsKey(cause)) {
             dmGenerator = overrideDeathMessages.get(cause);
-        }
-        else {
-            dmGenerator = defaultDeathMessages.get(cause);
+        } else {
+            dmGenerator = defaultDeathMessages.getOrDefault(cause, defaultDeathMessages.get(DeathCause.NATURAL));
         }
 
-        if (dmGenerator == null) return null;
         Component deathMessage = dmGenerator.getDeathMessageComponent(playerKilled, playerKiller, direct);
 
         // Add multi kill counter
@@ -87,14 +84,9 @@ public class DeathMessageManager {
             deathMessage = deathMessage.append(smallText(multiText).color(NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
         }
 
-        NamedTextColor color = NamedTextColor.WHITE;
-        if (playerKilled.team() != null) {
-            color = playerKilled.team().textColor();
-        }
-
-        Component deathIcon = getDeathCauseIcon(cause, playerKiller != null, color).append(Component.space());
-
+        Component deathIcon = cause.deathIconComponent(playerKilled, playerKiller).append(Component.space());
         return deathIcon.append(deathMessage);
+
     }
 
     public Component getKillStreakMessage(CBCPlayer playerKiller) {

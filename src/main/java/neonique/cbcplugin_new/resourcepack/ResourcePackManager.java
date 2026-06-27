@@ -483,7 +483,7 @@ public class ResourcePackManager {
         }
     }
 
-    public static Component getDeathCauseIcon (DeathCause cause, boolean isKiller, TextColor color) {
+    /*public static Component getDeathCauseIcon (DeathCause cause, boolean isKiller, TextColor color) {
 
         if (color == null) {
             color = NamedTextColor.WHITE;
@@ -511,7 +511,7 @@ public class ResourcePackManager {
                 return setFont(Component.text("\uE406"), ResourcePackFont.DEFAULT).color(color);
             }
         }
-    }
+    }*/
 
     public void setSingleCharHead (boolean b) {
         useSingleCharHead = b;

@@ -229,12 +229,10 @@ public class CBCPlayer implements TeamPlayerLike {
     }
 
     public void teleportPlayerToSpawn (Location spawn, Location faceLocation) {
-
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
         playerEntity.teleport(spawn);
         faceToLocation(faceLocation, true);
-
     }
 
     public void faceToLocation (Location targetLocation, boolean eyeLevel) {
@@ -356,7 +354,7 @@ public class CBCPlayer implements TeamPlayerLike {
 
             TextColor color = playerKilled.nameColor();
 
-            Component deathCauseIcon = getDeathCauseIcon(directDeathCause, true, color);
+            Component deathCauseIcon = directDeathCause.deathIconComponent(playerKilled, this);
 
             Component subtitle = smallText(multiKillShow).color(NamedTextColor.AQUA).append(
                     deathCauseIcon

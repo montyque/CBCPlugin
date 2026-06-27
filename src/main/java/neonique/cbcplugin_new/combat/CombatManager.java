@@ -18,10 +18,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
-import org.bukkit.Color;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.*;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -60,14 +58,6 @@ public class CombatManager {
     private boolean doDayCycle = false;
     private boolean nightVisionDisabled = false;
 
-    // Map variables
-    /*private Location voidTeleport = null;*/
-    /*private Collection<HealthPad> healthPadList = new HashSet<>();
-    private boolean jumpPadsEnabled = false;
-    private Collection<JumpPad> jumpPadList = new HashSet<>();
-    private boolean dashPadsEnabled = false;
-    private Collection<DashPad> dashPadList = new HashSet<>();*/
-
     // Event listeners used
     private final CrossbowFiredListener crossbowFiredListener;
     private final EntityDamagePlayerListener entityDamagePlayerListener;
@@ -82,13 +72,9 @@ public class CombatManager {
     // Tasks used
     private WeaponReloadTask weaponReloadTask;
     private ProjectileUpdateTask projectileUpdateTask;
-    /*private VoidTask voidTask;
-    private HealPadTask healPadTask;*/
+
     private ResetPlayerLastHitTask resetPlayerLastHitTask;
     private WeaponManagerTimerTask weaponManagerTimerTask;
-    /*private JumpPadTask jumpPadTask;
-    private DashPadTask dashPadTask;
-    private SwimTimerTask swimTimerTask;*/
     private DayCycleTask dayCycleTask;
     private PlayerParticlesTask playerParticlesTask;
     private RespawnTimerTask respawnTimerTask;
@@ -167,8 +153,6 @@ public class CombatManager {
         respawnTimerTask = new RespawnTimerTask(gameManager.getPlayerRegistry(), this);
         projectileUpdateTask = new ProjectileUpdateTask(gameManager.getPlayerRegistry(), projectileManager);
 
-        /*voidTask = new VoidTask(gameManager, this);
-        healPadTask = new HealPadTask(this, gameManager.getPlayerRegistry());*/
         resetPlayerLastHitTask = new ResetPlayerLastHitTask(gameManager);
         weaponManagerTimerTask = new WeaponManagerTimerTask(this);
         playerParticlesTask = new PlayerParticlesTask(gameManager);
@@ -176,31 +160,15 @@ public class CombatManager {
         weaponReloadTask.runTaskTimer(plugin, 0, RELOAD_TASK_PERIOD);
         respawnTimerTask.runTaskTimer(plugin, 0, 1L);
         projectileUpdateTask.runTaskTimer(plugin, 0, 1L);
-        /*voidTask.runTaskTimer(plugin, 0, 1L);
-        healPadTask.runTaskTimer(plugin, 0, 2L);*/
+
         resetPlayerLastHitTask.runTaskTimer(plugin, 0, 20L);
         weaponManagerTimerTask.runTaskTimer(plugin, 0, 1L);
         playerParticlesTask.runTaskTimer(plugin, 0, 1L);
-
-        /*dashPadTask = new DashPadTask(gameManager, this);
-        dashPadTask.runTaskTimer(plugin, 0, 2L);*/
-
-        /*jumpPadTask = new JumpPadTask(gameManager, this);
-        jumpPadTask.runTaskTimer(plugin, 0, 2L);*/
-
-        /*swimTimerTask = new SwimTimerTask(gameManager, this);
-        swimTimerTask.runTaskTimer(plugin, 0, 1L);*/
 
         if (doDayCycle) {
             dayCycleTask = new DayCycleTask(this, gameManager.getWorld(), 8);
             dayCycleTask.runTaskTimer(plugin, 0, 1);
         }
-
-        /*voidKill = true;*/
-
-        // Enable all heal pads
-        /*healPadTimer = 20;
-        enableAllHealPads();*/
 
         timer = 0;
 
@@ -208,49 +176,7 @@ public class CombatManager {
 
     public void setupMap (CBCMap map) {
 
-        /*if (active) {
-
-            // Disable all current jump pads, heal pads and dash pads, along with other mechanics
-            clearHealthPadList();
-            clearJumpPadList();
-            clearDashPadList();*/
-
-            /*jumpPadsEnabled = false;
-            swimTimerEnabled = false;
-            dashPadsEnabled = false;
-
-        }*/
-
-        /*setHealthPadList(map.getHealthPads());
-
-        if (active) {
-            enableAllHealPads();
-        }
-
-        setGameMechanics(map.getVoidPlane());
-        if (map.isJumpPadsEnabled()) {
-            setJumpPadsEnabled(true);
-            setJumpPadList(map.getJumpPads());
-        }
-
-        if (map.isDashPadsEnabled()) {
-            setDashPadsEnabled(true);
-            setDashPadList(map.getDashPads());
-        }
-
-        if (map.isSwimTimerEnabled()) {
-            setSwimTimerEnabled(true);
-            setSwimTimerLength(120);
-        }*/
-
-        /*if (map.isInstaKillLava()) {
-            lavaInstaKill = true;
-        }*/
-
-        /*voidTeleport = map.getMapCentre();
-        nightVisionDisabled = map.isNightVisionAlwaysDisabled();*/
         mapMechanicsManager.setupMapMechanics(map);
-
         canTrapdoorsOpen = map.isTrapdoorsOpening();
         deathMessageManager.setOverrides(map.getDeathMessageOverrides());
 
@@ -280,13 +206,8 @@ public class CombatManager {
         // Disable tasks
         cancelTask(weaponReloadTask);
         cancelTask(projectileUpdateTask);
-        /*cancelTask(voidTask);
-        cancelTask(healPadTask);*/
         cancelTask(resetPlayerLastHitTask);
         cancelTask(weaponManagerTimerTask);
-        /*cancelTask(jumpPadTask);
-        cancelTask(swimTimerTask);
-        cancelTask(dashPadTask);*/
         cancelTask(playerParticlesTask);
         cancelTask(respawnTimerTask);
 
@@ -298,14 +219,6 @@ public class CombatManager {
         weaponFactory.resetWeaponPresetsToDefault();
         projectileManager.clearAllProjectiles();
 
-        // Disable heal pads
-        /*clearHealthPadList();
-        clearJumpPadList();
-        clearDashPadList();*/
-
-        /*jumpPadsEnabled = false;
-        swimTimerEnabled = false;
-        dashPadsEnabled = false;*/
         beaconHeads = false;
         doDayCycle = false;
         nightVisionDisabled = false;
@@ -314,8 +227,6 @@ public class CombatManager {
 
     // Runs when a player takes fatal damage
     public void playerDeath (CBCPlayer playerKilled, CBCPlayer playerKiller, DeathCause cause, boolean direct) {
-
-        World world = gameManager.getWorld();
 
         // Make sure that the player who is killed is still alive
         if (!playerKilled.isAlive()) {
@@ -326,13 +237,11 @@ public class CombatManager {
         Component deathMessage = deathMessageManager.getDeathMessage(playerKilled, playerKiller, cause, direct);
 
         // Send death message to everyone
-        if (deathMessage != null) {
-            deathMessage = playerKilled.modifyDeathMessage(playerKiller, deathMessage);
-            if (playerKiller != null) {
-                deathMessage = playerKiller.modifyDeathMessageAsKiller(playerKilled, deathMessage);
-            }
-            gameManager.sendGlobalMessage(deathMessage);
+        deathMessage = playerKilled.modifyDeathMessage(playerKiller, deathMessage);
+        if (playerKiller != null) {
+            deathMessage = playerKiller.modifyDeathMessageAsKiller(playerKilled, deathMessage);
         }
+        gameManager.sendGlobalMessage(deathMessage);
 
         playerKilled.playerDie();
         playerKilled.playerAfterDeath(playerKiller);
@@ -345,57 +254,13 @@ public class CombatManager {
 
         // Check if player that was killed is online
         if (playerKilled.isOnline()) {
+
             // Get player entity of the player who was killed
             Player playerKilledEntity = playerKilled.getPlayer();
             playerKilledEntity.setGameMode(GameMode.SPECTATOR);
 
             Location location = playerKilledEntity.getLocation();
-            Location particleLocation = location.clone().add(0, 1, 0);
-
-            // Create effect or sound depending on player death cause
-            if (cause == DeathCause.CREEPER) {
-
-                // Summon a firework
-                Firework firework = (Firework) world.spawnEntity(location.clone().add(0, 2, 0),
-                        EntityType.FIREWORK_ROCKET, CreatureSpawnEvent.SpawnReason.COMMAND);
-                FireworkMeta fireworkMeta = firework.getFireworkMeta();
-
-                Color fireworkColor = Color.WHITE;
-
-                if (playerKilled.team() != null) {
-                    fireworkColor = Color.fromRGB(playerKilled.nameColor().value());
-                }
-
-                fireworkMeta.addEffect(FireworkEffect.builder().withColor(fireworkColor)
-                        .with(FireworkEffect.Type.BALL).build());
-
-                fireworkMeta.setPower(0);
-
-                firework.setFireworkMeta(fireworkMeta);
-                firework.detonate();
-
-            } else if (cause == DeathCause.FLAMEZONE) {
-                gameManager.playSound(location, Sound.ITEM_FIRECHARGE_USE, 4, 1);
-                world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, particleLocation, 15, 0.4, 0, 0.4, 0.01);
-            } else if (cause == DeathCause.XBOW || cause == DeathCause.XBOW_PIGLIN) {
-                gameManager.playSound(location, Sound.BLOCK_GLASS_BREAK, 4, 0);
-                world.spawnParticle(Particle.SOUL_FIRE_FLAME, particleLocation, 20, 0, 0, 0, 0.5);
-            } else if (cause == DeathCause.VOID) {
-                gameManager.playSound(location, Sound.ENTITY_ITEM_PICKUP, 4, 1);
-                world.spawnParticle(Particle.INSTANT_EFFECT, particleLocation, 80, 0, 1, 0, 1);
-            } else if (cause == DeathCause.MELEE) {
-                gameManager.playSound(location, Sound.ENTITY_ITEM_BREAK, 4, 1);
-            } else if (cause == DeathCause.DROWN) {
-                world.spawnParticle(Particle.BUBBLE_POP, particleLocation, 150, 0.5, 0.5, 0.5, 0.5);
-                gameManager.playSound(location, Sound.ENTITY_ZOMBIE_CONVERTED_TO_DROWNED, 3F, (float) 1);
-            } else if (cause == DeathCause.LAVA) {
-                world.spawnParticle(Particle.LAVA, particleLocation, 40, 0.5, 0.5, 0.5, 0.5);
-                gameManager.playSound(location, Sound.ENTITY_PLAYER_HURT_ON_FIRE, 3F, (float) 1);
-            } else if (cause == DeathCause.COMMAND) {
-                world.spawnParticle(Particle.INSTANT_EFFECT, particleLocation, 80, 0.5, 0.5, 0.5, 0.5);
-                gameManager.playSound(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 3F, (float) 1);
-                gameManager.playSound(location, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 3F, (float) 1);
-            }
+            cause.playDeathEffect(gameManager, location, playerKilled);
 
             // Show death title
             playerKilledEntity.showTitle(playerKilled.getDeathTitle());
@@ -452,32 +317,9 @@ public class CombatManager {
         playerRespawning.updateActionBarDisplay(true);
     }
 
-    /*public void setGameMechanics(int voidPlane) {
-        this.voidPlane = voidPlane;
-    }*/
-
-    /*public boolean voidEnabled() {
-        return voidPlane > 0;
-    }*/
-
     public void setVoidKill(boolean b) {
         mapMechanicsManager.getMechanicsOfType(VoidMechanic.class).forEach(v -> v.setKillOnVoid(b));
     }
-
-    /*public double getVoidPlane() {
-        return voidPlane;
-    }*/
-
-    // Heal pad related methods
-    /*public void setHealthPadList(Collection<HealthPad> newHealthPadList) {
-        clearHealthPadList();
-        healthPadList = newHealthPadList;
-    }*/
-
-    /*public void clearHealthPadList() {
-        disableAllHealPads();
-        healthPadList.clear();
-    }*/
 
     public void enableAllHealPads() {
         // Enable heal pads
@@ -488,22 +330,6 @@ public class CombatManager {
         // Enable heal pads
         mapMechanicsManager.getMechanicsOfType(HealthPadMechanic.class).forEach(HealthPadMechanic::disableAll);
     }
-
-    /*public Collection<HealthPad> getHealthPadList() {
-        return healthPadList;
-    }*/
-
-    /*public int getHealPadTimer() {
-        return healPadTimer;
-    }*/
-
-    /*public int getHealPadHealing() {
-        return 6;
-    }*/
-
-    /*public boolean isVoidKill() {
-        return voidKill;
-    }*/
 
     public int getTimer () {
         return timer;
@@ -516,66 +342,6 @@ public class CombatManager {
     public boolean isBeaconHeads() {
         return beaconHeads;
     }
-
-    // Jump pad related methods
-    /*public boolean isJumpPadsEnabled() {
-        return jumpPadsEnabled;
-    }*/
-
-    /*public void setJumpPadList(Collection<JumpPad> newJumpPadList) {
-        clearJumpPadList();
-        jumpPadList = newJumpPadList;
-    }*/
-
-    /*public void clearJumpPadList() {
-        jumpPadList.clear();
-    }*/
-
-    /*public Collection<JumpPad> getJumpPadList() {
-        return jumpPadList;
-    }*/
-
-    /*public void setJumpPadsEnabled(boolean b) {
-        jumpPadsEnabled = b;
-    }*/
-
-    // Dash pad related methods
-    /*public boolean isDashPadsEnabled() {
-        return dashPadsEnabled;
-    }*/
-
-    /*public void setDashPadList(Collection<DashPad> newDashPadList) {
-        clearDashPadList();
-        dashPadList = newDashPadList;
-    }*/
-
-    /*public void clearDashPadList() {
-        dashPadList.clear();
-    }*/
-
-    /*public Collection<DashPad> getDashPadList() {
-        return dashPadList;
-    }*/
-
-    /*public void setDashPadsEnabled(boolean b) {
-        dashPadsEnabled = b;
-    }*/
-
-    /*public boolean isSwimTimerEnabled() {
-        return swimTimerEnabled;
-    }*/
-
-    /*public int getSwimTimerLength() {
-        return swimTimerLength;
-    }*/
-
-    /*public void setSwimTimerEnabled(boolean b) {
-        swimTimerEnabled = b;
-    }*/
-
-    /*public void setSwimTimerLength(int swimTimerLength) {
-        this.swimTimerLength = swimTimerLength;
-    }*/
 
     public void setBeaconHeadsEnabled (boolean b) {
         this.beaconHeads = b;
@@ -597,20 +363,11 @@ public class CombatManager {
         return nightVisionDisabled;
     }
 
-    // Lava kills
-    /*public boolean isLavaInstaKill() {
-        return lavaInstaKill;
-    }*/
-
     private void cancelTask (BukkitRunnable task) {
         if (task == null) return;
         if (task.isCancelled()) return;
         task.cancel();
     }
-
-    /*public JumpPadTask getJumpPadTask() {
-        return jumpPadTask;
-    }*/
 
     public boolean isCanTrapdoorsOpen() {
         return canTrapdoorsOpen;
@@ -638,10 +395,6 @@ public class CombatManager {
     public boolean isAllPlayersImmune () {
         return allPlayersImmune;
     }
-
-    /*public Location getVoidTeleport () {
-        return voidTeleport;
-    }*/
 
     public EquipmentFactory getEquipmentFactory () {
         return equipmentFactory;
