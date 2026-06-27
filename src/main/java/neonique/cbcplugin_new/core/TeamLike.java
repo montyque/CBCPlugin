@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface TeamLike {
@@ -32,6 +31,12 @@ public interface TeamLike {
 
     default Component prefixComponent () {
         return Component.text(prefix()).color(textColor());
+    }
+
+    default Component nameComponentWithPrefix () {
+        return prefixComponent()
+                .append(Component.space())
+                .append(nameComponent());
     }
 
     default ItemStack getIconItem () {

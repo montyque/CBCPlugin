@@ -86,7 +86,7 @@ public class TDMSidebarManager extends GameSidebarManager {
 
         // Adding crossbow char to team string
         teamComponent = teamComponent.append(
-                Component.text(team.getPrefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD)
+                Component.text(team.prefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD)
         );
 
         // Adding team name to team string

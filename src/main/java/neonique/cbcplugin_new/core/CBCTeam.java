@@ -6,7 +6,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.scoreboard.Team;
 
 import java.util.*;
@@ -113,10 +112,6 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
     }
 
     public void removeTeam () {}
-
-    public TrimMaterial getTrimMaterial () {
-        return teamColor.trimMat();
-    }
 
     public int getColorNumber() {
         return teamColor.num();
