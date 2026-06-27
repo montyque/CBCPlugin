@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+/*
 public class JumpPadTask extends BukkitRunnable {
 
     GameManager gameManager;
@@ -71,4 +72,4 @@ public class JumpPadTask extends BukkitRunnable {
     public Set<CBCPlayer> getPlayersOnJumpPads() {
         return playersOnJumpPads;
     }
-}
+}*/

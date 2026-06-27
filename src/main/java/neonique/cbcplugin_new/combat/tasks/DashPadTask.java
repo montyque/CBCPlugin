@@ -6,6 +6,7 @@ import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
+/*
 public class DashPadTask extends BukkitRunnable {
 
     GameManager gameManager;
@@ -23,10 +24,10 @@ public class DashPadTask extends BukkitRunnable {
 
         // Iterate through each jump pad
         for (DashPad dashPad : combatManager.getDashPadList()) {
-            dashPad.updateCooldowns();
+            dashPad.updateCooldwns();
             for (CBCPlayer player : dashPad.getPlayersOnPad(gameManager.getPlayerRegistry())) {
                 dashPad.launchPlayer(player);
             }
         }
     }
-}
+}*/

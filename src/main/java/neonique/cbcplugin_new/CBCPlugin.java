@@ -12,6 +12,7 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -211,4 +212,13 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
     public WeaponPresetService getWeaponPresetService () {
         return weaponPresetService;
     }
+
+    public void registerListener (Listener listener) {
+        getServer().getPluginManager().registerEvents(listener, this);
+    }
+
+    public void unregisterListener (Listener listener) {
+        HandlerList.unregisterAll(listener);
+    }
+
 }

@@ -8,6 +8,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Set;
 
+/*
 public class VoidTask extends BukkitRunnable {
 
     GameManager gameManager;
@@ -39,4 +40,4 @@ public class VoidTask extends BukkitRunnable {
             }
         }
     }
-}
+}*/

@@ -7,6 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
+/*
 public class HealPadTask extends BukkitRunnable {
 
     private final CombatManager combatManager;
@@ -30,4 +31,4 @@ public class HealPadTask extends BukkitRunnable {
         }
     }
 
-}
+}*/

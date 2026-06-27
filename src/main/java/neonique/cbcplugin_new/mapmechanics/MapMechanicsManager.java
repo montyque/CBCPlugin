@@ -21,7 +21,7 @@ public class MapMechanicsManager {
         this.combatManager = combatManager;
     }
 
-    public void fromMap (CBCMap map) {
+    public void setupMapMechanics (CBCMap map) {
 
         VoidMechanic voidMechanic = new VoidMechanic(map.getMapCentre(), map.getVoidPlane());
         register(voidMechanic);
@@ -36,8 +36,13 @@ public class MapMechanicsManager {
         register(dashPadMechanic);
 
         if (map.isSwimTimerEnabled()) {
-            SwimTimerMechanic swimTimerMechanic = new SwimTimerMechanic(300);
+            SwimTimerMechanic swimTimerMechanic = new SwimTimerMechanic(map.getSwimTimerLength());
             register(swimTimerMechanic);
+        }
+
+        if (map.isInstaKillLava()) {
+            LavaKillMechanic lavaKillMechanic = new LavaKillMechanic();
+            register(lavaKillMechanic);
         }
 
     }

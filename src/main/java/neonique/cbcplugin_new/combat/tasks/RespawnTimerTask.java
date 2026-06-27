@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
+
 public class RespawnTimerTask extends BukkitRunnable {
 
     private final PlayerRegistry playerRegistry;
@@ -18,7 +19,7 @@ public class RespawnTimerTask extends BukkitRunnable {
     @Override
     public void run () {
 
-        for (CBCPlayer player : gameManager.getPlayers()) {
+        for (CBCPlayer player : playerRegistry.getPlayers()) {
 
             if (!player.isOnline()) continue;
             if (player.isAlive()) continue;

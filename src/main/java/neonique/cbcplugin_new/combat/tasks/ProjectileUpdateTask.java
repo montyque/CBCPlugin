@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.combat.ProjectileManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
+
 public class ProjectileUpdateTask extends BukkitRunnable {
 
     private final PlayerRegistry playerRegistry;
