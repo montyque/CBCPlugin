@@ -40,12 +40,7 @@ public class PlayerDeathListener implements Listener {
         }
 
         // Kill player because they are still alive
-        if (player.getLastPlayerHitBy() != null) {
-            combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.NATURAL, false);
-        }
-        else {
-            combatManager.playerDeath(player, null, DeathCause.NATURAL, false);
-        }
+        combatManager.playerDeath(player, DeathCause.NATURAL);
 
         // Cancel the player's death event
         e.setCancelled(true);

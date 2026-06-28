@@ -145,7 +145,7 @@ public class CombatManager {
         CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();
         flameZoneArrowTeam = scoreboardManager.registerNewTeam("flameArrows");
         flameZoneArrowTeam.setColor(NamedTextColor.GOLD);
-        xbowArrowTeam = scoreboardManager.registerNewTeam("flameArrows");
+        xbowArrowTeam = scoreboardManager.registerNewTeam("xbowArrows");
         xbowArrowTeam.setColor(NamedTextColor.AQUA);
 
         // Activate tasks
@@ -223,6 +223,10 @@ public class CombatManager {
         doDayCycle = false;
         nightVisionDisabled = false;
 
+    }
+
+    public void playerDeath (CBCPlayer playerKilled, DeathCause cause) {
+        playerDeath(playerKilled, playerKilled.getLastPlayerHitBy(), cause, false);
     }
 
     // Runs when a player takes fatal damage

@@ -53,7 +53,7 @@ public class VoidMechanic implements MapMechanic {
             if (!player.isAlive()) continue;
             if (player.getPlayer().getLocation().getY() < voidPlaneHeight) {
                 if (killOnVoid) {
-                    combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.VOID, false);
+                    combatManager.playerDeath(player, DeathCause.VOID);
                 } else {
                     player.getPlayer().teleport(teleportLocation);
                 }

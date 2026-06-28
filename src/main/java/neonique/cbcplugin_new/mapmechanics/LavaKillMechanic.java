@@ -49,7 +49,7 @@ public class LavaKillMechanic implements MapMechanic, Listener {
                 return;
             }
 
-            combatManager.playerDeath(player, null, DeathCause.LAVA, false);
+            combatManager.playerDeath(player, DeathCause.LAVA);
 
         }
 

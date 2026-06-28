@@ -57,7 +57,9 @@ public class BaseTeamGameCommands extends BaseGameCommands {
     public void putPlayerOnTeam (CBCPlayer player, CBCTeam<?> team, boolean spawnImmediately) {
 
         // Kill player if player is alive
-        if (player.isAlive()) game.getCombatManager().playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
+        if (player.isAlive()) {
+            game.getCombatManager().playerDeath(player, DeathCause.COMMAND);
+        }
 
         removePlayerFromTeam(player, false);
         game.addPlayerToTeam(player, team);

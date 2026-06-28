@@ -121,7 +121,7 @@ public class TagGameCommands extends BaseTeamGameCommands {
 
         // Kill player if player is alive
         if (player.isAlive()) {
-            game.getCombatManager().playerDeath(player, player.getLastPlayerHitBy(), DeathCause.COMMAND, false);
+            game.getCombatManager().playerDeath(player, DeathCause.COMMAND);
         }
 
         removePlayerFromTeam(player, false);

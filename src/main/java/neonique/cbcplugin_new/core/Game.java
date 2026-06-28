@@ -225,7 +225,7 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
         if (hasPlayer(playerEntity)) {
             P player = getPlayer(playerEntity);
             if (player.isAlive()) {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.DISCONNECT, false);
+                combatManager.playerDeath(player, DeathCause.DISCONNECT);
             }
         }
 

@@ -29,11 +29,9 @@ public class LavaDamageListener implements Listener {
         Entity entity = e.getEntity();
 
         // Check if the entity damaged is a player
-        if (!(entity instanceof Player)) {
+        if (!(entity instanceof Player playerEntity)) {
             return;
         }
-
-        Player playerEntity = (Player) entity;
 
         // Check if the player damaged is in the game
         if (!(gameManager.hasPlayer(playerEntity))) {
@@ -43,29 +41,8 @@ public class LavaDamageListener implements Listener {
         if (e.getDamager() != null) {
             if (e.getDamager().getType() == Material.MAGMA_BLOCK) {
                 e.setCancelled(true);
-                return;
             }
         }
 
-        CBCPlayer player = gameManager.getPlayer(playerEntity);
-        // Check if the player damaged is alive
-        if (!player.isAlive()) {
-            return;
-        }
-
-        // Check if damage was caused by lava
-        if (e.getCause() == EntityDamageEvent.DamageCause.LAVA && combatManager.isLavaInstaKill()) {
-
-            if (player.isImmune()) {
-                e.setCancelled(true);
-                return;
-            }
-
-            if (player.getLastPlayerHitBy() == null) {
-                combatManager.playerDeath(player, null, DeathCause.LAVA, false);
-            } else {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.LAVA, false);
-            }
-        }
     }
 }
