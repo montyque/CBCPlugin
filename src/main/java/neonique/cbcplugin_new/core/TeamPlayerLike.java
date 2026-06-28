@@ -5,12 +5,10 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 public interface TeamPlayerLike extends PlayerLike {
 
-    @Nullable
     TeamLike team ();
 
     default Optional<TeamLike> teamOptional () {

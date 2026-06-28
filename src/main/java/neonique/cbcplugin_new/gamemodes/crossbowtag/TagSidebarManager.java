@@ -113,7 +113,7 @@ public class TagSidebarManager extends GameSidebarManager {
         teamComponent = teamComponent.append(getComponentSpaceOfLength(12));
 
         // Display the current taggers
-        String gamemodeIconTeam = CBCGamemode.SHOWDOWN.getUnicodeIcon(NamedTextColor.YELLOW);
+        String gamemodeIconTeam = CBCGamemode.SHOWDOWN.getIcon(NamedTextColor.YELLOW);
         if (!team.isTeamTaggers()) {
             if (!team.alivePlayers().isEmpty()) {
                 teamComponent = teamComponent.append(

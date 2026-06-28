@@ -3,6 +3,7 @@ package neonique.cbcplugin_new.tasks.gamemodetasks;
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
+import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
@@ -126,20 +127,15 @@ public abstract class BaseStartGameTimer extends BukkitRunnable {
         Component titleComponent;
         Component subtitleComponent;
 
-        TextColor textColor = game.getGamemodeColor();
-        NamedTextColor teamColor = NamedTextColor.WHITE;
-        if (team != null) {
-            textColor = team.textColor();
-            teamColor = team.textColor();
-        }
+        TextColor textColor = team != null ? team.textColor() : game.getGamemodeColor();
+        TeamColor teamColor = team != null ? team.teamColor() : null;
+        String gamemodeIcon = game.getGamemode().getIcon(teamColor);
 
-        String gamemodeUnicode = game.getGamemode().getUnicodeIcon(teamColor);
-
-        titleComponent = Component.text(gamemodeUnicode).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
+        titleComponent = Component.text(gamemodeIcon).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
                 .append(
                         Component.text(" " + game.getGamemode().getGamemodeName() + " ").color(textColor).decoration(TextDecoration.BOLD, TextDecoration.State.TRUE)
                 ).append(
-                        Component.text(gamemodeUnicode).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
+                        Component.text(gamemodeIcon).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
                 );
         subtitleComponent = Component.text(game.getMap().getMapName()).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE);
 

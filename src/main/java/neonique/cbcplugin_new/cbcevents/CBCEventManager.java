@@ -504,7 +504,7 @@ public class CBCEventManager {
                 int gamePoints = lastGameScores.get(player);
                 int eventPoints = eventScores.get(player);
 
-                String gamePointsIcon = thisGamemode.getUnicodeIcon(player.getTeamColor());
+                String gamePointsIcon = thisGamemode.getIcon(player.getTeamColor());
 
                 gameEndMessage = gameEndMessage.append(Component.newline()
                         .append(
@@ -535,7 +535,7 @@ public class CBCEventManager {
             int gamePoints = lastGameScores.get(player);
             int eventPoints = eventScores.get(player);
 
-            String gamePointsIcon = thisGamemode.getUnicodeIcon(player.getTeamColor());
+            String gamePointsIcon = thisGamemode.getIcon(player.getTeamColor());
 
             if (!player.isOnline()) return;
 
@@ -570,7 +570,7 @@ public class CBCEventManager {
 
         ResourcePackManager resourcePackManager = CBCPlugin.getResourcePackManager();
 
-        Component crossbowCharacterComponent = Component.text(CBCGamemode.SHOWDOWN.getUnicodeIcon(eventWinner.getTeamColor())).color(NamedTextColor.WHITE)
+        Component crossbowCharacterComponent = Component.text(CBCGamemode.SHOWDOWN.getIcon(eventWinner.getTeamColor())).color(NamedTextColor.WHITE)
                 .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE);
 
         Component titleComponent = crossbowCharacterComponent.append(Component.text(" "));
@@ -647,7 +647,7 @@ public class CBCEventManager {
         // Calculate MVP
         CBCEventPlayer MVP = getEventPlayersSortedByScore().get(0);
         Component playerHeadComponent = resourcePackManager.getPlayerHeadComponent(PlayerHeadType.NORMAL, MVP.getOfflinePlayer());
-        Component crossbowCharacterComponent = Component.text(CBCGamemode.SHOWDOWN.getUnicodeIcon(MVP.getTeamColor())).color(NamedTextColor.WHITE);
+        Component crossbowCharacterComponent = Component.text(CBCGamemode.SHOWDOWN.getIcon(MVP.getTeamColor())).color(NamedTextColor.WHITE);
         int finalScore = MVP.getEventScore();
 
         // Create initial title component
@@ -775,7 +775,7 @@ public class CBCEventManager {
 
                 // Get icon for gamemode
                 CBCGamemode gamemode = getGamemode(gameNum);
-                String gamemodeIcon = gamemode.getUnicodeIcon(teamColor);
+                String gamemodeIcon = gamemode.getIcon(teamColor);
 
                 playerComponent = playerComponent.append(Component.text(" " + gamemodeIcon + " ").color(NamedTextColor.WHITE));
 

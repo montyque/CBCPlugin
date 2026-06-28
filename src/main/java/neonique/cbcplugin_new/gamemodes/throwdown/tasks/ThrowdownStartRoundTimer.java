@@ -32,9 +32,7 @@ public class ThrowdownStartRoundTimer extends BaseStartGameTimer {
         Component subtitleComponent;
 
         TextColor textColor = game.getGamemodeColor();
-        NamedTextColor teamColor = NamedTextColor.WHITE;
-
-        String gamemodeUnicode = game.getGamemode().getUnicodeIcon(teamColor);
+        String gamemodeUnicode = game.getGamemode().getIcon();
 
         titleComponent = Component.text(gamemodeUnicode).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
                 .append(

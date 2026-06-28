@@ -10,13 +10,13 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 public enum TeamColor {
 
     RED (0, NamedTextColor.RED, TrimMaterial.REDSTONE, Material.RED_STAINED_GLASS),
-    BLUE (0, NamedTextColor.BLUE, TrimMaterial.LAPIS, Material.BLUE_STAINED_GLASS),
-    GREEN (0, NamedTextColor.GREEN, TrimMaterial.EMERALD, Material.LIME_STAINED_GLASS),
-    YELLOW (0, NamedTextColor.YELLOW, TrimMaterial.GOLD, Material.YELLOW_STAINED_GLASS),
-    CYAN (0, NamedTextColor.AQUA, TrimMaterial.DIAMOND, Material.CYAN_STAINED_GLASS),
-    ORANGE (0, NamedTextColor.GOLD, TrimMaterial.COPPER, Material.ORANGE_STAINED_GLASS),
-    MAGENTA (0, NamedTextColor.LIGHT_PURPLE, TrimMaterial.IRON, Material.MAGENTA_STAINED_GLASS),
-    PURPLE (0, NamedTextColor.DARK_PURPLE, TrimMaterial.AMETHYST, Material.PURPLE_STAINED_GLASS);
+    BLUE (1, NamedTextColor.BLUE, TrimMaterial.LAPIS, Material.BLUE_STAINED_GLASS),
+    GREEN (2, NamedTextColor.GREEN, TrimMaterial.EMERALD, Material.LIME_STAINED_GLASS),
+    YELLOW (3, NamedTextColor.YELLOW, TrimMaterial.GOLD, Material.YELLOW_STAINED_GLASS),
+    CYAN (4, NamedTextColor.AQUA, TrimMaterial.DIAMOND, Material.CYAN_STAINED_GLASS),
+    ORANGE (5, NamedTextColor.GOLD, TrimMaterial.COPPER, Material.ORANGE_STAINED_GLASS),
+    MAGENTA (6, NamedTextColor.LIGHT_PURPLE, TrimMaterial.IRON, Material.MAGENTA_STAINED_GLASS),
+    PURPLE (7, NamedTextColor.DARK_PURPLE, TrimMaterial.AMETHYST, Material.PURPLE_STAINED_GLASS);
 
     private final int num;
     private final NamedTextColor color;

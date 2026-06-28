@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.showdown.tasks;
 
+import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownTeam;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -32,20 +33,15 @@ public class ShowdownStartRoundTimer extends BaseStartGameTimer {
         Component titleComponent;
         Component subtitleComponent;
 
-        TextColor textColor = game.getGamemodeColor();
-        NamedTextColor teamColor = NamedTextColor.WHITE;
-        if (team != null) {
-            textColor = team.textColor();
-            teamColor = team.textColor();
-        }
+        TextColor textColor = team != null ? team.textColor() : game.getGamemodeColor();
+        TeamColor teamColor = team != null ? team.teamColor() : null;
+        String gamemodeIcon = game.getGamemode().getIcon(teamColor);
 
-        String gamemodeUnicode = game.getGamemode().getUnicodeIcon(teamColor);
-
-        titleComponent = Component.text(gamemodeUnicode).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
+        titleComponent = Component.text(gamemodeIcon).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
                 .append(
                         Component.text(" " + game.getGamemode().getGamemodeName() + " ").color(textColor).decoration(TextDecoration.BOLD, TextDecoration.State.TRUE)
                 ).append(
-                        Component.text(gamemodeUnicode).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
+                        Component.text(gamemodeIcon).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
                 );
 
         subtitleComponent = Component.text(game.getMap().getMapName()).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE);

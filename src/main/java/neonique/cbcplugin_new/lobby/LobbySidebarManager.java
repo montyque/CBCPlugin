@@ -80,8 +80,8 @@ public class LobbySidebarManager {
                     smallText(eventManager.getEventTagline() + " ").color(NamedTextColor.YELLOW)
             );
         }
-        ClientSidebar playerSidebar = new ClientSidebar(player, playerScoreboard, "lobbySidebar",
-                sidebarTitle, true);
+        ClientSidebar playerSidebar = new ClientSidebar(player, playerScoreboard, "lobbySidebar", true);
+        playerSidebar.setDisplayHeader(sidebarTitle);
         clientSidebars.put(player.getUniqueId(), playerSidebar);
 
         updateClientBoard(player);
@@ -161,7 +161,7 @@ public class LobbySidebarManager {
 
         CBCGamemode gamemode = eventManager.getGamemode(num);
         // Default icon
-        String gamemodeIcon = gamemode.getUnicodeIcon(NamedTextColor.WHITE);
+        String gamemodeIcon = gamemode.getIcon(NamedTextColor.WHITE);
 
         // Add triangle
         if (num == nextGameNum) {
@@ -188,7 +188,7 @@ public class LobbySidebarManager {
             }
 
             // Set game winner to icon
-            gamemodeIcon = gamemode.getUnicodeIcon(gameWinnerColor);
+            gamemodeIcon = gamemode.getIcon(gameWinnerColor);
 
         }
 

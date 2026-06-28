@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.gamemodes;
 
 import neonique.cbcplugin_new.core.Game;
+import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
@@ -112,12 +113,23 @@ public enum CBCGamemode {
         return gamemodeName;
     }
 
-    public String getUnicodeIcon (NamedTextColor color) {
+    public String getIcon () {
+        return getIcon((TeamColor) null);
+    }
+
+    public String getIcon (TeamColor color) {
+        if (isTeamGamemode()) {
+            return String.valueOf((char) (0xE100 + (gamemodeIdInCategory - 1) * 16 + (color != null ? color.num() : 9)));
+        } else {
+            return String.valueOf((char) (0xE1F0 + gamemodeIdInCategory - 1));
+        }
+    }
+
+    public String getIcon (NamedTextColor color) {
 
         if (isTeamGamemode()) {
-            final int startingUnicode = 57600;
+            final int startingUnicode = 0xE100;
             int gamemodeUnicode = startingUnicode + ((getGamemodeIdInCategory() - 1) * 16);
-
             if (color == NamedTextColor.BLUE) {
                 gamemodeUnicode += 1;
             } else if (color == NamedTextColor.GREEN) {
@@ -135,11 +147,10 @@ public enum CBCGamemode {
             } else if (color != NamedTextColor.RED) {
                 gamemodeUnicode += 9;
             }
-
             return String.valueOf((char) (gamemodeUnicode));
         }
         else {
-            int startingUnicode = 57840;
+            int startingUnicode = 0xE1F0;
             return String.valueOf((char) (startingUnicode + getGamemodeIdInCategory() - 1));
         }
 

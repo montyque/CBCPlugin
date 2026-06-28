@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.gamemodes._base;
 
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -77,7 +78,7 @@ public abstract class GameSidebarManager {
             playerScoreboard = scoreboardManager.getPlayerScoreboard(player.getUniqueId());
         }
 
-        ClientSidebar playerSidebar = new ClientSidebar(player, playerScoreboard, sidebarObjectiveName, sidebarTitle, true);
+        ClientSidebar playerSidebar = new ClientSidebar(player, playerScoreboard, sidebarObjectiveName, true);
         clientSidebars.put(player.getUniqueId(), playerSidebar);
 
         updateClientBoard(player);
@@ -116,12 +117,10 @@ public abstract class GameSidebarManager {
 
         // Get team icon for gamemode
         String gamemodeIcon;
-        if (player.team() != null) {
-            gamemodeIcon = gamemode.getUnicodeIcon(player.nameColor());
-        }
-        else {
-            gamemodeIcon = gamemode.getUnicodeIcon(NamedTextColor.WHITE);
-        }
+        gamemodeIcon = gamemode.getIcon(player.teamOptional()
+                .map(TeamLike::teamColor)
+                .orElse(null)
+        );
 
         gameScoreComponent = gameScoreComponent.append(Component.text(gamemodeIcon + " ").color(NamedTextColor.WHITE));
         gameScoreComponent = gameScoreComponent.append(Component.text(player.getGamePoints()).color(NamedTextColor.YELLOW));
