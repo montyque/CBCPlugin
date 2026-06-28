@@ -7,7 +7,7 @@ import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.GlobalKillsManager;
-import neonique.cbcplugin_new.misc.ClientSidebar;
+import neonique.cbcplugin_new.scoreboard.ClientSidebar;
 import neonique.cbcplugin_new.cbcevents.CBCEventPlayer;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;

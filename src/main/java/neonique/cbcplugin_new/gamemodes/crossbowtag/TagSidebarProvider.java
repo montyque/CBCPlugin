@@ -2,9 +2,11 @@ package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes._base.*;
+import neonique.cbcplugin_new.gamemodes._base.PlayerStatList;
+import neonique.cbcplugin_new.gamemodes._base.SidebarStatCycle;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.scoreboard.ClientSidebar;
+import neonique.cbcplugin_new.scoreboard.SidebarProvider;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,10 +17,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 import static neonique.cbcplugin_new.util.TextUtil.*;
 
-public class TagSidebarManager extends GameSidebarManager {
+public class TagSidebarProvider implements SidebarProvider {
 
     private final TagGame game;
 
@@ -28,41 +29,26 @@ public class TagSidebarManager extends GameSidebarManager {
     private SidebarStatCycle<TagPlayer> statCycle;
     private List<Component> spectatorLeaderboardComponents = new ArrayList<>();
 
-    public TagSidebarManager(GameManager gameManager, TagGame game) {
-        super(gameManager, "tagSidebar");
+    public TagSidebarProvider (TagGame game) {
         this.game = game;
-
-        String before = "CBC: ";
-        if (gameManager.isEventGame()) {
-            before = gameManager.getEventManager().getEventNameShorthand() + " " + gameManager.getEventManager().getGameNameShorthand() + ": ";
-        }
-
-        setSidebarTitle(
-                smallText(before).color(NamedTextColor.AQUA).append(
-                        smallText("CROSSBOW TAG").color(NamedTextColor.YELLOW)
-                )
-        );
-
-        displayToEveryone.add(blankComponent());
-
-        // Start stat change timer
-        if (gameManager.isEventGame()) {
+        if (game.getGameManager().isEventGame()) {
             createSpectatorStats();
         }
     }
 
-    public void createSpectatorStats () {
 
+
+
+    private void createSpectatorStats () {
         statCycle = new SidebarStatCycle<>(game, this, 101);
         statCycle.addCycleState(new PlayerStatList<>("Game Score", TagPlayer::getGamePoints, false));
         statCycle.addCycleState(new PlayerStatList<>("Evaders Killed", TagPlayer::getEvadersKilled, false));
         statCycle.addCycleState(new PlayerStatList<>("Time Survived", TagPlayer::getSecondsSurvived, true));
         statCycle.addCycleState(new PlayerStatList<>("Total Kills", TagPlayer::getKills, false));
         statCycle.startCycle(200);
-
     }
 
-    public Component getTeamRow (TagTeam team, boolean isOwnTeam) {
+    private Component getTeamRow (TagTeam team, boolean isOwnTeam) {
 
         Component teamComponent = getComponentSpaceOfLength(4);
 
@@ -79,11 +65,8 @@ public class TagSidebarManager extends GameSidebarManager {
 
         // Adding rank of team
         String placementString = team.getPlacement() + ". ";
-        if (isOwnTeam) {
-            teamComponent = teamComponent.append(Component.text(placementString).color(NamedTextColor.YELLOW));
-        } else {
-            teamComponent = teamComponent.append(Component.text(placementString).color(NamedTextColor.WHITE));
-        }
+        teamComponent = teamComponent.append(Component.text(placementString)
+                .color(isOwnTeam ? NamedTextColor.YELLOW : NamedTextColor.WHITE));
 
         // Add team one letter prefix
         teamComponent = teamComponent.append(
@@ -103,13 +86,7 @@ public class TagSidebarManager extends GameSidebarManager {
         // Adding team's score - adding whitespace to display it evenly on the sidebar
         int teamScore = team.getIntScore();
         teamComponent = TextUtil.addLeadingSpaceForNumber(teamComponent, teamScore, 4);
-
-        if (isOwnTeam) {
-            teamComponent = teamComponent.append(Component.text(teamScore).color(NamedTextColor.YELLOW));
-        } else {
-            teamComponent = teamComponent.append(Component.text(teamScore).color(NamedTextColor.WHITE));
-        }
-
+        teamComponent = teamComponent.append(Component.text(teamScore).color(isOwnTeam ? NamedTextColor.YELLOW : NamedTextColor.WHITE));
         teamComponent = teamComponent.append(getComponentSpaceOfLength(12));
 
         // Display the current taggers
@@ -131,6 +108,7 @@ public class TagSidebarManager extends GameSidebarManager {
         }
 
         return teamComponent;
+
     }
 
     public void updateServerBoard () {
@@ -156,17 +134,22 @@ public class TagSidebarManager extends GameSidebarManager {
 
     }
 
-    public void updateClientBoard (Player player) {
+    @Override
+    public Component getSidebarHeader() {
+        return null;
+    }
+
+    @Override
+    public List<Component> getClientDisplay(Player client) {
 
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
-        TagPlayer tagPlayer = game.getPlayer(player);
+        TagPlayer player = game.getPlayer(client);
 
-        // Client side scoreboards
-        if (tagPlayer != null) {
+        if (player != null) {
 
             // Check if player's team is on team order on sidebar
-            if (tagPlayer.team() != null) {
-                TagTeam team = (TagTeam) tagPlayer.team();
+            if (player.team() != null) {
+                TagTeam team = game.getTypedTeam(player.team());
                 if (teamOrderOnSidebar.containsKey(team)) {
 
                     int slot = teamOrderOnSidebar.get(team);
@@ -177,24 +160,24 @@ public class TagSidebarManager extends GameSidebarManager {
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Points Scored: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(tagPlayer.getIntPointsScored()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getIntPointsScored()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Time Survived: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(timerToText(tagPlayer.getSecondsSurvived())).color(NamedTextColor.YELLOW))
+                    Component.text(timerToText(player.getSecondsSurvived())).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(getComponentSpaceOfLength(11).append(
                     Component.text("Evaders Killed: " ).color(NamedTextColor.GREEN)).append(
-                    Component.text(tagPlayer.getEvadersKilled()).color(NamedTextColor.YELLOW))
+                    Component.text(player.getEvadersKilled()).color(NamedTextColor.YELLOW))
             );
 
             clientStringList.add(blankComponent());
 
             // Add game score if an event is running
             if (game.getGameManager().isEventGame()) {
-                clientStringList.add(generateGameScoreComponent(game.getGamemode(), tagPlayer, getComponentSpaceOfLength(11)));
+                clientStringList.add(generateGameScoreComponent(game.getGamemode(), player, getComponentSpaceOfLength(11)));
                 clientStringList.add(blankComponent());
             }
 
@@ -209,9 +192,7 @@ public class TagSidebarManager extends GameSidebarManager {
 
         }
 
-        ClientSidebar clientSidebar = getPlayerSidebar(player);
-        clientSidebar.setSidebarComponents(clientStringList);
+        return clientStringList;
 
     }
-
 }

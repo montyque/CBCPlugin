@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes._base;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.misc.ClientSidebar;
+import neonique.cbcplugin_new.scoreboard.ClientSidebar;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -117,7 +117,7 @@ public abstract class GameSidebarManager {
         // Get team icon for gamemode
         String gamemodeIcon;
         if (player.team() != null) {
-            gamemodeIcon = gamemode.getUnicodeIcon(player.team().textColor());
+            gamemodeIcon = gamemode.getUnicodeIcon(player.nameColor());
         }
         else {
             gamemodeIcon = gamemode.getUnicodeIcon(NamedTextColor.WHITE);

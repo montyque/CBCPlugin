@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.misc;
+package neonique.cbcplugin_new.scoreboard;
 
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
@@ -11,7 +11,6 @@ import org.bukkit.scoreboard.*;
 import java.util.*;
 
 import static neonique.cbcplugin_new.util.TextUtil.getComponentSpaceOfLength;
-import static neonique.cbcplugin_new.util.TextUtil.getSpaceOfLength;
 
 public class ClientSidebar {
 
@@ -19,38 +18,43 @@ public class ClientSidebar {
 
     private final UUID playerUUID;
 
-    private final HashMap<Integer, String> old = new HashMap<>();
-    HashMap<Integer, String> newComponentStrings = new HashMap<>();
-    private final HashMap<Integer, String> intToChar = new HashMap<>();
-    private final HashMap<Integer, Team> intToTeam = new HashMap<>();
+    private final Map<Integer, String> old = new HashMap<>();
+    private final Map<Integer, String> newComponentStrings = new HashMap<>();
+
+    private final Map<Integer, String> intToChar = new HashMap<>();
+    private final Map<Integer, Team> intToTeam = new HashMap<>();
 
     private Objective scoreboardObjective;
-    private boolean hideNumbers;
+    private final boolean hideNumbers;
 
-    public ClientSidebar (Player player, Scoreboard scoreboard, String sidebarName, Component scoreboardDisplayName,
-                          boolean hideNumbers) {
+    public ClientSidebar (Player player, Scoreboard scoreboard, String sidebarName, boolean hideNumbers) {
 
         this.playerUUID = player.getUniqueId();
         this.scoreboard = scoreboard;
 
         // Create scoreboard objective
         try {
-            scoreboardObjective = scoreboard.registerNewObjective(sidebarName, "dummy", scoreboardDisplayName);
+            scoreboardObjective = scoreboard.registerNewObjective(sidebarName, "dummy", Component.space());
         } catch (IllegalArgumentException e) {
             scoreboardObjective = scoreboard.getObjective(sidebarName);
+            if (scoreboardObjective == null) {
+                throw new RuntimeException("Could not register or find scoreboard with name '%s'".formatted(sidebarName), e);
+            }
         }
 
-        assert scoreboardObjective != null;
-
-        scoreboardObjective.displayName(scoreboardDisplayName);
         scoreboardObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
         this.hideNumbers = hideNumbers;
         if (hideNumbers) {
             scoreboardObjective.numberFormat(NumberFormat.blank());
         }
 
-        // Create teams for scoreboard
+        createDisplayTeams();
+
+    }
+
+    public void createDisplayTeams () {
+        intToChar.clear();
+        intToTeam.clear();
         for (int i = 0; i < 15; i++) {
             Team team;
             try {
@@ -58,9 +62,7 @@ public class ClientSidebar {
             } catch (IllegalArgumentException e) {
                 team = scoreboard.getTeam("sidebar" + i);
             }
-
             if (team == null) continue;
-
             String character = String.valueOf(((char) (0xFF00 + i)));
             team.addEntry(character);
             intToChar.put(i, character);
@@ -69,14 +71,8 @@ public class ClientSidebar {
     }
 
     public void removeSidebar () {
-
         scoreboardObjective.unregister();
-
-        for (Team team : intToTeam.values()) {
-            team.unregister();
-        }
-
-        scoreboardObjective = null;
+        intToTeam.values().forEach(Team::unregister);
     }
 
     public OfflinePlayer getOfflinePlayer () {
@@ -92,7 +88,7 @@ public class ClientSidebar {
         }
     }
 
-    public void setSidebarComponents (ArrayList<Component> sidebarStringList) {
+    public void setSidebarComponents (List<Component> sidebarStringList) {
 
         if (scoreboardObjective == null) return;
 
@@ -104,6 +100,7 @@ public class ClientSidebar {
 
             Team team = intToTeam.get(i);
             String character = intToChar.get(i);
+
             Component componentRow;
             try {
                 componentRow = sidebarStringList.get(i);
@@ -114,15 +111,14 @@ public class ClientSidebar {
             String oldString = old.getOrDefault(i, null);
             String gsonSerialisedComponent;
 
-
             if (componentRow == null) {
                 if (oldString != null) {
                     team.suffix(Component.text(""));
                     scoreboard.resetScores(character);
                     newComponentStrings.put(i, null);
                 }
-            }
-            else {
+            } else {
+
                 // If numbers are hidden, add space to make up for it
                 if (hideNumbers) {
                     componentRow = componentRow.append(getComponentSpaceOfLength(8));
@@ -134,8 +130,7 @@ public class ClientSidebar {
                     Score score = scoreboardObjective.getScore(character);
                     score.setScore(i);
                     team.suffix(componentRow);
-                }
-                else {
+                } else {
                     if (!gsonSerialisedComponent.equals(oldString)) {
                         Score score = scoreboardObjective.getScore(character);
                         score.setScore(i);
@@ -149,58 +144,21 @@ public class ClientSidebar {
         old.putAll(newComponentStrings);
     }
 
-    public void setSidebar (ArrayList<String> sidebarStringList) {
+    public void clearSidebar () {
+        setSidebarComponents(List.of());
+    }
 
+    public void setSidebar (List<String> sidebarStringList) {
         if (scoreboardObjective == null) return;
-
         ArrayList<Component> componentList = new ArrayList<>();
         for (String string : sidebarStringList) {
             componentList.add(Component.text(string));
         }
-
         setSidebarComponents(componentList);
     }
 
-    /*public void updateSidebar () {
+    public void setDisplayHeader (Component header) {
+        scoreboardObjective.displayName(header);
+    }
 
-        if (!getOfflinePlayer().isOnline()) return;
-        Player player = getPlayer();
-
-        HashMap<Integer, String> lineHashMap = new HashMap<>();
-
-        // Iterate through all elements in new list
-        List<String> usedLines = new ArrayList<>();
-        for (int index = 0; index < sidebarLinesNew.size(); index++) {
-
-            String newString = sidebarLinesNew.get(index);
-            int scoreboardNum = sidebarLinesNew.size() - (index + 1);
-
-            lineHashMap.put(scoreboardNum, newString);
-
-            // Check if this string is already in the usedLines list
-            while (usedLines.contains(newString)) {
-                newString = newString + " ";
-            }
-
-            // This means that at this display number, there is already an existing string there
-            if (sidebarLinesOld.getOrDefault(scoreboardNum, null) != null) {
-
-                String oldString = sidebarLinesOld.get(scoreboardNum);
-
-                // Check if this existing string matches the new string at the index, and if so no need to rewrite
-                if (newString.equals(oldString)) {
-                    continue;
-                }
-            }
-
-            PacketContainer packet = manager.createPacket(PacketType.Play.Server.SCOREBOARD_SCORE);
-            packet.getStrings().write(0, newString);
-            packet.getStrings().write(1, scoreboardObjective.getName());
-            packet.getIntegers().write(0, scoreboardNum);
-
-            manager.sendServerPacket(player, packet);
-
-            usedLines.add(newString);
-        }
-    }*/
 }

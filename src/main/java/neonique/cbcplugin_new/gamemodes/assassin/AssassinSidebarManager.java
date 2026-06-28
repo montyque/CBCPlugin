@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.assassin;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.resourcepack.PlayerHeadType;
 import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
-import neonique.cbcplugin_new.misc.ClientSidebar;
+import neonique.cbcplugin_new.scoreboard.ClientSidebar;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
