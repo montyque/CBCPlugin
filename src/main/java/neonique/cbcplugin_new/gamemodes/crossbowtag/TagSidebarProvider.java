@@ -2,10 +2,6 @@ package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes._base.PlayerStatList;
-import neonique.cbcplugin_new.gamemodes._base.SidebarStatCycle;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.scoreboard.ClientSidebar;
 import neonique.cbcplugin_new.scoreboard.SidebarProvider;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
@@ -24,28 +20,10 @@ public class TagSidebarProvider implements SidebarProvider {
     private final TagGame game;
 
     private final List<Component> displayToEveryone = new ArrayList<>();
-    private final HashMap<CBCTeam, Integer> teamOrderOnSidebar = new HashMap<>();
-
-    private SidebarStatCycle<TagPlayer> statCycle;
-    private List<Component> spectatorLeaderboardComponents = new ArrayList<>();
+    private final HashMap<CBCTeam<?>, Integer> teamOrderOnSidebar = new HashMap<>();
 
     public TagSidebarProvider (TagGame game) {
         this.game = game;
-        if (game.getGameManager().isEventGame()) {
-            createSpectatorStats();
-        }
-    }
-
-
-
-
-    private void createSpectatorStats () {
-        statCycle = new SidebarStatCycle<>(game, this, 101);
-        statCycle.addCycleState(new PlayerStatList<>("Game Score", TagPlayer::getGamePoints, false));
-        statCycle.addCycleState(new PlayerStatList<>("Evaders Killed", TagPlayer::getEvadersKilled, false));
-        statCycle.addCycleState(new PlayerStatList<>("Time Survived", TagPlayer::getSecondsSurvived, true));
-        statCycle.addCycleState(new PlayerStatList<>("Total Kills", TagPlayer::getKills, false));
-        statCycle.startCycle(200);
     }
 
     private Component getTeamRow (TagTeam team, boolean isOwnTeam) {
@@ -125,12 +103,7 @@ public class TagSidebarProvider implements SidebarProvider {
             teamOrderOnSidebar.put(team, displayToEveryone.size() - 1);
         }
 
-        if (statCycle != null) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
-        }
-
         displayToEveryone.add(blankComponent());
-        updateAllClientBoards();
 
     }
 
@@ -173,21 +146,6 @@ public class TagSidebarProvider implements SidebarProvider {
                     Component.text(player.getEvadersKilled()).color(NamedTextColor.YELLOW))
             );
 
-            clientStringList.add(blankComponent());
-
-            // Add game score if an event is running
-            if (game.getGameManager().isEventGame()) {
-                clientStringList.add(generateGameScoreComponent(game.getGamemode(), player, getComponentSpaceOfLength(11)));
-                clientStringList.add(blankComponent());
-            }
-
-        } else if (!spectatorLeaderboardComponents.isEmpty()) {
-
-            // Add current leaderboard title
-            clientStringList.add(getComponentSpaceOfLength(11).append(statCycle.getCurrentStatTitle()));
-
-            // Show top 5 in list from spectator leaderboard components list
-            clientStringList.addAll(spectatorLeaderboardComponents);
             clientStringList.add(blankComponent());
 
         }
