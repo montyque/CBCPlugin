@@ -1,9 +1,10 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
 import neonique.cbcplugin_new.mechanics.DeathBorderShape;
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -22,10 +23,10 @@ public class CTFMap extends CBCMap {
     // Team bases
     private final boolean randomBases;
     private final boolean canMoveAtGameStart;
-    private HashMap<String, Vector> teamFlagsWithKeys;
+    private Map<String, Vector> teamFlagsWithKeys;
     private List<Vector> teamFlags;
-    private HashMap<String, Set<Vector>> teamSpawnsWithKeys;
-    private List<Set<Vector>> teamSpawns;
+    private Map<String, List<Vector>> teamSpawnsWithKeys;
+    private List<List<Vector>> teamSpawns;
 
     // Respawn timers
     private final HashMap<Integer, Integer> respawnTimes;
@@ -61,7 +62,7 @@ public class CTFMap extends CBCMap {
         randomBases = gamemodeYml.getBoolean("RandomBases");
         canMoveAtGameStart = gamemodeYml.getBoolean("CanMoveAtGameStart", false);
         if (randomBases) {
-            teamFlags = getVectorListFromStrings(gamemodeYml.getStringList("FlagLocations"));
+            teamFlags = VectorUtil.blockStrListToVecList(gamemodeYml.getStringList("FlagLocations"));
 
             teamSpawns = new ArrayList<>();
             List<?> rawSpawnsList = gamemodeYml.getList("BaseSpawns");
@@ -77,20 +78,20 @@ public class CTFMap extends CBCMap {
                         teamSpawnList.add(s);
                     }
                 }
-                teamSpawns.add(getVectorSetFromStrings(teamSpawnList));
+                teamSpawns.add(VectorUtil.blockStrListToVecList(teamSpawnList));
 
             }
 
         } else {
             assert gamemodeYml.getConfigurationSection("FlagLocations") != null;
-            teamFlagsWithKeys = getVectorHashMapFromStrings(Objects.requireNonNull(gamemodeYml.getConfigurationSection("FlagLocations")).getValues(false));
+            teamFlagsWithKeys = VectorUtil.blockStrMapToVecMap(Objects.requireNonNull(gamemodeYml.getConfigurationSection("FlagLocations")).getValues(false));
 
             teamSpawnsWithKeys = new HashMap<>();
             assert gamemodeYml.getConfigurationSection("BaseSpawns") != null;
             ConfigurationSection baseSpawnSection = gamemodeYml.getConfigurationSection("BaseSpawns");
             assert baseSpawnSection != null;
             for (String teamName : baseSpawnSection.getValues(false).keySet()) {
-                teamSpawnsWithKeys.put(teamName, getVectorSetFromStrings(baseSpawnSection.getStringList(teamName)));
+                teamSpawnsWithKeys.put(teamName, VectorUtil.blockStrListToVecList(baseSpawnSection.getStringList(teamName)));
             }
         }
 
@@ -122,7 +123,7 @@ public class CTFMap extends CBCMap {
     public List<Location> getFlagLocations() {
         List<Location> flagLocations = new ArrayList<>();
         for (Vector flagLocation : teamFlags) {
-            flagLocations.add(new Location(this.getGameManager().getWorld(), flagLocation.getX(), flagLocation.getY(), flagLocation.getZ()));
+            flagLocations.add(new Location(getWorld(), flagLocation.getX(), flagLocation.getY(), flagLocation.getZ()));
         }
         return flagLocations;
     }
@@ -131,30 +132,30 @@ public class CTFMap extends CBCMap {
         HashMap<String, Location> flagLocations = new HashMap<>();
         for (String teamAssignedFlag : teamFlagsWithKeys.keySet()) {
             Vector vector = teamFlagsWithKeys.get(teamAssignedFlag);
-            flagLocations.put(teamAssignedFlag, new Location(this.getGameManager().getWorld(),
+            flagLocations.put(teamAssignedFlag, new Location(getWorld(),
                     vector.getX(), vector.getY(), vector.getZ()));
         }
         return flagLocations;
     }
 
-    public List<Set<Location>> getBaseSpawns() {
-        List<Set<Location>> spawnLocationList = new ArrayList<>();
-        for (Set<Vector> spawnSet : teamSpawns) {
-            Set<Location> spawnLocations = new HashSet<>();
+    public List<List<Location>> getBaseSpawns() {
+        List<List<Location>> spawnLocationList = new ArrayList<>();
+        for (List<Vector> spawnSet : teamSpawns) {
+            List<Location> spawnLocations = new ArrayList<>();
             for (Vector spawn : spawnSet) {
-                spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+                spawnLocations.add(new Location(getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
             }
             spawnLocationList.add(spawnLocations);
         }
         return spawnLocationList;
     }
 
-    public HashMap<String, Set<Location>> getBaseSpawnsWithKeys() {
-        HashMap<String, Set<Location>> spawnLocationMap = new HashMap<>();
+    public Map<String, List<Location>> getBaseSpawnsWithKeys() {
+        Map<String, List<Location>> spawnLocationMap = new HashMap<>();
         for (String teamName : teamSpawnsWithKeys.keySet()) {
-            Set<Location> spawnLocations = new HashSet<>();
+            List<Location> spawnLocations = new ArrayList<>();
             for (Vector spawn : teamSpawnsWithKeys.get(teamName)) {
-                spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+                spawnLocations.add(new Location(getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
             }
             spawnLocationMap.put(teamName, spawnLocations);
         }

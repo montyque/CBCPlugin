@@ -44,7 +44,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
     // Map related variables
     private List<RendezvousCheckpoint> checkpoints;
     private List<RendezvousSpawn> spawns;
-    private HashMap<String, Set<Location>> teamStartSpawns;
+    private Map<String, List<Location>> teamStartSpawns;
     private boolean finalCheckpointEnabled;
     private RendezvousCheckpoint finalCheckpoint;
 
@@ -94,7 +94,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
         super.setupMap(map);
 
         teamStartSpawns = map.getTeamStartSpawns();
-        spawns = map.getRandomSpawns();
+        spawns = map.getRandomSpawns(this);
         checkpoints = map.getCheckpoints();
 
         // Get min and max checkpoint distance

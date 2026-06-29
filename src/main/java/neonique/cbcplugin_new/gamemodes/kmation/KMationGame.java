@@ -640,7 +640,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
         getCombatManager().setupMap(map);
 
         // Get spawns
-        spawns = map.getKMationSpawns();
+        spawns = map.getKMationSpawns(this);
 
     }
 

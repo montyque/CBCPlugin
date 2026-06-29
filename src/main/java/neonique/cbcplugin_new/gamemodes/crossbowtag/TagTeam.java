@@ -12,8 +12,8 @@ public class TagTeam extends CBCTeam<TagPlayer> {
     private final TagGame game;
 
     // Team start spawns
-    private Set<Location> evaderSpawns;
-    private Set<Location> taggerSpawns;
+    private Collection<Location> evaderSpawns;
+    private Collection<Location> taggerSpawns;
 
     // Scores
     private float score = 0;
@@ -63,11 +63,11 @@ public class TagTeam extends CBCTeam<TagPlayer> {
         return game.getTaggers() == this;
     }
 
-    public void setEvaderSpawns(Set<Location> evaderSpawns) {
+    public void setEvaderSpawns(Collection<Location> evaderSpawns) {
         this.evaderSpawns = evaderSpawns;
     }
 
-    public void setTaggerSpawns(Set<Location> taggerSpawns) {
+    public void setTaggerSpawns(Collection<Location> taggerSpawns) {
         this.taggerSpawns = taggerSpawns;
     }
 

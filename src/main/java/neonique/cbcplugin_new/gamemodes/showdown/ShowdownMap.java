@@ -1,10 +1,12 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.mechanics.DeathBorderShape;
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.mechanics.GamemodeOptions;
+import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
 
@@ -21,7 +23,7 @@ public class ShowdownMap extends CBCMap {
     private final boolean randomTeamSpawns;
     private boolean movingAllowedAtRoundStart = true;
     private boolean createBoxAtRoundStart = false;
-    private HashMap<String, Vector> teamSpawnsWithKeys;
+    private Map<String, Vector> teamSpawnsWithKeys;
     private List<Vector> teamSpawns;
 
     // Sudden death options
@@ -75,10 +77,10 @@ public class ShowdownMap extends CBCMap {
         randomTeamSpawns = gamemodeYml.getBoolean("RandomTeamSpawns");
         if (randomTeamSpawns) {
             // Setup random team spawns using teamSpawns list
-            teamSpawns = getVectorListFromStrings(gamemodeYml.getStringList("TeamSpawns"));
+            teamSpawns = VectorUtil.blockStrListToVecList(gamemodeYml.getStringList("TeamSpawns"));
         } else {
             assert gamemodeYml.getConfigurationSection("TeamSpawns") != null;
-            teamSpawnsWithKeys = getVectorHashMapFromStrings(Objects.requireNonNull(gamemodeYml.getConfigurationSection("TeamSpawns")).getValues(false));
+            teamSpawnsWithKeys = VectorUtil.blockStrMapToVecMap(Objects.requireNonNull(gamemodeYml.getConfigurationSection("TeamSpawns")).getValues(false));
         }
     }
 
@@ -102,9 +104,9 @@ public class ShowdownMap extends CBCMap {
         if (suddenDeathEnabled) return suddenDeathTimer; else return null;
     }
 
-    public DeathBorder getSuddenDeathBorder() {
+    public DeathBorder getSuddenDeathBorder (GameManager gameManager) {
         return new DeathBorder(
-                getGameManager(), getMapCentre(), suddenDeathBorderShape, suddenDeathBorderStartRadius,
+                gameManager, getMapCentre(), suddenDeathBorderShape, suddenDeathBorderStartRadius,
                 suddenDeathBorderRadiusLimit, suddenDeathBorderUpwardsLimit,
                 suddenDeathBorderDownwardsLimit, suddenDeathBorderShrinkRate
         );
@@ -113,7 +115,7 @@ public class ShowdownMap extends CBCMap {
     public List<ShowdownSpawn> getTeamSpawns() {
         List<ShowdownSpawn> spawnpoints = new ArrayList<>();
         for (Vector spawnpoint : teamSpawns) {
-            spawnpoints.add(new ShowdownSpawn(this.getGameManager().getWorld(), spawnpoint, createBoxAtRoundStart));
+            spawnpoints.add(new ShowdownSpawn(getWorld(), spawnpoint, createBoxAtRoundStart));
         }
         return spawnpoints;
     }
@@ -122,7 +124,7 @@ public class ShowdownMap extends CBCMap {
         HashMap<String, ShowdownSpawn> spawnpoints = new HashMap<>();
         for (String teamAssignedSpawnpoint : teamSpawnsWithKeys.keySet()) {
             spawnpoints.put(teamAssignedSpawnpoint, new ShowdownSpawn(
-                    this.getGameManager().getWorld(), teamSpawnsWithKeys.get(teamAssignedSpawnpoint), createBoxAtRoundStart));
+                    getWorld(), teamSpawnsWithKeys.get(teamAssignedSpawnpoint), createBoxAtRoundStart));
         }
         return spawnpoints;
     }

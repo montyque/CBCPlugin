@@ -1,11 +1,13 @@
 package neonique.cbcplugin_new.gamemodes.throwdown;
 
 import neonique.cbcplugin_new.mechanics.DeathBorderShape;
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.util.VectorUtil;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
 
@@ -29,7 +31,7 @@ public class ThrowdownMap extends CBCMap {
     private int suddenDeathBorderDownwardsLimit;
     private int suddenDeathBorderRadiusLimit;
 
-    private final Set<Vector> spawnOverrideSet;
+    private final List<Vector> spawnOverrides;
 
     public ThrowdownMap(YamlConfiguration baseYml, YamlConfiguration gamemodeYml,
                        GameManager gameManager, CombatManager combatManager) {
@@ -55,8 +57,8 @@ public class ThrowdownMap extends CBCMap {
         }
 
         // Get FFA spawn point coordinates
-        List<String> spawnOverrides = gamemodeYml.getStringList("SpawnOverrides");
-        spawnOverrideSet = getVectorSetFromStrings(spawnOverrides);
+        List<String> spawnOverridesStr = gamemodeYml.getStringList("SpawnOverrides");
+        spawnOverrides = VectorUtil.blockStrListToVecList(spawnOverridesStr);
 
     }
 
@@ -78,15 +80,15 @@ public class ThrowdownMap extends CBCMap {
 
     public List<FFASpawnpoint> getOverrideSpawns() {
         List<FFASpawnpoint> spawnpoints = new ArrayList<>();
-        for (Vector spawnpoint : spawnOverrideSet) {
-            spawnpoints.add(new FFASpawnpoint(getGameManager(), spawnpoint));
+        for (Vector v : spawnOverrides) {
+            spawnpoints.add(new FFASpawnpoint(new Location(getWorld(), v.getX(), v.getY(), v.getZ())));
         }
         return spawnpoints;
     }
 
-    public DeathBorder getSuddenDeathBorder() {
+    public DeathBorder getSuddenDeathBorder (GameManager gameManager) {
         return new DeathBorder(
-                getGameManager(), getMapCentre(), suddenDeathBorderShape, suddenDeathBorderStartRadius,
+                gameManager, getMapCentre(), suddenDeathBorderShape, suddenDeathBorderStartRadius,
                 suddenDeathBorderRadiusLimit, suddenDeathBorderUpwardsLimit,
                 suddenDeathBorderDownwardsLimit, suddenDeathBorderShrinkRate
         );

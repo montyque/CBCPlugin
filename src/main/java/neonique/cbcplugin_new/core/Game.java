@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
@@ -149,7 +150,7 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
             ).append(
                     newline()
             ).append(
-                    smallText(map.getMapName() + " - ").color(NamedTextColor.GRAY)
+                    smallText(map.getName() + " - ").color(NamedTextColor.GRAY)
             ).append(
                     smallText(gameLengthToText()).color(NamedTextColor.GRAY)
             );

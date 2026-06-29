@@ -1,8 +1,9 @@
 package neonique.cbcplugin_new.gamemodes.holdthegold;
 
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
@@ -17,7 +18,7 @@ public class HTGMap extends CBCMap {
     static final Set<String> GM_YAML_REQUIRED_KEYS = new HashSet<>(Arrays.asList(GM_YAML_SET_VALUES));
 
     private Vector goldSpawn;
-    private HashMap<String, Vector> teamSpawns;
+    private Map<String, Vector> teamSpawns;
 
     // Ally radius and enemy radius
     private final int allyRadius;
@@ -38,20 +39,20 @@ public class HTGMap extends CBCMap {
         setTeamsAllowed(allowedTeams);
 
         assert gamemodeYml.getConfigurationSection("TeamSpawns") != null;
-        teamSpawns = getVectorHashMapFromStrings(Objects.requireNonNull(gamemodeYml.getConfigurationSection("TeamSpawns")).getValues(false));
+        teamSpawns = VectorUtil.blockStrMapToVecMap(Objects.requireNonNull(gamemodeYml.getConfigurationSection("TeamSpawns")).getValues(false));
 
-        goldSpawn = convertStringToVector(Objects.requireNonNull(gamemodeYml.getString("GoldSpawn")));
+        goldSpawn = VectorUtil.strToVec(Objects.requireNonNull(gamemodeYml.getString("GoldSpawn")));
 
         allyRadius = gamemodeYml.getInt("AllyRadius", 15);
         enemyRadius = gamemodeYml.getInt("EnemyRadius", 15);
         spawnGoldRadius = gamemodeYml.getInt("SpawnGoldRadius", 60);
     }
 
-    public List<HTGSpawn> getHTGSpawns () {
+    public List<HTGSpawn> getHTGSpawns (HTGGame game) {
 
         List<HTGSpawn> spawns = new ArrayList<>();
         for (Vector spawnVector : getSpawnpointCoordinates()) {
-            spawns.add(new HTGSpawn(this.getGameManager().getWorld(), spawnVector, getGameManager(), allyRadius, enemyRadius, spawnGoldRadius, isIgnoreYInSpawnCalculations()));
+            spawns.add(new HTGSpawn(getWorld(), spawnVector, game, allyRadius, enemyRadius, spawnGoldRadius, isIgnoreYInSpawnCalculations()));
         }
         return spawns;
     }
@@ -61,7 +62,7 @@ public class HTGMap extends CBCMap {
         HashMap<String, Location> teamSpawnHashMap = new HashMap<>();
         for (String teamId : teamSpawns.keySet()) {
             Vector vector = teamSpawns.get(teamId);
-            teamSpawnHashMap.put(teamId, new Location(this.getGameManager().getWorld(),
+            teamSpawnHashMap.put(teamId, new Location(getWorld(),
                     vector.getX(), vector.getY(), vector.getZ()));
         }
         return teamSpawnHashMap;

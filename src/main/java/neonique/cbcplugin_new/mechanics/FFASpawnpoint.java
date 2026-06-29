@@ -2,59 +2,44 @@ package neonique.cbcplugin_new.mechanics;
 
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.managers.PlayerRegistry;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
+import java.util.Objects;
 
 // Used for setting spawnpoints in free for alls
-public class FFASpawnpoint extends Location {
+public class FFASpawnpoint {
 
-    GameManager gameManager;
+    private final Location location;
 
-    // Spawnpoint variables
-    private Double nearestPlayerRange;
+    public FFASpawnpoint (Location location) {
+        this.location = location.clone();
+    }
 
     public FFASpawnpoint(GameManager gameManager, Vector coordinates) {
-        super(gameManager.getWorld(), coordinates.getX(), coordinates.getY(), coordinates.getZ());
-        this.gameManager = gameManager;
+        this.location = new Location(gameManager.getWorld(), coordinates.getX(), coordinates.getY(), coordinates.getZ());
     }
 
 
-    public double getNearestPlayerRange() {
-        return nearestPlayerRange;
-    }
-
-    public void findDistanceOfNearestPlayer(Double maxRange, CBCPlayer ownPlayer) {
+    public double findDistanceOfNearestPlayer(PlayerRegistry registry, Double maxRange, CBCPlayer self) {
 
         // Get nearby players within the range
-        nearestPlayerRange = Math.pow(maxRange, 2);
-        Collection<Player> nearbyPlayers = this.getNearbyEntitiesByType(Player.class, maxRange);
+        return location.getNearbyEntitiesByType(Player.class, maxRange).stream()
+                .map(registry::getPlayer)
+                .filter(Objects::nonNull)
+                .filter(CBCPlayer::isAlive)
+                .filter(p -> !p.isAlly(self))
+                .map(p -> p.getPlayer().getLocation().distanceSquared(location))
+                .max(Double::compareTo)
+                .orElse(Math.pow(maxRange, 2));
 
-        // Go through each nearby player and set nearestPlayerRange to
-        for (Player player : nearbyPlayers) {
-
-            // Check if player is in game
-            if (!gameManager.hasPlayer(player)) {
-                continue;
-            }
-
-            // Check if player is not an ally
-            if (gameManager.getPlayer(player).isAlly(ownPlayer)) {
-                continue;
-            }
-
-            // Check if player is alive
-            if (!gameManager.getPlayer(player).isAlive()) {
-                continue;
-            }
-
-            // Get the distance between this spawn and the player
-            double distance = this.distanceSquared(player.getLocation());
-            if (distance < nearestPlayerRange) {
-                nearestPlayerRange = distance;
-            }
-        }
     }
+
+    public Location location () {
+        return location.clone();
+    }
+
 }

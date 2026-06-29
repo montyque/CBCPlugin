@@ -47,12 +47,12 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFMap, CTFTeam> {
 
     private boolean randomBases;
     private List<Location> randomFlagLocations;
-    private HashMap<String, Location> nonRandomFlagLocations;
-    private List<Set<Location>> randomBaseSpawns;
-    private HashMap<String, Set<Location>> nonRandomBaseSpawns;
+    private Map<String, Location> nonRandomFlagLocations;
+    private List<List<Location>> randomBaseSpawns;
+    private Map<String, List<Location>> nonRandomBaseSpawns;
 
     private int defensiveKillRadius;
-    private HashMap<Integer, Integer> respawnTimes;
+    private Map<Integer, Integer> respawnTimes;
 
     // Game event listeners and tasks
     private CTFPlayersNearbyFlags playersNearbyFlagsTask;

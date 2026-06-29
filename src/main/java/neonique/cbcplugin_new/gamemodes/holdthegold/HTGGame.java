@@ -240,7 +240,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
         super.setupMap(map);
 
         // Get spawns for players and for the gold
-        spawns = map.getHTGSpawns();
+        spawns = map.getHTGSpawns(this);
         goldSpawn = map.getGoldSpawn();
 
     }

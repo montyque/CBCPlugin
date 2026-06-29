@@ -27,7 +27,7 @@ public class KOTHTeam extends CBCTeam<KOTHPlayer> {
     boolean tied = true;
 
     // Map variables
-    private Set<Location> teamSpawns; // Where players spawn at the team's base
+    private List<Location> teamSpawns; // Where players spawn at the team's base
 
     boolean outOfGame = false;
 
@@ -155,11 +155,11 @@ public class KOTHTeam extends CBCTeam<KOTHPlayer> {
         return validSpawns.get(new Random().nextInt(validSpawns.size()));
     }
 
-    public void setTeamSpawns(Set<Location> spawns) {
+    public void setTeamSpawns(List<Location> spawns) {
         teamSpawns = spawns;
     }
 
-    public Set<Location> getTeamSpawns() {
+    public List<Location> getTeamSpawns() {
         return teamSpawns;
     }
 

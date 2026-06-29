@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.PlayerRegistry;
 
 import java.util.ArrayList;

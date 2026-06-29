@@ -83,7 +83,7 @@ public class ChatManager implements Listener {
         Component msg = getTeamComponent(team.textColor());
 
         msg = msg.append(Component.text("<").color(NamedTextColor.WHITE)).append(
-                Component.text(team.getPrefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD)
+                Component.text(team.prefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD)
         ).append(
                 player.displayName().color(team.textColor())
         ).append(

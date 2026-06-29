@@ -137,7 +137,7 @@ public abstract class BaseStartGameTimer extends BukkitRunnable {
                 ).append(
                         Component.text(gamemodeIcon).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
                 );
-        subtitleComponent = Component.text(game.getMap().getMapName()).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE);
+        subtitleComponent = Component.text(game.getMap().getName()).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE);
 
         if (countdownTimer <= 5) {
             subtitleComponent = Component.text("Starting in ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)

@@ -1,8 +1,9 @@
-package neonique.cbcplugin_new.core;
+package neonique.cbcplugin_new.mapconfig;
 
 // This class represents a CBC map - with a name, heal pads, other game mechanics, etc.
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinMap;
@@ -17,13 +18,13 @@ import neonique.cbcplugin_new.gamemodes.tdm.TDMMap;
 import neonique.cbcplugin_new.gamemodes.tdm.TDMSpawn;
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownMap;
 import neonique.cbcplugin_new.mapmechanics.DashPad;
-import neonique.cbcplugin_new.mapmechanics.JumpPadMechanic;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.mapmechanics.HealthPad;
 import neonique.cbcplugin_new.mapmechanics.JumpPad;
 import neonique.cbcplugin_new.managers.DeathMessageGenerator;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.util.VectorUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
@@ -50,25 +51,30 @@ public class CBCMap {
 
     private static final Set<String> TEAM_ID_SET = new HashSet<>(Arrays.asList(TEAM_IDS));
 
-    private final GameManager gameManager;
-    private final CombatManager combatManager;
-
     // Important map information
-    private final String mapId;
-    private final String mapName;
+    private final String id;
+    private final String name;
     private final Material blockSymbol;
-    private Integer minTeams;
-    private Integer maxTeams;
-    private List<String> teamsAllowed;
+
+    private Integer minTeams; // TODO: remove later
+    private Integer maxTeams; // TODO: remove later
+    private List<String> teamsAllowed; // TODO: remove later
 
     // Map coordinates
     private final UUID worldUUID;
-    private final Vector centreCoordinates;
-    private final Vector highCornerOfMap;
-    private final Vector lowCornerOfMap;
-    private final Set<Vector> healthPadCoordinates;
-    private final Set<Vector> ffaSpawnpointCoordinates;
-    private final HashMap<String, Set<Vector>> defaultTeamSpawnCoordinates;
+    private final Vector centerCoords;
+    private final Vector lowerBound;
+    private final Vector upperBound;
+
+    // Gameplay information
+    private final List<Vector> defaultSpawnCoords;
+    private final Map<TeamColor, List<Vector>> defaultTeamSpawns;
+    private final List<YamlConfiguration> mechanicConfigs;
+
+    // Map options
+    private final List<Vector> healthPadCoordinates; // TODO: remove later
+    private final List<Vector> ffaSpawnpointCoordinates; // TODO: remove later
+    private final HashMap<String, List<Vector>> defaultTeamSpawnCoordinates; // TODO: remove later
     private final boolean ignoreYInSpawnCalculations;
 
     // Death message overrides that override default messages only on this map
@@ -79,15 +85,15 @@ public class CBCMap {
     private final int fireworkSpawnHeight; // This is relative to the center
 
     private int voidPlane = 0;
-    private final boolean instakillLava;
+    private final boolean instakillLava; // TODO: remove later
     private boolean jumpPadsEnabled = false;
-    private Set<Vector> jumpPadCoordinates;
+    private List<Vector> jumpPadCoordinates;
     private boolean dashPadsEnabled = false;
-    private final Set<Vector[]> dashPadCoordinates;
-    private boolean swimTimerEnabled = false;
-    private int swimTimerLength;
+    private final List<Vector[]> dashPadCoordinates;
+    private boolean swimTimerEnabled = false; // TODO: remove later
+    private int swimTimerLength; // TODO: remove later
     private boolean blocksFillAtStart = false;
-    private Set<Vector> blocksFillList = new HashSet<>();
+    private List<Vector> blocksFillList = new ArrayList<>();
     private Material materialAtStart = null;
     private Material materialAtEnd = null;
     private final boolean canTrapdoorsOpen;
@@ -115,7 +121,7 @@ public class CBCMap {
         Set<Vector> vectors = new HashSet<>();
         for (String string : strings) {
             // Try and catch used to make sure that no errors occur when parsing coordinates
-            Vector vector = convertStringToVector(string);
+            Vector vector = VectorUtil.strToVec(string);
             if (vector != null) {
                 // Add vector into coordinates list
                 vectors.add(vector.add(new Vector(0.5, 0.0, 0.5)));
@@ -128,7 +134,7 @@ public class CBCMap {
         Set<Vector> vectors = new HashSet<>();
         for (String string : strings) {
             // Try and catch used to make sure that no errors occur when parsing coordinates
-            Vector vector = convertStringToVector(string);
+            Vector vector = VectorUtil.strToVec(string);
             if (vector != null) {
                 // Add vector into coordinates list
                 if (addY) {
@@ -138,7 +144,7 @@ public class CBCMap {
                 }
             } else {
                 // Print out exception
-                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + mapId + " while trying to parse coordinates " + string);
+                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + id + " while trying to parse coordinates " + string);
             }
         }
         return vectors;
@@ -148,13 +154,13 @@ public class CBCMap {
         List<Vector> vectors = new ArrayList<>();
         for (String string : strings) {
             // Try and catch used to make sure that no errors occur when parsing coordinates
-            Vector vector = convertStringToVector(string);
+            Vector vector = VectorUtil.strToVec(string);
             if (vector != null) {
                 // Add vector into coordinates list
                 vectors.add(vector.add(new Vector(0.5, 0.0, 0.5)));
             } else {
                 // Print out exception
-                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + mapId + " while trying to parse coordinates " + string);
+                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + id + " while trying to parse coordinates " + string);
             }
         }
         return vectors;
@@ -167,13 +173,13 @@ public class CBCMap {
                 continue;
             }
             // Try and catch used to make sure that no errors occur when parsing coordinates
-            Vector vector = convertStringToVector((String) strings.get(string));
+            Vector vector = VectorUtil.strToVec((String) strings.get(string));
             if (vector != null) {
                 // Add vector into coordinates list
                 vectorMap.put(string, vector.add(new Vector(0.5, 0.0, 0.5)));
             } else {
                 // Print out exception
-                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + mapId + " while trying to parse coordinates " + string);
+                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + id + " while trying to parse coordinates " + string);
             }
         }
         return vectorMap;
@@ -181,33 +187,30 @@ public class CBCMap {
 
     public CBCMap(YamlConfiguration ymlConfig, GameManager gameManager, CombatManager combatManager) {
 
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
-
         worldUUID = gameManager.getWorld().getUID();
 
         // Get map name
-        mapId = ymlConfig.getString("MapId");
-        mapName = ymlConfig.getString("Name");
+        id = ymlConfig.getString("MapId");
+        name = ymlConfig.getString("Name");
         isPracticeMap = ymlConfig.getBoolean("PracticeMap", true);
 
         // Get block that represents map in inventory menu
         blockSymbol = Material.valueOf(ymlConfig.getString("BlockSymbol"));
 
         // Get center coordinates
-        centreCoordinates = convertStringToVector(Objects.requireNonNull(ymlConfig.getString("Center"))).add(new Vector(0.5, 0.0, 0.5));
+        centerCoords = VectorUtil.strToVec(Objects.requireNonNull(ymlConfig.getString("Center"))).add(new Vector(0.5, 0.0, 0.5));
 
         // Get boundaries of map for chunk loading
-        lowCornerOfMap = convertStringToVector(Objects.requireNonNull(ymlConfig.getString("MapBoundaryLow")));
-        highCornerOfMap = convertStringToVector(Objects.requireNonNull(ymlConfig.getString("MapBoundaryHigh")));
+        upperBound = VectorUtil.strToVec(Objects.requireNonNull(ymlConfig.getString("MapBoundaryLow")));
+        lowerBound = VectorUtil.strToVec(Objects.requireNonNull(ymlConfig.getString("MapBoundaryHigh")));
 
         // Get health pad coordinates
         List<String> healPadCoordStringList = ymlConfig.getStringList("HealingPads");
-        healthPadCoordinates = getVectorSetFromStrings(healPadCoordStringList, true);
+        healthPadCoordinates = VectorUtil.blockStrListToVecList(healPadCoordStringList);
 
         // Get FFA spawn point coordinates
         List<String> spawnpointStringList = ymlConfig.getStringList("DefaultFFASpawns");
-        ffaSpawnpointCoordinates = getVectorSetFromStrings(spawnpointStringList);
+        ffaSpawnpointCoordinates = VectorUtil.blockStrListToVecList(spawnpointStringList);
 
         // Get team spawn coordinates
         assert ymlConfig.getConfigurationSection("DefaultTeamSpawns") != null;
@@ -215,7 +218,7 @@ public class CBCMap {
         ConfigurationSection spawnSection = ymlConfig.getConfigurationSection("DefaultTeamSpawns");
         assert spawnSection != null;
         for (String teamName : spawnSection.getValues(false).keySet()) {
-            defaultTeamSpawnCoordinates.put(teamName, getVectorSetFromStrings(spawnSection.getStringList(teamName)));
+            defaultTeamSpawnCoordinates.put(teamName, VectorUtil.blockStrListToVecList(spawnSection.getStringList(teamName)));
         }
 
         ignoreYInSpawnCalculations = ymlConfig.getBoolean("IgnoreYInSpawnCalculations", false);
@@ -247,9 +250,9 @@ public class CBCMap {
             jumpPadsEnabled = gameMechanicsList.getBoolean("JumpPad");
             if (jumpPadsEnabled) {
                 List<String> jumpPadCoordStringList = ymlConfig.getStringList("JumpPads");
-                jumpPadCoordinates = getVectorSetFromStrings(jumpPadCoordStringList);
+                jumpPadCoordinates = VectorUtil.strListToVecList(jumpPadCoordStringList, new Vector(1, 0, 1));
             } else {
-                jumpPadCoordinates = new HashSet<>();
+                jumpPadCoordinates = new ArrayList<>();
             }
         }
 
@@ -257,7 +260,7 @@ public class CBCMap {
         if (gameMechanicsList.contains("DashPad")) {
             dashPadsEnabled = gameMechanicsList.getBoolean("DashPad");
             if (dashPadsEnabled) {
-                dashPadCoordinates = new HashSet<>();
+                dashPadCoordinates = new ArrayList<>();
                 ConfigurationSection dashPadSection = ymlConfig.getConfigurationSection("DashPads");
                 if (dashPadSection != null) {
                     for (String key : dashPadSection.getKeys(false)) {
@@ -265,9 +268,9 @@ public class CBCMap {
                         if (dashPadSubSection != null) {
                             try {
                                 Vector[] dashPadInfo = new Vector[]{
-                                        convertStringToVector(Objects.requireNonNull(dashPadSubSection.getString("StartBlock"))).add(new Vector(0.5, 0.5, 0.5)),
-                                        convertStringToVector(Objects.requireNonNull(dashPadSubSection.getString("EndBlock"))).add(new Vector(0.5, 0.5, 0.5)),
-                                        convertStringToVector(Objects.requireNonNull(dashPadSubSection.getString("Velocity"))),
+                                        VectorUtil.strToVec(Objects.requireNonNull(dashPadSubSection.getString("StartBlock"))).add(new Vector(0.5, 0.5, 0.5)),
+                                        VectorUtil.strToVec(Objects.requireNonNull(dashPadSubSection.getString("EndBlock"))).add(new Vector(0.5, 0.5, 0.5)),
+                                        VectorUtil.strToVec(Objects.requireNonNull(dashPadSubSection.getString("Velocity"))),
                                 };
                                 dashPadCoordinates.add(dashPadInfo);
                             } catch (NullPointerException ignored) {}
@@ -275,10 +278,10 @@ public class CBCMap {
                     }
                 }
             } else {
-                dashPadCoordinates = new HashSet<>();
+                dashPadCoordinates = new ArrayList<>();
             }
         } else {
-            dashPadCoordinates = new HashSet<>();
+            dashPadCoordinates = new ArrayList<>();
         }
 
         // Swim timer mechanic
@@ -294,7 +297,7 @@ public class CBCMap {
             blocksFillAtStart = gameMechanicsList.getBoolean("StartBlockFill", false);
             if (blocksFillAtStart) {
                 List<String> blocksFillStringList = ymlConfig.getStringList("BlocksToFill");
-                blocksFillList = getVectorSetFromStrings(blocksFillStringList);
+                blocksFillList = VectorUtil.blockStrListToVecList(blocksFillStringList);
                 materialAtStart = Material.valueOf(ymlConfig.getString("MaterialAtStart"));
                 materialAtEnd = Material.valueOf(ymlConfig.getString("MaterialAtEnd"));
             }
@@ -307,16 +310,16 @@ public class CBCMap {
 
     public void loadMapChunks(boolean sendMessage) {
 
-        int startChunkX = lowCornerOfMap.getBlockX() >> 4;
-        int startChunkZ = lowCornerOfMap.getBlockZ() >> 4;
-        int endChunkX = highCornerOfMap.getBlockX() >> 4;
-        int endChunkZ = highCornerOfMap.getBlockZ() >> 4;
+        int startChunkX = upperBound.getBlockX() >> 4;
+        int startChunkZ = upperBound.getBlockZ() >> 4;
+        int endChunkX = lowerBound.getBlockX() >> 4;
+        int endChunkZ = lowerBound.getBlockZ() >> 4;
         World world = getWorld();
 
-        CBCPlugin.getPlugin().getLogger().info("Loading chunks for map '" + getMapId() + "'");
+        CBCPlugin.getPlugin().getLogger().info("Loading chunks for map '" + getId() + "'");
         if (sendMessage) {
             world.sendMessage(
-                    Component.text("Chunks for map " + getMapName() + " loading...").color(NamedTextColor.YELLOW)
+                    Component.text("Chunks for map " + getName() + " loading...").color(NamedTextColor.YELLOW)
             );
         }
 
@@ -326,20 +329,12 @@ public class CBCMap {
             }
         }
 
-        CBCPlugin.getPlugin().getLogger().info("Finished loading chunks for map '" + getMapId() + "'");
+        CBCPlugin.getPlugin().getLogger().info("Finished loading chunks for map '" + getId() + "'");
         if (sendMessage) {
             world.sendMessage(
-                    Component.text("Chunks for map " + getMapName() + " successfully loaded!").color(NamedTextColor.YELLOW)
+                    Component.text("Chunks for map " + getName() + " successfully loaded!").color(NamedTextColor.YELLOW)
             );
         }
-    }
-
-    public GameManager getGameManager() {
-        return gameManager;
-    }
-
-    public CombatManager getWeaponManager () {
-        return combatManager;
     }
 
     public Material getBlockSymbol () {
@@ -390,7 +385,7 @@ public class CBCMap {
     public List<FFASpawnpoint> getSpawns() {
         List<FFASpawnpoint> spawnpoints = new ArrayList<>();
         for (Vector spawnpoint : ffaSpawnpointCoordinates) {
-            spawnpoints.add(new FFASpawnpoint(gameManager, spawnpoint));
+            spawnpoints.add(new FFASpawnpoint(new Location(getWorld(), spawnpoint.getX(), spawnpoint.getY(), spawnpoint.getZ())));
         }
         return spawnpoints;
     }
@@ -414,22 +409,20 @@ public class CBCMap {
         }
     }
 
-    public Set<Vector> getSpawnpointCoordinates () {
+    public List<Vector> getSpawnpointCoordinates () {
         return ffaSpawnpointCoordinates;
     }
 
-    public String getMapId() {
-        return mapId;
+    public String getId() {
+        return id;
     }
 
-    public String getMapName() {
-        return mapName;
+    public String getName() {
+        return name;
     }
 
     public Location getMapCentre() {
-
-        return new Location(getWorld(), centreCoordinates.getX(), centreCoordinates.getY(), centreCoordinates.getZ());
-
+        return new Location(getWorld(), centerCoords.getX(), centerCoords.getY(), centerCoords.getZ());
     }
 
     public void setMinAndMaxTeams(int minTeams, int maxTeams) {
@@ -533,15 +526,6 @@ public class CBCMap {
         return fireworkSpawnRadius;
     }
 
-    public List<TDMSpawn> getTDMSpawns() {
-        List<TDMSpawn> spawns = new ArrayList<>();
-        for (Vector spawnVector : getSpawnpointCoordinates()) {
-            spawns.add(new TDMSpawn(this.getGameManager().getWorld(), spawnVector, getGameManager(), 10,
-                    15, 45, getMapCentre(), isIgnoreYInSpawnCalculations()));
-        }
-        return spawns;
-    }
-
     public boolean hasAllTeamsSpawns () {
 
         for (String teamId : TEAM_ID_SET) {
@@ -553,18 +537,17 @@ public class CBCMap {
 
     }
 
-    public HashMap<String, Set<Location>> getDefaultTeamSpawns() {
-
-        HashMap<String, Set<Location>> spawnLocationMap = new HashMap<>();
+    public Map<String, List<Location>> getDefaultTeamSpawns() {
+        World world = getWorld();
+        Map<String, List<Location>> spawnLocationMap = new HashMap<>();
         for (String teamName : defaultTeamSpawnCoordinates.keySet()) {
-            Set<Location> spawnLocations = new HashSet<>();
+            List<Location> spawnLocations = new ArrayList<>();
             for (Vector spawn : defaultTeamSpawnCoordinates.get(teamName)) {
-                spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+                spawnLocations.add(new Location(world, spawn.getX(), spawn.getY(), spawn.getZ()));
             }
             spawnLocationMap.put(teamName, spawnLocations);
         }
         return spawnLocationMap;
-
     }
 
     public boolean isPracticeMap() {
@@ -572,7 +555,7 @@ public class CBCMap {
     }
 
     public boolean isMapRush() {
-        return Objects.equals(mapId, "_maprush");
+        return Objects.equals(id, "_maprush");
     }
 
     public boolean isTrapdoorsOpening () {

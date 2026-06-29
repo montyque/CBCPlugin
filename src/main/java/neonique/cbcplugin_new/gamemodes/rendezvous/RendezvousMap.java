@@ -1,8 +1,9 @@
 package neonique.cbcplugin_new.gamemodes.rendezvous;
 
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,10 +20,10 @@ public class RendezvousMap extends CBCMap {
     static final Set<String> GM_YAML_REQUIRED_KEYS = new HashSet<>(Arrays.asList(GM_YAML_SET_VALUES));
 
     // Map spawns
-    private final HashMap<String, Set<Vector>> teamStartSpawns;
+    private final Map<String, List<Vector>> teamStartSpawns;
 
     // Checkpoint related maps
-    private final Set<Vector> checkpointLocations;
+    private final List<Vector> checkpointLocations;
     private final double checkpointRadius;
     private final double checkpointDistanceMin;
     private final double checkpointDistanceMax;
@@ -46,12 +47,12 @@ public class RendezvousMap extends CBCMap {
         ConfigurationSection baseSpawnSection = gamemodeYml.getConfigurationSection("TeamStartSpawns");
         assert baseSpawnSection != null;
         for (String teamName : baseSpawnSection.getValues(false).keySet()) {
-            teamStartSpawns.put(teamName, getVectorSetFromStrings(baseSpawnSection.getStringList(teamName)));
+            teamStartSpawns.put(teamName, VectorUtil.blockStrListToVecList(baseSpawnSection.getStringList(teamName)));
         }
 
         // Checkpoint locations - locations of checkpoints
         List<String> checkpointStringList = gamemodeYml.getStringList("CheckpointLocations");
-        checkpointLocations = getVectorSetFromStrings(checkpointStringList);
+        checkpointLocations = VectorUtil.blockStrListToVecList(checkpointStringList);
 
         // Checkpoint distance min and max -- this is used when selecting a checkpoint
         checkpointDistanceMin = gamemodeYml.getDouble("CheckpointDistanceMin", 100);
@@ -67,27 +68,27 @@ public class RendezvousMap extends CBCMap {
         }
         else {
             isFinalCheckpointEnabled = true;
-            finalCheckpoint = convertStringToVector(finalCheckpointLocation).add(new Vector(0.5, 0.0, 0.5));
+            finalCheckpoint = VectorUtil.strToVec(finalCheckpointLocation).add(new Vector(0.5, 0.0, 0.5));
             finalCheckpointRadius = gamemodeYml.getDouble("FinalCheckpointRadius", checkpointRadius);
         }
     }
 
-    public HashMap<String, Set<Location>> getTeamStartSpawns () {
-        HashMap<String, Set<Location>> spawnLocationMap = new HashMap<>();
+    public Map<String, List<Location>> getTeamStartSpawns () {
+        Map<String, List<Location>> spawnLocationMap = new HashMap<>();
         for (String teamName : teamStartSpawns.keySet()) {
-            Set<Location> spawnLocations = new HashSet<>();
+            List<Location> spawnLocations = new ArrayList<>();
             for (Vector spawn : teamStartSpawns.get(teamName)) {
-                spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+                spawnLocations.add(new Location(getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
             }
             spawnLocationMap.put(teamName, spawnLocations);
         }
         return spawnLocationMap;
     }
 
-    public List<RendezvousSpawn> getRandomSpawns () {
+    public List<RendezvousSpawn> getRandomSpawns (RendezvousGame game) {
         List<RendezvousSpawn> spawns = new ArrayList<>();
         for (Vector spawnVector : getSpawnpointCoordinates()) {
-            spawns.add(new RendezvousSpawn(this.getGameManager().getWorld(), spawnVector, getGameManager()));
+            spawns.add(new RendezvousSpawn(game, getWorld(), spawnVector));
         }
         return spawns;
     }
@@ -99,7 +100,7 @@ public class RendezvousMap extends CBCMap {
 
         List<RendezvousCheckpoint> checkpoints = new ArrayList<>();
         for (Vector spawnVector : checkpointLocations) {
-            checkpoints.add(new RendezvousCheckpoint(this.getGameManager().getWorld(), spawnVector, getGameManager(), checkpointRadius));
+            checkpoints.add(new RendezvousCheckpoint(getWorld(), spawnVector, checkpointRadius));
         }
         return checkpoints;
     }
@@ -117,7 +118,7 @@ public class RendezvousMap extends CBCMap {
     }
 
     public RendezvousCheckpoint getFinalCheckpoint() {
-        return new RendezvousCheckpoint(this.getGameManager().getWorld(), finalCheckpoint, getGameManager(), finalCheckpointRadius);
+        return new RendezvousCheckpoint(getWorld(), finalCheckpoint, finalCheckpointRadius);
     }
 
     public static Set<String> getGmYamlRequiredKeys() {

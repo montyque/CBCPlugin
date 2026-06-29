@@ -11,11 +11,11 @@ import java.util.Collection;
 
 public class RendezvousSpawn extends Location {
 
-    private final GameManager gameManager;
+    private final RendezvousGame game;
 
-    public RendezvousSpawn(World world, Vector vector, GameManager gameManager) {
+    public RendezvousSpawn(RendezvousGame game, World world, Vector vector) {
         super(world, vector.getX(), vector.getY(), vector.getZ());
-        this.gameManager = gameManager;
+        this.game = game;
     }
 
     public boolean isEnemyNearby (CBCPlayer ownPlayer, double radius) {
@@ -23,8 +23,8 @@ public class RendezvousSpawn extends Location {
         Collection<Player> nearbyPlayerList = getNearbyEntitiesByType(Player.class, radius);
 
         for (Player playerEntity : nearbyPlayerList) {
-            if (gameManager.hasPlayer(playerEntity)) {
-                CBCPlayer player = gameManager.getPlayer(playerEntity);
+            if (game.hasPlayer(playerEntity)) {
+                CBCPlayer player = game.getPlayer(playerEntity);
                 if (player.isAlive()) {
                     if (!player.isAlly(ownPlayer)) {
                         return true;

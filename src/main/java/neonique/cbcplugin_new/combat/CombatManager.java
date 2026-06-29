@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.combat;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.listeners.*;
 import neonique.cbcplugin_new.combat.tasks.*;
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.DeathMessageManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.mapmechanics.*;
@@ -19,7 +19,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.entity.*;
-import org.bukkit.event.entity.*;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 

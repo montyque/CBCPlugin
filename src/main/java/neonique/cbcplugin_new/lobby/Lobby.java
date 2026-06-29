@@ -5,7 +5,7 @@ import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.weapons.WeaponType;
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mechanics.*;
 import neonique.cbcplugin_new.listeners.lobby.MenuClickEvent;
 import neonique.cbcplugin_new.listeners.lobby.PlayerDamageListener;
@@ -473,7 +473,7 @@ public class Lobby {
             ItemStack item = new ItemStack(map.getBlockSymbol());
             ItemMeta itemMeta = item.getItemMeta();
             // Set item title
-            Component itemTitle = Component.text(map.getMapName()).color(gmColor)
+            Component itemTitle = Component.text(map.getName()).color(gmColor)
                     .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
             itemMeta.displayName(itemTitle);
             item.setItemMeta(itemMeta);
@@ -543,7 +543,7 @@ public class Lobby {
         mapSelected = map;
 
         // Send message to say what map has been selected
-        Component message = Component.text().content(gamemodeVariables.getGamemodeName() + " - " + map.getMapName())
+        Component message = Component.text().content(gamemodeVariables.getGamemodeName() + " - " + map.getName())
                         .color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD)
                         .append(
                                 Component.text().content(" has been selected!").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD,
@@ -557,7 +557,7 @@ public class Lobby {
         // Change image map
         imageMaps.clearImage();
 
-        String imageFileName = gameManager.getImageFile(gamemode, map.getMapId());
+        String imageFileName = gameManager.getImageFile(gamemode, map.getId());
         if (imageFileName != null) {
             imageMaps.setImage(imageFileName);
         }

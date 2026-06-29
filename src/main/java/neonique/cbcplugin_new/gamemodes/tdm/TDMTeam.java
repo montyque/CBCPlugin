@@ -2,11 +2,8 @@ package neonique.cbcplugin_new.gamemodes.tdm;
 
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.core.TeamLike;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -17,7 +14,7 @@ public class TDMTeam extends CBCTeam<TDMPlayer> {
     private int kills = 0;
 
     // Spawns
-    private Set<Location> spawns;
+    private List<Location> spawns;
 
     // Placement
     int placement = 1;
@@ -28,7 +25,7 @@ public class TDMTeam extends CBCTeam<TDMPlayer> {
         this.game = game;
     }
 
-    public void setSpawns(Set<Location> spawns) {
+    public void setSpawns(List<Location> spawns) {
         this.spawns = spawns;
     }
 
@@ -47,7 +44,7 @@ public class TDMTeam extends CBCTeam<TDMPlayer> {
         return kills;
     }
 
-    public Set<Location> getSpawns() {
+    public List<Location> getSpawns() {
         return spawns;
     }
 

@@ -39,7 +39,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
     private UUID hologramUUID = null;
 
     private Location flagLocation;
-    private Set<Location> teamSpawns;
+    private List<Location> teamSpawns;
 
     // Statistics
     protected int timesFlagPickedUp = 0;
@@ -74,7 +74,7 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
         }
     }
 
-    public void setBaseVariables(Location flagLocation, Set<Location> teamSpawns) {
+    public void setBaseVariables(Location flagLocation, List<Location> teamSpawns) {
         this.flagLocation = flagLocation;
         this.teamSpawns = teamSpawns;
 

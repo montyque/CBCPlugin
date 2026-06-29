@@ -44,7 +44,7 @@ public class ShowdownStartRoundTimer extends BaseStartGameTimer {
                         Component.text(gamemodeIcon).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
                 );
 
-        subtitleComponent = Component.text(game.getMap().getMapName()).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE);
+        subtitleComponent = Component.text(game.getMap().getName()).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE);
 
         if (!gameStart) {
             titleComponent = Component.text("ROUND " + game.getRoundNumber()).decorate(TextDecoration.BOLD).color(textColor);

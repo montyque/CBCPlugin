@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.commands.practicesubcommands;
 
 import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.managers.GameState;
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -43,7 +43,7 @@ public class practice_changemap {
         }
 
         // Check if map choice is same as current map
-        if (gameManager.practiceManager.getMap().getMapId().equals(mapChoice.getMapId())) {
+        if (gameManager.practiceManager.getMap().getId().equals(mapChoice.getId())) {
             user.sendMessage(Component.text("That map is already the Practice Arena map!").color(NamedTextColor.YELLOW));
             return;
         }
@@ -63,12 +63,12 @@ public class practice_changemap {
             if (perms >= 1) {
                 // Show all practice maps
                 for (CBCMap map : gameManager.getPracticeMaps()) {
-                    tabCompletions.add(map.getMapId());
+                    tabCompletions.add(map.getId());
                 }
 
                 // Remove the map currently set
                 if (gameManager.practiceManager.getMap() != null) {
-                    tabCompletions.remove(gameManager.practiceManager.getMap().getMapId());
+                    tabCompletions.remove(gameManager.practiceManager.getMap().getId());
                 }
             }
         }

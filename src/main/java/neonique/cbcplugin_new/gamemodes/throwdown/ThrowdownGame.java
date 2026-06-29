@@ -23,7 +23,6 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import org.bukkit.Location;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.time.Duration;
@@ -172,7 +171,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         }
 
         // Select each player's spawn randomly
-        List<Location> spawnOrder = sortSpawns();
+        List<FFASpawnpoint> spawnOrder = sortSpawns();
         List<ThrowdownPlayer> randomPlayerList = new ArrayList<>(getPlayers());
         Collections.shuffle(randomPlayerList);
 
@@ -180,7 +179,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         for (ThrowdownPlayer player : randomPlayerList) {
 
             if (!player.isOnline()) continue;
-            player.teleportPlayerToSpawn(spawnOrder.get(spawnNum), getMap().getMapCentre());
+            player.teleportPlayerToSpawn(spawnOrder.get(spawnNum).location(), getMap().getMapCentre());
             aliveTeam.addEntityUUID(player.getUUID());
             spawnNum++;
 
@@ -380,14 +379,16 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
     }
 
 
-    public List<Location> sortSpawns() {
+    public List<FFASpawnpoint> sortSpawns() {
 
-        List<Location> roundSpawnList = new ArrayList<>(spawns);
-        List<Location> spawnOrder = new ArrayList<>();
+        List<FFASpawnpoint> roundSpawnList = new ArrayList<>(spawns);
+        List<FFASpawnpoint> spawnOrder = new ArrayList<>();
 
         // Select the first spawn
-        Comparator<Location> byDistanceFromCenter =
-                (Location loc1, Location loc2) -> Double.compare(loc1.distanceSquared(getMap().getMapCentre()), loc2.distanceSquared(getMap().getMapCentre()));
+        Comparator<FFASpawnpoint> byDistanceFromCenter =
+                (FFASpawnpoint loc1, FFASpawnpoint loc2) -> Double.compare(loc1.location().distanceSquared(getMap().getMapCentre()),
+                        loc2.location().distanceSquared(getMap().getMapCentre()));
+
         roundSpawnList.sort(byDistanceFromCenter);
         Collections.reverse(roundSpawnList);
 
@@ -396,12 +397,12 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
 
         while (spawnOrder.size() < getPlayers().size()) {
             double minDistanceFromSpawns = 0;
-            Location spawnSelected = null;
-            for (Location spawn : new ArrayList<>(roundSpawnList)) {
+            FFASpawnpoint spawnSelected = null;
+            for (FFASpawnpoint spawn : new ArrayList<>(roundSpawnList)) {
                 double spawnMinDistanceFromSpawns = 300000;
-                for (Location spawnAlreadySelected : spawnOrder) {
-                    if (spawn.distanceSquared(spawnAlreadySelected) < spawnMinDistanceFromSpawns) {
-                        spawnMinDistanceFromSpawns = spawn.distanceSquared(spawnAlreadySelected);
+                for (FFASpawnpoint spawnAlreadySelected : spawnOrder) {
+                    if (spawn.location().distanceSquared(spawnAlreadySelected.location()) < spawnMinDistanceFromSpawns) {
+                        spawnMinDistanceFromSpawns = spawn.location().distanceSquared(spawnAlreadySelected.location());
                     }
                 }
                 if (spawnMinDistanceFromSpawns > minDistanceFromSpawns) {
@@ -487,7 +488,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
 
         // If sudden death border is enabled
         if (suddenDeathBorderEnabled) {
-            suddenDeathBorder = getMap().getSuddenDeathBorder();
+            suddenDeathBorder = getMap().getSuddenDeathBorder(getGameManager());
             suddenDeathBorder.activateBorder();
         }
 

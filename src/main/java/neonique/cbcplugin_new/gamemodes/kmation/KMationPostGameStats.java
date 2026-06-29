@@ -71,7 +71,7 @@ public class KMationPostGameStats extends PostGameStats {
 
         // Adding lore fields
         List<Component> loreList = new ArrayList<>();
-        addLoreField(loreList, "Map", game.getMap().getMapName(), NamedTextColor.GREEN);
+        addLoreField(loreList, "Map", game.getMap().getName(), NamedTextColor.GREEN);
         if (game.getWinner() != null) {
             addLoreField(loreList, "Winner", game.getWinner().name(), NamedTextColor.GREEN);
         }

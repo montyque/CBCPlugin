@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class KMationSpawn extends Location {
 
-    private final GameManager gameManager;
+    private final KMationGame game;
 
     private final boolean ignoreY;
     private final int enemyRadius;
@@ -22,10 +22,10 @@ public class KMationSpawn extends Location {
     private final Location mapCenter;
     private double mapYAverage;
 
-    public KMationSpawn(World world, Vector vector, GameManager gameManager, int enemyRadius, int enemyTargetDistance, boolean ignoreY,
+    public KMationSpawn(KMationGame game, World world, Vector vector, int enemyRadius, int enemyTargetDistance, boolean ignoreY,
                         Location mapCenter, double mapYAverage) {
         super(world, vector.getX(), vector.getY(), vector.getZ());
-        this.gameManager = gameManager;
+        this.game = game;
         this.enemyRadius = enemyRadius;
         this.enemyTargetDistance = Math.pow(enemyTargetDistance, 2);
         this.mapCenter = mapCenter;
@@ -36,7 +36,8 @@ public class KMationSpawn extends Location {
 
         double nearestEnemyDistance = 1000000;
         // Go through all enemy alive players and check the distance between them and this spawn point
-        for (CBCPlayer player : gameManager.getAlivePlayers()) {
+        for (CBCPlayer player : game.getPlayers()) {
+            if (!player.isAlive()) continue;
             if (calculateDistance(player.getPlayer().getLocation()) < nearestEnemyDistance) {
                 nearestEnemyDistance = calculateDistance(player.getPlayer().getLocation());
             }
@@ -57,8 +58,8 @@ public class KMationSpawn extends Location {
 
     public boolean isEnemyNearbySpawn(CBCPlayer ownPlayer) {
         for (Player player : getNearbyPlayers(enemyRadius)) {
-            if (!this.gameManager.hasPlayer(player)) continue;
-            CBCPlayer cbcplayer = this.gameManager.getPlayer(player);
+            if (!game.hasPlayer(player)) continue;
+            CBCPlayer cbcplayer = game.getPlayer(player);
             if (!cbcplayer.isAlive()) continue;
             if (ownPlayer.isAlly(cbcplayer)) continue;
             return true;
@@ -99,8 +100,8 @@ public class KMationSpawn extends Location {
         Set<Player> nearbyPlayerList = new HashSet<>();
 
         for (Player playerEntity : loc.getNearbyEntitiesByType(Player.class, radius)) {
-            if (gameManager.hasPlayer(playerEntity)) {
-                CBCPlayer player = gameManager.getPlayer(playerEntity);
+            if (game.hasPlayer(playerEntity)) {
+                CBCPlayer player = game.getPlayer(playerEntity);
                 if (player.isAlive()) {
                     if (!player.isAlly(ownPlayer)) {
                         nearbyPlayerList.add(playerEntity);

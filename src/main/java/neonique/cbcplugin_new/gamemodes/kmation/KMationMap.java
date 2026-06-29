@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.kmation;
 
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -29,10 +29,10 @@ public class KMationMap extends CBCMap {
         averageY = gamemodeYml.getDouble("AverageY", getMapCentre().getY());
     }
 
-    public List<KMationSpawn> getKMationSpawns () {
+    public List<KMationSpawn> getKMationSpawns (KMationGame game) {
         List<KMationSpawn> spawns = new ArrayList<>();
         for (Vector spawnVector : getSpawnpointCoordinates()) {
-            spawns.add(new KMationSpawn(this.getGameManager().getWorld(), spawnVector, getGameManager(), enemyRadius,
+            spawns.add(new KMationSpawn(game, getWorld(), spawnVector, enemyRadius,
                     enemyTargetDistance, isIgnoreYInSpawnCalculations(), getMapCentre(), averageY));
         }
         return spawns;

@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.playerclasses;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.managers.PracticeManager;
@@ -45,14 +46,9 @@ public class PracticePlayer extends CBCPlayer {
         List<FFASpawnpoint> spawns = practiceManager.getSpawns();
         Collections.shuffle(spawns);
 
-        for (FFASpawnpoint spawn : spawns) {
-            spawn.findDistanceOfNearestPlayer(50.0, this);
-        }
-
-        spawns.sort(Comparator.comparingDouble(FFASpawnpoint::getNearestPlayerRange));
-        Collections.reverse(spawns);
-
-        teleportPlayerToSpawn(spawns.get(0), practiceManager.getMap().getMapCentre());
+        PlayerRegistry registry = getGameManager().getPlayerRegistry();
+        spawns.sort(Comparator.<FFASpawnpoint>comparingDouble(s -> s.findDistanceOfNearestPlayer(registry, 50.0, this)).reversed());
+        teleportPlayerToSpawn(spawns.get(0).location(), practiceManager.getMap().getMapCentre());
 
     }
 }

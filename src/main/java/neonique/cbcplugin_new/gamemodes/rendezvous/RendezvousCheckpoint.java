@@ -20,9 +20,6 @@ import java.util.UUID;
 
 public class RendezvousCheckpoint extends Location {
 
-    private final GameManager gameManager;
-    private RendezvousGame game;
-
     // Checkpoint area information
     private final double checkpointRadius;
     private double upwardsExtensionMax;
@@ -36,10 +33,9 @@ public class RendezvousCheckpoint extends Location {
     private final HashMap<RendezvousTeam, UUID> glowingMarkers;
     private final HashMap<RendezvousTeam, UUID> progressMarkers;
 
-    public RendezvousCheckpoint (World world, Vector vector, GameManager gameManager, double checkpointRadius) {
+    public RendezvousCheckpoint (World world, Vector vector, double checkpointRadius) {
 
         super(world, vector.getX(), vector.getY(), vector.getZ());
-        this.gameManager = gameManager;
 
         this.checkpointRadius = checkpointRadius;
 
@@ -64,10 +60,6 @@ public class RendezvousCheckpoint extends Location {
             circlePositions2.add(new Point2D.Double(x1, y1));
         }
 
-    }
-
-    public void setGame (RendezvousGame game) {
-        this.game = game;
     }
 
     public void setUpwardsExtensionMax () {
@@ -102,7 +94,7 @@ public class RendezvousCheckpoint extends Location {
         glowingMarkers.put(team, markerEntity.getUniqueId());
 
         // Create hologram
-        AreaEffectCloud hologram = (AreaEffectCloud) gameManager.getWorld().spawnEntity(this.clone().add(0, 4 +
+        AreaEffectCloud hologram = (AreaEffectCloud) getWorld().spawnEntity(this.clone().add(0, 4 +
                 (progressMarkers.size()) * 0.5, 0), EntityType.AREA_EFFECT_CLOUD);
         hologram.clearCustomEffects();
         hologram.setRadius(0);
@@ -143,7 +135,7 @@ public class RendezvousCheckpoint extends Location {
         }
 
         // Create component
-        Component hologramName = Component.text(team.getPrefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD);
+        Component hologramName = Component.text(team.prefix() + " ").color(team.textColor()).decorate(TextDecoration.BOLD);
 
         hologramName = hologramName.append(Component.text(coloredTitle.toString())
                 .color(team.textColor()).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE));
@@ -254,9 +246,4 @@ public class RendezvousCheckpoint extends Location {
         return (!glowingMarkers.isEmpty());
     }
 
-    public void playSoundOnCheckpointClear () {
-
-        gameManager.playSound(this.clone().add(0, 1.5, 0), Sound.BLOCK_BEACON_ACTIVATE, 4, 2);
-
-    }
 }

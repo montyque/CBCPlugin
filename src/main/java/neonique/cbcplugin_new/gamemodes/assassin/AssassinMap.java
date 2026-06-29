@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.assassin;
 
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -26,10 +26,10 @@ public class AssassinMap extends CBCMap {
         targetDistance = gamemodeYml.getInt("TargetSpawnDistance", 40);
     }
 
-    public List<AssassinSpawn> getAssassinSpawns () {
+    public List<AssassinSpawn> getAssassinSpawns (AssassinGame game) {
         List<AssassinSpawn> spawns = new ArrayList<>();
         for (Vector spawnVector : getSpawnpointCoordinates()) {
-            spawns.add(new AssassinSpawn(this.getGameManager().getWorld(), spawnVector, getGameManager(), enemyRadius,
+            spawns.add(new AssassinSpawn(game, getWorld(), spawnVector, enemyRadius,
                     isIgnoreYInSpawnCalculations()));
         }
         return spawns;

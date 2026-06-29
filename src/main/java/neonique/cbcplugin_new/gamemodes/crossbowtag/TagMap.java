@@ -1,8 +1,9 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -22,13 +23,13 @@ public class TagMap extends CBCMap {
 
     // Evader spawns
     private final boolean randomEvaderSpawns;
-    private Set<Set<Vector>> evaderSpawns;
-    private HashMap<String, Set<Vector>> teamEvaderSpawns;
+    private List<List<Vector>> evaderSpawns;
+    private Map<String, List<Vector>> teamEvaderSpawns;
 
     // Tagger spawns
     private final boolean equalTaggerSpawns;
-    private Set<Vector> taggerSpawns;
-    private HashMap<String, Set<Vector>> teamTaggerSpawns;
+    private List<Vector> taggerSpawns;
+    private Map<String, List<Vector>> teamTaggerSpawns;
 
     public TagMap(YamlConfiguration ymlConfig, YamlConfiguration gamemodeYml,
                          GameManager gameManager, CombatManager combatManager) {
@@ -49,11 +50,11 @@ public class TagMap extends CBCMap {
 
             // Evader spawns are not attached to teams
             ConfigurationSection evaderSpawnSection = gamemodeYml.getConfigurationSection("EvaderSpawns");
-            evaderSpawns = new HashSet<>();
+            evaderSpawns = new ArrayList<>();
 
             assert evaderSpawnSection != null;
             for (String key : evaderSpawnSection.getValues(false).keySet()) {
-                evaderSpawns.add(getVectorSetFromStrings(evaderSpawnSection.getStringList(key)));
+                evaderSpawns.add(VectorUtil.blockStrListToVecList(evaderSpawnSection.getStringList(key)));
             }
 
         }
@@ -65,7 +66,7 @@ public class TagMap extends CBCMap {
             ConfigurationSection baseSpawnSection = gamemodeYml.getConfigurationSection("TeamEvaderSpawns");
             assert baseSpawnSection != null;
             for (String teamName : baseSpawnSection.getValues(false).keySet()) {
-                teamEvaderSpawns.put(teamName, getVectorSetFromStrings(baseSpawnSection.getStringList(teamName)));
+                teamEvaderSpawns.put(teamName, VectorUtil.blockStrListToVecList(baseSpawnSection.getStringList(teamName)));
             }
 
         }
@@ -75,7 +76,7 @@ public class TagMap extends CBCMap {
         if (equalTaggerSpawns) {
 
             // Tagger spawns are the same for every team
-            taggerSpawns = getVectorSetFromStrings(gamemodeYml.getStringList("TaggerSpawns"));
+            taggerSpawns = VectorUtil.blockStrListToVecList(gamemodeYml.getStringList("TaggerSpawns"));
 
         }
         else {
@@ -86,55 +87,55 @@ public class TagMap extends CBCMap {
             ConfigurationSection baseTaggerSpawnSection = gamemodeYml.getConfigurationSection("TeamTaggerSpawns");
             assert baseTaggerSpawnSection != null;
             for (String teamName : baseTaggerSpawnSection.getValues(false).keySet()) {
-                teamTaggerSpawns.put(teamName, getVectorSetFromStrings(baseTaggerSpawnSection.getStringList(teamName)));
+                teamTaggerSpawns.put(teamName, VectorUtil.blockStrListToVecList(baseTaggerSpawnSection.getStringList(teamName)));
             }
 
         }
     }
 
-    public HashMap<String, Set<Location>> getTeamEvaderSpawns () {
-        HashMap<String, Set<Location>> spawnLocationMap = new HashMap<>();
+    public Map<String, List<Location>> getTeamEvaderSpawns () {
+        Map<String, List<Location>> spawnLocationMap = new HashMap<>();
         for (String teamName : teamEvaderSpawns.keySet()) {
-            Set<Location> spawnLocations = new HashSet<>();
+            List<Location> spawnLocations = new ArrayList<>();
             for (Vector spawn : teamEvaderSpawns.get(teamName)) {
-                spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+                spawnLocations.add(new Location(getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
             }
             spawnLocationMap.put(teamName, spawnLocations);
         }
         return spawnLocationMap;
     }
 
-    public List<Set<Location>> getEvaderSpawns () {
-        List<Set<Location>> allSpawnLocations = new ArrayList<>();
-        for (Set<Vector> spawns : evaderSpawns) {
-            Set<Location> spawnLocations = new HashSet<>();
+    public List<List<Location>> getEvaderSpawns () {
+        List<List<Location>> allSpawnLocations = new ArrayList<>();
+        for (List<Vector> spawns : evaderSpawns) {
+            List<Location> spawnLocations = new ArrayList<>();
             for (Vector spawn : spawns) {
-                spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+                spawnLocations.add(new Location(getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
             }
             allSpawnLocations.add(spawnLocations);
         }
         return allSpawnLocations;
     }
 
-    public HashMap<String, Set<Location>> getTeamTaggerSpawns () {
-        HashMap<String, Set<Location>> spawnLocationMap = new HashMap<>();
+    public Map<String, List<Location>> getTeamTaggerSpawns () {
+        Map<String, List<Location>> spawnLocationMap = new HashMap<>();
         for (String teamName : teamTaggerSpawns.keySet()) {
-            Set<Location> spawnLocations = new HashSet<>();
+            List<Location> spawnLocations = new ArrayList<>();
             for (Vector spawn : teamTaggerSpawns.get(teamName)) {
-                spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+                spawnLocations.add(new Location(getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
             }
             spawnLocationMap.put(teamName, spawnLocations);
         }
         return spawnLocationMap;
     }
 
-    public Set<Location> getTaggerSpawns () {
+    public List<Location> getTaggerSpawns () {
 
-        Set<Location> spawnLocations = new HashSet<>();
+        List<Location> spawnLocations = new ArrayList<>();
         if (taggerSpawns == null) return spawnLocations;
 
         for (Vector spawn : taggerSpawns) {
-            spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+            spawnLocations.add(new Location(getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
         }
 
         return spawnLocations;

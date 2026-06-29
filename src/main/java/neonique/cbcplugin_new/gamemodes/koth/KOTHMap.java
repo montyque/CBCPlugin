@@ -1,8 +1,9 @@
 package neonique.cbcplugin_new.gamemodes.koth;
 
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -18,10 +19,10 @@ public class KOTHMap extends CBCMap {
     static final Set<String> GM_YAML_REQUIRED_KEYS = new HashSet<>(Arrays.asList(GM_YAML_SET_VALUES));
 
     private boolean onlyTeamSpawns; // True if players should only spawn in their team spawns after death
-    private HashMap<String, Set<Vector>> teamSpawns; // The locations of each team's spawns
-    private Set<Vector> randomSpawns; // If onlyTeamSpawns
+    private Map<String, List<Vector>> teamSpawns; // The locations of each team's spawns
+    private List<Vector> randomSpawns; // If onlyTeamSpawns
 
-    private HashMap<String, Set<Vector>> blocksOnCapture; // The locations of each team's spawns
+    private Map<String, List<Vector>> blocksOnCapture; // The locations of each team's spawns
 
     private ConfigurationSection hillSettingsSection;
 
@@ -47,14 +48,14 @@ public class KOTHMap extends CBCMap {
         ConfigurationSection baseSpawnSection = gamemodeYml.getConfigurationSection("TeamSpawns");
         assert baseSpawnSection != null;
         for (String teamName : baseSpawnSection.getValues(false).keySet()) {
-            teamSpawns.put(teamName, getVectorSetFromStrings(baseSpawnSection.getStringList(teamName)));
+            teamSpawns.put(teamName, VectorUtil.blockStrListToVecList(baseSpawnSection.getStringList(teamName)));
         }
 
         // Random spawns - where players will spawn after death
         // Uses team spawns for normal spawns if random spawns are not specified
         List<String> randomSpawnsStringList = ymlConfig.getStringList("RandomSpawns");
         if (!randomSpawnsStringList.isEmpty()) {
-            randomSpawns = getVectorSetFromStrings(randomSpawnsStringList);
+            randomSpawns = VectorUtil.blockStrListToVecList(randomSpawnsStringList);
             onlyTeamSpawns = false;
         }
         else {
@@ -70,7 +71,7 @@ public class KOTHMap extends CBCMap {
         ConfigurationSection blocksOnCaptureSection = gamemodeYml.getConfigurationSection("BlocksOnCapture");
         if (blocksOnCaptureSection != null) {
             for (String material : blocksOnCaptureSection.getValues(false).keySet()) {
-                blocksOnCapture.put(material, getVectorSetFromStrings(blocksOnCaptureSection.getStringList(material)));
+                blocksOnCapture.put(material, VectorUtil.blockStrListToVecList(blocksOnCaptureSection.getStringList(material)));
             }
         }
 
@@ -79,18 +80,18 @@ public class KOTHMap extends CBCMap {
     public List<Location> getRandomSpawns () {
         List<Location> spawns = new ArrayList<>();
         for (Vector spawnVector : getSpawnpointCoordinates()) {
-            spawns.add(new Location(this.getGameManager().getWorld(), spawnVector.getX(),
+            spawns.add(new Location(getWorld(), spawnVector.getX(),
                     spawnVector.getY(), spawnVector.getZ()));
         }
         return spawns;
     }
 
-    public HashMap<String, Set<Location>> getTeamSpawns () {
-        HashMap<String, Set<Location>> spawnLocationMap = new HashMap<>();
+    public Map<String, List<Location>> getTeamSpawns () {
+        Map<String, List<Location>> spawnLocationMap = new HashMap<>();
         for (String teamName : teamSpawns.keySet()) {
-            Set<Location> spawnLocations = new HashSet<>();
+            List<Location> spawnLocations = new ArrayList<>();
             for (Vector spawn : teamSpawns.get(teamName)) {
-                spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+                spawnLocations.add(new Location(getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
             }
             spawnLocationMap.put(teamName, spawnLocations);
         }
@@ -118,7 +119,7 @@ public class KOTHMap extends CBCMap {
             zoneCenter = getMapCentre();
         }
         else {
-            Vector zoneCenterVector = convertStringToVector(zoneCenterString);
+            Vector zoneCenterVector = VectorUtil.strToVec(zoneCenterString);
             zoneCenter = new Location(getWorld(), zoneCenterVector.getX() + 0.5, zoneCenterVector.getY(), zoneCenterVector.getZ() + 0.5);
         }
 
@@ -129,7 +130,7 @@ public class KOTHMap extends CBCMap {
 
     }
 
-    public HashMap<String, Set<Vector>> getBlocksOnCapture() {
+    public Map<String, List<Vector>> getBlocksOnCapture() {
         return blocksOnCapture;
     }
 

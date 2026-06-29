@@ -53,7 +53,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
     private KOTHHill hill; // Hill objective
 
     private boolean randomSpawnsEnabled; // If players are to spawn randomly around the map
-    private Set<Location> randomSpawns; // Where players will spawn randomly
+    private List<Location> randomSpawns; // Where players will spawn randomly
 
     // Tasks and listeners
     private PlayerNoMove playerNoMoveListener; // Activated at start of game so players cannot move
@@ -128,7 +128,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
         setGameCommands(new BaseTeamGameCommands(this));
 
         // Create teams and players
-        HashMap<String, Set<Location>> teamSpawns = getMap().getTeamSpawns();
+        Map<String, List<Location>> teamSpawns = getMap().getTeamSpawns();
         createTeams(ctx.getTeams());
         teleportSpectators();
 
@@ -369,7 +369,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
         for (String materialString : getMap().getBlocksOnCapture().keySet()) {
             try {
                 Material blockMaterial = Material.valueOf((colorMaterialString + "_" + materialString).toUpperCase());
-                Set<Vector> blockVectorList = getMap().getBlocksOnCapture().get(materialString);
+                List<Vector> blockVectorList = getMap().getBlocksOnCapture().get(materialString);
                 for (Vector vector : blockVectorList) {
                     Block block = getWorld().getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
                     block.setType(blockMaterial);

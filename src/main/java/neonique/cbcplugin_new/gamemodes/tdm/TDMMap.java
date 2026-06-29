@@ -1,8 +1,9 @@
 package neonique.cbcplugin_new.gamemodes.tdm;
 
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -17,7 +18,7 @@ public class TDMMap extends CBCMap {
     };
     static final Set<String> GM_YAML_REQUIRED_KEYS = new HashSet<>(Arrays.asList(GM_YAML_SET_VALUES));
 
-    private final HashMap<String, Set<Vector>> teamSpawns;
+    private final Map<String, List<Vector>> teamSpawns;
 
     private final boolean randomSpawnsEnabled;
     // Ally radius and enemy radius -- THIS ONLY APPLIES IF "RandomSpawns" IS ENABLED
@@ -42,7 +43,7 @@ public class TDMMap extends CBCMap {
         ConfigurationSection baseSpawnSection = gamemodeYml.getConfigurationSection("TeamSpawns");
         assert baseSpawnSection != null;
         for (String teamName : baseSpawnSection.getValues(false).keySet()) {
-            teamSpawns.put(teamName, getVectorSetFromStrings(baseSpawnSection.getStringList(teamName)));
+            teamSpawns.put(teamName, VectorUtil.blockStrListToVecList(baseSpawnSection.getStringList(teamName)));
         }
 
         // Check if random spawns is enabled -- random spawns creates
@@ -59,21 +60,21 @@ public class TDMMap extends CBCMap {
         return randomSpawnsEnabled;
     }
 
-    public List<TDMSpawn> getRandomSpawns () {
+    public List<TDMSpawn> getRandomSpawns (TDMGame game) {
         List<TDMSpawn> spawns = new ArrayList<>();
         for (Vector spawnVector : getSpawnpointCoordinates()) {
-            spawns.add(new TDMSpawn(this.getGameManager().getWorld(), spawnVector, getGameManager(), allyRadius,
+            spawns.add(new TDMSpawn(game, getWorld(), spawnVector, allyRadius,
                     enemyRadius, enemyTargetDistance, getMapCentre(), isIgnoreYInSpawnCalculations()));
         }
         return spawns;
     }
 
-    public HashMap<String, Set<Location>> getTeamSpawns () {
-        HashMap<String, Set<Location>> spawnLocationMap = new HashMap<>();
+    public HashMap<String, List<Location>> getTeamSpawns () {
+        HashMap<String, List<Location>> spawnLocationMap = new HashMap<>();
         for (String teamName : teamSpawns.keySet()) {
-            Set<Location> spawnLocations = new HashSet<>();
+            List<Location> spawnLocations = new ArrayList<>();
             for (Vector spawn : teamSpawns.get(teamName)) {
-                spawnLocations.add(new Location(this.getGameManager().getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
+                spawnLocations.add(new Location(getWorld(), spawn.getX(), spawn.getY(), spawn.getZ()));
             }
             spawnLocationMap.put(teamName, spawnLocations);
         }

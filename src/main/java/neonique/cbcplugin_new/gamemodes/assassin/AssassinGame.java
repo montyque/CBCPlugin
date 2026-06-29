@@ -209,7 +209,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
     public void setupMap (AssassinMap map) {
 
         super.setupMap(map);
-        spawns = map.getAssassinSpawns();
+        spawns = map.getAssassinSpawns(this);
         targetSpawnDistance = map.getTargetDistance();
 
     }

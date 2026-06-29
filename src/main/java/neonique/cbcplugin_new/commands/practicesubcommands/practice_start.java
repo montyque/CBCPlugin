@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.commands.practicesubcommands;
 
 import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.managers.GameState;
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -57,7 +57,7 @@ public class practice_start {
             if (perms >= 1) {
                 // Show all practice maps
                 for (CBCMap map : gameManager.getPracticeMaps()) {
-                    tabCompletions.add(map.getMapId());
+                    tabCompletions.add(map.getId());
                 }
             }
         }

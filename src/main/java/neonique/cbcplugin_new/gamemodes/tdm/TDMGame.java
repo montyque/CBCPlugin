@@ -42,7 +42,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
     // Map related variables
     protected boolean randomSpawnsEnabled;
     protected List<TDMSpawn> spawns;
-    protected HashMap<String, Set<Location>> teamSpawns;
+    protected Map<String, List<Location>> teamSpawns;
 
     // Event listeners and tasks
     protected TDMStartGameTimer startGameTimer;
@@ -158,7 +158,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
         // Get random spawns
         if (map.isRandomSpawnsEnabled()) {
             randomSpawnsEnabled = true;
-            spawns = map.getRandomSpawns();
+            spawns = map.getRandomSpawns(this);
         } else {
             randomSpawnsEnabled = false;
         }

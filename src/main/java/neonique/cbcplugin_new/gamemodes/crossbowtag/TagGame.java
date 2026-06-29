@@ -71,10 +71,10 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
     private int WIPEOUT_BONUS = 20;
 
     // Map related variables
-    private HashMap<String, Set<Location>> teamEvaderSpawns;
-    private HashMap<String, Set<Location>> teamTaggerSpawns;
-    private List<Set<Location>> randomEvaderSpawns;
-    private Set<Location> equalTaggerSpawns;
+    private Map<String, List<Location>> teamEvaderSpawns;
+    private Map<String, List<Location>> teamTaggerSpawns;
+    private List<List<Location>> randomEvaderSpawns;
+    private List<Location> equalTaggerSpawns;
 
     // Listeners
     private TagNoMove noMoveListener;
@@ -273,7 +273,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         if (getMap().isEvaderSpawnsRandom()) {
 
             // Randomise list of spawns
-            List<Set<Location>> randomisedSpawns = new ArrayList<>(randomEvaderSpawns);
+            List<Collection<Location>> randomisedSpawns = new ArrayList<>(randomEvaderSpawns);
             Collections.shuffle(randomisedSpawns);
 
             // Assign evader spawn to each team

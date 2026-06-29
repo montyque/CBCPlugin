@@ -490,7 +490,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
         // If sudden death border is enabled activate the border
         if (suddenDeathBorderEnabled) {
 
-            suddenDeathBorder = getMap().getSuddenDeathBorder();
+            suddenDeathBorder = getMap().getSuddenDeathBorder(getGameManager());
             suddenDeathBorder.activateBorder();
 
         }

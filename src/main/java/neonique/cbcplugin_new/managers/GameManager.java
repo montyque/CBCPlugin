@@ -9,7 +9,7 @@ import neonique.cbcplugin_new.core.BaseGameCommands;
 import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
-import neonique.cbcplugin_new.core.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
 import neonique.cbcplugin_new.weapons.WeaponType;
@@ -307,7 +307,7 @@ public class GameManager {
                 continue;
             }
 
-            practiceMaps.put(mapObject.getMapId(), mapObject);
+            practiceMaps.put(mapObject.getId(), mapObject);
         }
         CBCPlugin.getPlugin().getLogger().info("Loaded " + practiceMaps.size() + " practice maps.");
 
@@ -329,9 +329,9 @@ public class GameManager {
                 HashMap<String, String> gamemodeMapFileNames = new HashMap<>();
 
                 for (CBCMap map : gamemodeAndMapList.get(gamemode)) {
-                    String imageFileName = gamemodeConfigSection.getString(map.getMapId());
+                    String imageFileName = gamemodeConfigSection.getString(map.getId());
                     if (imageFileName == null) continue;
-                    gamemodeMapFileNames.put(map.getMapId(), imageFileName);
+                    gamemodeMapFileNames.put(map.getId(), imageFileName);
                 }
 
                 // Add file names from this gamemode into the main hashmap

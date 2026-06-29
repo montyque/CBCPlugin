@@ -48,7 +48,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
     boolean outOfGame = false;
 
     // Team start spawns
-    private Set<Location> spawns;
+    private List<Location> spawns;
 
     // Placement
     int placement = 1;
@@ -462,7 +462,7 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
         score--;
         checkpointsCleared++;
 
-        targetCheckpoint.playSoundOnCheckpointClear();
+        gameManager.playSound(targetCheckpoint.clone().add(0, 1.5, 0), Sound.BLOCK_BEACON_ACTIVATE, 4, 2);
 
         // Remove snowball from checkpoint
         targetCheckpoint.removeGlowingMarker(this);
@@ -541,11 +541,11 @@ public class RendezvousTeam extends CBCTeam<RendezvousPlayer> {
         return runner;
     }
 
-    public void setSpawns(Set<Location> spawns) {
-        this.spawns = spawns;
+    public void setSpawns (Collection<Location> spawns) {
+        spawns = List.copyOf(spawns);
     }
 
-    public Set<Location> getSpawns() {
+    public List<Location> getSpawns() {
         return spawns;
     }
 
