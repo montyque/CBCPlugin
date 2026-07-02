@@ -15,12 +15,9 @@ import neonique.cbcplugin_new.gamemodes.koth.KOTHMap;
 import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousMap;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownMap;
 import neonique.cbcplugin_new.gamemodes.tdm.TDMMap;
-import neonique.cbcplugin_new.gamemodes.tdm.TDMSpawn;
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownMap;
-import neonique.cbcplugin_new.mapmechanics.DashPad;
+import neonique.cbcplugin_new.mapmechanics.MapMechanicsManager;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
-import neonique.cbcplugin_new.mapmechanics.HealthPad;
-import neonique.cbcplugin_new.mapmechanics.JumpPad;
 import neonique.cbcplugin_new.managers.DeathMessageGenerator;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -35,10 +32,8 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
-import org.joml.Options;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,12 +45,6 @@ public class CBCMap {
                 "DefaultFFASpawns", "DefaultTeamSpawns", "MapMechanics"
     };
     private static final Set<String> REQUIRED_KEYS = new HashSet<>(Arrays.asList(SET_VALUES));
-
-    private static final String[] TEAM_IDS = new String[] {
-            "red", "blue", "green", "yellow", "cyan", "orange", "magenta", "purple"
-    };
-
-    private static final Set<String> TEAM_ID_SET = new HashSet<>(Arrays.asList(TEAM_IDS));
 
     // Important map information
     private final String id;
@@ -80,11 +69,6 @@ public class CBCMap {
     // Map options
     private final MapOptions options;
 
-    // Map options
-    private final List<Vector> healthPadCoordinates; // TODO: remove later
-    private final Map<String, List<Vector>> defaultTeamSpawnCoordinates; // TODO: remove later
-    private final boolean ignoreYInSpawnCalculations;
-
     // Death message overrides that override default messages only on this map
     private final Map<DeathCause, DeathMessageGenerator> deathMessageOverrides;
 
@@ -94,14 +78,6 @@ public class CBCMap {
 
 
     // OLD
-    private double voidPlane = 0;
-    private final boolean instakillLava; // TODO: remove later
-    private boolean jumpPadsEnabled = false;
-    private List<Vector> jumpPadCoordinates;
-    private boolean dashPadsEnabled = false;
-    private final List<Vector[]> dashPadCoordinates;
-    private boolean swimTimerEnabled = false; // TODO: remove later
-    private int swimTimerLength; // TODO: remove later
     private boolean blocksFillAtStart = false;
     private List<Vector> blocksFillList = new ArrayList<>();
     private Material materialAtStart = null;
@@ -111,7 +87,7 @@ public class CBCMap {
 
     private boolean isPracticeMap = true;
 
-    public CBCMap (Configuration config) {
+    public CBCMap (Configuration config, MapMechanicsManager mechanicsManager) {
 
         try {
 
@@ -157,10 +133,14 @@ public class CBCMap {
                         return (ConfigurationSection) o;})
                     .toList();
 
+            // Verify that all map mechanics parse correctly
+            mechanicsManager.verifyMapMechanicConfigs(mechanicConfigs);
+
             // Parse death message overrides
             deathMessageOverrides = ConfigUtil.getConfigurationSection(config, "death_message_overrides")
                     .map(this::loadDeathMessageOverrides)
                     .orElse(Map.of());
+
 
         } catch (Throwable e) {
 
@@ -253,7 +233,7 @@ public class CBCMap {
 
         // Parse health pad into new map mechanic format
         List<String> healPadCoordStringList = ConfigUtil.getStringList(ymlConfig, "HealingPads").orElse(List.of());
-        healthPadCoordinates = VectorUtil.blockStrListToVecList(healPadCoordStringList);
+        List<Vector> healthPadCoordinates = VectorUtil.blockStrListToVecList(healPadCoordStringList);
         ConfigurationSection healthPadMechanicSection = new MemoryConfiguration();
         healthPadMechanicSection.set("type", "health_pad");
         healthPadMechanicSection.set("locations", healthPadCoordinates.stream()
@@ -262,7 +242,7 @@ public class CBCMap {
         mechanicConfigs.add(healthPadMechanicSection);
 
         // TODO: Parse into map option
-        ignoreYInSpawnCalculations = ymlConfig.getBoolean("IgnoreYInSpawnCalculations", false);
+        // ignoreYInSpawnCalculations = ymlConfig.getBoolean("IgnoreYInSpawnCalculations", false);
 
         // Parse void mechanic into new map mechanic format
         double voidPlaneHeight = ConfigUtil.requireDouble(gameMechanicsList, "VoidDeath");
@@ -380,40 +360,6 @@ public class CBCMap {
 
     public Material getBlockSymbol () {
         return blockSymbol;
-    }
-
-    public Collection<HealthPad> getHealthPads() {
-        List<HealthPad> healthPads = new ArrayList<>();
-        for (Vector healthPadVector : healthPadCoordinates) {
-            Location location = new Location(getWorld(), healthPadVector.getX(), healthPadVector.getY(), healthPadVector.getZ());
-            healthPads.add(new HealthPad(location));
-        }
-        return healthPads;
-    }
-
-    public Collection<JumpPad> getJumpPads() {
-        if (!jumpPadsEnabled) return null;
-        List<JumpPad> jumpPads = new ArrayList<>();
-        for (Vector jumpPadVector : jumpPadCoordinates) {
-            Location location = new Location(getWorld(), jumpPadVector.getX(), jumpPadVector.getY(), jumpPadVector.getZ());
-            jumpPads.add(new JumpPad(location));
-        }
-        return jumpPads;
-    }
-
-
-    public Collection<DashPad> getDashPads() {
-        List<DashPad> dashPads = new ArrayList<>();
-        for (Vector[] vec : dashPadCoordinates) {
-            Location startLoc = new Location(getWorld(), vec[0].getX(), vec[0].getY(), vec[0].getZ());
-            Location endLoc = new Location(getWorld(), vec[1].getX(), vec[1].getY(), vec[1].getZ());
-            dashPads.add(new DashPad(startLoc, endLoc, vec[2]));
-        }
-        return dashPads;
-    }
-
-    public int getVoidPlane() {
-        return (int) voidPlane;
     }
 
     public List<FFASpawnpoint> getSpawns() {
@@ -536,20 +482,9 @@ public class CBCMap {
         return maxTeams;
     }
 
-    public boolean isSwimTimerEnabled() {
-        return swimTimerEnabled;
-    }
-
-    public int getSwimTimerLength () {
-        return swimTimerLength;
-    }
-
-    public boolean isInstaKillLava() {
-        return instakillLava;
-    }
-
+    // TODO: refactor this
     public boolean isIgnoreYInSpawnCalculations() {
-        return ignoreYInSpawnCalculations;
+        return false;
     }
 
     public int getFireworkSpawnHeight() {
@@ -573,8 +508,12 @@ public class CBCMap {
         return canTrapdoorsOpen;
     }
 
-    public HashMap<DeathCause, DeathMessageGenerator> getDeathMessageOverrides() {
+    public Map<DeathCause, DeathMessageGenerator> getDeathMessageOverrides() {
         return deathMessageOverrides;
+    }
+
+    public List<ConfigurationSection> getMechanicConfigs () {
+        return mechanicConfigs;
     }
 
 }

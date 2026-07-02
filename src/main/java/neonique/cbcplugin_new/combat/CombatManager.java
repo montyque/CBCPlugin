@@ -418,4 +418,8 @@ public class CombatManager {
     public MapMechanicsManager mapMechanicsManager () {
         return mapMechanicsManager;
     }
+
+    public World getWorld() {
+        return gameManager.getWorld();
+    }
 }

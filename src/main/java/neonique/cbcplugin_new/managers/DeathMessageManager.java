@@ -128,7 +128,7 @@ public class DeathMessageManager {
         }
     }
 
-    public void setOverrides (HashMap<DeathCause, DeathMessageGenerator> overrides) {
+    public void setOverrides (Map<DeathCause, DeathMessageGenerator> overrides) {
         overrideDeathMessages = overrides;
     }
 }

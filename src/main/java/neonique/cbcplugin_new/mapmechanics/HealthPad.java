@@ -24,6 +24,7 @@ public class HealthPad {
 
     private final Location location;
     private final int resetTimer;
+    private final int healing;
 
     private boolean enabled = false;
 
@@ -31,19 +32,16 @@ public class HealthPad {
     private UUID hologramUUID = null;
     private int healPadTimer = 0;
 
-    public HealthPad (Location loc, int resetTimer) {
+    public HealthPad (Location loc, int resetTimer, int healing) {
         this.location = loc;
         this.resetTimer = resetTimer;
-    }
-
-    public HealthPad (Location loc) {
-        this.location = loc;
-        this.resetTimer = 400;
+        this.healing = healing;
     }
 
     public HealthPad (GameManager gameManager, CombatManager combatManager, Vector coordinates) {
         this.location = new Location(gameManager.getWorld(), coordinates.getX(), coordinates.getY(), coordinates.getZ());
         this.resetTimer = 400;
+        this.healing = 6;
     }
 
     public boolean isOnline () {

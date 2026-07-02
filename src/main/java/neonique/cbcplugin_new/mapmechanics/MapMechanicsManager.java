@@ -3,6 +3,7 @@ package neonique.cbcplugin_new.mapmechanics;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.PlayerRegistry;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,15 +14,30 @@ public class MapMechanicsManager {
 
     private final PlayerRegistry registry;
     private final CombatManager combatManager;
+    private final MapMechanicLoader mechanicLoader;
 
     private final List<MapMechanic> activeMechanics = new ArrayList<>();
 
     public MapMechanicsManager (PlayerRegistry registry, CombatManager combatManager) {
         this.registry = registry;
         this.combatManager = combatManager;
+        this.mechanicLoader = new MapMechanicLoader();
+    }
+
+    public void verifyMapMechanicConfigs (List<ConfigurationSection> configs) {
+        for (ConfigurationSection config : configs) {
+            mechanicLoader.verifyMechanic(config);
+        }
     }
 
     public void setupMapMechanics (CBCMap map) {
+        List<MapMechanic> mechanics = map.getMechanicConfigs().stream()
+                .map(c -> mechanicLoader.fromConfig(c, registry, combatManager, combatManager.getWorld()))
+                .toList();
+        mechanics.forEach(this::register);
+    }
+
+    /*public void setupMapMechanics (CBCMap map) {
 
         VoidMechanic voidMechanic = new VoidMechanic(map.getMapCentre(), map.getVoidPlane());
         register(voidMechanic);
@@ -45,7 +61,7 @@ public class MapMechanicsManager {
             register(lavaKillMechanic);
         }
 
-    }
+    }*/
 
     public void register (MapMechanic mechanic) {
         activeMechanics.add(mechanic);
