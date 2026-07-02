@@ -17,10 +17,10 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 public class DeathMessageManager {
 
     // List of possible death messages
-    private HashMap<DeathCause, DeathMessageGenerator> defaultDeathMessages;
+    private Map<DeathCause, DeathMessageGenerator> defaultDeathMessages;
 
     // If a map overrides certain death messages, use these instead
-    private HashMap<DeathCause, DeathMessageGenerator> overrideDeathMessages;
+    private Map<DeathCause, DeathMessageGenerator> overrideDeathMessages;
 
     public DeathMessageManager () {
         defaultDeathMessages = new HashMap<>();

@@ -29,7 +29,7 @@ public class DeathMessageGenerator {
 
     }
 
-    public static HashMap<DeathCause, DeathMessageGenerator> loadDeathMessageGenerators 
+    public static Map<DeathCause, DeathMessageGenerator> loadDeathMessageGenerators
             (ConfigurationSection deathMessagesSection) {
         
         HashMap<DeathCause, DeathMessageGenerator> deathMessageGenerators = new HashMap<>();

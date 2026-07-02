@@ -24,6 +24,7 @@ import neonique.cbcplugin_new.mapmechanics.JumpPad;
 import neonique.cbcplugin_new.managers.DeathMessageGenerator;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -31,11 +32,16 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
+import org.joml.Options;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CBCMap {
 
@@ -69,22 +75,26 @@ public class CBCMap {
     // Gameplay information
     private final List<Vector> defaultSpawnCoords;
     private final Map<TeamColor, List<Vector>> defaultTeamSpawns;
-    private final List<YamlConfiguration> mechanicConfigs;
+    private final List<ConfigurationSection> mechanicConfigs;
+
+    // Map options
+    private final MapOptions options;
 
     // Map options
     private final List<Vector> healthPadCoordinates; // TODO: remove later
-    private final List<Vector> ffaSpawnpointCoordinates; // TODO: remove later
-    private final HashMap<String, List<Vector>> defaultTeamSpawnCoordinates; // TODO: remove later
+    private final Map<String, List<Vector>> defaultTeamSpawnCoordinates; // TODO: remove later
     private final boolean ignoreYInSpawnCalculations;
 
     // Death message overrides that override default messages only on this map
-    private final HashMap<DeathCause, DeathMessageGenerator> deathMessageOverrides;
+    private final Map<DeathCause, DeathMessageGenerator> deathMessageOverrides;
 
     // Firework variables
-    private final int fireworkSpawnRadius;
-    private final int fireworkSpawnHeight; // This is relative to the center
+    private final int fireworkSpawnRadius = 16;
+    private final int fireworkSpawnHeight = -4; // This is relative to the center
 
-    private int voidPlane = 0;
+
+    // OLD
+    private double voidPlane = 0;
     private final boolean instakillLava; // TODO: remove later
     private boolean jumpPadsEnabled = false;
     private List<Vector> jumpPadCoordinates;
@@ -99,201 +109,232 @@ public class CBCMap {
     private final boolean canTrapdoorsOpen;
     private final boolean nightVisionAlwaysDisabled;
 
-    private final boolean isPracticeMap;
+    private boolean isPracticeMap = true;
 
-    public Vector convertStringToVector(String string) {
-
-        String[] splitStr = string.split(" ");
-        List<String> splitStrSet = new ArrayList<>(Arrays.asList(splitStr));
+    public CBCMap (Configuration config) {
 
         try {
-            return new Vector(
-                    Double.parseDouble(splitStrSet.get(0)),
-                    Double.parseDouble(splitStrSet.get(1)),
-                    Double.parseDouble(splitStrSet.get(2))
+
+            id = ConfigUtil.requireString(config, "id");
+
+            // Parse map metadata
+            name = ConfigUtil.requireString(config, "name");
+            blockSymbol = ConfigUtil.requireEnum(config, "name", Material.class);
+
+            // Parse center coordinates
+            centerCoords = ConfigUtil.requireVector(config, "center");
+
+            // Parse bounding box
+            List<Vector> bounds = ConfigUtil.requireVectorList(config, "bounding_box");
+            if (bounds.size() != 2) throw new ConfigUtil.InvalidConfigValueException(config, "bounding_box",
+                    "Bounding box must be a List<Vector> of size 2");
+            lowerBound = new Vector(
+                    Math.min(bounds.get(0).getX(), bounds.get(1).getX()),
+                    Math.min(bounds.get(0).getY(), bounds.get(1).getY()),
+                    Math.min(bounds.get(0).getZ(), bounds.get(1).getZ())
             );
-        } catch (NumberFormatException e) {
-            return null;
+            upperBound = new Vector(
+                    Math.max(bounds.get(0).getX(), bounds.get(1).getX()),
+                    Math.max(bounds.get(0).getY(), bounds.get(1).getY()),
+                    Math.max(bounds.get(0).getZ(), bounds.get(1).getZ())
+            );
+
+            // Parse individual and team spawns
+            defaultSpawnCoords = ConfigUtil.requireVectorList(config, "default_player_spawns");
+            defaultTeamSpawns = loadTeamVectorList(ConfigUtil.requireConfigurationSection(config, "default_team_spawns"));
+
+            // Parse map options
+            options = ConfigUtil.getConfigurationSection(config, "map_options")
+                    .map(MapOptions::fromConfig)
+                    .orElse(MapOptions.DEFAULTS);
+
+            // Parse map mechanics
+            List<?> mechanicsSection = ConfigUtil.getList(config, "map_mechanics").orElse(List.of());
+            mechanicConfigs = mechanicsSection.stream()
+                    .map(o -> {
+                        if (!(o instanceof ConfigurationSection)) throw new ConfigUtil.InvalidConfigValueException(config,
+                                "map_mechanics", "All values in map_mechanics must be of type ConfigurationSection");
+                        return (ConfigurationSection) o;})
+                    .toList();
+
+            // Parse death message overrides
+            deathMessageOverrides = ConfigUtil.getConfigurationSection(config, "death_message_overrides")
+                    .map(this::loadDeathMessageOverrides)
+                    .orElse(Map.of());
+
+        } catch (Throwable e) {
+
+            throw new InvalidMapConfigException("", e);
+
         }
     }
 
-    public Set<Vector> getVectorSetFromStrings(List<String> strings) {
-        Set<Vector> vectors = new HashSet<>();
-        for (String string : strings) {
-            // Try and catch used to make sure that no errors occur when parsing coordinates
-            Vector vector = VectorUtil.strToVec(string);
-            if (vector != null) {
-                // Add vector into coordinates list
-                vectors.add(vector.add(new Vector(0.5, 0.0, 0.5)));
-            }
-        }
-        return vectors;
+    public Map<TeamColor, List<Vector>> loadTeamVectorList (ConfigurationSection section) {
+        return Arrays.stream(TeamColor.values())
+                .collect(Collectors.toMap(
+                        t -> t,
+                        t -> ConfigUtil.requireVectorList(section, t.name().toLowerCase())
+                ));
     }
 
-    public Set<Vector> getVectorSetFromStrings(List<String> strings, boolean addY) {
-        Set<Vector> vectors = new HashSet<>();
-        for (String string : strings) {
-            // Try and catch used to make sure that no errors occur when parsing coordinates
-            Vector vector = VectorUtil.strToVec(string);
-            if (vector != null) {
-                // Add vector into coordinates list
-                if (addY) {
-                    vectors.add(vector.add(new Vector(0.5, 0.5, 0.5)));
-                } else {
-                    vectors.add(vector.add(new Vector(0.5, 0.0, 0.5)));
-                }
-            } else {
-                // Print out exception
-                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + id + " while trying to parse coordinates " + string);
+    public Map<DeathCause, DeathMessageGenerator> loadDeathMessageOverrides (ConfigurationSection section) {
+
+        Map<DeathCause, DeathMessageGenerator> overrides = new HashMap<>();
+
+        for (String key : section.getKeys(false)) {
+
+            ConfigurationSection deathCauseSection = section.getConfigurationSection(key);
+            if (deathCauseSection == null) continue;
+
+            // Check if key matches with a value in the DeathCause enum
+            DeathCause deathCause;
+            try {
+                deathCause = DeathCause.valueOf(key.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new ConfigUtil.InvalidConfigValueException(section, key, e);
             }
+
+            // Get all death messages for this death cause in string form
+            // TODO: type check
+            List<String> directStrings = deathCauseSection.getStringList("DIRECT");
+            List<String> indirectStrings = deathCauseSection.getStringList("INDIRECT");
+            List<String> indirectNoKillerStrings = deathCauseSection.getStringList("INDIRECT_NO_KILLER");
+
+            // Create death message generator and link it to this DeathCause enum
+            DeathMessageGenerator dmGen = new DeathMessageGenerator(directStrings, indirectStrings, indirectNoKillerStrings);
+            overrides.put(deathCause, dmGen);
+
         }
-        return vectors;
+
+        return overrides;
+
     }
 
-    public List<Vector> getVectorListFromStrings(List<String> strings) {
-        List<Vector> vectors = new ArrayList<>();
-        for (String string : strings) {
-            // Try and catch used to make sure that no errors occur when parsing coordinates
-            Vector vector = VectorUtil.strToVec(string);
-            if (vector != null) {
-                // Add vector into coordinates list
-                vectors.add(vector.add(new Vector(0.5, 0.0, 0.5)));
-            } else {
-                // Print out exception
-                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + id + " while trying to parse coordinates " + string);
-            }
-        }
-        return vectors;
-    }
-
-    public HashMap<String, Vector> getVectorHashMapFromStrings(java.util.Map<String, Object> strings) {
-        HashMap<String, Vector> vectorMap = new HashMap<>();
-        for (String string : strings.keySet()) {
-            if (!(strings.get(string) instanceof String)) {
-                continue;
-            }
-            // Try and catch used to make sure that no errors occur when parsing coordinates
-            Vector vector = VectorUtil.strToVec((String) strings.get(string));
-            if (vector != null) {
-                // Add vector into coordinates list
-                vectorMap.put(string, vector.add(new Vector(0.5, 0.0, 0.5)));
-            } else {
-                // Print out exception
-                CBCPlugin.getPlugin().getLogger().warning("ERROR above generating Map " + id + " while trying to parse coordinates " + string);
-            }
-        }
-        return vectorMap;
-    }
-
+    /**
+     * This is the OLD constructor, used to
+     */
     public CBCMap(YamlConfiguration ymlConfig, GameManager gameManager, CombatManager combatManager) {
 
         worldUUID = gameManager.getWorld().getUID();
 
         // Get map name
-        id = ymlConfig.getString("MapId");
-        name = ymlConfig.getString("Name");
-        isPracticeMap = ymlConfig.getBoolean("PracticeMap", true);
+        id = ConfigUtil.requireString(ymlConfig, "MapId");
+        name = ConfigUtil.requireString(ymlConfig, "Name");
+        isPracticeMap = ConfigUtil.getBoolean(ymlConfig, "PracticeMap").orElse(true);
 
         // Get block that represents map in inventory menu
-        blockSymbol = Material.valueOf(ymlConfig.getString("BlockSymbol"));
+        blockSymbol = ConfigUtil.requireEnum(ymlConfig, "BlockSymbol", Material.class);
 
         // Get center coordinates
-        centerCoords = VectorUtil.strToVec(Objects.requireNonNull(ymlConfig.getString("Center"))).add(new Vector(0.5, 0.0, 0.5));
+        centerCoords = VectorUtil.strToBlockVec(ConfigUtil.requireString(ymlConfig, "Center"));
 
         // Get boundaries of map for chunk loading
-        upperBound = VectorUtil.strToVec(Objects.requireNonNull(ymlConfig.getString("MapBoundaryLow")));
-        lowerBound = VectorUtil.strToVec(Objects.requireNonNull(ymlConfig.getString("MapBoundaryHigh")));
-
-        // Get health pad coordinates
-        List<String> healPadCoordStringList = ymlConfig.getStringList("HealingPads");
-        healthPadCoordinates = VectorUtil.blockStrListToVecList(healPadCoordStringList);
+        lowerBound = VectorUtil.strToBlockVec(ConfigUtil.requireString(ymlConfig, "MapBoundaryLow"));
+        upperBound = VectorUtil.strToBlockVec(ConfigUtil.requireString(ymlConfig, "MapBoundaryHigh"));
+        mechanicConfigs = new ArrayList<>();
 
         // Get FFA spawn point coordinates
-        List<String> spawnpointStringList = ymlConfig.getStringList("DefaultFFASpawns");
-        ffaSpawnpointCoordinates = VectorUtil.blockStrListToVecList(spawnpointStringList);
+        List<String> spawnpointStringList = ConfigUtil.requireStringList(ymlConfig, "DefaultFFASpawns");
+        defaultSpawnCoords = VectorUtil.blockStrListToVecList(spawnpointStringList);
 
-        // Get team spawn coordinates
-        assert ymlConfig.getConfigurationSection("DefaultTeamSpawns") != null;
-        defaultTeamSpawnCoordinates = new HashMap<>();
-        ConfigurationSection spawnSection = ymlConfig.getConfigurationSection("DefaultTeamSpawns");
-        assert spawnSection != null;
+        // Get team spawn point coordinates
+        defaultTeamSpawns = new HashMap<>();
+        ConfigurationSection spawnSection = ConfigUtil.requireConfigurationSection(ymlConfig, "DefaultTeamSpawns");
         for (String teamName : spawnSection.getValues(false).keySet()) {
-            defaultTeamSpawnCoordinates.put(teamName, VectorUtil.blockStrListToVecList(spawnSection.getStringList(teamName)));
+            defaultTeamSpawns.put(TeamColor.valueOf(teamName.toUpperCase()),
+                    VectorUtil.blockStrListToVecList(spawnSection.getStringList(teamName)));
         }
 
+        // Parse game options
+        nightVisionAlwaysDisabled = ymlConfig.getBoolean("NightVisionAlwaysDisabled", false);
+        options = new MapOptions(-1, !nightVisionAlwaysDisabled);
+
+        ConfigurationSection gameMechanicsList = ConfigUtil.requireConfigurationSection(ymlConfig, "MapMechanics");
+
+        // Parse health pad into new map mechanic format
+        List<String> healPadCoordStringList = ConfigUtil.getStringList(ymlConfig, "HealingPads").orElse(List.of());
+        healthPadCoordinates = VectorUtil.blockStrListToVecList(healPadCoordStringList);
+        ConfigurationSection healthPadMechanicSection = new MemoryConfiguration();
+        healthPadMechanicSection.set("type", "health_pad");
+        healthPadMechanicSection.set("locations", healthPadCoordinates.stream()
+                .map(v -> List.of(v.getX(), v.getY(), v.getZ()))
+                .toList());
+        mechanicConfigs.add(healthPadMechanicSection);
+
+        // TODO: Parse into map option
         ignoreYInSpawnCalculations = ymlConfig.getBoolean("IgnoreYInSpawnCalculations", false);
 
-        // Victory firework celebration details
-        fireworkSpawnRadius = 16;
-        fireworkSpawnHeight = -4;
+        // Parse void mechanic into new map mechanic format
+        double voidPlaneHeight = ConfigUtil.requireDouble(gameMechanicsList, "VoidDeath");
+        ConfigurationSection voidMechanicSection = new MemoryConfiguration();
+        voidMechanicSection.set("type", "void");
+        voidMechanicSection.set("plane_height", voidPlaneHeight);
+        voidMechanicSection.set("teleport_location", List.of(centerCoords.getX(), centerCoords.getY(), centerCoords.getZ()));
+        mechanicConfigs.add(voidMechanicSection);
 
-        // Get game mechanics
-        ConfigurationSection gameMechanicsList = ymlConfig.getConfigurationSection("MapMechanics");
-        assert gameMechanicsList != null;
+        // Parse jump pad mechanic into new map mechanic format
+        if (gameMechanicsList.getBoolean("JumpPad", false)) {
+            List<String> jumpPadCoordStringList = ConfigUtil.requireStringList(ymlConfig, "JumpPads");
+            List<Vector> jumpPadCoordinates = VectorUtil.blockStrListToVecList(jumpPadCoordStringList);
+            ConfigurationSection jumpPadMechanicSection = new MemoryConfiguration();
+            jumpPadMechanicSection.set("type", "jump_pad");
+            jumpPadMechanicSection.set("locations", jumpPadCoordinates.stream()
+                    .map(v -> List.of(v.getX(), v.getY(), v.getZ()))
+                    .toList());
+            mechanicConfigs.add(jumpPadMechanicSection);
+        }
 
-        // Game and visual mechanics
-        voidPlane = gameMechanicsList.getInt("VoidDeath", 0);
-        instakillLava = gameMechanicsList.getBoolean("InstantLavaKill", false);
+        // Parse dash pad mechanic into new map mechanic format
+        if (gameMechanicsList.getBoolean("DashPad", false)) {
+
+            ConfigurationSection dashPads = ConfigUtil.requireConfigurationSection(ymlConfig, "DashPads");
+            List<ConfigurationSection> dashPadConfigs = dashPads.getKeys(false).stream()
+                    .map(k -> ConfigUtil.requireConfigurationSection(dashPads, k))
+                    .map(c -> {
+                            ConfigurationSection dashPadConfig = new MemoryConfiguration();
+                            Vector rangeStart = VectorUtil.strToBlockVec(ConfigUtil.requireString(c, "StartBlock"));
+                            Vector rangeEnd = VectorUtil.strToBlockVec(ConfigUtil.requireString(c, "EndBlock"));
+                            Vector velocity = VectorUtil.strToBlockVec(ConfigUtil.requireString(c, "Velocity"));
+                            dashPadConfig.set("range",
+                                    List.of(VectorUtil.vecToList(rangeStart), VectorUtil.vecToList(rangeEnd)));
+                            dashPadConfig.set("velocity", VectorUtil.vecToList(velocity));
+                            return dashPadConfig;
+                    })
+                    .toList();
+
+            ConfigurationSection dashPadMechanicSection = new MemoryConfiguration();
+            dashPadMechanicSection.set("type", "dash_pad");
+            dashPadMechanicSection.set("dash_pads", dashPadConfigs);
+
+        }
+
+        // TODO: Parse into map mechanic format
         canTrapdoorsOpen = ymlConfig.getBoolean("canTrapdoorsOpen", true);
-        nightVisionAlwaysDisabled = ymlConfig.getBoolean("NightVisionAlwaysDisabled", false);
 
         // Death message overrides
-        ConfigurationSection deathMessagesSection = ymlConfig.getConfigurationSection("DeathMessageOverrides");
-        if (deathMessagesSection != null) {
-            deathMessageOverrides = DeathMessageGenerator.loadDeathMessageGenerators(deathMessagesSection);
-        } else {
-            deathMessageOverrides = new HashMap<>();
+        deathMessageOverrides = ConfigUtil.getConfigurationSection(ymlConfig, "DeathMessageOverrides")
+                .map(DeathMessageGenerator::loadDeathMessageGenerators)
+                .orElse(Map.of());
+
+
+        // Parse swim timer mechanic into new map mechanic format
+        if (gameMechanicsList.getBoolean("SwimTimer", false)) {
+            double swimTimerSeconds = (double) ConfigUtil.getInt(ymlConfig, "SwimTimerLength").orElse(120) / 20;
+            ConfigurationSection swimTimerMechanicSection = new MemoryConfiguration();
+            swimTimerMechanicSection.set("type", "swim_timer");
+            swimTimerMechanicSection.set("length", swimTimerSeconds);
+            mechanicConfigs.add(swimTimerMechanicSection);
         }
 
-        // Jump pad mechanic
-        if (gameMechanicsList.contains("JumpPad")) {
-            jumpPadsEnabled = gameMechanicsList.getBoolean("JumpPad");
-            if (jumpPadsEnabled) {
-                List<String> jumpPadCoordStringList = ymlConfig.getStringList("JumpPads");
-                jumpPadCoordinates = VectorUtil.strListToVecList(jumpPadCoordStringList, new Vector(1, 0, 1));
-            } else {
-                jumpPadCoordinates = new ArrayList<>();
-            }
-        }
-
-        // Dash pad mechanic
-        if (gameMechanicsList.contains("DashPad")) {
-            dashPadsEnabled = gameMechanicsList.getBoolean("DashPad");
-            if (dashPadsEnabled) {
-                dashPadCoordinates = new ArrayList<>();
-                ConfigurationSection dashPadSection = ymlConfig.getConfigurationSection("DashPads");
-                if (dashPadSection != null) {
-                    for (String key : dashPadSection.getKeys(false)) {
-                        ConfigurationSection dashPadSubSection = dashPadSection.getConfigurationSection(key);
-                        if (dashPadSubSection != null) {
-                            try {
-                                Vector[] dashPadInfo = new Vector[]{
-                                        VectorUtil.strToVec(Objects.requireNonNull(dashPadSubSection.getString("StartBlock"))).add(new Vector(0.5, 0.5, 0.5)),
-                                        VectorUtil.strToVec(Objects.requireNonNull(dashPadSubSection.getString("EndBlock"))).add(new Vector(0.5, 0.5, 0.5)),
-                                        VectorUtil.strToVec(Objects.requireNonNull(dashPadSubSection.getString("Velocity"))),
-                                };
-                                dashPadCoordinates.add(dashPadInfo);
-                            } catch (NullPointerException ignored) {}
-                        }
-                    }
-                }
-            } else {
-                dashPadCoordinates = new ArrayList<>();
-            }
-        } else {
-            dashPadCoordinates = new ArrayList<>();
-        }
-
-        // Swim timer mechanic
-        if (gameMechanicsList.contains("SwimTimer")) {
-            swimTimerEnabled = gameMechanicsList.getBoolean("SwimTimer");
-            if (swimTimerEnabled) {
-                swimTimerLength = ymlConfig.getInt("SwimTimerLength", 100);
-            }
+        // Parse lava death mechanic into new map mechanic format
+        if (gameMechanicsList.getBoolean("InstantLavaKill", false)) {
+            ConfigurationSection lavaMechanicSection = new MemoryConfiguration();
+            lavaMechanicSection.set("type", "lava_kill");
+            mechanicConfigs.add(lavaMechanicSection);
         }
 
         // Start block fill mechanic
-        if (gameMechanicsList.contains("StartBlockFill")) {
+        if (gameMechanicsList.getBoolean("StartBlockFill", false)) {
             blocksFillAtStart = gameMechanicsList.getBoolean("StartBlockFill", false);
             if (blocksFillAtStart) {
                 List<String> blocksFillStringList = ymlConfig.getStringList("BlocksToFill");
@@ -350,10 +391,6 @@ public class CBCMap {
         return healthPads;
     }
 
-    public boolean isJumpPadsEnabled() {
-        return jumpPadsEnabled;
-    }
-
     public Collection<JumpPad> getJumpPads() {
         if (!jumpPadsEnabled) return null;
         List<JumpPad> jumpPads = new ArrayList<>();
@@ -364,9 +401,6 @@ public class CBCMap {
         return jumpPads;
     }
 
-    public boolean isDashPadsEnabled() {
-        return dashPadsEnabled;
-    }
 
     public Collection<DashPad> getDashPads() {
         List<DashPad> dashPads = new ArrayList<>();
@@ -379,12 +413,12 @@ public class CBCMap {
     }
 
     public int getVoidPlane() {
-        return voidPlane;
+        return (int) voidPlane;
     }
 
     public List<FFASpawnpoint> getSpawns() {
         List<FFASpawnpoint> spawnpoints = new ArrayList<>();
-        for (Vector spawnpoint : ffaSpawnpointCoordinates) {
+        for (Vector spawnpoint : defaultSpawnCoords) {
             spawnpoints.add(new FFASpawnpoint(new Location(getWorld(), spawnpoint.getX(), spawnpoint.getY(), spawnpoint.getZ())));
         }
         return spawnpoints;
@@ -410,7 +444,7 @@ public class CBCMap {
     }
 
     public List<Vector> getSpawnpointCoordinates () {
-        return ffaSpawnpointCoordinates;
+        return defaultSpawnCoords;
     }
 
     public String getId() {
@@ -526,29 +560,6 @@ public class CBCMap {
         return fireworkSpawnRadius;
     }
 
-    public boolean hasAllTeamsSpawns () {
-
-        for (String teamId : TEAM_ID_SET) {
-            if (!defaultTeamSpawnCoordinates.containsKey(teamId)) {
-                return false;
-            }
-        }
-        return true;
-
-    }
-
-    public Map<String, List<Location>> getDefaultTeamSpawns() {
-        World world = getWorld();
-        Map<String, List<Location>> spawnLocationMap = new HashMap<>();
-        for (String teamName : defaultTeamSpawnCoordinates.keySet()) {
-            List<Location> spawnLocations = new ArrayList<>();
-            for (Vector spawn : defaultTeamSpawnCoordinates.get(teamName)) {
-                spawnLocations.add(new Location(world, spawn.getX(), spawn.getY(), spawn.getZ()));
-            }
-            spawnLocationMap.put(teamName, spawnLocations);
-        }
-        return spawnLocationMap;
-    }
 
     public boolean isPracticeMap() {
         return isPracticeMap;
@@ -562,11 +573,8 @@ public class CBCMap {
         return canTrapdoorsOpen;
     }
 
-    public boolean isNightVisionAlwaysDisabled() {
-        return nightVisionAlwaysDisabled;
-    }
-
     public HashMap<DeathCause, DeathMessageGenerator> getDeathMessageOverrides() {
         return deathMessageOverrides;
     }
+
 }
