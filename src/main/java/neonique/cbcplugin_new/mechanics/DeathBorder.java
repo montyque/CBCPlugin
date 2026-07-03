@@ -7,12 +7,14 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.tasks.gametasks.DeathBorderDamageTask;
 import neonique.cbcplugin_new.tasks.gametasks.DeathBorderShrinkTask;
+import neonique.cbcplugin_new.util.ConfigUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -25,12 +27,12 @@ public class DeathBorder {
     // Defualt variables
     private final Location center;
     private final DeathBorderShape shape;
-    private final int startRadius;
-    private final int finalRadius;
-    private final int highestY; // Highest Y value of the border particle display
-    private final int lowestY; // Lowest Y value of the border particle display
+    private final double startRadius;
+    private final double finalRadius;
+    private final double highestY; // Highest Y value of the border particle display
+    private final double lowestY; // Lowest Y value of the border particle display
     private final int shrinkRate;
-    private final int warnDistance;
+    private final double warnDistance;
 
     // Current border
     private boolean active = false;
@@ -39,6 +41,20 @@ public class DeathBorder {
     // Border tasks
     private DeathBorderShrinkTask borderShrinkTask;
     private DeathBorderDamageTask borderDamageTask;
+
+    public DeathBorder (GameManager gameManager, Location center, DeathBorderOptions options) {
+
+        this.gameManager = gameManager;
+        this.center = center;
+        this.shape = options.shape;
+        this.startRadius = options.maxRadius;
+        this.finalRadius = options.minRadius;
+        this.highestY = options.topY;
+        this.lowestY = options.bottomY;
+        this.shrinkRate = options.ticksToShrink;
+        this.warnDistance = 5;
+
+    }
 
     public DeathBorder (GameManager gameManager, Location center, DeathBorderShape shape, int startRadius,
                         int finalRadius, int highestY, int lowestY, int shrinkRate) {
@@ -254,6 +270,30 @@ public class DeathBorder {
 
     public double getCurrentRadius() {
         return currentRadius;
+    }
+
+    public enum DeathBorderShape {
+        SQUARE, CIRCLE
+    }
+
+    public record DeathBorderOptions (DeathBorderShape shape,
+                                      double maxRadius,
+                                      double minRadius,
+                                      int ticksToShrink,
+                                      double topY,
+                                      double bottomY) {
+
+        public static DeathBorderOptions fromConfig (ConfigurationSection section) {
+            return new DeathBorderOptions(
+                    ConfigUtil.requireEnum(section, "border_shape", DeathBorderShape.class),
+                    ConfigUtil.requireDouble(section, "max_radius"),
+                    ConfigUtil.requireDouble(section, "min_radius"),
+                    ConfigUtil.requireInt(section, "ticks_to_shrink"),
+                    ConfigUtil.requireDouble(section, "top_y"),
+                    ConfigUtil.requireDouble(section, "bottom_y")
+            );
+        }
+
     }
 
 }

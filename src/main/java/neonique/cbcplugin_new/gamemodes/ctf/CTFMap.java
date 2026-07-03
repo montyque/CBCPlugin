@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.ctf;
 
+import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.mechanics.DeathBorderShape;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -36,7 +37,7 @@ public class CTFMap extends CBCMap {
 
     // Sudden death variables
     private final boolean suddenDeathEnabled;
-    private DeathBorderShape borderShape;
+    private DeathBorder.DeathBorderShape borderShape;
     private int startingBorderRadius;
     private int finalBorderRadius;
     private int borderShrinkRate;
@@ -107,7 +108,7 @@ public class CTFMap extends CBCMap {
         suddenDeathEnabled = gamemodeYml.getBoolean("SuddenDeathEnabled", false);
         System.out.println(suddenDeathEnabled);
         if (suddenDeathEnabled) {
-            borderShape = DeathBorderShape.valueOf(gamemodeYml.getString("BorderShape", "CIRCLE"));
+            borderShape = DeathBorder.DeathBorderShape.valueOf(gamemodeYml.getString("BorderShape", "CIRCLE"));
             startingBorderRadius = gamemodeYml.getInt("StartingBorderRadius", 120);
             finalBorderRadius = gamemodeYml.getInt("FinalBorderRadius", 15);
             borderShrinkRate = gamemodeYml.getInt("BorderShrinkRate", 12);
@@ -182,7 +183,7 @@ public class CTFMap extends CBCMap {
         return suddenDeathEnabled;
     }
 
-    public DeathBorderShape getBorderShape() {
+    public DeathBorder.DeathBorderShape getBorderShape() {
         return borderShape;
     }
 
