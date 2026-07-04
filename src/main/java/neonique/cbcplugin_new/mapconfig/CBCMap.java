@@ -38,7 +38,7 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CBCMap {
+public abstract class CBCMap {
 
     private static final String[] SET_VALUES = new String[] {
             "MapId", "Name", "Center", "BlockSymbol", "MapBoundaryLow", "MapBoundaryHigh", "HealingPads",
@@ -87,66 +87,60 @@ public class CBCMap {
 
     private boolean isPracticeMap = true;
 
-    public CBCMap (Configuration config, MapMechanicsManager mechanicsManager) {
+    public CBCMap (World world, Configuration config, MapMechanicsManager mechanicsManager) {
 
-        try {
+        this.worldUUID = world.getUID();
 
-            id = ConfigUtil.requireString(config, "id");
+        id = ConfigUtil.requireString(config, "id");
 
-            // Parse map metadata
-            name = ConfigUtil.requireString(config, "name");
-            blockSymbol = ConfigUtil.requireEnum(config, "name", Material.class);
+        // Parse map metadata
+        name = ConfigUtil.requireString(config, "name");
+        blockSymbol = ConfigUtil.requireEnum(config, "name", Material.class);
 
-            // Parse center coordinates
-            centerCoords = ConfigUtil.requireVector(config, "center");
+        // Parse center coordinates
+        centerCoords = ConfigUtil.requireVector(config, "center");
 
-            // Parse bounding box
-            List<Vector> bounds = ConfigUtil.requireVectorList(config, "bounding_box");
-            if (bounds.size() != 2) throw new ConfigUtil.InvalidConfigValueException(config, "bounding_box",
-                    "Bounding box must be a List<Vector> of size 2");
-            lowerBound = new Vector(
-                    Math.min(bounds.get(0).getX(), bounds.get(1).getX()),
-                    Math.min(bounds.get(0).getY(), bounds.get(1).getY()),
-                    Math.min(bounds.get(0).getZ(), bounds.get(1).getZ())
-            );
-            upperBound = new Vector(
-                    Math.max(bounds.get(0).getX(), bounds.get(1).getX()),
-                    Math.max(bounds.get(0).getY(), bounds.get(1).getY()),
-                    Math.max(bounds.get(0).getZ(), bounds.get(1).getZ())
-            );
+        // Parse bounding box
+        List<Vector> bounds = ConfigUtil.requireVectorList(config, "bounding_box");
+        if (bounds.size() != 2) throw new ConfigUtil.InvalidConfigValueException(config, "bounding_box",
+                "Bounding box must be a List<Vector> of size 2");
+        lowerBound = new Vector(
+                Math.min(bounds.get(0).getX(), bounds.get(1).getX()),
+                Math.min(bounds.get(0).getY(), bounds.get(1).getY()),
+                Math.min(bounds.get(0).getZ(), bounds.get(1).getZ())
+        );
+        upperBound = new Vector(
+                Math.max(bounds.get(0).getX(), bounds.get(1).getX()),
+                Math.max(bounds.get(0).getY(), bounds.get(1).getY()),
+                Math.max(bounds.get(0).getZ(), bounds.get(1).getZ())
+        );
 
-            // Parse individual and team spawns
-            defaultSpawnCoords = ConfigUtil.requireVectorList(config, "default_player_spawns");
-            defaultTeamSpawns = loadTeamVectorList(ConfigUtil.requireConfigurationSection(config, "default_team_spawns"));
+        // Parse individual and team spawns
+        defaultSpawnCoords = ConfigUtil.requireVectorList(config, "default_player_spawns");
+        defaultTeamSpawns = loadTeamVectorList(ConfigUtil.requireConfigurationSection(config, "default_team_spawns"));
 
-            // Parse map options
-            options = ConfigUtil.getConfigurationSection(config, "map_options")
-                    .map(MapOptions::fromConfig)
-                    .orElse(MapOptions.DEFAULTS);
+        // Parse map options
+        options = ConfigUtil.getConfigurationSection(config, "map_options")
+                .map(MapOptions::fromConfig)
+                .orElse(MapOptions.DEFAULTS);
 
-            // Parse map mechanics
-            List<?> mechanicsSection = ConfigUtil.getList(config, "map_mechanics").orElse(List.of());
-            mechanicConfigs = mechanicsSection.stream()
-                    .map(o -> {
-                        if (!(o instanceof ConfigurationSection)) throw new ConfigUtil.InvalidConfigValueException(config,
-                                "map_mechanics", "All values in map_mechanics must be of type ConfigurationSection");
-                        return (ConfigurationSection) o;})
-                    .toList();
+        // Parse map mechanics
+        List<?> mechanicsSection = ConfigUtil.getList(config, "map_mechanics").orElse(List.of());
+        mechanicConfigs = mechanicsSection.stream()
+                .map(o -> {
+                    if (!(o instanceof ConfigurationSection)) throw new ConfigUtil.InvalidConfigValueException(config,
+                            "map_mechanics", "All values in map_mechanics must be of type ConfigurationSection");
+                    return (ConfigurationSection) o;})
+                .toList();
 
-            // Verify that all map mechanics parse correctly
-            mechanicsManager.verifyMapMechanicConfigs(mechanicConfigs);
+        // Verify that all map mechanics parse correctly
+        mechanicsManager.verifyMapMechanicConfigs(mechanicConfigs);
 
-            // Parse death message overrides
-            deathMessageOverrides = ConfigUtil.getConfigurationSection(config, "death_message_overrides")
-                    .map(this::loadDeathMessageOverrides)
-                    .orElse(Map.of());
+        // Parse death message overrides
+        deathMessageOverrides = ConfigUtil.getConfigurationSection(config, "death_message_overrides")
+                .map(this::loadDeathMessageOverrides)
+                .orElse(Map.of());
 
-
-        } catch (Throwable e) {
-
-            throw new InvalidMapConfigException("", e);
-
-        }
     }
 
     public Map<TeamColor, List<Vector>> loadTeamVectorList (ConfigurationSection section) {
@@ -362,14 +356,14 @@ public class CBCMap {
         return blockSymbol;
     }
 
-    public List<FFASpawnpoint> getSpawns() {
-        List<FFASpawnpoint> spawnpoints = new ArrayList<>();
-        for (Vector spawnpoint : defaultSpawnCoords) {
-            spawnpoints.add(new FFASpawnpoint(new Location(getWorld(), spawnpoint.getX(), spawnpoint.getY(), spawnpoint.getZ())));
-        }
-        return spawnpoints;
+    public List<FFASpawnpoint> getSpawns () {
+        return defaultSpawnCoords.stream()
+                .map(v -> VectorUtil.vecToLocation(v, getWorld()))
+                .map(FFASpawnpoint::new)
+                .toList();
     }
 
+    // TODO: refactor into map mechanic
     public void fillBlocksAtStart() {
         if (!blocksFillAtStart) return;
         // Go through every vector
@@ -380,6 +374,7 @@ public class CBCMap {
         }
     }
 
+    // TODO: refactor into map mechanic
     public void fillBlocksAtEnd() {
         if (!blocksFillAtStart) return;
         // Go through every vector
@@ -393,16 +388,16 @@ public class CBCMap {
         return defaultSpawnCoords;
     }
 
-    public String getId() {
+    public String getId () {
         return id;
     }
 
-    public String getName() {
+    public String getName () {
         return name;
     }
 
-    public Location getMapCentre() {
-        return new Location(getWorld(), centerCoords.getX(), centerCoords.getY(), centerCoords.getZ());
+    public Location getMapCentre () {
+        return VectorUtil.vecToLocation(centerCoords, getWorld());
     }
 
     public void setMinAndMaxTeams(int minTeams, int maxTeams) {

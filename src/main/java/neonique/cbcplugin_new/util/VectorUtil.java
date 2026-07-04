@@ -1,6 +1,8 @@
 package neonique.cbcplugin_new.util;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -33,6 +35,10 @@ public class VectorUtil {
 
         throw new IllegalArgumentException("Not all objects in list are of type Number");
 
+    }
+
+    public static Location vecToLocation (Vector v, World w) {
+        return new Location(w, v.getX(), v.getY(), v.getZ());
     }
 
     public static List<Double> vecToList (Vector v) {

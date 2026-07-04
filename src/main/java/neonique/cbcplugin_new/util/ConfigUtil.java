@@ -6,7 +6,9 @@ import org.bukkit.util.Vector;
 import java.io.ObjectInputFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ConfigUtil {
 
@@ -176,6 +178,15 @@ public class ConfigUtil {
     public static List<Vector> requireVectorList (ConfigurationSection config, String key) {
         return getVectorList(config, key)
                 .orElseThrow(() -> new MissingConfigKeyException(config, key, "List[Vector[3]]"));
+    }
+
+    public static Map<String, ConfigurationSection> getAllConfigSections (ConfigurationSection section) {
+        return section.getKeys(false).stream()
+                .filter(section::isConfigurationSection)
+                .collect(Collectors.toMap(
+                        k -> k,
+                        k -> section.getConfigurationSection(k)
+                ));
     }
 
 }
