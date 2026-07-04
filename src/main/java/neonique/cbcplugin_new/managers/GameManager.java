@@ -4,12 +4,14 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.core.BaseGameCommands;
 import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.mapconfig.MapLoader;
+import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
 import neonique.cbcplugin_new.weapons.WeaponType;
@@ -42,6 +44,10 @@ public class GameManager {
     public PracticeManager practiceManager;
     private final GlobalKillsManager globalKillsManager;
     private final ChatManager chatManager;
+
+    private final MapLoader mapLoader;
+    private final MapMechanicLoader mechanicLoader;
+
     private CBCEventManager eventManager = null;
 
     // Game state
@@ -101,6 +107,9 @@ public class GameManager {
         worldUUID = Objects.requireNonNull(Bukkit.getWorld("world")).getUID();
 
         // Create managers
+        mechanicLoader = new MapMechanicLoader();
+        mapLoader = new MapLoader(this, mechanicLoader, CBCPlugin.getPlugin().getLogger());
+
         combatManager = new CombatManager(this);
         practiceManager = new PracticeManager(this, combatManager);
         chatManager = new ChatManager(this);
@@ -378,7 +387,7 @@ public class GameManager {
 
             cbcScoreboardManager.activate();
             currentGame = gamemode.getGame(this);
-            GameContext ctx = new GameContext(map, lobby.getTeams(), lobby.getLobbyPlayersPlayingAndOnline(), boolVars, intVars, stringVars);
+            FFAGameContext ctx = new FFAGameContext(map, lobby.getTeams(), lobby.getLobbyPlayersPlayingAndOnline(), boolVars, intVars, stringVars);
             currentGame.setupGame(ctx);
             gameCommands = currentGame.getGameCommands();
 
@@ -463,7 +472,7 @@ public class GameManager {
         // Setup lobby
         startLobby();
 
-        Game<?, ?> game = currentGame;
+        Game<?> game = currentGame;
         lastGame = currentGame;
 
         // No more game
@@ -471,7 +480,7 @@ public class GameManager {
         gameCommands = null;
 
         // Restore teams if the game is a team game
-        if (game instanceof TeamGame<?, ?, ?> teamGame) {
+        if (game instanceof TeamGame<?, ?> teamGame) {
             // Check if teams should be restored
             if (teamGame.isRestoreTeamsAfterGame()) {
                 lobby.restoreTeams(teamGame.getPlayersTeamIds());
@@ -552,7 +561,7 @@ public class GameManager {
         return this.playerList.getOrDefault(player.getUniqueId(), null);
     }
 
-    public Game<?, ?> getCurrentGame() {
+    public Game<?> getCurrentGame() {
         return currentGame;
     }
 
@@ -757,7 +766,7 @@ public class GameManager {
         else return (eventManager.getNextGameNum() <= CBCEventManager.getGameAmount() + 1);
     }
 
-    public Game<?, ?> getLastGame() {
+    public Game<?> getLastGame() {
         return lastGame;
     }
 
@@ -771,5 +780,9 @@ public class GameManager {
 
     public PlayerRegistry getPlayerRegistry() {
         return playerRegistry;
+    }
+
+    public MapMechanicLoader mechanicLoader() {
+        return mechanicLoader;
     }
 }

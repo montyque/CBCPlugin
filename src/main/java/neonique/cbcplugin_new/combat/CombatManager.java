@@ -99,7 +99,10 @@ public class CombatManager {
 
         // Create factories
         projectileManager = new ProjectileManager();
-        mapMechanicsManager = new MapMechanicsManager(gameManager.getPlayerRegistry(), this);
+        mapMechanicsManager = new MapMechanicsManager(gameManager.getPlayerRegistry(),
+                this,
+                gameManager.mechanicLoader());
+
         equipmentFactory = new EquipmentFactory(plugin.getTrimService());
         weaponFactory = new WeaponFactory();
         weaponFactory.resetWeaponPresetsToDefault();

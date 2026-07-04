@@ -38,7 +38,7 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class CBCMap {
+public class CBCMap {
 
     private static final String[] SET_VALUES = new String[] {
             "MapId", "Name", "Center", "BlockSymbol", "MapBoundaryLow", "MapBoundaryHigh", "HealingPads",
@@ -87,7 +87,7 @@ public abstract class CBCMap {
 
     private boolean isPracticeMap = true;
 
-    public CBCMap (World world, Configuration config, MapMechanicsManager mechanicsManager) {
+    public CBCMap (World world, Configuration config, MapMechanicLoader mechanicLoader) {
 
         this.worldUUID = world.getUID();
 
@@ -134,7 +134,7 @@ public abstract class CBCMap {
                 .toList();
 
         // Verify that all map mechanics parse correctly
-        mechanicsManager.verifyMapMechanicConfigs(mechanicConfigs);
+        mechanicLoader.verifyMapMechanicConfigs(mechanicConfigs);
 
         // Parse death message overrides
         deathMessageOverrides = ConfigUtil.getConfigurationSection(config, "death_message_overrides")
