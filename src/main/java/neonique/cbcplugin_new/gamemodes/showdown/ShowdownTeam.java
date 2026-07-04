@@ -2,11 +2,9 @@ package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.core.TeamLike;
-import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousGame;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.inventory.ItemStack;
 
 public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
 

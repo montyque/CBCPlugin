@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.kmation;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.FFAGame;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
@@ -81,7 +81,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
     }
 
     @Override
-    public void setupGame (GameContext ctx) {
+    public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
@@ -119,7 +119,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
 
         for (KMationPlayer player : shuffledPlayers) {
             if (!player.isOnline()) continue;
-            player.teleportPlayerToSpawn(gameStartSpawns.get(spawnNum), getMap().getMapCentre());
+            player.teleportPlayerToSpawn(gameStartSpawns.get(spawnNum), this.getMap().getMapCentre());
             player.playerSetupGame();
             spawnNum++;
         }
@@ -191,7 +191,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
 
     public void startGame () {
 
-        getMap().fillBlocksAtEnd();
+        this.getMap().fillBlocksAtEnd();
 
         // Allow players to move
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
@@ -651,7 +651,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
 
         // Select the first spawn
         Comparator<KMationSpawn> byDistanceFromCenter =
-                (KMationSpawn loc1, KMationSpawn loc2) -> Double.compare(loc1.distanceSquared(getMap().getMapCentre()), loc2.distanceSquared(getMap().getMapCentre()));
+                (KMationSpawn loc1, KMationSpawn loc2) -> Double.compare(loc1.distanceSquared(this.getMap().getMapCentre()), loc2.distanceSquared(this.getMap().getMapCentre()));
         roundSpawnList.sort(byDistanceFromCenter);
         Collections.reverse(roundSpawnList);
 

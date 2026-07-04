@@ -2,7 +2,6 @@ package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.core.TeamLike;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import org.bukkit.Location;
 
 import java.util.*;

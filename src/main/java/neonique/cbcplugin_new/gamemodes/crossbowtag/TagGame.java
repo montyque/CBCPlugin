@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.TagNoMove;
 import neonique.cbcplugin_new.listeners.gamemodes.TagTeleportListener;
@@ -118,7 +118,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
     }
 
     @Override
-    public void setupGame (GameContext ctx) {
+    public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
@@ -263,14 +263,14 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
         // Choose which team is tagger
         taggers = taggerOrder.get(roundNumber - 1);
-        getMap().fillBlocksAtStart();
+        this.getMap().fillBlocksAtStart();
 
         // Enable heal pads
         getCombatManager().enableAllHealPads();
         getCombatManager().setAllPlayersImmune(false);
 
         // Randomise evader spawns if evader spawns are random
-        if (getMap().isEvaderSpawnsRandom()) {
+        if (this.getMap().isEvaderSpawnsRandom()) {
 
             // Randomise list of spawns
             List<Collection<Location>> randomisedSpawns = new ArrayList<>(randomEvaderSpawns);
@@ -317,7 +317,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         noMoveListener.setEvadersMove(false);
         CBCPlugin.getPlugin().getServer().getPluginManager().registerEvents(noMoveListener, CBCPlugin.getPlugin());
 
-        if (getMap().canEvadersMoveAtRoundStart()) {
+        if (this.getMap().canEvadersMoveAtRoundStart()) {
             noMoveListener.setEvadersMove(true);
         }
 
@@ -337,7 +337,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
     public void releaseEvaders () {
 
-        getMap().fillBlocksAtEnd();
+        this.getMap().fillBlocksAtEnd();
 
         // Round is now in play
         roundInPlay = true;
@@ -832,14 +832,14 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
             if (taggerReleaseTimer > 0) {
                 // Setup player round and teleport them to tagger spawn
                 player.playerSetupRound();
-                player.teleportPlayerToSpawn(team.getRandomTaggerSpawn(), getMap().getMapCentre());
+                player.teleportPlayerToSpawn(team.getRandomTaggerSpawn(), this.getMap().getMapCentre());
                 player.setCanMove(false);
             }
         } else {
             if (!roundInPlay && taggerReleaseTimer > 0) {
                 // Setup player round and teleport them to tagger spawn
                 player.playerSetupRound();
-                player.teleportPlayerToSpawn(team.getRandomEvaderSpawn(), getMap().getMapCentre());
+                player.teleportPlayerToSpawn(team.getRandomEvaderSpawn(), this.getMap().getMapCentre());
                 player.setCanMove(false);
             }
         }

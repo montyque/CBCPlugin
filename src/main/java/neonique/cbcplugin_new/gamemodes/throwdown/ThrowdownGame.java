@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.throwdown;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.FFAGame;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.throwdown.tasks.*;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
@@ -90,7 +90,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
     }
 
     @Override
-    public void setupGame (GameContext ctx) {
+    public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
@@ -179,7 +179,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         for (ThrowdownPlayer player : randomPlayerList) {
 
             if (!player.isOnline()) continue;
-            player.teleportPlayerToSpawn(spawnOrder.get(spawnNum).location(), getMap().getMapCentre());
+            player.teleportPlayerToSpawn(spawnOrder.get(spawnNum).location(), this.getMap().getMapCentre());
             aliveTeam.addEntityUUID(player.getUUID());
             spawnNum++;
 
@@ -247,7 +247,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
 
     public void startRound() {
 
-        getMap().fillBlocksAtEnd();
+        this.getMap().fillBlocksAtEnd();
 
         // Start round for players
         for (ThrowdownPlayer player : getPlayers()) {
@@ -386,8 +386,8 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
 
         // Select the first spawn
         Comparator<FFASpawnpoint> byDistanceFromCenter =
-                (FFASpawnpoint loc1, FFASpawnpoint loc2) -> Double.compare(loc1.location().distanceSquared(getMap().getMapCentre()),
-                        loc2.location().distanceSquared(getMap().getMapCentre()));
+                (FFASpawnpoint loc1, FFASpawnpoint loc2) -> Double.compare(loc1.location().distanceSquared(this.getMap().getMapCentre()),
+                        loc2.location().distanceSquared(this.getMap().getMapCentre()));
 
         roundSpawnList.sort(byDistanceFromCenter);
         Collections.reverse(roundSpawnList);
@@ -488,7 +488,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
 
         // If sudden death border is enabled
         if (suddenDeathBorderEnabled) {
-            suddenDeathBorder = getMap().getSuddenDeathBorder(getGameManager());
+            suddenDeathBorder = this.getMap().getSuddenDeathBorder(getGameManager());
             suddenDeathBorder.activateBorder();
         }
 

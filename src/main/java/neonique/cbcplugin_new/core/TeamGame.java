@@ -1,5 +1,7 @@
 package neonique.cbcplugin_new.core;
 
+import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
@@ -12,11 +14,11 @@ import org.bukkit.Sound;
 import java.time.Duration;
 import java.util.*;
 
-public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends CBCTeam<P>> extends Game<P, M> {
+public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extends Game<P> {
 
     // If teams should be restored after this game
     private boolean restoreTeamsAfterGame = true;
-    private final LinkedHashMap<String, T> teams = new LinkedHashMap<>();
+    private final Map<String, T> teams = new LinkedHashMap<>();
 
     private T winningTeam = null;
 
@@ -30,6 +32,8 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
      * @param teamNum The number that is assigned to the team.
      */
     public abstract T createGamemodeTeam (TeamLike team, int teamNum);
+
+    public abstract void setupGame (TeamGameContext context);
 
     public T getTypedTeam (CBCTeam<?> team) {
         if (team == null) return null;
@@ -55,17 +59,15 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
     }
 
 
-    public void createTeams (Map<String, ? extends TeamLike> originalTeams) {
+    public void createTeams (List<? extends TeamLike> originalTeams) {
 
         int teamNum = 1;
 
         // Go through each lobby team and add its team information to a team
-        for (String teamId : originalTeams.keySet()) {
-
-            TeamLike originalTeam = originalTeams.get(teamId);
+        for (TeamLike originalTeam : originalTeams) {
 
             // Only create the team if the team has players
-            Collection<? extends PlayerLike> teamOnlinePlayers = originalTeams.get(teamId).onlinePlayers();
+            Collection<? extends PlayerLike> teamOnlinePlayers = originalTeam.onlinePlayers();
             if (teamOnlinePlayers.isEmpty()) continue;
 
             // Create team and register on scoreboard manager
@@ -79,7 +81,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
             }
 
             // Add team to team list
-            teams.put(teamId, team);
+            teams.put(originalTeam.id(), team);
             teamNum++;
 
         }
@@ -158,7 +160,7 @@ public abstract class TeamGame<P extends CBCPlayer, M extends CBCMap, T extends 
         return getTypedTeam(player.team());
     }
 
-    public LinkedHashMap<String, T> getGeneralTeamList () {
+    public Map<String, T> getGeneralTeamList () {
         return teams;
     }
 

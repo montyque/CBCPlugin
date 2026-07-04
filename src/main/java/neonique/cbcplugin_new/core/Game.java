@@ -3,11 +3,11 @@ package neonique.cbcplugin_new.core;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
-import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.managers.PlayerSession;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.newline;
 
-public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements PlayerSession<P> {
+public abstract class Game<P extends CBCPlayer> implements PlayerSession<P> {
 
     private Component headerTitle = Component.text("");
 
@@ -40,7 +40,6 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
     private final CombatManager combatManager;
     private final World world;
 
-    private M map;
     private BaseGameCommands gameCommands;
 
     private final Map<UUID, P> playerList = new HashMap<>();
@@ -57,6 +56,16 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
     // Bossbar manager
     private GameBossBarManager baseBossBarManager = null;
 
+    public abstract GameSidebarManager createSidebarManager ();
+
+    public abstract GameBossBarManager createBossbarManager ();
+
+    public abstract PostGameStats getPostGameStats ();
+
+    public abstract CBCGamemode getGamemode ();
+
+    public abstract CBCMap getMap();
+
     public Game (GameManager gameManager) {
         this.gameManager = gameManager;
         this.combatManager = gameManager.getCombatManager();
@@ -66,16 +75,6 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
     public P getTypedPlayer (CBCPlayer player) {
         if (player == null) return null;
         return playerList.get(player.getUUID());
-    }
-
-    public void setupMap (M map) {
-        this.map = map;
-        map.fillBlocksAtStart();
-        getCombatManager().setupMap(map);
-    }
-
-    public M getMap () {
-        return map;
     }
 
     public void addPlayer (P player) {
@@ -89,16 +88,6 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
     public void removePlayer (P player) {
         playerList.remove(player.getUUID());
     }
-
-    public abstract void setupGame (GameContext ctx);
-
-    public abstract GameSidebarManager createSidebarManager ();
-
-    public abstract GameBossBarManager createBossbarManager ();
-
-    public abstract PostGameStats getPostGameStats ();
-
-    public abstract CBCGamemode getGamemode ();
 
     public void createUIManagers () {
 
@@ -150,7 +139,7 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
             ).append(
                     newline()
             ).append(
-                    smallText(map.getName() + " - ").color(NamedTextColor.GRAY)
+                    smallText(getMap().getName() + " - ").color(NamedTextColor.GRAY)
             ).append(
                     smallText(gameLengthToText()).color(NamedTextColor.GRAY)
             );
@@ -197,10 +186,6 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
         return List.copyOf(playerList.values());
     }
 
-    public List<? extends CBCPlayer> getBasePlayers () {
-        return List.copyOf(playerList.values());
-    }
-
     public void playerJoinServer(Player playerEntity) {
 
         // Check if player is a player
@@ -238,7 +223,7 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
     public void playVictoryFireworks (CBCTeam<?> team) {
 
         // If team is null, this means this is a free for all game
-        new VictoryFireworkTask(team, map).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
+        new VictoryFireworkTask(team, getMap()).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
     }
 
@@ -279,7 +264,7 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
 
         // Player is spectating, put player into spectator mode
         player.setGameMode(GameMode.SPECTATOR);
-        player.teleport(map.getMapCentre());
+        player.teleport(getMap().getMapCentre());
         player.sendMessage(
                 Component.text("You are now spectating this " +
                         "Crossbow Champions - " + getGamemode().getGamemodeName() + " game.").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD)
@@ -340,20 +325,12 @@ public abstract class Game<P extends CBCPlayer, M extends CBCMap> implements Pla
         }
     }
 
-    public boolean isNightVisionDisabled() {
-        return nightVisionDisabled;
-    }
-
     public World getWorld() {
         return world;
     }
 
     public Set<String> getPlayerNames() {
         return playerList.values().stream().map(CBCPlayer::name).collect(Collectors.toSet());
-    }
-
-    public void setHeaderTitle (Component component) {
-        headerTitle = component;
     }
 
     public CBCScoreboardManager getCBCScoreboardManager () {

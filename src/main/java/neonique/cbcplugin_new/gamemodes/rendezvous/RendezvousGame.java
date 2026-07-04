@@ -4,11 +4,9 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownTeam;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -109,7 +107,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
     }
 
     @Override
-    public void setupGame (GameContext ctx) {
+    public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
@@ -173,7 +171,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
                 player.resetPlayer();
 
                 // Spawns players in different spawnpoints - reason playerinc is used
-                player.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()), getMap().getMapCentre());
+                player.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()), this.getMap().getMapCentre());
                 playerinc++;
 
             }
@@ -248,7 +246,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
 
     public void startGame() {
 
-        getMap().fillBlocksAtEnd();
+        this.getMap().fillBlocksAtEnd();
 
         // Allow players to move
         PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);

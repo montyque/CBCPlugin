@@ -4,11 +4,9 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
-import neonique.cbcplugin_new.gamemodes.crossbowtag.TagTeam;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -79,7 +77,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
     }
 
     @Override
-    public void setupGame (GameContext ctx) {
+    public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
@@ -167,7 +165,7 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
 
     public void startGame () {
 
-        getMap().fillBlocksAtEnd();
+        this.getMap().fillBlocksAtEnd();
 
         PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);
         playerNoMoveListener = null;

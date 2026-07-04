@@ -3,7 +3,7 @@ package neonique.cbcplugin_new.gamemodes.assassin;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.FFAGame;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
@@ -71,7 +71,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
     }
 
     @Override
-    public void setupGame (GameContext ctx) {
+    public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
@@ -151,7 +151,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
 
     public void startGame () {
 
-        getMap().fillBlocksAtEnd();
+        this.getMap().fillBlocksAtEnd();
 
         // Allow players to move
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
@@ -177,7 +177,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
 
         // Select the first spawn
         Comparator<AssassinSpawn> byDistanceFromCenter =
-                (AssassinSpawn loc1, AssassinSpawn loc2) -> Double.compare(loc1.distanceSquared(getMap().getMapCentre()), loc2.distanceSquared(getMap().getMapCentre()));
+                (AssassinSpawn loc1, AssassinSpawn loc2) -> Double.compare(loc1.distanceSquared(this.getMap().getMapCentre()), loc2.distanceSquared(this.getMap().getMapCentre()));
         roundSpawnList.sort(byDistanceFromCenter);
         Collections.reverse(roundSpawnList);
 

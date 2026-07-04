@@ -93,7 +93,7 @@ public class CTFMapData implements TeamMapData {
     public CTFBase getBase (TeamColor color) {
         CTFBaseInfo info = teamBaseInfo.get(color);
         return new CTFBase(
-                VectorUtil.vecToLocation(info.flagLocation, map.getWorld())
+                VectorUtil.vecToLocation(info.flagLocation, map.getWorld()),
                 info.spawns.stream()
                         .map(v -> VectorUtil.vecToLocation(v, map.getWorld()))
                         .toList()

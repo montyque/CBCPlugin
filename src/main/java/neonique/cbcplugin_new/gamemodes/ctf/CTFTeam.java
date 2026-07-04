@@ -35,16 +35,15 @@ public class CTFTeam extends CBCTeam<CTFPlayer> {
     // Flag related variables
     private int flagsLeft;
     private boolean playersRespawn = true;
-    protected CTFPlayer flagHolder = null;
+    private CTFPlayer flagHolder = null;
     private UUID hologramUUID = null;
 
     private Location flagLocation;
     private List<Location> teamSpawns;
 
     // Statistics
-    protected int timesFlagPickedUp = 0;
-    protected int timesFlagCaptured = 0;
-
+    private int timesFlagPickedUp = 0;
+    private int timesFlagCaptured = 0;
     private int teamTimeAlive = 0;
 
     public CTFTeam (CTFGame game, TeamLike originalTeam, String teamIdNum) {

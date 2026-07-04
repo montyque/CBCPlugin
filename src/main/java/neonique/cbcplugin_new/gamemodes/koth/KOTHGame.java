@@ -5,11 +5,9 @@ import neonique.cbcplugin_new.core.BaseTeamGameCommands;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
-import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousTeam;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -96,7 +94,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
     }
 
     @Override
-    public void setupGame (GameContext ctx) {
+    public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
@@ -128,7 +126,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
         setGameCommands(new BaseTeamGameCommands(this));
 
         // Create teams and players
-        Map<String, List<Location>> teamSpawns = getMap().getTeamSpawns();
+        Map<String, List<Location>> teamSpawns = this.getMap().getTeamSpawns();
         createTeams(ctx.getTeams());
         teleportSpectators();
 
@@ -229,7 +227,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
 
     public void startGame () {
 
-        getMap().fillBlocksAtEnd();
+        this.getMap().fillBlocksAtEnd();
 
         // Let players move again
         PlayerMoveEvent.getHandlerList().unregister(playerNoMoveListener);
@@ -366,10 +364,10 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
     }
 
     public void changeBlocks (String colorMaterialString, NamedTextColor particleColor) {
-        for (String materialString : getMap().getBlocksOnCapture().keySet()) {
+        for (String materialString : this.getMap().getBlocksOnCapture().keySet()) {
             try {
                 Material blockMaterial = Material.valueOf((colorMaterialString + "_" + materialString).toUpperCase());
-                List<Vector> blockVectorList = getMap().getBlocksOnCapture().get(materialString);
+                List<Vector> blockVectorList = this.getMap().getBlocksOnCapture().get(materialString);
                 for (Vector vector : blockVectorList) {
                     Block block = getWorld().getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
                     block.setType(blockMaterial);

@@ -4,12 +4,10 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.showdown.tasks.*;
-import neonique.cbcplugin_new.gamemodes.tdm.TDMTeam;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -114,7 +112,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
     }
 
     @Override
-    public void setupGame (GameContext ctx) {
+    public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
@@ -177,7 +175,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
             }
         }
 
-        getMap().fillBlocksAtStart();
+        this.getMap().fillBlocksAtStart();
 
         // Teleport players to spawns
         if (randomSpawns) {
@@ -226,7 +224,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
 
     public void startRound () {
 
-        getMap().fillBlocksAtEnd();
+        this.getMap().fillBlocksAtEnd();
 
         roundInPlay = true;
         getCombatManager().setVoidKill(true);
@@ -490,7 +488,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
         // If sudden death border is enabled activate the border
         if (suddenDeathBorderEnabled) {
 
-            suddenDeathBorder = getMap().getSuddenDeathBorder(getGameManager());
+            suddenDeathBorder = this.getMap().getSuddenDeathBorder(getGameManager());
             suddenDeathBorder.activateBorder();
 
         }
@@ -534,7 +532,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
             // If player joins before round starts, put them into game
             if (!roundInPlay && roundStartCountdown) {
                 player.playerSetupRound();
-                player.teleportPlayerToSpawn(team.getRoundSpawn(), getMap().getMapCentre());
+                player.teleportPlayerToSpawn(team.getRoundSpawn(), this.getMap().getMapCentre());
             }
 
         }
@@ -578,7 +576,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
 
         // Select the first spawn
         Comparator<ShowdownSpawn> byDistanceFromCenter =
-                (ShowdownSpawn loc1, ShowdownSpawn loc2) -> Double.compare(loc1.distanceSquared(getMap().getMapCentre()), loc2.distanceSquared(getMap().getMapCentre()));
+                (ShowdownSpawn loc1, ShowdownSpawn loc2) -> Double.compare(loc1.distanceSquared(this.getMap().getMapCentre()), loc2.distanceSquared(this.getMap().getMapCentre()));
         roundSpawnList.sort(byDistanceFromCenter);
         Collections.reverse(roundSpawnList);
 

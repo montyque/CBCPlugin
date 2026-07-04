@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGPlayerNearbyGold;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGScoreTask;
@@ -87,7 +87,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
     }
 
     @Override
-    public void setupGame (GameContext ctx) {
+    public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
@@ -191,7 +191,7 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
 
     public void startGame () {
 
-        getMap().fillBlocksAtEnd();
+        this.getMap().fillBlocksAtEnd();
 
         // Remove boxes in spawns
         for (HTGTeam team : getTeams()) {
