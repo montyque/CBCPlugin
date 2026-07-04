@@ -386,7 +386,7 @@ public class GameManager {
         try {
 
             cbcScoreboardManager.activate();
-            currentGame = gamemode.getGame(this);
+            currentGame = gamemode.newGameInstance(this);
             FFAGameContext ctx = new FFAGameContext(map, lobby.getTeams(), lobby.getLobbyPlayersPlayingAndOnline(), boolVars, intVars, stringVars);
             currentGame.setupGame(ctx);
             gameCommands = currentGame.getGameCommands();
@@ -456,7 +456,7 @@ public class GameManager {
         // If event is active and game is counted as an event game, run end game function
         if (isCBCEventActive()) {
             if (eventManager.isLastGameEventGame()) {
-                if (currentGame instanceof TeamGame<?, ?, ?> eventGame) {
+                if (currentGame instanceof TeamGame<?, ?> eventGame) {
                     eventManager.eventGameEnded(eventGame);
                 }
             }

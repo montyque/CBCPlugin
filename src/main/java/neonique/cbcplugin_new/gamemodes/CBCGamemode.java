@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
+import neonique.cbcplugin_new.gamemodes.ctf.CTFMapData;
 import neonique.cbcplugin_new.gamemodes.holdthegold.HTGGame;
 import neonique.cbcplugin_new.gamemodes.kmation.KMationGame;
 import neonique.cbcplugin_new.gamemodes.koth.KOTHGame;
@@ -13,66 +14,139 @@ import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
 import neonique.cbcplugin_new.gamemodes.tdm.TDMGame;
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownGame;
 import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public enum CBCGamemode {
 
-    CTF ("Capture The Flag", 1, true, 1,
-            TextColor.color(86, 197, 209), CTFGame::new),
+    CTF ("Capture The Flag",
+            1,
+            true,
+            1,
+            TextColor.color(86, 197, 209),
+            CTFGame::new,
+            CTFMapData::new
+    ),
 
-    SHOWDOWN ("Showdown", 2, true, 2,
-            TextColor.color(255, 132, 66), ShowdownGame::new),
+    SHOWDOWN ("Showdown",
+            2,
+            true,
+            2,
+            TextColor.color(255, 132, 66),
+            ShowdownGame::new,
+            null
+    ),
 
-    TDM ("Team Deathmatch", 3, true, 3,
-            TextColor.color(227, 66, 255), TDMGame::new),
+    TDM ("Team Deathmatch",
+            3,
+            true,
+            3,
+            TextColor.color(227, 66, 255),
+            TDMGame::new,
+            null
+    ),
 
-    HOLDTHEGOLD ("Hold The Gold", 4, true, 4,
-            TextColor.color(255, 239, 66), HTGGame::new),
+    HOLDTHEGOLD ("Hold The Gold",
+            4,
+            true,
+            4,
+            TextColor.color(255, 239, 66),
+            HTGGame::new,
+            null
+    ),
 
-    /*FLAGRUSH ("Flag Rush", 5, true, 5,
-            TextColor.color(75, 66, 255), Flag::new),*/
+    THROWDOWN ("Throwdown",
+            6,
+            false,
+            1,
+            TextColor.color(255, 66, 107),
+            ThrowdownGame::new,
+            null
+    ),
 
-    THROWDOWN ("Throwdown", 6, false, 1,
-            TextColor.color(255, 66, 107), ThrowdownGame::new),
+    KMATION ("Killimination",
+            7,
+            false,
+            2,
+            TextColor.color(66, 255, 72),
+            KMationGame::new,
+            null
+    ),
 
-    KMATION ("Killimination", 7, false, 2,
-            TextColor.color(66, 255, 72), KMationGame::new),
+    RENDEZVOUS ("Rendezvous",
+            8,
+            true,
+            6,
+            TextColor.color(66, 255, 185),
+            RendezvousGame::new,
+            null
+    ),
 
-    RENDEZVOUS ("Rendezvous", 8, true, 6,
-            TextColor.color(66, 255, 185), RendezvousGame::new),
+    ASSASSIN ("Assassin",
+            9,
+            false,
+            3,
+            TextColor.color(255, 191, 0),
+            AssassinGame::new,
+            null
+    ),
 
-    ASSASSIN ("Assassin", 9, false, 3,
-            TextColor.color(255, 191, 0), AssassinGame::new),
+    CBCTAG ("Crossbow Tag",
+            10,
+            true,
+            7,
+            TextColor.color(179, 255, 66),
+            TagGame::new,
+            null
+    ),
 
-    CBCTAG ("Crossbow Tag", 10, true, 7,
-            TextColor.color(179, 255, 66), TagGame::new),
+    KOTH ("King Of The Hill",
+            11,
+            true,
+            8,
+            TextColor.color(135, 66, 255),
+            KOTHGame::new,
+            null
+    );
 
-    KOTH ("King Of The Hill", 11, true, 8,
-            TextColor.color(135, 66, 255), KOTHGame::new);
+
+
 
     private final String gamemodeName;
     private final int gamemodeNum;
     private final boolean teamGamemode;
     private final int gamemodeIdInCategory;
     private final TextColor color;
-    private final Function<GameManager, Game<?, ?>> gameFactory;
+    private final Function<GameManager, Game<?>> gameFactory;
+    private final BiFunction<CBCMap, Configuration, GamemodeMapData> gamemodeMapDataFactory;
 
-    CBCGamemode (String gamemodeName, int gamemodeNum, boolean teamGamemode, int gamemodeIdInCategory, TextColor color,
-                 Function<GameManager, Game<?, ?>> gameFactory) {
+    CBCGamemode (String gamemodeName,
+                 int gamemodeNum,
+                 boolean teamGamemode,
+                 int gamemodeIdInCategory,
+                 TextColor color,
+                 Function<GameManager, Game<?>> gameFactory,
+                 BiFunction<CBCMap, Configuration, GamemodeMapData> gamemodeMapDataFactory) {
+
         this.gamemodeName = gamemodeName;
         this.gamemodeNum = gamemodeNum;
         this.teamGamemode = teamGamemode;
         this.gamemodeIdInCategory = gamemodeIdInCategory;
         this.color = color;
         this.gameFactory = gameFactory;
+        this.gamemodeMapDataFactory = gamemodeMapDataFactory;
+
     }
 
     public static Set<String> getGamemodeIds () {
@@ -156,8 +230,13 @@ public enum CBCGamemode {
 
     }
 
-    public Game<?, ?> getGame (GameManager gameManager) {
+    public Game<?> newGameInstance (GameManager gameManager) {
         return gameFactory.apply(gameManager);
     }
+
+    public GamemodeMapData mapDataFromConfig (CBCMap map, Configuration gamemodeConfig) {
+        return gamemodeMapDataFactory.apply(map, gamemodeConfig);
+    }
+
 
 }
