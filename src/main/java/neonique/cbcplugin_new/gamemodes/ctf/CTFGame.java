@@ -105,11 +105,11 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFTeam> {
         List<TeamLike> teamTemplates = ctx.teams();
         createTeams(teamTemplates);
 
-        // Set up game variables
-        setupDefaultGameVars(ctx.boolVars(), ctx.intVars(), ctx.stringVars());
-        flagsStart = ctx.intVars().getOrDefault("flagsStart", 4);
-        flagsRemovedTimer = ctx.intVars().getOrDefault("initialFlagsRemovedTimer", 1800);
-        flagsRemovedTimerIncrement = ctx.intVars().getOrDefault("flagsRemovedTimerAfterFirst", 600);
+        // Set up game settings
+        CTFSettings gameSettings = (CTFSettings) ctx.gameSettings();
+        flagsStart = gameSettings.startingFlags();
+        flagsRemovedTimer = gameSettings.firstFlagRemovalTimer();
+        flagsRemovedTimerIncrement = gameSettings.nextFlagRemovalTimer();
 
         // Set gamemode information
         // Set up game commands
@@ -117,9 +117,6 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFTeam> {
 
         // Set up map
         setupMap(ctx);
-
-        // Setup default game variables
-        setupDefaultGameVars(ctx.boolVars(), ctx.intVars(), ctx.stringVars());
 
         // Set gamemode information
         createHeaderTitle();
