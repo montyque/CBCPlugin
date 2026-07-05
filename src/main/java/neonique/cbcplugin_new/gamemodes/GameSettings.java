@@ -32,5 +32,14 @@ public interface GameSettings {
         return setting != null ? setting.tabCompletions() : List.of();
     }
 
+    static GameSettings blank () {
+        return new GameSettings() {
+            @Override
+            public Map<String, GameSetting<?>> getAllSettings () {
+                return Map.of();
+            }
+        };
+    }
+
 
 }

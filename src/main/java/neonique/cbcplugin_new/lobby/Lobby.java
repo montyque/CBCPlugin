@@ -57,17 +57,6 @@ public class Lobby {
     private GamemodeMapData mapSelected;
     private GameSettings gameSettings;
 
-    // Game variables
-    /*
-    private HashMap<String, Integer> gameInts;
-    private HashMap<String, Boolean> gameBools;
-    private HashMap<String, String> gameStrings;*/
-
-    /*
-    private HashMap<String, Integer> defaultGameInts = new HashMap<>();
-    private HashMap<String, Boolean> defaultGameBools = new HashMap<>();
-    private HashMap<String, String> defaultGameStrings = new HashMap<>();*/
-
     private CreeperPreset creeperPreset;
     private FlamePreset flamePreset;
     private XbowPreset xbowPreset;
@@ -109,14 +98,6 @@ public class Lobby {
         menuClickEvent = new MenuClickEvent(this, gameManager);
         playerDamageListener = new PlayerDamageListener(this, gameManager);
 
-        // Setting all default game variables
-        /*defaultGameBools.put("beaconHeads", false);
-        defaultGameBools.put("nightVisionDisabled", false);
-        defaultGameBools.put("doDayCycle", false);
-        defaultGameBools.put("globalKillsEnabled", true);
-        defaultGameBools.put("restoreTeamsAfterGame", true);
-        defaultGameStrings.put("dayTime", "dusk");*/
-
         // Image maps manager
         imageMaps = new LobbyImageMaps(this);
 
@@ -140,6 +121,7 @@ public class Lobby {
         /*gameBools = new HashMap<>(defaultGameBools);
         gameInts = new HashMap<>(defaultGameInts);
         gameStrings = new HashMap<>(defaultGameStrings);*/
+        gameSettings = GameSettings.blank();
 
         creeperPresetTeamOverrides = new HashMap<>();
         flamePresetTeamOverrides = new HashMap<>();
@@ -900,65 +882,8 @@ public class Lobby {
         }
     }
 
-    public Set<String> getAllGameVarKeys () {
-        Set<String> allVarKeys = new HashSet<>(gameBools.keySet());
-        allVarKeys.addAll(gameInts.keySet());
-        allVarKeys.addAll(gameStrings.keySet());
-        return allVarKeys;
-    }
-
-    public List<String> getGameVarTabCompletions (String gameVar) {
-
-        List<String> gameVarTabCompletions = new ArrayList<>();
-
-        if (gameBools.containsKey(gameVar)) {
-            gameVarTabCompletions.add("true");
-            gameVarTabCompletions.add("false");
-        }
-        else if (gameVar.equals("dayTime")) {
-            gameVarTabCompletions.add("dawn");
-            gameVarTabCompletions.add("noon");
-            gameVarTabCompletions.add("dusk");
-            gameVarTabCompletions.add("midnight");
-        }
-
-        return gameVarTabCompletions;
-    }
-
-    public Boolean getBooleanGameVar (String gameVar) {
-        return gameBools.getOrDefault(gameVar, null);
-    }
-
-    public Integer getIntGameVar (String gameVar) {
-        return gameInts.getOrDefault(gameVar, null);
-    }
-
-    public String getStringGameVar (String gameVar) {
-        return gameStrings.getOrDefault(gameVar, null);
-    }
-
-    public void setBooleanGameVar (String gameVar, boolean value) {
-        gameBools.put(gameVar, value);
-    }
-
-    public void setIntGameVar (String gameVar, int value) {
-        gameInts.put(gameVar, value);
-    }
-
-    public void setStringGameVar (String gameVar, String value) {
-        gameStrings.put(gameVar, value);
-    }
-
-    public HashMap<String, Boolean> getBoolVars() {
-        return gameBools;
-    }
-
-    public HashMap<String, Integer> getIntVars() {
-        return gameInts;
-    }
-
-    public HashMap<String, String> getStringVars() {
-        return gameStrings;
+    public GameSettings gameSettings () {
+        return gameSettings;
     }
 
     public GameContext getGameContext () {

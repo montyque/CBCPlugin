@@ -2,6 +2,8 @@ package neonique.cbcplugin_new.commands.lobbysubcommands;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.commands.LobbyCommand;
+import neonique.cbcplugin_new.gamemodes.GameSettings;
+import neonique.cbcplugin_new.gamemodes.InvalidSettingValueException;
 import neonique.cbcplugin_new.weapons.WeaponType;
 import neonique.cbcplugin_new.services.WeaponPresetService;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
@@ -148,83 +150,47 @@ public class lobby_game {
 
             if (lobbyCommand.checkIfPerms(user, perms, 1)) return;
 
+            GameSettings gameSettings = lobby.gameSettings();
+            if (gameSettings == null) {
+                user.sendMessage(Component.text("No game settings are not available.")
+                        .color(NamedTextColor.YELLOW));
+                return;
+            }
+
             if (args.length < 3) {
-                user.sendMessage(
-                        Component.text("You need to provide a game variable name!").color(NamedTextColor.YELLOW)
-                );
+                user.sendMessage(Component.text("You need to provide a game setting name! Possible settings: "
+                                + String.join(", ", gameSettings.getAllSettingNames()))
+                        .color(NamedTextColor.YELLOW));
                 return;
             }
 
-            String gameVar = args[2];
-            // Check if game var is in valid list
-            if (!lobby.getAllGameVarKeys().contains(gameVar)) {
-                user.sendMessage(
-                        Component.text("There is no '" + gameVar + "' game variable!").color(NamedTextColor.YELLOW)
-                );
-                return;
-            }
+            String gameSetting = args[2];
 
-            // Check if there is no value
             if (args.length == 3) {
-                // This means that the user only wants to see what the game variable is set to
-                String value = null;
-                if (lobby.getBooleanGameVar(gameVar) != null) {
-                    value = lobby.getBooleanGameVar(gameVar).toString();
-                }
-                else if (lobby.getIntGameVar(gameVar) != null) {
-                    value = lobby.getIntGameVar(gameVar).toString();
-                }
-                else if (lobby.getStringGameVar(gameVar) != null) {
-                    value = lobby.getStringGameVar(gameVar);
+
+                // Display user current value of game variable
+                try {
+                    user.sendMessage(Component.text("Game variable: " + gameSetting + "' is currently set to "
+                            + gameSettings.getSetting(gameSetting).valueString()).color(NamedTextColor.GREEN));
+                } catch (IllegalArgumentException e) {
+                    user.sendMessage(Component.text(e.getMessage()).color(NamedTextColor.YELLOW));
                 }
 
-                if (value != null) {
-                    user.sendMessage(
-                            Component.text("Game variable '" + gameVar + "' is currently set to: " + value).color(NamedTextColor.GREEN)
-                    );
-                }
             } else {
-                // This means that the user wants to set the game variable
-                String value = null;
-                if (lobby.getBooleanGameVar(gameVar) != null) {
-                    if (args[3].equals("true")) {
-                        lobby.setBooleanGameVar(gameVar, true);
-                        value = "true";
-                    }
-                    else if (args[3].equals("false")) {
-                        lobby.setBooleanGameVar(gameVar, false);
-                        value = "false";
-                    }
-                    else {
-                        user.sendMessage(
-                                Component.text("Game variable '" + gameVar + "' is boolean, so you can only set it to 'true' or 'false'").color(NamedTextColor.YELLOW)
-                        );
-                        return;
-                    }
-                }
-                else if (lobby.getIntGameVar(gameVar) != null) {
-                    try {
-                        value = args[3];
-                        int intValue = Integer.parseInt(value);
-                        lobby.setIntGameVar(gameVar, intValue);
-                    } catch (NumberFormatException e) {
-                        user.sendMessage(
-                                Component.text("Game variable '" + gameVar + "' is integer, so you must input an integer").color(NamedTextColor.YELLOW)
-                        );
-                        return;
-                    }
-                }
-                else if (lobby.getStringGameVar(gameVar) != null) {
-                    List<String> stringList = new ArrayList<>(Arrays.asList(args).subList(3, args.length));
-                    value = String.join(" ", stringList);
-                    lobby.setStringGameVar(gameVar, value);
+
+                // Parse the user's value
+                String settingValue = args[3];
+                try {
+                    gameSettings.setSetting(gameSetting, settingValue);
+                    user.sendMessage(
+                            Component.text("Game variable '" + gameSettings + "' has been set to "
+                                            + gameSettings.getSetting(gameSetting).valueString())
+                                    .color(NamedTextColor.GREEN)
+                    );
+                } catch (IllegalArgumentException | InvalidSettingValueException e) {
+                    user.sendMessage(Component.text(e.getMessage()).color(NamedTextColor.YELLOW));
                 }
 
-                if (value != null) {
-                    user.sendMessage(
-                            Component.text("Game variable '" + gameVar + "' has been set to: " + value).color(NamedTextColor.GREEN)
-                    );
-                }
             }
         }
 
@@ -442,12 +408,13 @@ public class lobby_game {
             if (perms >= 1) {
                 if (subsubcommand.equals("vars")) {
                     if (level == 3) {
-                        // Show all game variables
-                        tabCompletions = new ArrayList<>(lobby.getAllGameVarKeys());
+                        tabCompletions = lobby.gameSettings() != null ?
+                                List.copyOf(lobby.gameSettings().getAllSettingNames()) : List.of();
                     }
                     else if (level == 4) {
                         String gameVar = args[2].toLowerCase();
-                        tabCompletions = lobby.getGameVarTabCompletions(gameVar);
+                        tabCompletions = lobby.gameSettings() != null ?
+                                lobby.gameSettings().getSettingTabCompletions(gameVar) : List.of();
                     }
                 }
                 else if (subsubcommand.equals("setweapon")) {
