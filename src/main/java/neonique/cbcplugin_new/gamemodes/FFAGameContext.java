@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.gamemodes;
 
+import neonique.cbcplugin_new.core.PlayerLike;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
@@ -13,10 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 public record FFAGameContext (GamemodeMapData mapData,
-                              List<TeamLike> teams,
-                              Map<String, Boolean> boolVars,
-                              Map<String, Integer> intVars,
-                              Map<String, String> stringVars) implements GameContext {}
+                              List<PlayerLike> players,
+                              GameSettings gameSettings) implements GameContext {}
 
 /*
 public record FFAGameContext(CBCMap map, Map<String, LobbyTeam> teams, Collection<LobbyPlayer> players,) {

@@ -8,6 +8,8 @@ import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.core.BaseGameCommands;
 import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.core.TeamGame;
+import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
@@ -79,8 +81,8 @@ public class GameManager {
     // Other statistics
     private PostGameStats lastGameStats = null;
 
-    private Game<?, ?> currentGame = null;
-    private Game<?, ?> lastGame = null;
+    private Game<?> currentGame = null;
+    private Game<?> lastGame = null;
     private BaseGameCommands gameCommands = null;
 
     // Join and leave listeners
@@ -207,30 +209,23 @@ public class GameManager {
         return practiceManager.getMap();
     }
 
-    public void startGame (CBCGamemode gamemode, CBCMap map) {
+    public void startGame (CBCGamemode gamemode, GameContext context) {
 
         // If the practice arena is active close it
         if (practiceManager.isEnabled()) {
             practiceManager.disable();
         }
 
-        HashMap<String, Boolean> boolVars = lobby.getBoolVars();
-        HashMap<String, Integer> intVars = lobby.getIntVars();
-        HashMap<String, String> stringVars = lobby.getStringVars();
-
         // Set game state to ACTIVE
         this.gameState = GameState.ACTIVE;
-
-        // Load the chunks of the map
-        map.loadMapChunks(true);
 
         // Start the game depending on the gamemode
         try {
 
             cbcScoreboardManager.activate();
+
             currentGame = gamemode.newGameInstance(this);
-            FFAGameContext ctx = new FFAGameContext(map, lobby.getTeams(), lobby.getLobbyPlayersPlayingAndOnline(), boolVars, intVars, stringVars);
-            currentGame.setupGame(ctx);
+            currentGame.setupGame(context);
             gameCommands = currentGame.getGameCommands();
 
             // Set weapon presets

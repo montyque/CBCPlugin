@@ -2,7 +2,9 @@ package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamColor;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.gamemodes.*;
+import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
+import neonique.cbcplugin_new.mapconfig.TeamMapData;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.weapons.WeaponType;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
@@ -52,16 +54,19 @@ public class Lobby {
 
     // Map selected
     private CBCGamemode gamemodeSelected;
-    private CBCMap mapSelected;
+    private GamemodeMapData mapSelected;
+    private GameSettings gameSettings;
 
     // Game variables
+    /*
     private HashMap<String, Integer> gameInts;
     private HashMap<String, Boolean> gameBools;
-    private HashMap<String, String> gameStrings;
+    private HashMap<String, String> gameStrings;*/
 
+    /*
     private HashMap<String, Integer> defaultGameInts = new HashMap<>();
     private HashMap<String, Boolean> defaultGameBools = new HashMap<>();
-    private HashMap<String, String> defaultGameStrings = new HashMap<>();
+    private HashMap<String, String> defaultGameStrings = new HashMap<>();*/
 
     private CreeperPreset creeperPreset;
     private FlamePreset flamePreset;
@@ -105,12 +110,12 @@ public class Lobby {
         playerDamageListener = new PlayerDamageListener(this, gameManager);
 
         // Setting all default game variables
-        defaultGameBools.put("beaconHeads", false);
+        /*defaultGameBools.put("beaconHeads", false);
         defaultGameBools.put("nightVisionDisabled", false);
         defaultGameBools.put("doDayCycle", false);
         defaultGameBools.put("globalKillsEnabled", true);
         defaultGameBools.put("restoreTeamsAfterGame", true);
-        defaultGameStrings.put("dayTime", "dusk");
+        defaultGameStrings.put("dayTime", "dusk");*/
 
         // Image maps manager
         imageMaps = new LobbyImageMaps(this);
@@ -132,9 +137,9 @@ public class Lobby {
         gamemodeSelected = null;
         mapSelected = null;
 
-        gameBools = new HashMap<>(defaultGameBools);
+        /*gameBools = new HashMap<>(defaultGameBools);
         gameInts = new HashMap<>(defaultGameInts);
-        gameStrings = new HashMap<>(defaultGameStrings);
+        gameStrings = new HashMap<>(defaultGameStrings);*/
 
         creeperPresetTeamOverrides = new HashMap<>();
         flamePresetTeamOverrides = new HashMap<>();
@@ -489,61 +494,20 @@ public class Lobby {
         user.openInventory(gui);
     }
 
-    public void setGamemodeAndMapSelected (CBCGamemode gamemode, CBCMap map) {
+    public void setGamemodeAndMapSelected (CBCGamemode gamemode, GamemodeMapData map) {
 
         GamemodeOptions gamemodeVariables = gameManager.getGamemodes().get(gamemode);
 
         // Check if gamemode has changed
         if (gamemodeSelected != gamemode) {
-
-            // Reset variables
-            HashMap<String, Integer> newGameInts = new HashMap<>();
-            HashMap<String, Boolean> newGameBools = new HashMap<>();
-            HashMap<String, String> newGameStrings = new HashMap<>();
-
-            for (String varId : defaultGameBools.keySet()) {
-                if (gameBools.containsKey(varId)) {
-                    newGameBools.put(varId, gameBools.get(varId));
-                } else {
-                    newGameBools.put(varId, defaultGameBools.get(varId));
-                }
-            }
-            for (String varId : defaultGameInts.keySet()) {
-                if (gameInts.containsKey(varId)) {
-                    newGameInts.put(varId, gameInts.get(varId));
-                } else {
-                    newGameInts.put(varId, defaultGameInts.get(varId));
-                }
-            }
-            for (String varId : defaultGameStrings.keySet()) {
-                if (gameStrings.containsKey(varId)) {
-                    newGameStrings.put(varId, gameStrings.get(varId));
-                } else {
-                    newGameInts.put(varId, defaultGameInts.get(varId));
-                }
-            }
-
-            gameInts = newGameInts;
-            gameBools = newGameBools;
-            gameStrings = newGameStrings;
-
-            // Add gamemode default values
-            for (String varId : gamemodeVariables.getDefaultGameBooleans().keySet()) {
-                gameBools.put(varId, gamemodeVariables.getDefaultGameBooleans().get(varId));
-            }
-            for (String varId : gamemodeVariables.getDefaultGameInts().keySet()) {
-                gameInts.put(varId, gamemodeVariables.getDefaultGameInts().get(varId));
-            }
-            for (String varId : gamemodeVariables.getDefaultGameStrings().keySet()) {
-                gameStrings.put(varId, gamemodeVariables.getDefaultGameStrings().get(varId));
-            }
+            gameSettings = gamemode.defaultGameSettings();
         }
 
         gamemodeSelected = gamemode;
         mapSelected = map;
 
         // Send message to say what map has been selected
-        Component message = Component.text().content(gamemodeVariables.getGamemodeName() + " - " + map.getName())
+        Component message = Component.text().content(gamemodeVariables.getGamemodeName() + " - " + map.getMap().getName())
                         .color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD)
                         .append(
                                 Component.text().content(" has been selected!").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD,
@@ -557,7 +521,7 @@ public class Lobby {
         // Change image map
         imageMaps.clearImage();
 
-        String imageFileName = gameManager.getImageFile(gamemode, map.getId());
+        String imageFileName = gameManager.getImageFile(gamemode, map.getMap().getId());
         if (imageFileName != null) {
             imageMaps.setImage(imageFileName);
         }
@@ -568,7 +532,7 @@ public class Lobby {
     }
 
     public CBCMap getMapSelected () {
-        return mapSelected;
+        return mapSelected != null ? mapSelected.getMap() : null;
     }
 
     public void addNewLobbyPlayer(Player player) {
@@ -870,7 +834,7 @@ public class Lobby {
     }
 
     public void startGame () {
-        gameManager.startGame(gamemodeSelected, mapSelected);
+        gameManager.startGame(gamemodeSelected, getGameContext());
     }
 
     public void playerJoinServer(Player player) {
@@ -995,6 +959,16 @@ public class Lobby {
 
     public HashMap<String, String> getStringVars() {
         return gameStrings;
+    }
+
+    public GameContext getGameContext () {
+        if (gamemodeSelected == null) return null;
+        if (gamemodeSelected.isTeamGamemode()) {
+            return new TeamGameContext((TeamMapData) mapSelected, List.copyOf(teams.values()), gameSettings);
+        } else {
+            return new FFAGameContext(mapSelected, List.copyOf(players.values()), gameSettings);
+        }
+
     }
 
     public boolean isActive () {

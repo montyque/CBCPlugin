@@ -8,6 +8,4 @@ import java.util.Map;
 
 public record TeamGameContext (TeamMapData mapData,
                                List<TeamLike> teams,
-                               Map<String, Boolean> boolVars,
-                               Map<String, Integer> intVars,
-                               Map<String, String> stringVars) implements GameContext {}
+                               GameSettings gameSettings) implements GameContext {}

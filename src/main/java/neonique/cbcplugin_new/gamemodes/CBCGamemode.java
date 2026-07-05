@@ -6,6 +6,7 @@ import neonique.cbcplugin_new.gamemodes.assassin.AssassinGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFMapData;
+import neonique.cbcplugin_new.gamemodes.ctf.CTFSettings;
 import neonique.cbcplugin_new.gamemodes.holdthegold.HTGGame;
 import neonique.cbcplugin_new.gamemodes.kmation.KMationGame;
 import neonique.cbcplugin_new.gamemodes.koth.KOTHGame;
@@ -27,6 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public enum CBCGamemode {
 
@@ -36,7 +38,8 @@ public enum CBCGamemode {
             1,
             TextColor.color(86, 197, 209),
             CTFGame::new,
-            CTFMapData::new
+            CTFMapData::new,
+            CTFSettings::new
     ),
 
     SHOWDOWN ("Showdown",
@@ -45,6 +48,7 @@ public enum CBCGamemode {
             2,
             TextColor.color(255, 132, 66),
             ShowdownGame::new,
+            null,
             null
     ),
 
@@ -54,6 +58,7 @@ public enum CBCGamemode {
             3,
             TextColor.color(227, 66, 255),
             TDMGame::new,
+            null,
             null
     ),
 
@@ -63,6 +68,7 @@ public enum CBCGamemode {
             4,
             TextColor.color(255, 239, 66),
             HTGGame::new,
+            null,
             null
     ),
 
@@ -72,6 +78,7 @@ public enum CBCGamemode {
             1,
             TextColor.color(255, 66, 107),
             ThrowdownGame::new,
+            null,
             null
     ),
 
@@ -81,6 +88,7 @@ public enum CBCGamemode {
             2,
             TextColor.color(66, 255, 72),
             KMationGame::new,
+            null,
             null
     ),
 
@@ -90,6 +98,7 @@ public enum CBCGamemode {
             6,
             TextColor.color(66, 255, 185),
             RendezvousGame::new,
+            null,
             null
     ),
 
@@ -99,6 +108,7 @@ public enum CBCGamemode {
             3,
             TextColor.color(255, 191, 0),
             AssassinGame::new,
+            null,
             null
     ),
 
@@ -108,6 +118,7 @@ public enum CBCGamemode {
             7,
             TextColor.color(179, 255, 66),
             TagGame::new,
+            null,
             null
     ),
 
@@ -117,6 +128,7 @@ public enum CBCGamemode {
             8,
             TextColor.color(135, 66, 255),
             KOTHGame::new,
+            null,
             null
     );
 
@@ -130,6 +142,7 @@ public enum CBCGamemode {
     private final TextColor color;
     private final Function<GameManager, Game<?>> gameFactory;
     private final BiFunction<CBCMap, Configuration, GamemodeMapData> gamemodeMapDataFactory;
+    private final Supplier<GameSettings> defaultGameSettings;
 
     CBCGamemode (String gamemodeName,
                  int gamemodeNum,
@@ -137,7 +150,8 @@ public enum CBCGamemode {
                  int gamemodeIdInCategory,
                  TextColor color,
                  Function<GameManager, Game<?>> gameFactory,
-                 BiFunction<CBCMap, Configuration, GamemodeMapData> gamemodeMapDataFactory) {
+                 BiFunction<CBCMap, Configuration, GamemodeMapData> gamemodeMapDataFactory,
+                 Supplier<GameSettings> defaultGameSettings) {
 
         this.gamemodeName = gamemodeName;
         this.gamemodeNum = gamemodeNum;
@@ -146,6 +160,7 @@ public enum CBCGamemode {
         this.color = color;
         this.gameFactory = gameFactory;
         this.gamemodeMapDataFactory = gamemodeMapDataFactory;
+        this.defaultGameSettings = defaultGameSettings;
 
     }
 
@@ -236,6 +251,10 @@ public enum CBCGamemode {
 
     public GamemodeMapData mapDataFromConfig (CBCMap map, Configuration gamemodeConfig) {
         return gamemodeMapDataFactory.apply(map, gamemodeConfig);
+    }
+
+    public GameSettings defaultGameSettings () {
+        return defaultGameSettings.get();
     }
 
 

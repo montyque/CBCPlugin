@@ -33,6 +33,10 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
      */
     public abstract T createGamemodeTeam (TeamLike team, int teamNum);
 
+    public void setupGame (GameContext context) {
+        setupGame((TeamGameContext) context);
+    }
+
     public abstract void setupGame (TeamGameContext context);
 
     public T getTypedTeam (CBCTeam<?> team) {

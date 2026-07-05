@@ -7,9 +7,6 @@ import java.util.Map;
 public interface GameContext {
 
     GamemodeMapData mapData ();
-
-    Map<String, Boolean> boolVars ();
-    Map<String, Integer> intVars ();
-    Map<String, String> stringVars ();
+    GameSettings gameSettings ();
 
 }

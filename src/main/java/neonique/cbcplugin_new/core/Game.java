@@ -72,6 +72,8 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P> {
         this.world = gameManager.getWorld();
     }
 
+    public abstract void setupGame (GameContext context);
+
     public P getTypedPlayer (CBCPlayer player) {
         if (player == null) return null;
         return playerList.get(player.getUUID());

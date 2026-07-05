@@ -1,5 +1,8 @@
 package neonique.cbcplugin_new.core;
 
+import neonique.cbcplugin_new.gamemodes.FFAGameContext;
+import neonique.cbcplugin_new.gamemodes.GameContext;
+import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
@@ -13,13 +16,19 @@ import java.time.Duration;
 import java.util.Collection;
 
 
-public abstract class FFAGame<P extends CBCPlayer, M extends CBCMap> extends Game<P, M> {
+public abstract class FFAGame<P extends CBCPlayer> extends Game<P> {
 
     private P winningPlayer;
 
     public FFAGame(GameManager gameManager) {
         super(gameManager);
     }
+
+    public void setupGame (GameContext context) {
+        setupGame((FFAGameContext) context);
+    }
+
+    public abstract void setupGame (FFAGameContext context);
 
     public void createPlayers (Collection<LobbyPlayer> players) {
         for (LobbyPlayer onlinePlayer : players) {
