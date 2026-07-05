@@ -10,6 +10,7 @@ import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import neonique.cbcplugin_new.mapconfig.MapLoader;
 import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
@@ -34,6 +35,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.*;
+import java.util.logging.Level;
 
 public class GameManager {
 
@@ -58,6 +60,10 @@ public class GameManager {
     private PlayerRegistry playerRegistry;
 
     private final UUID worldUUID;
+
+    // Loaded maps
+    private Map<String, CBCMap> loadedMaps;
+    private Map<CBCGamemode, List<GamemodeMapData>> loadedGamemodeMaps;
 
     // Gamemodes and classes
     private LinkedHashMap<CBCGamemode, GamemodeOptions> gamemodes;
@@ -132,223 +138,59 @@ public class GameManager {
 
     public void loadMaps () {
 
-        CBCPlugin.getPlugin().getLogger().info("\nLoading maps...");
-
-        // Setup hashmaps
-        gamemodeAndMapList = new HashMap<>();
-        gamemodeToIntList = new HashMap<>();
-        gamemodeMapImageFiles = new HashMap<>();
-
-        // Add gamemodes and their ids
-        gamemodes = new LinkedHashMap<>();
-
-        // CAPTURE THE FLAG GAMEMODE
-        gamemodes.put(CBCGamemode.CTF, new GamemodeOptions(CBCGamemode.CTF, "ctf",
-                "Capture The Flag", true, 2, 4));
-
-        // SHOWDOWN GAMEMODE
-        gamemodes.put(CBCGamemode.SHOWDOWN, new GamemodeOptions(CBCGamemode.SHOWDOWN, "showdown",
-                "Showdown", true, 2, 8));
-
-        // HOLD THE GOLD GAMEMODE
-        gamemodes.put(CBCGamemode.HOLDTHEGOLD, new GamemodeOptions(CBCGamemode.HOLDTHEGOLD, "holdthegold",
-                "Hold The Gold", true, 2, 8));
-
-        // TEAM DEATHMATCH GAMEMODE
-        gamemodes.put(CBCGamemode.TDM, new GamemodeOptions(CBCGamemode.TDM, "tdm",
-                "Team Deathmatch", true, 2, 8));
-
-        // RENDEZVOUS GAMEMODE
-        gamemodes.put(CBCGamemode.RENDEZVOUS, new GamemodeOptions(CBCGamemode.RENDEZVOUS, "rendezvous",
-                "Rendezvous", true, 2, 8));
-
-        // CROSSBOW TAG GAMEMODE
-        gamemodes.put(CBCGamemode.CBCTAG, new GamemodeOptions(CBCGamemode.CBCTAG, "cbctag",
-                "Crossbow Tag", true, 2, 8));
-
-        // CROSSBOW TAG GAMEMODE
-        gamemodes.put(CBCGamemode.KOTH, new GamemodeOptions(CBCGamemode.KOTH, "koth",
-                "King Of The Hill", true, 1, 8));
-
-        // FLAG RUSH GAMEMODE
-        /* gamemodes.put(CBCGamemode.FLAGRUSH, new GamemodeOptions(CBCGamemode.FLAGRUSH, "flagrush",
-                "Flag Rush", true, 2, 4))*/;
-
-        // THROWDOWN GAMEMODE
-        gamemodes.put(CBCGamemode.THROWDOWN, new GamemodeOptions(CBCGamemode.THROWDOWN, "throwdown",
-                "Throwdown", false, 1));
-
-        // KILLIMINATION GAMEMODE
-        gamemodes.put(CBCGamemode.KMATION, new GamemodeOptions(CBCGamemode.KMATION, "kmation",
-                "Killimination", false, 1));
-
-        // ASSASSIN GAMEMODE
-        gamemodes.put(CBCGamemode.ASSASSIN, new GamemodeOptions(CBCGamemode.ASSASSIN, "assassin",
-                "Assassin", false, 3));
-
-        for (CBCGamemode gamemode : gamemodes.keySet()) {
-            gamemodeToIntList.put(gamemode.gamemodeNum(), gamemode);
-        }
-
-        // ********************************************
-        // Import gamemodes and maps from files
-        // Attempt to find generic maps file
-        File baseMapFolderFile = new File(plugin.getDataFolder(), "maps");
-        // Attempt to make this a directory
-        if (!baseMapFolderFile.exists()) {
-            boolean folderMade = baseMapFolderFile.mkdir();
+        File pluginFolder = CBCPlugin.getPlugin().getDataFolder();
+        File mapFolder = new File(pluginFolder, "maps");
+        if (!mapFolder.exists()) {
+            mapFolder.mkdir();
+            loadedMaps = Map.of();
+            loadedGamemodeMaps = Map.of();
             return;
         }
 
-        File gamemodeMasterFolderFile = new File(plugin.getDataFolder(), "gamemodes");
-        // Attempt to make this a directory
-        if (!gamemodeMasterFolderFile.exists()) {
-            boolean folderMade = gamemodeMasterFolderFile.mkdir();
+        loadedMaps = mapLoader.loadMapsFromDirectory(mapFolder);
+
+        try {
+            loadedMaps = mapLoader.loadMapsFromDirectory(mapFolder);
+            CBCPlugin.getPlugin().getLogger().info(
+                    "Successfully loaded " + loadedMaps.size() + " maps!"
+            );
+        } catch (IllegalArgumentException e) {
+            CBCPlugin.getPlugin().getLogger().log(Level.WARNING,
+                    "Failure occurred while attempting to load base CBC maps", e);
+        }
+
+        File gamemodeFolderFile = new File(pluginFolder, "gamemodes");
+        if (!mapFolder.exists()) {
+            mapFolder.mkdir();
+            loadedMaps = Map.of();
+            loadedGamemodeMaps = Map.of();
             return;
         }
 
-        // Go through each gamemode
-        for (CBCGamemode gamemode : CBCGamemode.values()) {
-            String gamemodeId = gamemodes.get(gamemode).getGamemodeId();
-            if (gamemodeId == null) continue;
+        // Load gamemodes
+        loadGamemode(CBCGamemode.CTF, gamemodeFolderFile);
 
-            // Search for folder in the "gamemodes" folder named after the gamemode
-            File gamemodeFolderFile = new File(gamemodeMasterFolderFile, gamemodeId);
+    }
 
-            if (!gamemodeFolderFile.exists()) {
-                // Folder does not exist, therefore one will be created
-                createDirectoryAttempt(gamemodeFolderFile);
-                continue;
-            }
+    public void loadGamemode (CBCGamemode gamemode, File parentGamemodeFolderFile) {
 
-            // Folder does exist, therefore search in the gamemode folder for the "maps" folder
-            File gamemodeMapsFolderFile = new File(gamemodeFolderFile, "maps");
-            if (!gamemodeMapsFolderFile.exists()) {
-                // Folder does not exist, therefore one will be created
-                createDirectoryAttempt(gamemodeMapsFolderFile);
-                continue;
-            }
+        File gamemodeFolder = new File(parentGamemodeFolderFile, gamemode.name().toLowerCase());
+        if (!gamemodeFolder.exists()) return;
 
-            // Go through all files in the maps folder
-            // Find all .yml files in maps directory
-            File[] mapFiles = gamemodeMapsFolderFile.listFiles((dir, name) -> name.endsWith(".yml"));
-            if (mapFiles == null) {
-                CBCPlugin.getPlugin().getLogger().warning("Could not find files in " + gamemodeMapsFolderFile.getPath());
-                continue;
-            }
+        try {
 
-            CBCPlugin.getPlugin().getLogger().info(mapFiles.length + " files found in " + gamemodeMapsFolderFile.getPath());
-            // Iterate through each yml file
-            List<CBCMap> mapList = new ArrayList<>();
-            for (File mapFile : mapFiles) {
-                YamlConfiguration ymlMapConfig = YamlConfiguration.loadConfiguration(mapFile); // Get YAML config object
-                CBCMap mapObject = null;
-                String mapId;
+            List<GamemodeMapData> gamemodeMaps = mapLoader.loadGamemodeMapsFromDirectory(gamemode,
+                    loadedMaps, gamemodeFolder);
+            loadedGamemodeMaps.put(gamemode, gamemodeMaps);
+            CBCPlugin.getPlugin().getLogger().info(
+                    "Successfully loaded " + loadedMaps.size() + " maps for gamemode " + gamemode.name() + "!"
+            );
 
-                // Check if ymlMapConfig has the correct keys for the selected gamemode
-                if (!CBCMap.isYmlInvalidGamemodeMap(ymlMapConfig, gamemode)) {
-                    CBCPlugin.getPlugin().getLogger().warning(mapFile.getName() + " is not a valid " + gamemode.toString() + " map");
-                    continue;
-                }
-
-                mapId = ymlMapConfig.getString("MapId");
-
-
-                if (mapId == null) {
-                    CBCPlugin.getPlugin().getLogger().warning("Could not find map id for file " + mapFile.getName());
-                    continue;
-                }
-
-                // Find base map yml config in the maps folder
-                File baseMapYml = new File(baseMapFolderFile, mapId + ".yml");
-                if (!baseMapYml.exists()) {
-                    CBCPlugin.getPlugin().getLogger().warning("Could not find base map file for map " + mapId);
-                    continue;
-                }
-                if (!baseMapYml.getName().endsWith(".yml")) {
-                    CBCPlugin.getPlugin().getLogger().warning("Could not find base map file with filetype yml for map" + mapId);
-                    continue;
-                }
-                YamlConfiguration baseYmlMapConfig = YamlConfiguration.loadConfiguration(baseMapYml);
-                if (CBCMap.isYmlInvalidMap(baseYmlMapConfig)) {
-                    CBCPlugin.getPlugin().getLogger().warning("Base map file for map " + mapId + " is not valid");
-                    continue;
-                }
-
-                // Create map object
-                try {
-                    mapObject = CBCMap.createMap(gamemode, baseYmlMapConfig, ymlMapConfig, this, this.combatManager);
-                } catch (Exception e) {
-                    CBCPlugin.getPlugin().getLogger().warning("Exception raised when loading map " + mapId + " for gamemode " + gamemodeId + ": ");
-                }
-
-                if (mapObject == null) continue;
-
-                mapList.add(mapObject);
-            }
-            gamemodeAndMapList.put(gamemode, mapList);
-            CBCPlugin.getPlugin().getLogger().info("Loaded " + mapList.size() + " maps for '" + gamemodeId + "'");
+        } catch (IllegalArgumentException e) {
+            CBCPlugin.getPlugin().getLogger().log(Level.WARNING,
+                    "Failure occurred while attempting to load " + gamemode.name() + " CBC maps", e);
         }
 
-        // Loading practice maps
-        CBCPlugin.getPlugin().getLogger().info("\nLoading practice maps...");
-        practiceMaps = new HashMap<>();
-        for (File mapFile : Objects.requireNonNull(baseMapFolderFile.listFiles((dir, name) -> name.endsWith(".yml")))) {
-            CBCMap mapObject;
-
-            // Find base map yml config in the maps folder
-            YamlConfiguration baseYmlMapConfig = YamlConfiguration.loadConfiguration(mapFile);
-            if (CBCMap.isYmlInvalidMap(baseYmlMapConfig)) {
-                CBCPlugin.getPlugin().getLogger().warning("Base map file is not valid for file " + mapFile.getName());
-                continue;
-            }
-
-            try {
-                mapObject = new CBCMap(baseYmlMapConfig, this, combatManager);
-            } catch (Exception e) {
-                CBCPlugin.getPlugin().getLogger().warning(
-                        "Could not load practice map for file " + mapFile.getName()
-                );
-                continue;
-            }
-
-            if (!mapObject.isPracticeMap()) {
-                continue;
-            }
-
-            practiceMaps.put(mapObject.getId(), mapObject);
-        }
-        CBCPlugin.getPlugin().getLogger().info("Loaded " + practiceMaps.size() + " practice maps.");
-
-        // Load image file names from yml file
-        File gamemodeMapImageFilesYaml = new File(plugin.getDataFolder(), "gamemodemapimagefiles.yml");
-
-        if (gamemodeMapImageFilesYaml.exists()) {
-            YamlConfiguration gamemodeMapImageFilesConfig = YamlConfiguration.loadConfiguration(gamemodeMapImageFilesYaml);
-            // Go through all gamemodes
-            for (CBCGamemode gamemode : gamemodes.keySet()) {
-                GamemodeOptions gamemodeOptions = gamemodes.get(gamemode);
-                String gamemodeId = gamemodeOptions.getGamemodeId();
-
-                ConfigurationSection gamemodeConfigSection = gamemodeMapImageFilesConfig.getConfigurationSection(gamemodeId);
-                if (gamemodeConfigSection == null) continue;
-                if (!gamemodeAndMapList.containsKey(gamemode)) continue;
-
-                // Key is the map Id, value is the file name
-                HashMap<String, String> gamemodeMapFileNames = new HashMap<>();
-
-                for (CBCMap map : gamemodeAndMapList.get(gamemode)) {
-                    String imageFileName = gamemodeConfigSection.getString(map.getId());
-                    if (imageFileName == null) continue;
-                    gamemodeMapFileNames.put(map.getId(), imageFileName);
-                }
-
-                // Add file names from this gamemode into the main hashmap
-                gamemodeMapImageFiles.put(gamemode, gamemodeMapFileNames);
-            }
-        }
-
-        CBCPlugin.getPlugin().getLogger().info("Finished loading gamemodes and maps.");
     }
 
     public void openPractice (CBCMap map) {

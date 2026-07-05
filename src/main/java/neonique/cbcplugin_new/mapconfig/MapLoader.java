@@ -1,41 +1,28 @@
 package neonique.cbcplugin_new.mapconfig;
 
-import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.mapmechanics.MapMechanicsManager;
-import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MapLoader {
 
-    private MapMechanicLoader mechanicsLoader;
-    private GameManager gameManager;
-    private Logger logger;
+    private final MapMechanicLoader mechanicsLoader;
+    private final GameManager gameManager;
+    private final Logger logger;
 
     public MapLoader (GameManager gameManager, MapMechanicLoader loader, Logger logger) {
-
+        this.gameManager = gameManager;
+        this.mechanicsLoader = loader;
+        this.logger = logger;
     }
 
     public Map<String, CBCMap> loadMapsFromDirectory (File mapDirectory) {
-
-        File[] dirFiles = mapDirectory.listFiles(file -> {
-            String name = file.getName().toLowerCase();
-            return file.isFile() && (name.endsWith(".yaml") || name.endsWith(".yml"));
-        });
-
-        if (dirFiles == null)
-            throw new IllegalArgumentException("Given file is not a directory, or an I/O error has occurred.");
-
-
-        List<File> yamlFiles = Arrays.asList(dirFiles);
-        return loadMaps(yamlFiles);
-
+        return loadMaps(getYamlFiles(mapDirectory));
     }
 
     public Map<String, CBCMap> loadMaps (Collection<File> mapFiles) {
@@ -65,6 +52,71 @@ public class MapLoader {
             return new CBCMap(gameManager.getWorld(), ymlMapConfig, mechanicsLoader);
         } catch (Exception e) {
             throw new InvalidMapConfigException(mapId, e);
+        }
+    }
+
+    public List<GamemodeMapData> loadGamemodeMapsFromDirectory (CBCGamemode gamemode,
+                                                                Map<String, CBCMap> maps,
+                                                                File mapDirectory) {
+        return loadGamemodeMaps(gamemode, maps, getYamlFiles(mapDirectory));
+    }
+
+    private List<File> getYamlFiles(File mapDirectory) {
+        File[] dirFiles = mapDirectory.listFiles(file -> {
+            String name = file.getName().toLowerCase();
+            return file.isFile() && (name.endsWith(".yaml") || name.endsWith(".yml"));
+        });
+
+        if (dirFiles == null)
+            throw new IllegalArgumentException("Given file is not a directory, or an I/O error has occurred.");
+
+        return Arrays.asList(dirFiles);
+
+    }
+
+    public List<GamemodeMapData> loadGamemodeMaps (CBCGamemode gamemode,
+                                                   Map<String, CBCMap> maps,
+                                                   Collection<File> mapFiles) {
+
+        List<GamemodeMapData> gamemodeMapDataList = new ArrayList<>();
+
+        for (File mapFile : mapFiles) {
+            try {
+                GamemodeMapData mapData = loadGamemodeMapData(gamemode, maps, mapFile);
+                gamemodeMapDataList.add(mapData);
+            } catch (InvalidMapConfigException e) {
+                logger.log(Level.WARNING, e.getMessage(), e.getCause());
+            }
+        }
+
+        return gamemodeMapDataList;
+
+    }
+
+    public GamemodeMapData loadGamemodeMapData (CBCGamemode gamemode,
+                                                Map<String, CBCMap> maps,
+                                                File file) {
+
+        String mapId = file.getName();
+        try {
+
+            // Parse YAML file
+            YamlConfiguration ymlMapConfig = YamlConfiguration.loadConfiguration(file);
+            if (ymlMapConfig.getKeys(false).isEmpty()) {
+                throw new IllegalArgumentException("Config is empty or could not be parsed into YAMLConfiguration");
+            }
+
+            // Retrieve base map
+            CBCMap baseMap = maps.get(mapId);
+            if (baseMap == null) {
+                throw new IllegalArgumentException("No base map exists with map id '" + mapId + "'");
+            }
+
+            // Parse YAML config into gamemode map data
+            return gamemode.mapDataFromConfig(baseMap, ymlMapConfig);
+
+        } catch (Exception e) {
+            throw new InvalidMapConfigException(gamemode, mapId, e);
         }
 
     }
