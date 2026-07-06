@@ -10,7 +10,7 @@ public class TDMStartGameTimer extends BaseStartGameTimer {
 
     public TDMStartGameTimer(GameManager gameManager, TDMGame game, int countdownTimer) {
 
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
 
     }

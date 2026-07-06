@@ -18,15 +18,13 @@ public class ThrowdownStartRoundTimer extends BaseStartGameTimer {
     private final boolean gameStart;
 
     public ThrowdownStartRoundTimer(GameManager gameManager, ThrowdownGame game, int countdownTimer, boolean gameStart) {
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
         this.gameStart = gameStart;
     }
 
     @Override
     public Title getDefaultTitle (Player player) {
-
-        GameManager gameManager = getGameManager();
 
         Component titleComponent;
         Component subtitleComponent;

@@ -21,7 +21,7 @@ public class TagStartRoundTimer extends BaseStartGameTimer {
     private final boolean gameStart;
 
     public TagStartRoundTimer(GameManager gameManager, TagGame game, int countdownTimer, boolean gameStart) {
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
         this.gameStart = gameStart;
     }

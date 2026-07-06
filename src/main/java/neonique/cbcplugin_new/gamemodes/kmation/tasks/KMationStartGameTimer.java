@@ -10,7 +10,7 @@ public class KMationStartGameTimer extends BaseStartGameTimer {
 
     public KMationStartGameTimer(GameManager gameManager, KMationGame game, int countdownTimer) {
 
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
 
     }

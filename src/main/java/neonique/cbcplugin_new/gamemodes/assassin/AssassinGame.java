@@ -88,7 +88,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
         createHeaderTitle();
 
         // Enable weapons
-        combatManager.activateWeapons();
+        combatManager.activate(this);
 
         // Setup gamemode game variables
         targetsToKill = ctx.getIntVars().getOrDefault("targetsToKill", 16);

@@ -4,7 +4,6 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.ctf.tasks.CTFGlowManagerTask;
@@ -23,7 +22,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -122,7 +120,7 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFTeam> {
         createHeaderTitle();
 
         // Activate combat manager
-        combatManager.activateWeapons();
+        combatManager.activate(this);
         combatManager.setupMap(getMap());
 
         // Setup teams/players

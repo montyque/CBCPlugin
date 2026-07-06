@@ -10,7 +10,7 @@ public class RendezvousStartTimer extends BaseStartGameTimer {
 
     public RendezvousStartTimer(GameManager gameManager, RendezvousGame game, int countdownTimer) {
 
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
 
     }

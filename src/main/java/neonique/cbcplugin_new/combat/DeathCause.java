@@ -3,6 +3,7 @@ package neonique.cbcplugin_new.combat;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
@@ -10,6 +11,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
+import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -18,7 +20,7 @@ public enum DeathCause {
     CREEPER
     {
         @Override
-        public void playDeathEffect (GameManager gameManager, Location location, CBCPlayer victim) {
+        public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
             Firework firework = (Firework) location.getWorld().spawnEntity(location.clone().add(0, 2, 0),
                     EntityType.FIREWORK_ROCKET, CreatureSpawnEvent.SpawnReason.COMMAND);
             FireworkMeta fireworkMeta = firework.getFireworkMeta();
@@ -38,8 +40,9 @@ public enum DeathCause {
     FLAMEZONE
     {
         @Override
-        public void playDeathEffect (GameManager gameManager, Location location, CBCPlayer victim) {
-            gameManager.playSound(location, Sound.ITEM_FIRECHARGE_USE, 4, 1);
+        public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
+            audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_BEE_STING, Sound.Source.PLAYER, 4, 1),
+                    location.getX(), location.getY(), location.getZ());
             location.getWorld().spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, location, 15,
                     0.4, 0, 0.4, 0.01);
         }
@@ -52,8 +55,9 @@ public enum DeathCause {
     XBOW
     {
         @Override
-        public void playDeathEffect (GameManager gameManager, Location location, CBCPlayer victim) {
-            gameManager.playSound(location, Sound.BLOCK_GLASS_BREAK, 4, 0);
+        public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
+            audience.playSound(Sound.sound(org.bukkit.Sound.BLOCK_GLASS_BREAK, Sound.Source.PLAYER, 4, 0),
+                    location.getX(), location.getY(), location.getZ());
             location.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, location.clone().add(0, 1, 0),
                     20, 0, 0, 0, 0.5);
         }
@@ -66,8 +70,9 @@ public enum DeathCause {
     MELEE
     {
         @Override
-        public void playDeathEffect (GameManager gameManager, Location location, CBCPlayer victim) {
-            gameManager.playSound(location, Sound.ENTITY_ITEM_BREAK, 4, 1);
+        public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
+            audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_ITEM_BREAK, Sound.Source.PLAYER, 4, 1),
+                    location.getX(), location.getY(), location.getZ());
         }
         @Override
         public Component deathIconComponent (CBCPlayer victim, CBCPlayer killer) {
@@ -78,8 +83,9 @@ public enum DeathCause {
     VOID
     {
         @Override
-        public void playDeathEffect (GameManager gameManager, Location location, CBCPlayer victim) {
-            gameManager.playSound(location, Sound.ENTITY_ITEM_PICKUP, 4, 1);
+        public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
+            audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_ITEM_PICKUP, Sound.Source.PLAYER, 4, 1),
+                    location.getX(), location.getY(), location.getZ());
             location.getWorld().spawnParticle(Particle.INSTANT_EFFECT, location.clone().add(0, 1, 0), 
                     80, 0, 1, 0, 1);
         }
@@ -92,8 +98,9 @@ public enum DeathCause {
     LAVA 
     {
         @Override
-        public void playDeathEffect (GameManager gameManager, Location location, CBCPlayer victim) {
-            gameManager.playSound(location, Sound.ENTITY_PLAYER_HURT_ON_FIRE, 3, 1);
+        public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
+            audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_PLAYER_HURT_ON_FIRE, Sound.Source.PLAYER, 3, 1),
+                    location.getX(), location.getY(), location.getZ());
             location.getWorld().spawnParticle(Particle.LAVA, location.clone().add(0, 1, 0),
                     40, 0.5, 0.5, 0.5, 0.5);
         }
@@ -102,8 +109,8 @@ public enum DeathCause {
     DROWN 
     {
         @Override
-        public void playDeathEffect (GameManager gameManager, Location location, CBCPlayer victim) {
-            gameManager.playSound(location, Sound.ENTITY_ZOMBIE_CONVERTED_TO_DROWNED, 3F, (float) 1);
+        public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
+            audience.playSound(location, Sound.ENTITY_ZOMBIE_CONVERTED_TO_DROWNED, 3F, (float) 1);
             location.getWorld().spawnParticle(Particle.BUBBLE_POP, location.clone().add(0, 1, 0), 
                     150, 0.5, 0.5, 0.5, 0.5);
         }
@@ -114,9 +121,11 @@ public enum DeathCause {
     
     COMMAND {
         @Override
-        public void playDeathEffect (GameManager gameManager, Location location, CBCPlayer victim) {
-            gameManager.playSound(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 3F, (float) 1);
-            gameManager.playSound(location, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 3F, (float) 1);
+        public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
+            audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_LIGHTNING_BOLT_THUNDER, Sound.Source.PLAYER, 3, 1),
+                    location.getX(), location.getY(), location.getZ());
+            audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_LIGHTNING_BOLT_IMPACT, Sound.Source.PLAYER, 3, 1),
+                    location.getX(), location.getY(), location.getZ());
             location.getWorld().spawnParticle(Particle.INSTANT_EFFECT, location.clone().add(0, 1, 0), 
                     80, 0.5, 0.5, 0.5, 0.5);
         }
@@ -126,7 +135,7 @@ public enum DeathCause {
     NATURAL,
     XBOW_PIGLIN;
     
-    public void playDeathEffect (GameManager gameManager, Location location, CBCPlayer victim) {}
+    public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {}
     
     public Component deathIconComponent (CBCPlayer victim, CBCPlayer killer) {
         return Component.text(killer == null ? "\uE405" : "\uE406").color(victim.nameColor());

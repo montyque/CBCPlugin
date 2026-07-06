@@ -10,7 +10,7 @@ public class CTFStartGameTimer extends BaseStartGameTimer {
 
     public CTFStartGameTimer(GameManager gameManager, CTFGame game, int countdownTimer) {
 
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
 
     }

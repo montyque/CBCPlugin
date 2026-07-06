@@ -96,7 +96,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
         createHeaderTitle();
 
         // Enable weapons
-        combatManager.activateWeapons();
+        combatManager.activate(this);
 
         // Setup gamemode game variables
         this.maxPlayersInFinalCycle = ctx.getIntVars().getOrDefault("maxPlayersInFinalCycle", 4);

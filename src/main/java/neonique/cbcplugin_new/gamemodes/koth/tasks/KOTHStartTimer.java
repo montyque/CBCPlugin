@@ -9,7 +9,7 @@ public class KOTHStartTimer extends BaseStartGameTimer {
     private final KOTHGame game;
 
     public KOTHStartTimer(GameManager gameManager, KOTHGame game, int countdownTimer) {
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
     }
 

@@ -109,7 +109,7 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
         createHeaderTitle();
 
         // Enable weapons
-        combatManager.activateWeapons();
+        combatManager.activate(this);
 
         // Setup gamemode game variables
         this.pointsStart = ctx.getIntVars().getOrDefault("pointsStart", 40);

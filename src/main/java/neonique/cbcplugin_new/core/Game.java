@@ -347,4 +347,8 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         return List.of(world);
     }
 
+    public Iterable<Player> audiencePlayers () {
+        return world.getPlayers();
+    }
+
 }

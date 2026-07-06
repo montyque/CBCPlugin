@@ -13,6 +13,7 @@ import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.weapons.EquipmentFactory;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -36,6 +37,7 @@ public class CombatManager {
     private final WeaponFactory weaponFactory;
 
     // Death message manager
+    private Audience audience = Audience.empty();
     private final DeathMessageManager deathMessageManager;
 
     // Colors for glowing arrows
@@ -81,7 +83,7 @@ public class CombatManager {
     // Time tracking variable
     private int timer;
 
-    public CombatManager(GameManager gameManager) {
+    public CombatManager (GameManager gameManager) {
 
         CBCPlugin plugin = CBCPlugin.getPlugin();
 
@@ -120,7 +122,9 @@ public class CombatManager {
 
     }
 
-    public void activateWeapons () {
+    public void activate (Audience audience) {
+
+        this.audience = audience;
 
         active = true;
         allPlayersImmune = false;
@@ -247,7 +251,8 @@ public class CombatManager {
         if (playerKiller != null) {
             deathMessage = playerKiller.modifyDeathMessageAsKiller(playerKilled, deathMessage);
         }
-        gameManager.sendGlobalMessage(deathMessage);
+
+        audience.sendMessage(deathMessage);
 
         playerKilled.playerDie();
         playerKilled.playerAfterDeath(playerKiller);
@@ -266,7 +271,7 @@ public class CombatManager {
             playerKilledEntity.setGameMode(GameMode.SPECTATOR);
 
             Location location = playerKilledEntity.getLocation();
-            cause.playDeathEffect(gameManager, location, playerKilled);
+            cause.playDeathEffect(audience, location, playerKilled);
 
             // Show death title
             playerKilledEntity.showTitle(playerKilled.getDeathTitle());

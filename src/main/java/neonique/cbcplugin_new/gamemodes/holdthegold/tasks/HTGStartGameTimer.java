@@ -10,7 +10,7 @@ public class HTGStartGameTimer extends BaseStartGameTimer {
 
     public HTGStartGameTimer(GameManager gameManager, HTGGame game, int countdownTimer) {
 
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
 
     }

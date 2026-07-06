@@ -3,11 +3,14 @@ package neonique.cbcplugin_new.managers;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.core.PlayerLike;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.listeners.practice.PracticePlayerTeleport;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.playerclasses.PracticePlayer;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -22,10 +25,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class PracticeManager implements PlayerSession<PracticePlayer> {
+public class PracticeManager implements PlayerSession<PracticePlayer>, ForwardingAudience {
 
     private final GameManager gameManager;
     private final CombatManager combatManager;
@@ -71,7 +75,7 @@ public class PracticeManager implements PlayerSession<PracticePlayer> {
         setupMap(map);
 
         // Enable weapons
-        combatManager.activateWeapons();
+        combatManager.activate(this);
 
         players = new HashMap<>();
 
@@ -281,5 +285,13 @@ public class PracticeManager implements PlayerSession<PracticePlayer> {
         if (hasPlayer(player)) {
             this.playerLeave(player);
         }
+    }
+
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences() {
+        return players.values().stream()
+                .filter(PlayerLike::isOnline)
+                .map(PlayerLike::getPlayer)
+                .toList();
     }
 }

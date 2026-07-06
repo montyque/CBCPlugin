@@ -881,7 +881,7 @@ public class CBCEventManager {
     }
 
     // Calculate scores
-    public void calculateScores (Game<?, ?> g) {
+    public void calculateScores (Game<?> g) {
 
         List<? extends CBCPlayer> cbcPlayers = g.getPlayers();
 
@@ -893,10 +893,6 @@ public class CBCEventManager {
         // Get maximum game score
         int maxGameScore = cbcPlayers.get(0).getGamePoints();
         int minGameScore = 0;
-
-        if (g.getGamemode() == CBCGamemode.CBCTAG || g.getGamemode() == CBCGamemode.RENDEZVOUS) {
-            minGameScore = cbcPlayers.get(cbcPlayers.size() - 1).getGamePoints() / 2;
-        }
 
         // Calculate multiplier
         double multiplier = maxPointsPerGame / ((double) maxGameScore - (double) minGameScore);

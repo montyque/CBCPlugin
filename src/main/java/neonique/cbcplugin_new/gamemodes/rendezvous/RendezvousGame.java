@@ -122,7 +122,7 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
         createHeaderTitle();
 
         // Enable weapons
-        combatManager.activateWeapons();
+        combatManager.activate(this);
 
         // Set game commands
         setGameCommands(new RendezvousGameCommands(this));

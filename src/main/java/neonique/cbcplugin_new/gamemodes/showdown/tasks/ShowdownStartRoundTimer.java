@@ -20,7 +20,7 @@ public class ShowdownStartRoundTimer extends BaseStartGameTimer {
     private final boolean gameStart;
 
     public ShowdownStartRoundTimer(GameManager gameManager, ShowdownGame game, int countdownTimer, boolean gameStart) {
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
         this.gameStart = gameStart;
     }

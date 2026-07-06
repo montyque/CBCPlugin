@@ -127,7 +127,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
         createHeaderTitle();
 
         // Enable weapons
-        combatManager.activateWeapons();
+        combatManager.activate(this);
 
         // Setup game listeners and tasks
         CBCPlugin plugin = CBCPlugin.getPlugin();

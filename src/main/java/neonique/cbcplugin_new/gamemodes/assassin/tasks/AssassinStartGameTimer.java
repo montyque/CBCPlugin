@@ -10,7 +10,7 @@ public class AssassinStartGameTimer extends BaseStartGameTimer {
 
     public AssassinStartGameTimer(GameManager gameManager, AssassinGame game, int countdownTimer) {
 
-        super(gameManager, game, countdownTimer);
+        super(game, countdownTimer);
         this.game = game;
 
     }
