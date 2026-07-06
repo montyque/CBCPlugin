@@ -17,6 +17,8 @@ import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.tasks.gamemodetasks.UpdateBossbarsTask;
 import neonique.cbcplugin_new.tasks.gamemodetasks.VictoryFireworkTask;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -26,13 +28,14 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.newline;
 
-public abstract class Game<P extends CBCPlayer> implements PlayerSession<P> {
+public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, ForwardingAudience {
 
     private Component headerTitle = Component.text("");
 
@@ -337,6 +340,11 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P> {
 
     public CBCScoreboardManager getCBCScoreboardManager () {
         return gameManager.getCbcScoreboardManager();
+    }
+
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences () {
+        return List.of(world);
     }
 
 }

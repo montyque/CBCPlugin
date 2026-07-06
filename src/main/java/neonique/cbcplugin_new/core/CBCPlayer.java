@@ -9,6 +9,8 @@ import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.combat.tasks.TempImmunityTask;
 import neonique.cbcplugin_new.weapons.*;
 import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -21,6 +23,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.*;
@@ -28,7 +31,7 @@ import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 
-public class CBCPlayer implements TeamPlayerLike {
+public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
     private final GameManager gameManager;
 
@@ -661,4 +664,9 @@ public class CBCPlayer implements TeamPlayerLike {
                 Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(1500), Duration.ofMillis(250)));
     }
 
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences() {
+        if (!isOnline()) return List.of();
+        return List.of(getPlayer());
+    }
 }

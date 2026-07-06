@@ -2,16 +2,19 @@ package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
+public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike, ForwardingAudience {
 
     // List of members
     private final HashMap<UUID, P> players = new HashMap<>();
@@ -157,4 +160,13 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike {
             }
         }
     }
+
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences () {
+        return players.values().stream()
+                .filter(CBCPlayer::isOnline)
+                .map(CBCPlayer::getPlayer)
+                .toList();
+    }
+
 }
