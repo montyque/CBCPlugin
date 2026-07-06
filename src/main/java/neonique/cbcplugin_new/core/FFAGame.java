@@ -30,10 +30,11 @@ public abstract class FFAGame<P extends CBCPlayer> extends Game<P> {
 
     public abstract void setupGame (FFAGameContext context);
 
-    public void createPlayers (Collection<LobbyPlayer> players) {
-        for (LobbyPlayer onlinePlayer : players) {
-            createAndAddPlayer(onlinePlayer.getPlayer());
-        }
+    public void createPlayers (Collection<PlayerLike> players) {
+        players.stream()
+                .filter(PlayerLike::isOnline)
+                .map(PlayerLike::getPlayer)
+                .forEach(this::createAndAddPlayer);
     }
 
     public void playerWonGame (P player) {

@@ -9,6 +9,7 @@ import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
@@ -24,9 +25,10 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.*;
 
-public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
+public class AssassinGame extends FFAGame<AssassinPlayer> {
 
     // Map related variables
+    private AssassinMapData mapData;
     private List<AssassinSpawn> spawns;
     private double targetSpawnDistance;
 
@@ -34,7 +36,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
     private int targetsToKill;
     private int targetChangeTimer;
 
-    // Other variables
+    // Scoreboard variables
     private CBCScoreboardTeam inGameTeam;
     private final ResourcePackManager resourcePackManager;
 
@@ -71,18 +73,27 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
     }
 
     @Override
+    public CBCMap getMap() {
+        return mapData.getMap();
+    }
+
+    @Override
     public void setupGame (FFAGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
         final World world = getWorld();
 
-        // Setup map
-        AssassinMap map = (AssassinMap) ctx.getMap();
-        setupMap(map);
+        // Create players
+        createPlayers(ctx.players());
 
-        // Setup default game variables
-        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
+        // Set up game settings
+        AssassinSettings gameSettings = (AssassinSettings) ctx.gameSettings();
+        targetsToKill = gameSettings.targetsToKill();
+        targetChangeTimer = gameSettings.targetChangeTimer();
+
+        // Setup map
+        setupMap(ctx);
 
         // Set gamemode information
         createHeaderTitle();
@@ -90,36 +101,17 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
         // Enable weapons
         combatManager.activate(this);
 
-        // Setup gamemode game variables
-        targetsToKill = ctx.getIntVars().getOrDefault("targetsToKill", 16);
-        targetChangeTimer = ctx.getIntVars().getOrDefault("targetChangeTimer", 60);
-
-        // Create players
-        createPlayers(ctx.getPlayers());
-        teleportSpectators();
-
         // Teleport players to spawns
-        map.fillBlocksAtStart();
+        setupPlayers();
+        updatePlacements();
 
-        List<AssassinSpawn> gameStartSpawns = sortSpawns();
-        List<AssassinPlayer> shuffledPlayers = getPlayers();
-        Collections.shuffle(shuffledPlayers);
-        int spawnNum = 0;
-        for (AssassinPlayer player : shuffledPlayers) {
-            if (!player.isOnline()) continue;
-            player.teleportPlayerToSpawn(gameStartSpawns.get(spawnNum), map.getMapCentre());
-            player.playerSetupGame();
-            spawnNum++;
-        }
-
+        // Create scoreboard team to mark players in game
         CBCScoreboardManager sbManager = gameManager.getCbcScoreboardManager();
-        CBCScoreboardTeam inGameTeam = new CBCScoreboardTeam(sbManager, "01players");
+        inGameTeam = new CBCScoreboardTeam(sbManager, "01players");
         inGameTeam.setColor(NamedTextColor.AQUA);
         inGameTeam.setSeeFriendlyInvisiblesEnabled(false);
         inGameTeam.setFriendlyFireEnabled(true);
         sbManager.registerTeam(inGameTeam);
-
-        updatePlacements();
 
         // Create Bossbar/Sidebar managers
         createUIManagers();
@@ -127,7 +119,6 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
         // Set up glow manager
         glowManager = new AssassinGlowManager(world, this);
         glowManager.activate();
-
         glowUpdateTask = new AssassinGlowUpdateTask(this);
         glowUpdateTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
@@ -149,12 +140,29 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
 
     }
 
+    private void setupPlayers () {
+
+        List<AssassinSpawn> gameStartSpawns = sortSpawns();
+        List<AssassinPlayer> shuffledPlayers = getPlayers();
+        Collections.shuffle(shuffledPlayers);
+        for (int spawnNum = 0; spawnNum < shuffledPlayers.size(); spawnNum++) {
+            AssassinSpawn spawn = gameStartSpawns.get(spawnNum);
+            AssassinPlayer player = shuffledPlayers.get(spawnNum);
+            player.teleportPlayerToSpawn(spawn, getMap().getMapCentre());
+            player.playerSetupGame();
+        }
+
+    }
+
+    private void setupMap (FFAGameContext ctx) {
+        mapData = (AssassinMapData) ctx.mapData();
+        spawns = mapData.getAssassinSpawns(this);
+        targetSpawnDistance = mapData.spawnTargetRadius();
+    }
+
     public void startGame () {
 
-        this.getMap().fillBlocksAtEnd();
-
         // Allow players to move
-        PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
         noMoveListener = null;
 
         // Initialise all players
@@ -168,6 +176,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
         // Timer that changes target of players if they fail to kill their target within a certain time period
         AssassinTargetChangeTimer targetChangeTimerTask = new AssassinTargetChangeTimer(this);
         targetChangeTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
+
     }
 
     public List<AssassinSpawn> sortSpawns() {
@@ -204,14 +213,6 @@ public class AssassinGame extends FFAGame<AssassinPlayer, AssassinMap> {
         }
 
         return spawnOrder;
-    }
-
-    public void setupMap (AssassinMap map) {
-
-        super.setupMap(map);
-        spawns = map.getAssassinSpawns(this);
-        targetSpawnDistance = map.getTargetDistance();
-
     }
 
     public List<AssassinPlayer> getPlayersByTargets () {

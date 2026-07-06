@@ -10,9 +10,9 @@ public class AssassinSpawn extends Location {
     private final AssassinGame game;
 
     private final boolean ignoreY;
-    private final int enemyRadius;
+    private final double enemyRadius;
 
-    public AssassinSpawn (AssassinGame game, World world, Vector vector, int enemyRadius, boolean ignoreY) {
+    public AssassinSpawn (AssassinGame game, World world, Vector vector, double enemyRadius, boolean ignoreY) {
 
         super(world, vector.getX(), vector.getY(), vector.getZ());
         this.game = game;

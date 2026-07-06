@@ -42,4 +42,5 @@ public class AssassinMap extends CBCMap {
     public int getTargetDistance() {
         return targetDistance;
     }
+
 }
