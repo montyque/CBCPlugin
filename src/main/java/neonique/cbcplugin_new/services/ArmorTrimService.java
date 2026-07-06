@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.services;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.listeners.lobby.TrimSelectHandler;
+import neonique.cbcplugin_new.lobby.listeners.TrimSelectHandler;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.NamespacedKey;

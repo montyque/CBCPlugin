@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.listeners.lobby;
+package neonique.cbcplugin_new.lobby.listeners;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;

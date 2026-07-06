@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.tasks.lobbytasks;
+package neonique.cbcplugin_new.lobby.tasks;
 
 import neonique.cbcplugin_new.lobby.Lobby;
 import org.bukkit.scheduler.BukkitRunnable;

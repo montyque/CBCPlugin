@@ -101,7 +101,7 @@ public class CBCScoreboardTeam {
             Player player = Bukkit.getPlayer(entityUUID);
             String entry = player != null ? player.getName() : entityUUID.toString();
             if (!team.hasEntry(entry)) {
-                team.addEntry(entityUUID.toString());
+                team.addEntry(entry);
             }
         }
 

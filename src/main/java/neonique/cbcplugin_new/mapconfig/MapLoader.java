@@ -55,7 +55,7 @@ public class MapLoader {
         }
     }
 
-    public List<GamemodeMapData> loadGamemodeMapsFromDirectory (CBCGamemode gamemode,
+    public Map<String, GamemodeMapData> loadGamemodeMapsFromDirectory (CBCGamemode gamemode,
                                                                 Map<String, CBCMap> maps,
                                                                 File mapDirectory) {
         return loadGamemodeMaps(gamemode, maps, getYamlFiles(mapDirectory));
@@ -74,16 +74,16 @@ public class MapLoader {
 
     }
 
-    public List<GamemodeMapData> loadGamemodeMaps (CBCGamemode gamemode,
+    public Map<String, GamemodeMapData> loadGamemodeMaps (CBCGamemode gamemode,
                                                    Map<String, CBCMap> maps,
                                                    Collection<File> mapFiles) {
 
-        List<GamemodeMapData> gamemodeMapDataList = new ArrayList<>();
+        Map<String, GamemodeMapData> gamemodeMapDataList = new HashMap<>();
 
         for (File mapFile : mapFiles) {
             try {
                 GamemodeMapData mapData = loadGamemodeMapData(gamemode, maps, mapFile);
-                gamemodeMapDataList.add(mapData);
+                gamemodeMapDataList.put(mapData.getMap().getId(), mapData);
             } catch (InvalidMapConfigException e) {
                 logger.log(Level.WARNING, e.getMessage(), e.getCause());
             }

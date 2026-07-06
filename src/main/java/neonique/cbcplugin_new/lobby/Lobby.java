@@ -9,17 +9,17 @@ import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.weapons.WeaponType;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mechanics.*;
-import neonique.cbcplugin_new.listeners.lobby.MenuClickEvent;
-import neonique.cbcplugin_new.listeners.lobby.PlayerDamageListener;
+import neonique.cbcplugin_new.lobby.listeners.MenuClickEvent;
+import neonique.cbcplugin_new.lobby.listeners.PlayerDamageListener;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.cbcevents.CBCEventPlayer;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
-import neonique.cbcplugin_new.tasks.lobbytasks.GameCountdownTask;
-import neonique.cbcplugin_new.tasks.lobbytasks.LobbySidebarManagerTask;
-import neonique.cbcplugin_new.tasks.lobbytasks.PlayerSafetyTask;
+import neonique.cbcplugin_new.lobby.tasks.GameCountdownTask;
+import neonique.cbcplugin_new.lobby.tasks.LobbySidebarManagerTask;
+import neonique.cbcplugin_new.lobby.tasks.PlayerSafetyTask;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
@@ -36,10 +36,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.setTextFont;
 
@@ -111,16 +112,13 @@ public class Lobby {
     }
 
     public void activate() {
+
         if (active) return;
 
         // Reset variables
         gameStarting = false;
         gamemodeSelected = null;
         mapSelected = null;
-
-        /*gameBools = new HashMap<>(defaultGameBools);
-        gameInts = new HashMap<>(defaultGameInts);
-        gameStrings = new HashMap<>(defaultGameStrings);*/
         gameSettings = GameSettings.blank();
 
         creeperPresetTeamOverrides = new HashMap<>();
@@ -149,24 +147,10 @@ public class Lobby {
         playerSafetyTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 60);
 
         // Create teams
-        teams.put(TeamColor.RED, new LobbyTeam(gameManager, this, "01", "red",
-                "Red", "R", TeamColor.RED));
-        teams.put(TeamColor.BLUE, new LobbyTeam(gameManager, this, "02", "blue",
-                "Blue", "B", TeamColor.BLUE));
-        teams.put(TeamColor.GREEN, new LobbyTeam(gameManager, this, "03", "green",
-                "Green", "G", TeamColor.GREEN));
-        teams.put(TeamColor.YELLOW, new LobbyTeam(gameManager, this, "04", "yellow",
-                "Yellow", "Y", TeamColor.YELLOW));
-        teams.put(TeamColor.CYAN, new LobbyTeam(gameManager, this, "05", "cyan",
-                "Cyan", "C", TeamColor.CYAN));
-        teams.put(TeamColor.ORANGE, new LobbyTeam(gameManager, this, "06", "orange",
-                "Orange", "O", TeamColor.ORANGE));
-        teams.put(TeamColor.MAGENTA, new LobbyTeam(gameManager, this, "07", "magenta",
-                "Magenta", "M", TeamColor.MAGENTA));
-        teams.put(TeamColor.PURPLE, new LobbyTeam(gameManager, this, "08", "purple",
-                "Purple", "P", TeamColor.PURPLE));
+        teams = createTeams();
 
         // Creating spectator and FFA scoreboard teams
+        gameManager.getCbcScoreboardManager().activate();
         CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();
         ffaTeam = scoreboardManager.registerNewTeam("09ffaLobby");
         ffaTeam.setFriendlyFireEnabled(true);
@@ -179,9 +163,6 @@ public class Lobby {
         for (Player player : CBCPlugin.getPlugin().getServer().getOnlinePlayers()) {
             addNewLobbyPlayer(player);
         }
-
-        // Activate scoreboard manager
-        gameManager.getCbcScoreboardManager().activate();
 
         // Setup sidebar manager
         sidebarManager = new LobbySidebarManager(gameManager, this);
@@ -210,6 +191,19 @@ public class Lobby {
 
     }
 
+    private Map<TeamColor, LobbyTeam> createTeams () {
+        return Map.of(
+                TeamColor.RED, new LobbyTeam(gameManager, this, "01", "red", "Red", "R", TeamColor.RED),
+                TeamColor.BLUE, new LobbyTeam(gameManager, this, "02", "blue", "Blue", "B", TeamColor.BLUE),
+                TeamColor.GREEN, new LobbyTeam(gameManager, this, "03", "green", "Green", "G", TeamColor.GREEN),
+                TeamColor.YELLOW, new LobbyTeam(gameManager, this, "04", "yellow", "Yellow", "Y", TeamColor.YELLOW),
+                TeamColor.CYAN, new LobbyTeam(gameManager, this, "05", "cyan", "Cyan", "C", TeamColor.CYAN),
+                TeamColor.ORANGE, new LobbyTeam(gameManager, this, "06", "orange", "Orange", "O", TeamColor.ORANGE),
+                TeamColor.MAGENTA, new LobbyTeam(gameManager, this, "07", "magenta", "Magenta", "M", TeamColor.MAGENTA),
+                TeamColor.PURPLE, new LobbyTeam(gameManager, this, "08", "purple", "Purple", "P", TeamColor.PURPLE)
+        );
+    }
+
     public void deactivate() {
 
         active = false;
@@ -222,17 +216,15 @@ public class Lobby {
         sidebarManager.removeSidebar();
         lobbySidebarManagerTask.cancel();
 
-        // Unregister all teams
         CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeam(ffaTeam);
         CBCPlugin.getGameManager().getCbcScoreboardManager().unregisterTeam(spectatorTeam);
 
         for (LobbyTeam lobbyTeam : teams.values()) {
-            // Remove all team objects
             lobbyTeam.removeTeam();
         }
 
         players.clear();
-        teams.clear();
+        teams.clear();        // Unregister all teams
 
         ffaTeam = null;
         spectatorTeam = null;
@@ -246,42 +238,35 @@ public class Lobby {
 
     }
 
+
+    public void randomizePlayersIntoTeams (Collection<LobbyPlayer> players,
+                                           Collection<LobbyTeam> teams) {
+
+        List<LobbyPlayer> playersShuffled = new ArrayList<>(players);
+        Collections.shuffle(playersShuffled);
+        List<LobbyTeam> teamsShuffled = new ArrayList<>(teams);
+        Collections.shuffle(teamsShuffled);
+
+        for (int p = 0; p < playersShuffled.size(); p++) {
+            LobbyPlayer player = playersShuffled.get(p);
+            LobbyTeam team = teamsShuffled.get(p % teamsShuffled.size());
+            playerJoinTeam(player, team, false);
+        }
+
+    }
+
+
     public void randomizeTeams(Set<LobbyTeam> teamsSelected) {
 
-        List<LobbyPlayer> playersToRandomize = new ArrayList<>();
-
-        for (LobbyPlayer player : players.values()) {
-            // Check that player is not a spectator
-            if (player.isSpectator()) {
-                continue;
-            }
-            playerLeaveTeam(player, false); // Make player leave team
-            // Check that player is online
-            if (!player.isOnline()) {
-                continue;
-            }
-            playersToRandomize.add(player);
-        }
+        List<LobbyPlayer> playersToRandomize = players.values().stream()
+                .filter(p -> !p.isSpectator())
+                .filter(LobbyPlayer::isOnline)
+                .toList();
 
         // Convert set of teams into list
-        List<LobbyTeam> teamsRandomizing = new ArrayList<>(teamsSelected);
+        randomizePlayersIntoTeams(playersToRandomize, teamsSelected);
 
-        // Shuffle list of players and list of teams
-        Collections.shuffle(teamsRandomizing);
-        Collections.shuffle(playersToRandomize);
-
-        // Iterate through players and distribute them into teams
-        int playersGoneThrough = 0;
-        for (LobbyPlayer player : playersToRandomize) {
-            LobbyTeam teamToJoin = teamsRandomizing.get(playersGoneThrough % teamsRandomizing.size());
-            playerJoinTeam(player, teamToJoin, false);
-            playersGoneThrough++;
-        }
-
-        // Send message to confirm randomizing teams is finished
-        gameManager.getWorld().sendMessage(Component.text(
-                playersToRandomize.size() + " players have been randomized into " + teamsRandomizing.size() + " teams!"
-        ).color(NamedTextColor.GREEN));
+        gameManager.sendGlobalMessage(Component.text("Randomised "));
 
         // Update sidebars
         updateClientSidebars();
@@ -364,23 +349,22 @@ public class Lobby {
     }
 
     public void openGamemodeMenu(Player user) {
+        Inventory gui = getGamemodeMenu(user);
+        user.openInventory(gui);
+    }
 
-        LinkedHashMap<CBCGamemode, GamemodeOptions> gamemodeList = gameManager.getGamemodes();
+    public Inventory getGamemodeMenu (Player user) {
+
+        List<CBCGamemode> gamemodes = gameManager.getLoadedGamemodes();
         Inventory gui = Bukkit.createInventory(user, 27, Component.text("Select Gamemode").decorate(TextDecoration.BOLD));
 
         int teamGamemodeCount = 0;
         int ffaGamemodeCount = 0;
 
-        for (CBCGamemode gamemode : gamemodeList.keySet()) {
-            GamemodeOptions gamemodeVariables = gamemodeList.get(gamemode);
-
-            ItemStack item = gamemodeVariables.getGamemodeIcon();
-            ItemMeta itemMeta = getGamemodeItemMeta(item, gamemodeVariables);
-
-            item.setItemMeta(itemMeta);
-
-            // Sort the inventory to put team gamemodes on the top row and free for all gamemodes on the middle row
-            if (gamemodeVariables.isTeamGamemode()) {
+        for (CBCGamemode gamemode : gamemodes) {
+            ItemStack item = getGamemodeItem(gamemode);
+            // Team gamemodes go on top row, FFA gamemodes go on middle row
+            if (gamemode.isTeamGamemode()) {
                 gui.setItem(teamGamemodeCount, item);
                 teamGamemodeCount++;
             } else {
@@ -388,76 +372,86 @@ public class Lobby {
                 ffaGamemodeCount++;
             }
         }
-        user.openInventory(gui);
+
+        return gui;
+
     }
 
-    private static @NotNull ItemMeta getGamemodeItemMeta(ItemStack item, GamemodeOptions gamemodeVariables) {
+    private ItemStack getGamemodeItem (CBCGamemode gamemode) {
+        ItemStack item = gamemode.getGamemodeIconItem();
+        item.editMeta((m) -> editGamemodeItemMeta(m, gamemode));
+        return item;
+    }
 
-        ItemMeta itemMeta = item.getItemMeta();
-        // Set item title
-        Component itemTitle = Component.text(gamemodeVariables.getGamemodeName()).color(gamemodeVariables.getColor())
-                .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-        itemMeta.displayName(itemTitle);
-        Component itemLore;
-        if (gamemodeVariables.isTeamGamemode()) {
-            int minTeams = gamemodeVariables.getMinTeams();
-            int maxTeams = gamemodeVariables.getMaxTeams();
-            itemLore = Component.text(minTeams + "-" + maxTeams + " teams").color(NamedTextColor.DARK_GREEN)
-                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    private void editGamemodeItemMeta (ItemMeta meta, CBCGamemode gamemode) {
+
+        Component itemTitle = Component.text(gamemode.getGamemodeName())
+                .color(gamemode.getColor())
+                .decorate(TextDecoration.BOLD)
+                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+
+        meta.displayName(itemTitle);
+
+        if (gamemode.isTeamGamemode()) {
+            meta.lore(List.of(
+                    Component.text("Teams")
+                            .color(NamedTextColor.DARK_GREEN)
+                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            ));
         } else {
-            if (gamemodeVariables.getMinPlayers() > 1) {
-                itemLore = Component.text("Free for all, " + gamemodeVariables.getMinPlayers() + "+ players").color(NamedTextColor.DARK_PURPLE)
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-            }
-            else {
-                itemLore = Component.text("Free for all").color(NamedTextColor.DARK_PURPLE)
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-            }
+            meta.lore(List.of(
+                    Component.text("Free for all")
+                            .color(NamedTextColor.DARK_PURPLE)
+                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            ));
         }
-        List<Component> loreList = new ArrayList<>();
-        loreList.add(itemLore);
-        itemMeta.lore(loreList);
-        return itemMeta;
+
+        meta.getPersistentDataContainer().set(MenuClickEvent.MENU_ITEM_ID_KEY,
+                PersistentDataType.STRING, gamemode.name()
+        );
 
     }
 
-    public void openMapMenu(Player user, CBCGamemode gamemode, GamemodeOptions gamemodeOptions) {
 
-        if (!gameManager.getGamemodeAndMapList().containsKey(gamemode)) return;
+    public void openMapMenu (Player user, CBCGamemode gamemode) {
+        Inventory menu = getMapMenu(user, gamemode);
+        user.openInventory(menu);
+    }
 
-        // Setting gamemode variables which will be used in displays
-        TextColor gmColor = gamemodeOptions.getColor();
-        String gmName = gamemodeOptions.getGamemodeName();
+    public Inventory getMapMenu (Player user, CBCGamemode gamemode) {
 
-        List<CBCMap> mapList = gameManager.getGamemodeAndMapList().get(gamemode);
-        Inventory gui = Bukkit.createInventory(user, 27, Component.text("Select Map - " + gmName)
+        // Find all maps loaded for this gamemode
+        List<GamemodeMapData> mapList = gameManager.getGamemodeMaps(gamemode);
+        mapList.sort(Comparator.comparing(m -> m.getMap().getName()));
+        Inventory gui = Bukkit.createInventory(user, 27, Component.text("Select Map - " + gamemode.getGamemodeName())
                 .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
 
+        // Put map items in inventory slots
         int mapCount = 0;
-
-        for (CBCMap map : mapList) {
-            ItemStack item = new ItemStack(map.getBlockSymbol());
-            ItemMeta itemMeta = item.getItemMeta();
-            // Set item title
-            Component itemTitle = Component.text(map.getName()).color(gmColor)
-                    .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-            itemMeta.displayName(itemTitle);
-            item.setItemMeta(itemMeta);
-
-            if (map.isMapRush()) {
-                gui.setItem(26, item);
-            }
-            else {
-                gui.setItem(mapCount, item);
-                mapCount++;
-            }
+        for (GamemodeMapData map : mapList) {
+            ItemStack mapItem = getMapItem(gamemode.getColor(), map.getMap());
+            gui.setItem(mapCount, mapItem);
         }
-        user.openInventory(gui);
+
+        return gui;
+
+    }
+
+    private ItemStack getMapItem (TextColor nameColor, CBCMap map) {
+        ItemStack item = new ItemStack(map.getBlockSymbol());
+        item.editMeta((m) -> {
+            m.getPersistentDataContainer().set(MenuClickEvent.MENU_ITEM_ID_KEY,
+                    PersistentDataType.STRING, map.getId()
+            );
+            Component itemTitle = Component.text(map.getName()).color(nameColor)
+                    .decorate(TextDecoration.BOLD)
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+            m.displayName(itemTitle);
+        });
+        return item;
     }
 
     public void setGamemodeAndMapSelected (CBCGamemode gamemode, GamemodeMapData map) {
-
-        GamemodeOptions gamemodeVariables = gameManager.getGamemodes().get(gamemode);
 
         // Check if gamemode has changed
         if (gamemodeSelected != gamemode) {
@@ -468,7 +462,7 @@ public class Lobby {
         mapSelected = map;
 
         // Send message to say what map has been selected
-        Component message = Component.text().content(gamemodeVariables.getGamemodeName() + " - " + map.getMap().getName())
+        Component message = Component.text().content(gamemodeSelected.getGamemodeName() + " - " + map.getMap().getName())
                         .color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD)
                         .append(
                                 Component.text().content(" has been selected!").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD,
@@ -498,32 +492,12 @@ public class Lobby {
 
     public void addNewLobbyPlayer(Player player) {
 
-        CBCPlugin.getPlugin().getLogger().info("New player added to lobby: " + player.getName());
-
         player.playerListName(null);
-
-        players.put(player.getUniqueId(), new LobbyPlayer(gameManager, this, player.getUniqueId()));
+        LobbyPlayer newPlayer = new LobbyPlayer(gameManager, this, player);
+        players.put(player.getUniqueId(), newPlayer);
         ffaTeam.addEntityUUID(player.getUniqueId());
 
-        // Remove potion effects
-        if (gameManager.isPracticeActive()) {
-            if (!gameManager.hasPlayer(player)) {
-                for (PotionEffect effect : player.getActivePotionEffects())
-                    player.removePotionEffect(effect.getType());
-                player.setGameMode(GameMode.ADVENTURE);
-                player.teleport(lobbyTeleport);
-                player.getInventory().clear();
-                player.updateInventory();
-                player.setRespawnLocation(lobbyTeleport, true);
-                player.setHealth(20);
-                player.removeScoreboardTag("NVDisable");
-            }
-        } else {
-
-            for (PotionEffect effect : player.getActivePotionEffects())
-                player.removePotionEffect(effect.getType());
-            player.setGameMode(GameMode.ADVENTURE);
-
+        if (!gameManager.isPracticeActive() || !gameManager.hasPlayer(player)) {
             if (gameManager.isCBCEventActive()) {
                 CBCEventManager eventManager = gameManager.getEventManager();
                 if (eventManager.isPlayerWinner(player)) {
@@ -536,13 +510,10 @@ public class Lobby {
             else {
                 player.teleport(lobbyTeleport);
             }
-            player.getInventory().clear();
-            player.updateInventory();
             player.setRespawnLocation(lobbyTeleport, true);
-            player.setHealth(20);
-            player.removeScoreboardTag("NVDisable");
-
         }
+        newPlayer.resetPlayer();
+
     }
 
     public void playerJoinTeam(LobbyPlayer player, LobbyTeam team, boolean overrideCurrentTeam) {
@@ -557,9 +528,7 @@ public class Lobby {
 
     public void playerLeaveTeam(LobbyPlayer player, boolean spectator) {
         LobbyTeam playerTeam = player.getAssignedTeam();
-        if (playerTeam == null) {
-            return;
-        }
+        if (playerTeam == null) return;
         playerTeam.removePlayer(player);
         if (!spectator) {
             ffaTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
@@ -568,38 +537,26 @@ public class Lobby {
         }
     }
 
-    public void playerToggleSpectator(LobbyPlayer player) {
-
-        if (player.isSpectator()) {
-            // Make player not spectator
-            playerUnsetSpectator(player);
-        } else {
-            // Make player spectator
-            playerSetSpectator(player);
-        }
+    public void playerToggleSpectator (LobbyPlayer player) {
+        if (player.isSpectator()) playerUnsetSpectator(player);
+        else playerSetSpectator(player);
     }
 
-    public void playerSetSpectator(LobbyPlayer player) {
-
+    public void playerSetSpectator (LobbyPlayer player) {
+        player.setSpectator(true);
         if (!player.isOnline()) return;
-
         playerLeaveTeam(player, true);
         spectatorTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
-        player.setSpectator();
         player.getPlayer().sendMessage(
-                Component.text("You are now a spectator. This means you cannot be added to any" +
-                                " teams during randomization. To get out of spectator mode, use ").color(NamedTextColor.GOLD)
+                Component.text("You are now a spectator. To get out of spectator mode, use ").color(NamedTextColor.GOLD)
                         .append(Component.text("/lobby spectator toggle").color(NamedTextColor.YELLOW))
         );
     }
 
-    public void playerUnsetSpectator(LobbyPlayer player) {
-
+    public void playerUnsetSpectator (LobbyPlayer player) {
+        player.setSpectator(false);
         if (!player.isOnline()) return;
-
         ffaTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
-
-        player.setNoSpectator();
         player.getPlayer().sendMessage(
                 Component.text("You are no longer a spectator. To go back into spectator mode, use ").color(NamedTextColor.GOLD)
                         .append(Component.text("/lobby spectator toggle").color(NamedTextColor.YELLOW))
@@ -614,51 +571,18 @@ public class Lobby {
         return teams;
     }
 
-    public Set<Player> getPlayerEntities() {
-        Set<Player> playerEntities = new HashSet<>();
-        for (UUID playerUUID : players.keySet()) {
-            Player player = CBCPlugin.getPlugin().getServer().getPlayer(playerUUID);
-            if (player == null) continue;
-            playerEntities.add(player);
-        }
-        return playerEntities;
-    }
-
     public Collection<LobbyPlayer> getLobbyPlayers() {
         return players.values();
     }
 
-    public Set<LobbyPlayer> getLobbyPlayersPlayingAndOnline() {
-        Set<LobbyPlayer> playerList = new HashSet<>();
-        for (LobbyPlayer player : getLobbyPlayers()) {
-            if (!player.isSpectator() && player.isOnline()) {
-                playerList.add(player);
-            }
-        }
-        return playerList;
-    }
-
-    public LobbyPlayer getLobbyPlayer(Player player) {
+    public LobbyPlayer getLobbyPlayer (Player player) {
         return players.getOrDefault(player.getUniqueId(), null);
     }
 
-    public void replacePlayerEntityKey(Player origin, Player newPlayer) {
-        if (players.containsKey(origin.getUniqueId())) {
-            LobbyPlayer lobbyPlayerInstance = players.get(origin.getUniqueId());
-            players.remove(origin.getUniqueId());
-            players.put(newPlayer.getUniqueId(), lobbyPlayerInstance);
-            lobbyPlayerInstance.setNewPlayer(newPlayer);
-        }
-    }
-
     public Set<LobbyTeam> getTeamsWithOnlinePlayers () {
-        Set<LobbyTeam> teamsWithOnlinePlayers = new HashSet<>();
-        for (LobbyTeam team : teams.values()) {
-            if (!team.getOnlinePlayers().isEmpty()) {
-                teamsWithOnlinePlayers.add(team);
-            }
-        }
-        return teamsWithOnlinePlayers;
+        return teams.values().stream()
+                .filter(l -> !l.getOnlinePlayers().isEmpty())
+                .collect(Collectors.toSet());
     }
 
     public boolean isGameStarting() {
@@ -697,9 +621,11 @@ public class Lobby {
     }
 
     public void startGameCountdown() {
+
         gameStarting = true;
+
         // If the gamemode selected is a team gamemode, set all players with ffa to spectator team
-        if (gameManager.getGamemodes().get(gamemodeSelected).isTeamGamemode()) {
+        if (gamemodeSelected.isTeamGamemode()) {
             for (LobbyPlayer player : players.values()) {
                 // Make all offline players leave their teams
                 if (!player.isOnline() && player.getAssignedTeam() != null) {
@@ -712,11 +638,6 @@ public class Lobby {
                     }
                 }
             }
-        }
-
-        // Close all inventories that players are looking at
-        for (Player player : getPlayerEntities()) {
-            if (player.isOnline()) player.getOpenInventory().close();
         }
 
         // Start countdown
@@ -732,23 +653,23 @@ public class Lobby {
         }
     }
 
-    public void cancelGameCountdown(Player playerCause, int cause) {
+    public void cancelGameCountdown (Player playerCause, int cause) {
+
         gameStarting = false;
-        // If the gamemode selected is a team gamemode, set all players without a team that are not spectator to ffa team
-        if (gameManager.getGamemodes().get(gamemodeSelected).isTeamGamemode()) {
+
+        // Cancel countdown task
+        startingCountdown.cancel();
+
+        // Clear titles for world
+        gameManager.getWorld().clearTitle();
+
+        if (gamemodeSelected.isTeamGamemode()) {
             for (LobbyPlayer player : players.values()) {
-                // If player is not in team, set their team to not spectator
                 if (player.getAssignedTeam() == null && !player.isSpectator()) {
                     ffaTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
                 }
             }
         }
-
-        // Cancel countdown
-        startingCountdown.cancel();
-
-        // Clear titles for world
-        gameManager.getWorld().clearTitle();
 
         for (Player player : gameManager.getWorld().getPlayers()) {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 100, 1);
@@ -760,8 +681,7 @@ public class Lobby {
             gameManager.getWorld().sendMessage(
                     Component.text("Game cancelled by " + playerCause.getName() + " using commands!").color(NamedTextColor.YELLOW)
             );
-        }
-        else if (cause == 2) {
+        } else if (cause == 2) {
             // Player left
             gameManager.getWorld().sendMessage(
                     Component.text("Game automatically cancelled as " + playerCause.getName() + " disconnected!").color(NamedTextColor.YELLOW)
@@ -789,67 +709,39 @@ public class Lobby {
         gameManager.startGame(gamemodeSelected, getGameContext());
     }
 
-    public void playerJoinServer(Player player) {
+    public void playerJoinServer(Player entity) {
 
-        player.setGlowing(false);
-        player.removeScoreboardTag("NVDisable");
+        entity.setGlowing(false);
 
-        // Handle lobby sidebar
-        sidebarManager.addPlayerSidebar(player);
-
-        // Remove potion effects
-        for (PotionEffect effect : player.getActivePotionEffects())
-            player.removePotionEffect(effect.getType());
-        player.setGameMode(GameMode.ADVENTURE);
-        player.teleport(lobbyTeleport);
-        player.getInventory().clear();
-        player.updateInventory();
-        player.setRespawnLocation(lobbyTeleport, true);
-        player.setHealth(20);
-
-        // Add night vision back
-        player.removeScoreboardTag("NVDisable");
-
-        for (Player playerEntity : getPlayerEntities()) {
-            if (playerEntity.getUniqueId().equals(player.getUniqueId())) {
-                replacePlayerEntityKey(playerEntity, player);
-                return;
-            }
+        // Add player to lobby if not already in player list
+        if (!players.containsKey(entity.getUniqueId())) {
+            addNewLobbyPlayer(entity);
         }
 
-        // If not already in player list
-        addNewLobbyPlayer(player);
+        LobbyPlayer player = players.get(entity.getUniqueId());
+        player.resetPlayer();
+        entity.teleport(lobbyTeleport);
+        entity.setRespawnLocation(lobbyTeleport, true);
+        sidebarManager.addPlayerSidebar(entity);
 
     }
 
-    public void playerLeaveServer(Player player) {
+    public void playerLeaveServer(Player entity) {
 
-        // Handle lobby sidebar
-        getSidebarManager().removePlayerSidebar(player);
-
-        UUID offlinePlayerId = player.getUniqueId();
-
-        for (Player playerEntity : getPlayerEntities()) {
-            if (playerEntity.getUniqueId().equals(offlinePlayerId)) {
-                LobbyPlayer lbPlayer = getLobbyPlayer(playerEntity);
-
-                // Cancel countdown if game is starting and player that left is a player
-                if (isGameStarting()) {
-                    if (gameManager.getGamemodes().get(getGamemodeSelected()).isTeamGamemode()) {
-                        if (lbPlayer.getAssignedTeam() != null) {
-                            cancelGameCountdown(playerEntity, 2);
-                        }
-                    } else {
-                        if (!lbPlayer.isSpectator()) {
-                            cancelGameCountdown(playerEntity, 2);
-                        }
-                    }
-                }
-
-                replacePlayerEntityKey(playerEntity, player);
-                return;
-            }
+        // Cancel countdown timer if player is in game
+        LobbyPlayer lbPlayer = getLobbyPlayer(entity);
+        if (isGameStarting()) {
+            if (isPlaying(lbPlayer)) cancelGameCountdown(entity, 2);
         }
+
+        sidebarManager.removePlayerSidebar(entity);
+
+    }
+
+    private boolean isPlaying (LobbyPlayer player) {
+        if (player.getAssignedTeam() != null) return true;
+        if (player.isSpectator()) return false;
+        return gamemodeSelected.isTeamGamemode(); // Player must be associated with a team in a team gamemode
     }
 
     public GameSettings gameSettings () {

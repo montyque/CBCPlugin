@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.listeners.lobby;
+package neonique.cbcplugin_new.lobby.listeners;
 
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerDamageListener implements Listener {
 

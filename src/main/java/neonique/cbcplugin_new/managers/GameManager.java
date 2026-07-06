@@ -26,6 +26,7 @@ import neonique.cbcplugin_new.listeners.GameJoinListener;
 import neonique.cbcplugin_new.listeners.GameLeaveListener;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -65,15 +66,7 @@ public class GameManager {
 
     // Loaded maps
     private Map<String, CBCMap> loadedMaps;
-    private Map<CBCGamemode, List<GamemodeMapData>> loadedGamemodeMaps;
-
-    // Gamemodes and classes
-    private LinkedHashMap<CBCGamemode, GamemodeOptions> gamemodes;
-
-    // Loaded maps
-    private HashMap<Integer, CBCGamemode> gamemodeToIntList;
-    private HashMap<CBCGamemode, List<CBCMap>> gamemodeAndMapList;
-    private HashMap<String, CBCMap> practiceMaps;
+    private Map<CBCGamemode, Map<String, GamemodeMapData>> loadedGamemodeMaps;
 
     // Image file paths
     private HashMap<CBCGamemode, HashMap<String, String>> gamemodeMapImageFiles = new HashMap<>();
@@ -181,7 +174,7 @@ public class GameManager {
 
         try {
 
-            List<GamemodeMapData> gamemodeMaps = mapLoader.loadGamemodeMapsFromDirectory(gamemode,
+            Map<String, GamemodeMapData> gamemodeMaps = mapLoader.loadGamemodeMapsFromDirectory(gamemode,
                     loadedMaps, gamemodeFolder);
             loadedGamemodeMaps.put(gamemode, gamemodeMaps);
             CBCPlugin.getPlugin().getLogger().info(
@@ -364,16 +357,19 @@ public class GameManager {
         return Bukkit.getWorld(worldUUID);
     }
 
-    public LinkedHashMap<CBCGamemode, GamemodeOptions> getGamemodes() {
-        return gamemodes;
+    public List<CBCGamemode> getLoadedGamemodes () {
+        return loadedGamemodeMaps.entrySet().stream()
+                .filter(e -> !e.getValue().isEmpty())
+                .map(Map.Entry::getKey)
+                .toList();
     }
 
-    public HashMap<CBCGamemode, List<CBCMap>> getGamemodeAndMapList() {
-        return gamemodeAndMapList;
+    public Optional<GamemodeMapData> getGamemodeMapWithId (CBCGamemode gamemode, String mapId) {
+        return Optional.ofNullable(loadedGamemodeMaps.getOrDefault(gamemode, Map.of()).get(mapId));
     }
 
-    public HashMap<Integer, CBCGamemode> getGamemodeToIntegerList() {
-        return gamemodeToIntList;
+    public List<GamemodeMapData> getGamemodeMaps (CBCGamemode gamemode) {
+        return List.copyOf(loadedGamemodeMaps.getOrDefault(gamemode, Map.of()).values());
     }
 
     public boolean hasPlayer (Player player) {
@@ -392,6 +388,7 @@ public class GameManager {
         }
 
         return alivePlayers;
+
     }
 
     public CBCPlayer getPlayer(Player player) {

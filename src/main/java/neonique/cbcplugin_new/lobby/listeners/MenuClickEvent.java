@@ -1,7 +1,9 @@
-package neonique.cbcplugin_new.listeners.lobby;
+package neonique.cbcplugin_new.lobby.listeners;
 
+import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import neonique.cbcplugin_new.mechanics.GamemodeOptions;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
@@ -11,6 +13,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,10 +22,13 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
 public class MenuClickEvent implements Listener {
+
+    public static final NamespacedKey MENU_ITEM_ID_KEY = new NamespacedKey(CBCPlugin.getPlugin(), "menu-item-id");
 
     private final Lobby lobby;
     private final GameManager gameManager;
@@ -37,11 +43,9 @@ public class MenuClickEvent implements Listener {
 
         Player playerClicked = (Player) e.getWhoClicked();
 
-        if (!(e.getView().title() instanceof TextComponent)) {
+        if (!(e.getView().title() instanceof TextComponent text)) {
             return;
         }
-
-        TextComponent text = (TextComponent) e.getView().title();
 
         if (text.content().equals("Post Game Statistics")) {
             e.setCancelled(true);
@@ -52,82 +56,58 @@ public class MenuClickEvent implements Listener {
         if (text.content().equals("Select Gamemode")) {
 
             e.setCancelled(true);
-            if (checkIfNotValidItemClicked(e)) {
-                return;
-            }
-
             ItemStack clickedItem = e.getCurrentItem();
+            if (clickedItem == null) return;
 
-            assert clickedItem != null;
-            if (clickedItem.getType() != Material.LIGHT_GRAY_DYE) return;
+            // Get the item menu id
+            String itemId = clickedItem.getItemMeta().getPersistentDataContainer().get(
+                    MENU_ITEM_ID_KEY,
+                    PersistentDataType.STRING
+            );
+            if (itemId == null) return;
 
-            ItemMeta itemMeta = clickedItem.getItemMeta();
-            if (!itemMeta.hasCustomModelData()) return;
-
-            int customModelData = itemMeta.getCustomModelData();
-            if (!gameManager.getGamemodeToIntegerList().containsKey(customModelData)) return;
-
-            CBCGamemode gamemode = gameManager.getGamemodeToIntegerList().get(customModelData);
-
-            lobby.openMapMenu(playerClicked, gamemode, gameManager.getGamemodes().get(gamemode));
+            // Find the gamemode clicked on
+            try {
+                CBCGamemode gamemode = CBCGamemode.valueOf(itemId);
+                lobby.openMapMenu(playerClicked, gamemode);
+            } catch (IllegalArgumentException ignored) {}
 
         } else if (text.content().startsWith("Select Map")) {
 
-            // Map selection gui
             e.setCancelled(true);
-            if (checkIfNotValidItemClicked(e)) {
-                return;
-            }
+            ItemStack clickedItem = e.getCurrentItem();
+            if (clickedItem == null) return;
 
-            // Find gamemode
-            LinkedHashMap<CBCGamemode, GamemodeOptions> gamemodeList = gameManager.getGamemodes();
+            // Use title of UI to figure out which gamemode the player selected
             CBCGamemode gamemodeSelected = null;
-            for (CBCGamemode gamemode : gamemodeList.keySet()) {
-                GamemodeOptions gamemodeVariables = gamemodeList.get(gamemode);
-                if (text.content().endsWith(gamemodeVariables.getGamemodeName())) {
+            for (CBCGamemode gamemode : gameManager.getLoadedGamemodes()) {
+                if (text.content().endsWith(gamemode.getGamemodeName())) {
                     gamemodeSelected = gamemode;
                     break;
                 }
             }
 
             if (gamemodeSelected == null) {
-                System.out.println("In Select Map GUI, could not find gamemode from title");
                 return;
             }
 
-            // Find map
-            List<CBCMap> mapList = gameManager.getGamemodeAndMapList().get(gamemodeSelected);
+            // Retrieve map from map id
+            String itemId = clickedItem.getItemMeta().getPersistentDataContainer().get(
+                    MENU_ITEM_ID_KEY,
+                    PersistentDataType.STRING
+            );
+            if (itemId == null) return;
 
-            if (mapList == null) {
-                System.out.println("In Select Map GUI, could not find map from gamemode " + gamemodeSelected.name());
-                return;
-            }
-
-            // Iterate through all maps in map list to find map selected
-            CBCMap selectedMap = null;
-            for (CBCMap map : mapList) {
-                if (map.getBlockSymbol() == e.getCurrentItem().getType()) {
-                    selectedMap = map;
-                    break;
-                }
-            }
-
-            // If selected map found
-            if (selectedMap == null) {
-                System.out.println("In Select Map GUI, could not find map to material");
-                return;
-            }
-
-            e.getView().close(); // Close the inventory
-            lobby.setGamemodeAndMapSelected(gamemodeSelected, selectedMap);
+            Optional<GamemodeMapData> mapSelected = gameManager.getGamemodeMapWithId(gamemodeSelected, itemId);
+            if (mapSelected.isEmpty()) return;
+            lobby.setGamemodeAndMapSelected(gamemodeSelected, mapSelected.get());
 
         } else if (text.content().startsWith("Randomize Teams")) {
 
             // Team randomizer gui
             e.setCancelled(true);
-            if (checkIfNotValidItemClicked(e)) {
-                return;
-            }
+            ItemStack clickedItem = e.getCurrentItem();
+            if (clickedItem == null) return;
 
             Inventory inventory = e.getClickedInventory();
             if (inventory != e.getView().getTopInventory()) {
@@ -263,27 +243,4 @@ public class MenuClickEvent implements Listener {
         }
     }
 
-    public boolean checkIfNotValidItemClicked (InventoryClickEvent e) {
-        if (e.getCurrentItem() == null) {
-            return true;
-        }
-
-        e.setCancelled(true);
-        if (e.getCurrentItem() == null) {
-            System.out.println("In Select Map GUI, current item not found");
-            return true;
-        }
-
-        if (e.getCurrentItem().getItemMeta().displayName() == null) {
-            System.out.println("In Select Map GUI, current item with display name not found");
-            return true;
-        }
-
-        if (!Objects.requireNonNull(e.getCurrentItem().getItemMeta().displayName()).hasDecoration(TextDecoration.BOLD)) {
-            System.out.println("In Select Map GUI, current item with bolded display name not found");
-            return true;
-        }
-
-        return false;
-    }
 }
