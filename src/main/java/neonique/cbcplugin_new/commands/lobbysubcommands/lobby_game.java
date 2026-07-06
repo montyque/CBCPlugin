@@ -49,83 +49,13 @@ public class lobby_game {
             }
 
             // Check if game can be started
-            int gameCanBeStarted = lobby.canStartGame();
-            if (gameCanBeStarted > 0) {
-                Component errorMessage = null;
-
-                // Game cannot be started because there is no selected gamemode
-                if (gameCanBeStarted == 1) {
-                    errorMessage = Component.text("You need to select a gamemode first! Use ").color(NamedTextColor.YELLOW)
-                            .append(Component.text("/lobby setgamemode").color(NamedTextColor.GREEN))
-                            .append(Component.text(" to select a gamemode and a map.").color(NamedTextColor.YELLOW));
-                }
-
-                // Game cannot be started because there is no selected map
-                else if (gameCanBeStarted == 2) {
-                    errorMessage = Component.text("You need to select a map first! Use ").color(NamedTextColor.YELLOW)
-                            .append(Component.text("/lobby setgamemode").color(NamedTextColor.GREEN))
-                            .append(Component.text(" to select a gamemode and a map.").color(NamedTextColor.YELLOW));
-                }
-
-                // Game cannot be started because error occured finding gamemode variables for gamemode
-                else if (gameCanBeStarted == 3) {
-                    errorMessage = Component.text("Could not find gamemode variables for gamemode ").color(NamedTextColor.YELLOW)
-                            .append(Component.text(lobby.getGamemodeSelected().name()).color(NamedTextColor.GREEN));
-                }
-
-                // Game cannot be started because too many/not enough teams
-                else if (gameCanBeStarted == 4 || gameCanBeStarted == 5) {
-                    Set<LobbyTeam> teamsWithOnlinePlayers = lobby.getTeamsWithOnlinePlayers();
-                    int minTeams;
-                    int maxTeams;
-                    if (lobby.getMapSelected().getMinTeams() == null) {
-                        minTeams = gameManager.getGamemodes().get(lobby.getGamemodeSelected()).getMinTeams();
-                        maxTeams = gameManager.getGamemodes().get(lobby.getGamemodeSelected()).getMaxTeams();
-                    } else {
-                        minTeams = lobby.getMapSelected().getMinTeams();
-                        maxTeams = lobby.getMapSelected().getMaxTeams();
-                    }
-                    if (gameCanBeStarted == 4) {
-                        errorMessage = Component.text("There are not enough teams! There are ").color(NamedTextColor.YELLOW)
-                                .append(Component.text(teamsWithOnlinePlayers.size()).color(NamedTextColor.GREEN))
-                                .append(Component.text(" teams with online players. ").color(NamedTextColor.YELLOW))
-                                .append(Component.text(minTeams + "-" + maxTeams).color(NamedTextColor.GREEN))
-                                .append(Component.text(" teams are required to start the game.").color(NamedTextColor.YELLOW));
-                    } else {
-                        errorMessage = Component.text("There are too many teams! There are ").color(NamedTextColor.YELLOW)
-                                .append(Component.text(teamsWithOnlinePlayers.size()).color(NamedTextColor.GREEN))
-                                .append(Component.text(" teams with online players. ").color(NamedTextColor.YELLOW))
-                                .append(Component.text(minTeams + "-" + maxTeams).color(NamedTextColor.GREEN))
-                                .append(Component.text(" teams are required to start the game.").color(NamedTextColor.YELLOW));
-                    }
-                }
-
-                // Game cannot be started because a team is not valid
-                else if (gameCanBeStarted == 6) {
-                    Set<LobbyTeam> teamsWithOnlinePlayers = lobby.getTeamsWithOnlinePlayers();
-                    Set<String> invalidTeams = new HashSet<>();
-                    for (LobbyTeam team : teamsWithOnlinePlayers) {
-                        if (!lobby.getMapSelected().getTeamsAllowed().contains(team.id())) {
-                            invalidTeams.add(team.id());
-                        }
-                    }
-                    errorMessage = Component.text("There are invalid teams with players in them! The teams: ").color(NamedTextColor.YELLOW)
-                            .append(Component.text(String.join(", ", invalidTeams)).color(NamedTextColor.GREEN))
-                            .append(Component.text(" are not allowed on this map.").color(NamedTextColor.YELLOW));
-                }
-
-                else if (gameCanBeStarted == 7) {
-                    errorMessage = Component.text("There are not enough players! ").color(NamedTextColor.YELLOW)
-                            .append(Component.text(lobby.getLobbyPlayersPlayingAndOnline().size()).color(NamedTextColor.GREEN))
-                            .append(Component.text(" players are playing. ").color(NamedTextColor.YELLOW))
-                            .append(Component.text(gameManager.getGamemodes().get(lobby.getGamemodeSelected()).getMinPlayers()).color(NamedTextColor.GREEN))
-                            .append(Component.text(" players are required for this game.").color(NamedTextColor.YELLOW));
-                }
-
-                if (errorMessage != null) {
-                    user.sendMessage(errorMessage);
-                    return;
-                }
+            try {
+                lobby.checkStartConditions();
+            } catch (IllegalStateException e) {
+                user.sendMessage(
+                        Component.text("Could not start game: " + e.getMessage()).color(NamedTextColor.YELLOW)
+                );
+                return;
             }
 
             // Game can be started
@@ -137,13 +67,14 @@ public class lobby_game {
             // Check if game has not even started yet
             if (!lobby.isGameStarting()) {
                 user.sendMessage(
-                        Component.text("The start countdown hasn't started yet! ").color(NamedTextColor.YELLOW)
+                        Component.text("The start countdown hasn't started yet!").color(NamedTextColor.YELLOW)
                 );
                 return;
             }
 
             // Cancel the countdown
             lobby.cancelGameCountdown(user, 1);
+
         }
 
         if (subsubcommand.equals("vars")) {

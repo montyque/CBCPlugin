@@ -70,8 +70,8 @@ public class Lobby {
     private GameCountdownTask startingCountdown;
 
     // Players and teams
-    private HashMap<UUID, LobbyPlayer> players = new HashMap<>();
-    private LinkedHashMap<String, LobbyTeam> teams = new LinkedHashMap<>();
+    private Map<UUID, LobbyPlayer> players = new HashMap<>();
+    private Map<TeamColor, LobbyTeam> teams = new LinkedHashMap<>();
     private CBCScoreboardTeam spectatorTeam;
     private CBCScoreboardTeam ffaTeam;
 
@@ -149,21 +149,21 @@ public class Lobby {
         playerSafetyTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 60);
 
         // Create teams
-        teams.put("red", new LobbyTeam(gameManager, this, "01", "red",
+        teams.put(TeamColor.RED, new LobbyTeam(gameManager, this, "01", "red",
                 "Red", "R", TeamColor.RED));
-        teams.put("blue", new LobbyTeam(gameManager, this, "02", "blue",
+        teams.put(TeamColor.BLUE, new LobbyTeam(gameManager, this, "02", "blue",
                 "Blue", "B", TeamColor.BLUE));
-        teams.put("green", new LobbyTeam(gameManager, this, "03", "green",
+        teams.put(TeamColor.GREEN, new LobbyTeam(gameManager, this, "03", "green",
                 "Green", "G", TeamColor.GREEN));
-        teams.put("yellow", new LobbyTeam(gameManager, this, "04", "yellow",
+        teams.put(TeamColor.YELLOW, new LobbyTeam(gameManager, this, "04", "yellow",
                 "Yellow", "Y", TeamColor.YELLOW));
-        teams.put("cyan", new LobbyTeam(gameManager, this, "05", "cyan",
+        teams.put(TeamColor.CYAN, new LobbyTeam(gameManager, this, "05", "cyan",
                 "Cyan", "C", TeamColor.CYAN));
-        teams.put("orange", new LobbyTeam(gameManager, this, "06", "orange",
+        teams.put(TeamColor.ORANGE, new LobbyTeam(gameManager, this, "06", "orange",
                 "Orange", "O", TeamColor.ORANGE));
-        teams.put("magenta", new LobbyTeam(gameManager, this, "07", "magenta",
+        teams.put(TeamColor.MAGENTA, new LobbyTeam(gameManager, this, "07", "magenta",
                 "Magenta", "M", TeamColor.MAGENTA));
-        teams.put("purple", new LobbyTeam(gameManager, this, "08", "purple",
+        teams.put(TeamColor.PURPLE, new LobbyTeam(gameManager, this, "08", "purple",
                 "Purple", "P", TeamColor.PURPLE));
 
         // Creating spectator and FFA scoreboard teams
@@ -249,7 +249,7 @@ public class Lobby {
     public void randomizeTeams(Set<LobbyTeam> teamsSelected) {
 
         List<LobbyPlayer> playersToRandomize = new ArrayList<>();
-        // Make all players leave their teams
+
         for (LobbyPlayer player : players.values()) {
             // Check that player is not a spectator
             if (player.isSpectator()) {
@@ -290,39 +290,17 @@ public class Lobby {
 
     public void openTeamRandomizeMenu(Player user) {
 
-        int minTeams;
-        int maxTeams;
+        int minTeams = 1;
+        int maxTeams = 8;
+        List<TeamColor> teamsAllowed = List.of(TeamColor.values());
 
         // Make sure gamemode is team gamemode
         if (gamemodeSelected != null && mapSelected != null) {
-            GamemodeOptions gamemode = gameManager.getGamemodes().get(gamemodeSelected);
-            if (!gamemode.isTeamGamemode()) return; else {
-                if (mapSelected.getMinTeams() != null) {
-                    minTeams = mapSelected.getMinTeams();
-                    maxTeams = mapSelected.getMaxTeams();
-                } else return;
-            }
-        } else {
-            minTeams = 2;
-            maxTeams = 8;
-        }
-
-        List<String> teamsAllowed = null;
-        if (mapSelected != null) {
-            if (mapSelected.getTeamsAllowed() != null) {
-                teamsAllowed = mapSelected.getTeamsAllowed();
-            }
-        }
-
-        LinkedHashMap<String, LobbyTeam> teamsAvailable = new LinkedHashMap<>();
-        for (String teamId : teams.keySet().toArray(new String[0])) {
-            if (teamsAllowed != null) {
-                if (teamsAllowed.contains(teamId)) {
-                    teamsAvailable.put(teamId, teams.get(teamId));
-                }
-            }
-            else {
-                teamsAvailable.put(teamId, teams.get(teamId));
+            if (gamemodeSelected.isTeamGamemode()) {
+                TeamMapData teamMap = (TeamMapData) mapSelected;
+                minTeams = teamMap.minTeams();
+                maxTeams = teamMap.maxTeams();
+                teamsAllowed = teamMap.validTeamColors();
             }
         }
 
@@ -330,44 +308,45 @@ public class Lobby {
 
         int itemSlot = 0;
         int randomisingTeams = 0;
-        for (String teamId : teamsAvailable.keySet().toArray(new String[0])) {
+        for (TeamColor teamColor : teamsAllowed) {
 
-            LobbyTeam team = teamsAvailable.get(teamId);
-
-            // Create item
+            LobbyTeam team = teams.get(teamColor);
             ItemStack item = team.getIconItem();
-
             ItemMeta itemMeta = item.getItemMeta();
+
             if (itemSlot < maxTeams) {
+
                 // Set randomising to true
                 itemMeta.addEnchant(Enchantment.THORNS, 1, false);
-                Component itemLore;
-                itemLore = Component.text("Click to remove from randomisation").color(NamedTextColor.DARK_GREEN)
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-                List<Component> loreList = new ArrayList<>();
-                loreList.add(itemLore);
+                List<Component> loreList = List.of(Component.text("Click to remove from randomisation")
+                        .color(NamedTextColor.DARK_GREEN)
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+                itemMeta.lore(loreList);
+                item.setItemMeta(itemMeta);
+                randomisingTeams++;
+
+            } else {
+
+                List<Component> loreList = List.of(Component.text("Click to add to randomisation")
+                        .color(NamedTextColor.DARK_RED)
+                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
                 itemMeta.lore(loreList);
 
-                item.setItemMeta(itemMeta);
-
-                randomisingTeams++;
-            } else {
-                Component itemLore;
-                itemLore = Component.text("Click to add to randomisation").color(NamedTextColor.DARK_RED)
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-                List<Component> loreList = new ArrayList<>();
-                loreList.add(itemLore);
-
+                // Set item to transparent version
                 int newCustomModelData = (itemMeta.getCustomModelData() % 8) + 8;
                 if (itemMeta.getCustomModelData() == 8) {
                     newCustomModelData = 16;
                 }
+
                 itemMeta.setCustomModelData(newCustomModelData);
                 itemMeta.lore(loreList);
                 item.setItemMeta(itemMeta);
+
             }
+
             gui.setItem(itemSlot, item);
             itemSlot++;
+
         }
 
         // Create magenta glazed terracotta to press when randomising
@@ -631,7 +610,7 @@ public class Lobby {
         return teams.values();
     }
 
-    public LinkedHashMap<String, LobbyTeam> getTeams () {
+    public Map<TeamColor, LobbyTeam> getTeams () {
         return teams;
     }
 
@@ -686,44 +665,35 @@ public class Lobby {
         return gameStarting;
     }
 
-    public int canStartGame() {
-        // Function that checks whether the game can be started or not
-        // Check if gamemode and map have been selected
-        if (gamemodeSelected == null) return 1;
-        if (mapSelected == null) return 2;
-        // Check if there are the required amount of teams
-        GamemodeOptions gamemodeVars = gameManager.getGamemodes().get(gamemodeSelected);
-        if (gamemodeVars == null) return 3;
-        if (gamemodeVars.isTeamGamemode()) {
-            // Get the amount of teams with an online player in it
-            int teamsWithOnlinePlayers = getTeamsWithOnlinePlayers().size();
-            int minTeams;
-            int maxTeams;
-            if (mapSelected.getMinTeams() == null) {
-                minTeams = gamemodeVars.getMinTeams();
-                maxTeams = gamemodeVars.getMaxTeams();
-            } else {
-                minTeams = mapSelected.getMinTeams();
-                maxTeams = mapSelected.getMaxTeams();
+    public void checkStartConditions() {
+
+        if (gamemodeSelected == null) throw new IllegalStateException("Gamemode has not been selected");
+        if (mapSelected == null) throw new IllegalStateException("Map has not been selected");
+
+        if (gamemodeSelected.isTeamGamemode()) {
+            TeamMapData teamMap = (TeamMapData) mapSelected;
+            Set<LobbyTeam> teams = getTeamsWithOnlinePlayers();
+
+            // Check team amount is within boundaries
+            if (teams.size() < teamMap.minTeams()) {
+                throw new IllegalStateException("Not enough teams, at least " + teams + " required!");
+            } else if (teams.size() > teamMap.maxTeams()) {
+                throw new IllegalStateException("Not enough teams, at least " + teams + " required!");
             }
-            // Check if teams fit within the boundaries
-            if (teamsWithOnlinePlayers < minTeams) return 4;
-            if (teamsWithOnlinePlayers > maxTeams) return 5;
-            // Check if no teams are disallowed
-            if (mapSelected.getTeamsAllowed() != null) {
-                for (LobbyTeam team : getTeamsWithOnlinePlayers()) {
-                    if (!mapSelected.getTeamsAllowed().contains(team.id())) {
-                        return 6;
-                    }
-                }
-            }
+
+            // Check all team colors are allowed
+            List<TeamColor> colorsAllowed = teamMap.validTeamColors();
+            teams.forEach(t -> {
+                if (!colorsAllowed.contains(t.teamColor()))
+                    throw new IllegalStateException("Team color " + t.teamColor() + " is not allowed on this map!");
+            });
+
         } else {
-            // Check if in free for all gamemode, minimum amount of players is not met
-            if (getLobbyPlayersPlayingAndOnline().size() < gamemodeVars.getMinPlayers()) {
-                return 7;
-            }
+
+            // TODO: Check player count is within boundaries
+
         }
-        return 0;
+
     }
 
     public void startGameCountdown() {

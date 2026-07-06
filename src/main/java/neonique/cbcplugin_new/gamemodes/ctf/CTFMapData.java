@@ -14,7 +14,6 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CTFMapData implements TeamMapData {
@@ -23,7 +22,7 @@ public class CTFMapData implements TeamMapData {
 
     private final int minTeams;
     private final int maxTeams;
-    private final Set<TeamColor> validTeamColors;
+    private final List<TeamColor> validTeamColors;
 
     private final Map<TeamColor, CTFBaseInfo> teamBaseInfo;
     private final double defensiveKillRadius;
@@ -38,7 +37,7 @@ public class CTFMapData implements TeamMapData {
         maxTeams = ConfigUtil.requireInt(gamemodeConfig, "max_teams");
         validTeamColors = ConfigUtil.requireStringList(gamemodeConfig, "valid_team_colors").stream()
                 .map(s -> TeamColor.valueOf(s.toUpperCase()))
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.toList());
 
 
         // TODO: validate minTeams <= maxTeams
@@ -128,7 +127,7 @@ public class CTFMapData implements TeamMapData {
     }
 
     @Override
-    public Set<TeamColor> validTeamColors () {
+    public List<TeamColor> validTeamColors () {
         return validTeamColors;
     }
 
