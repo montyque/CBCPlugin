@@ -74,7 +74,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer> {
 
     @Override
     public CBCMap getMap() {
-        return mapData.getMap();
+        return mapData.map();
     }
 
     @Override

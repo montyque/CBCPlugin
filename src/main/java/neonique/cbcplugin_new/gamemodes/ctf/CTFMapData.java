@@ -112,7 +112,7 @@ public class CTFMapData implements TeamMapData {
     }
 
     @Override
-    public CBCMap getMap () {
+    public CBCMap map() {
         return map;
     }
 

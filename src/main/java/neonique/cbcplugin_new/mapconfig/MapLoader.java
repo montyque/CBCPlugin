@@ -83,7 +83,7 @@ public class MapLoader {
         for (File mapFile : mapFiles) {
             try {
                 GamemodeMapData mapData = loadGamemodeMapData(gamemode, maps, mapFile);
-                gamemodeMapDataList.put(mapData.getMap().getId(), mapData);
+                gamemodeMapDataList.put(mapData.map().getId(), mapData);
             } catch (InvalidMapConfigException e) {
                 logger.log(Level.WARNING, e.getMessage(), e.getCause());
             }

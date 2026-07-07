@@ -26,7 +26,7 @@ public class AssassinMapData implements GamemodeMapData {
     }
 
     @Override
-    public CBCMap getMap () {
+    public CBCMap map() {
         return map;
     }
 

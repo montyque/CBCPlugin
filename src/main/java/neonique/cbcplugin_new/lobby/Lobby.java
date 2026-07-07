@@ -8,7 +8,6 @@ import neonique.cbcplugin_new.mapconfig.TeamMapData;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.weapons.WeaponType;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
-import neonique.cbcplugin_new.mechanics.*;
 import neonique.cbcplugin_new.lobby.listeners.MenuClickEvent;
 import neonique.cbcplugin_new.lobby.listeners.PlayerDamageListener;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
@@ -37,7 +36,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -422,14 +420,14 @@ public class Lobby {
 
         // Find all maps loaded for this gamemode
         List<GamemodeMapData> mapList = gameManager.getGamemodeMaps(gamemode);
-        mapList.sort(Comparator.comparing(m -> m.getMap().getName()));
+        mapList.sort(Comparator.comparing(m -> m.map().getName()));
         Inventory gui = Bukkit.createInventory(user, 27, Component.text("Select Map - " + gamemode.getGamemodeName())
                 .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
 
         // Put map items in inventory slots
         int mapCount = 0;
         for (GamemodeMapData map : mapList) {
-            ItemStack mapItem = getMapItem(gamemode.getColor(), map.getMap());
+            ItemStack mapItem = getMapItem(gamemode.getColor(), map.map());
             gui.setItem(mapCount, mapItem);
         }
 
@@ -462,7 +460,7 @@ public class Lobby {
         mapSelected = map;
 
         // Send message to say what map has been selected
-        Component message = Component.text().content(gamemodeSelected.getGamemodeName() + " - " + map.getMap().getName())
+        Component message = Component.text().content(gamemodeSelected.getGamemodeName() + " - " + map.map().getName())
                         .color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD)
                         .append(
                                 Component.text().content(" has been selected!").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD,
@@ -476,7 +474,7 @@ public class Lobby {
         // Change image map
         imageMaps.clearImage();
 
-        String imageFileName = gameManager.getImageFile(gamemode, map.getMap().getId());
+        String imageFileName = gameManager.getImageFile(gamemode, map.map().getId());
         if (imageFileName != null) {
             imageMaps.setImage(imageFileName);
         }
@@ -487,7 +485,7 @@ public class Lobby {
     }
 
     public CBCMap getMapSelected () {
-        return mapSelected != null ? mapSelected.getMap() : null;
+        return mapSelected != null ? mapSelected.map() : null;
     }
 
     public void addNewLobbyPlayer(Player player) {
