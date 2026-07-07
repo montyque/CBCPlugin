@@ -4,6 +4,7 @@ import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
+import neonique.cbcplugin_new.gamemodes.crossbowtag.TagMapData;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFMapData;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFSettings;
@@ -118,7 +119,7 @@ public enum CBCGamemode {
             7,
             TextColor.color(179, 255, 66),
             TagGame::new,
-            null,
+            TagMapData::fromConfig,
             null
     ),
 
