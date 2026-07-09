@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagMapData;
+import neonique.cbcplugin_new.gamemodes.crossbowtag.TagSettings;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFMapData;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFSettings;
@@ -120,7 +121,7 @@ public enum CBCGamemode {
             TextColor.color(179, 255, 66),
             TagGame::new,
             TagMapData::fromConfig,
-            null
+            TagSettings::new
     ),
 
     KOTH ("King Of The Hill",

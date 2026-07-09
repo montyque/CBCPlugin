@@ -4,13 +4,14 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.FFAGameContext;
+import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.TagNoMove;
 import neonique.cbcplugin_new.listeners.gamemodes.TagTeleportListener;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.tasks.TagNextRoundTimer;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.tasks.TagRoundTimer;
@@ -35,7 +36,11 @@ import java.util.*;
 
 import static neonique.cbcplugin_new.util.TextUtil.blankComponent;
 
-public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
+public class TagGame extends TeamGame<TagPlayer, TagTeam> {
+
+    // Game information
+    private TagMapData mapData;
+    private TagSettings settings;
 
     // Game variables
     private int roundLength = 150; // Round length in seconds
@@ -43,11 +48,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
     // Game info
     private List<TagTeam> taggerOrder;
-    private int MAX_EVADER_KILL_POINTS = 50;
-    private int MIN_EVADER_KILL_POINTS = 15;
-    private int taggerRespawnTimer = 4;
     private int turnNum = 1; // Current turn amount
-
     private int maxScorePerSecond = 1;
 
     // Round info
@@ -64,18 +65,6 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
     private int currentEvaderKillValue = 0;
     private int survivorPointsAdded = 0; // Current amount of points
 
-    // Points info
-    private int MAX_POINTS_FOR_SURVIVAL = 150; // Surviving entire round gives you this amount of points
-    private int SURVIVAL_BONUS = 10;
-    private int MAX_POINTS_FOR_WIPEOUT = 150; // Killing an entire round gives you this many points
-    private int WIPEOUT_BONUS = 20;
-
-    // Map related variables
-    private Map<String, List<Location>> teamEvaderSpawns;
-    private Map<String, List<Location>> teamTaggerSpawns;
-    private List<List<Location>> randomEvaderSpawns;
-    private List<Location> equalTaggerSpawns;
-
     // Listeners
     private TagNoMove noMoveListener;
     private TagTeleportListener teleportListener;
@@ -85,8 +74,6 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
     private TagRoundTimer roundTimerTask;
 
     private Component footerComponent;
-
-
     // !!! Add radar locations maybe?
 
     public TagGame(GameManager gameManager) {
@@ -96,6 +83,11 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
     @Override
     public CBCGamemode getGamemode () {
         return CBCGamemode.CBCTAG;
+    }
+
+    @Override
+    public CBCMap getMap () {
+        return mapData.map();
     }
 
     @Override
@@ -118,83 +110,63 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
     }
 
     @Override
-    public void setupGame (FFAGameContext ctx) {
+    public void setupGame (TeamGameContext ctx) {
 
         final GameManager gameManager = getGameManager();
         final CombatManager combatManager = getCombatManager();
 
-        // Setup map
-        TagMap map = (TagMap) ctx.getMap();
-        setupMap(map);
+        // Create teams and players
+        List<TeamLike> teamTemplates = ctx.teams();
+        createTeams(teamTemplates);
 
-        // Setup default game variables
-        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
+        // Set up settings and map
+        settings = (TagSettings) ctx.gameSettings();
+        setupMap(ctx);
 
         // Set gamemode information
         createHeaderTitle();
 
-        // Enable weapons
+        // Activate combat manager
         combatManager.activate(this);
+        combatManager.setupMap(getMap());
 
+        // Setup game commands
         setGameCommands(new TagGameCommands(this));
 
-        // Setup gamemode game variables
-        this.roundLength = ctx.getIntVars().getOrDefault("roundLength", 150);
-        this.roundsPerTeam = ctx.getIntVars().getOrDefault("roundsPerTeam", 1);
-        this.taggerRespawnTimer = ctx.getIntVars().getOrDefault("taggerRespawnTimer", 4);
-
-        // Setup point game variables
-        this.MAX_POINTS_FOR_SURVIVAL = ctx.getIntVars().getOrDefault("MAX_POINTS_FOR_SURVIVAL", 150);
-        this.MAX_POINTS_FOR_WIPEOUT = ctx.getIntVars().getOrDefault("MAX_POINTS_FOR_WIPEOUT", 150);
-        this.MAX_EVADER_KILL_POINTS = ctx.getIntVars().getOrDefault("MAX_EVADER_KILL_POINTS", 35);
-        this.MIN_EVADER_KILL_POINTS = ctx.getIntVars().getOrDefault("MIN_EVADER_KILL_POINTS", 10);
-        this.WIPEOUT_BONUS = ctx.getIntVars().getOrDefault("WIPEOUT_BONUS", 25);
-        this.SURVIVAL_BONUS = ctx.getIntVars().getOrDefault("SURVIVAL_BONUS", 10);
-
         // Setup teams/players
-        createTeams(ctx.getTeams());
+        setupTeams();
         teleportSpectators();
-
-        // Set team spawns
-        for (TagTeam team : getTeams()) {
-
-            String teamId = team.id();
-
-            // Set tagger spawns
-            if (map.isTaggerSpawnsEqual()) {
-                team.setTaggerSpawns(equalTaggerSpawns);
-            }
-            else {
-                team.setTaggerSpawns(teamTaggerSpawns.get(teamId));
-            }
-
-            // Set evader spawns if the spawns are not random
-            if (!map.isEvaderSpawnsRandom()) {
-                team.setEvaderSpawns(teamEvaderSpawns.get(teamId));
-            }
-
-            // Get maximum amount of players on one team
-            if (maxScorePerSecond < team.players().size()) {
-                maxScorePerSecond = team.players().size();
-            }
-        }
 
         // Choose the tagger order
         taggerOrder = new ArrayList<>(getTeams());
         Collections.shuffle(taggerOrder);
-
         noMoveListener = new TagNoMove(gameManager, this);
+
+        // Create Bossbar/Sidebar managers
+        createUIManagers();
 
         // Make taggers unable to teleport
         teleportListener = new TagTeleportListener(this);
         CBCPlugin.getPlugin().getServer().getPluginManager().registerEvents(teleportListener, CBCPlugin.getPlugin());
 
-        updatePlacements();
-        // Create Bossbar/Sidebar managers
-        createUIManagers();
-
         // Start first round
         setupRound();
+
+    }
+
+    private void setupMap (TeamGameContext ctx) {
+        mapData = (TagMapData) ctx.mapData();
+        roundLength = settings.roundLength();
+        roundsPerTeam = settings.taggerRoundsPerTeam();
+    }
+
+    private void setupTeams () {
+        for (TagTeam team : getTeams()) {
+            if (maxScorePerSecond < team.players().size()) {
+                maxScorePerSecond = team.players().size();
+            }
+        }
+        updatePlacements();
     }
 
     @Override
@@ -211,6 +183,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
         // Play fireworks
         playVictoryFireworks(team);
+
     }
 
     @Override
@@ -227,25 +200,6 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
     }
 
-    public void setupMap (TagMap map) {
-
-        super.setupMap(map);
-
-        if (!map.isEvaderSpawnsRandom()) {
-            teamEvaderSpawns = map.getTeamEvaderSpawns();
-        }
-        else {
-            randomEvaderSpawns = map.getEvaderSpawns();
-        }
-
-        if (!map.isTaggerSpawnsEqual()) {
-            teamTaggerSpawns = map.getTeamTaggerSpawns();
-        }
-        else {
-            equalTaggerSpawns = map.getTaggerSpawns();
-        }
-    }
-
     public void setupRound() {
 
         // Round variables
@@ -259,7 +213,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         roundSurviveTimer = 0;
         survivorPointsAdded = 0;
 
-        currentEvaderKillValue = MAX_EVADER_KILL_POINTS;
+        currentEvaderKillValue = settings.maxTaggerKillPoints();
 
         // Choose which team is tagger
         taggers = taggerOrder.get(roundNumber - 1);
@@ -269,30 +223,22 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         getCombatManager().enableAllHealPads();
         getCombatManager().setAllPlayersImmune(false);
 
-        // Randomise evader spawns if evader spawns are random
-        if (this.getMap().isEvaderSpawnsRandom()) {
+        // Setup all teams for round
+        Map<TagTeam, List<Location>> taggerSpawns = mapData.taggerSpawnList().getTeamSpawnLocations(getTeams(), getWorld());
+        Map<TagTeam, List<Location>> evaderSpawns = mapData.evaderSpawnList().getTeamSpawnLocations(getTeams(), getWorld());
 
-            // Randomise list of spawns
-            List<Collection<Location>> randomisedSpawns = new ArrayList<>(randomEvaderSpawns);
-            Collections.shuffle(randomisedSpawns);
-
-            // Assign evader spawn to each team
-            int i = 0;
-            for (TagTeam team : getTeams()) {
-                if (team == taggers) continue;
-                int spawnIndex = i % randomisedSpawns.size();
-                team.setEvaderSpawns(randomisedSpawns.get(spawnIndex));
-                i++;
-            }
-
-        }
-
-        // Setup team for round
         for (TagTeam team : getTeams()) {
-            team.setupRound();
+
             team.clearAlliedTeams();
+
             // If this team is not tagging, make it so that they are treated as an ally by the other non-tagging teams
-            if (taggers != team) {
+            if (taggers == team) {
+
+                team.setupRound(taggerSpawns.get(team));
+
+            } else {
+
+                team.setupRound(evaderSpawns.get(team));
 
                 // Add other teams
                 for (TagTeam team2 : getTeams()) {
@@ -302,7 +248,6 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
                 // Make sure tagging team cannot see name tags of runners while blinded
                 team.scoreboardTeam().setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS);
-
             }
         }
 
@@ -317,7 +262,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         noMoveListener.setEvadersMove(false);
         CBCPlugin.getPlugin().getServer().getPluginManager().registerEvents(noMoveListener, CBCPlugin.getPlugin());
 
-        if (this.getMap().canEvadersMoveAtRoundStart()) {
+        if (!mapData.evadersFrozenOnSetup()) {
             noMoveListener.setEvadersMove(true);
         }
 
@@ -333,6 +278,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
         // Update bossbar
         updateBossbarManager();
         updateServerSidebar();
+
     }
 
     public void releaseEvaders () {
@@ -393,23 +339,22 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
             // Cancel timer
             cancelTask(taggerReleaseTimerTask);
             taggerReleaseTimerTask = null;
-        }
-        else if (taggerReleaseTimer <= 3) {
-            // Play title to count down release of taggers
+
+        } else if (taggerReleaseTimer <= 3) {
+
+            // Show tagger release title
+
             Component titleComponent = blankComponent();
             Component subtitleComponent = Component.text("Taggers released in ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
                         .append(Component.text(taggerReleaseTimer).decorate(TextDecoration.BOLD).color(taggers.textColor()));
-            // Show title
-            // Iterate through each player in the world
-            for (Player player : getWorld().getPlayers()) {
-                // Play title and play sound
-                player.showTitle(Title.title(
-                        titleComponent,
-                        subtitleComponent,
-                        TextUtil.titleTimes(0, 3000, 500)
-                ));
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 100, 1);
-            }
+
+            showTitle(Title.title(titleComponent, subtitleComponent,
+                    TextUtil.titleTimes(0, 3000, 500)
+            ));
+
+            playSound(net.kyori.adventure.sound.Sound.sound(Sound.BLOCK_NOTE_BLOCK_PLING,
+                    net.kyori.adventure.sound.Sound.Source.MASTER, 100, 1));
+
         }
 
         // Update bossbar
@@ -450,11 +395,12 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
         // Recalculate kill worth
         float roundPercentageLeft = ((float) roundTimer / roundLength);
-        currentEvaderKillValue = Math.round(((float) MAX_EVADER_KILL_POINTS - (float) MIN_EVADER_KILL_POINTS) * roundPercentageLeft) + MIN_EVADER_KILL_POINTS;
+        currentEvaderKillValue = Math.round(((float) settings.maxTaggerKillPoints() - (float) settings.minTaggerKillPoints()) * roundPercentageLeft)
+                + settings.minTaggerKillPoints();
 
         // Calculate amount of points players score
         int oldSurvivorPointsAdded = survivorPointsAdded;
-        int newSurvivorPointsAdded = Math.round((1 - roundPercentageLeft) * (float) MAX_POINTS_FOR_SURVIVAL);
+        int newSurvivorPointsAdded = Math.round((1 - roundPercentageLeft) * (float) settings.maxEvaderSurvivalPoints());
 
         int newPoints = newSurvivorPointsAdded - oldSurvivorPointsAdded;
         for (TagPlayer player : getEvaders()) {
@@ -588,7 +534,7 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
 
             // Give team points for ending round
             float roundPercentageLeft = ((float) roundTimer / roundLength);
-            int bonusPoints = Math.round((float) MAX_POINTS_FOR_WIPEOUT * roundPercentageLeft) + WIPEOUT_BONUS;
+            int bonusPoints = Math.round((float) settings.maxTaggerWipeoutPoints() * roundPercentageLeft) + settings.taggerWipeoutBonus();
 
             // If the round was not ended by a timer, show how long it took for the taggers to kill everyone
             subtitle = Component.text("Taggers finished in ").color(NamedTextColor.WHITE)
@@ -627,13 +573,13 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
                         .append(Component.text(evadersKilled + "/" + totalEvaders).color(taggers.textColor()))
                         .append(Component.text(" evaders! ").color(NamedTextColor.WHITE))
                         .append(Component.text("All surviving evaders earn ").color(NamedTextColor.WHITE))
-                        .append(Component.text(SURVIVAL_BONUS + " bonus points.").color(NamedTextColor.GREEN))
+                        .append(Component.text(settings.evaderSurvivalBonus() + " bonus points.").color(NamedTextColor.GREEN))
                         .append(Component.newline());
 
             // Give all alive players bonus
             for (TagPlayer evader : getEvaders()) {
                 if (evader.isAlive()) {
-                    evader.giveSurvivalBonus(SURVIVAL_BONUS);
+                    evader.giveSurvivalBonus(settings.evaderSurvivalBonus());
                     updatePlacements();
                 }
             }
@@ -851,6 +797,6 @@ public class TagGame extends TeamGame<TagPlayer, TagMap, TagTeam> {
     }
 
     public int getTaggerRespawnTimer () {
-        return taggerRespawnTimer;
+        return settings.taggerRespawnTimer();
     }
 }

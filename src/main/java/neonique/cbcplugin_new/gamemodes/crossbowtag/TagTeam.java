@@ -30,18 +30,9 @@ public class TagTeam extends CBCTeam<TagPlayer> {
         this.game = game;
     }
 
-    public void setupRound () {
+    public void setupRound (List<Location> spawns) {
 
-        // Teleport players
-        List<Location> teamSpawnList;
-
-        // Change the team's spawns depending on if they are the tagger or not
-        if (isTeamTaggers()) {
-            teamSpawnList = new ArrayList<>(taggerSpawns);
-        } else {
-            teamSpawnList = new ArrayList<>(evaderSpawns);
-        }
-
+        List<Location> teamSpawnList = new ArrayList<>(spawns);
         Collections.shuffle(teamSpawnList);
 
         int playerinc = 0; // Increments every time we teleport a player
@@ -52,9 +43,9 @@ public class TagTeam extends CBCTeam<TagPlayer> {
             if (!player.isOnline()) continue;
 
             player.playerSetupRound();
-            // Spawns players in different spawnpoints - reason playerinc is used
             player.teleportPlayerToSpawn(teamSpawnList.get(playerinc % teamSpawnList.size()), game.getMap().getMapCentre());
             playerinc++;
+
         }
     }
 

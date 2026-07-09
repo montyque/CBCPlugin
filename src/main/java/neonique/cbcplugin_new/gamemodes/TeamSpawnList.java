@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.gamemodes;
 
 import neonique.cbcplugin_new.core.TeamColor;
+import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.ctf.CTFMapData;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
@@ -17,13 +18,22 @@ public interface TeamSpawnList {
 
     Map<TeamColor, List<Vector>> getTeamSpawns (List<TeamColor> colors);
 
-    default Map<TeamColor, List<Location>> getTeamSpawnLocations (List<TeamColor> colors, World world) {
+    default Map<TeamColor, List<Location>> getTeamColorSpawnLocations (List<TeamColor> colors, World world) {
         return getTeamSpawns(colors).entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         e -> e.getValue().stream()
                                 .map(v -> VectorUtil.vecToLocation(v, world))
                                 .toList()
+                ));
+    }
+
+    default <T extends TeamLike> Map<T, List<Location>> getTeamSpawnLocations (List<T> teams, World world) {
+        var colorSpawnLocations = getTeamColorSpawnLocations(teams.stream().map(TeamLike::teamColor).toList(), world);
+        return teams.stream()
+                .collect(Collectors.toMap(
+                        t -> t,
+                        t -> colorSpawnLocations.get(t)
                 ));
     }
 
