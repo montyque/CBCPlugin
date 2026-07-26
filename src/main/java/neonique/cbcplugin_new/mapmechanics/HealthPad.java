@@ -1,10 +1,7 @@
 package neonique.cbcplugin_new.mapmechanics;
 
-import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
+import neonique.cbcplugin_new.managers.PlayerSession;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
@@ -16,7 +13,6 @@ import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -38,12 +34,6 @@ public class HealthPad {
         this.healing = healing;
     }
 
-    public HealthPad (GameManager gameManager, CombatManager combatManager, Vector coordinates) {
-        this.location = new Location(gameManager.getWorld(), coordinates.getX(), coordinates.getY(), coordinates.getZ());
-        this.resetTimer = 400;
-        this.healing = 6;
-    }
-
     public boolean isOnline () {
         return healPadTimer == 0;
     }
@@ -53,11 +43,11 @@ public class HealthPad {
                 3, 1d, 1d, 1d, 1);
     }
 
-    public void playerCheck (PlayerRegistry registry) {
+    public void playerCheck (PlayerSession<?> registry) {
          getNearestOnPad(registry).ifPresent(this::healPadPressed);
     }
 
-    private Optional<CBCPlayer> getNearestOnPad (PlayerRegistry registry) {
+    private Optional<? extends CBCPlayer> getNearestOnPad (PlayerSession<? extends CBCPlayer> registry) {
         return location.getNearbyEntitiesByType(Player.class, 3).stream()
                 .filter(this::isOnPad)
                 .sorted(Comparator.comparingDouble(p -> p.getLocation().distanceSquared(location)))
@@ -175,7 +165,7 @@ public class HealthPad {
     public void healPadPressed (CBCPlayer player) {
         if (!player.isOnline()) return;
         setOffline();
-        player.addHealing(6);
+        player.addHealing(healing);
         player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 100, 2);
     }
 
