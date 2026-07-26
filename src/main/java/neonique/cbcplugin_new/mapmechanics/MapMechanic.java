@@ -1,12 +1,11 @@
 package neonique.cbcplugin_new.mapmechanics;
 
-import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
-import org.bukkit.configuration.ConfigurationSection;
+import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.managers.PlayerSession;
 
 public interface MapMechanic {
 
-    void activate (PlayerRegistry registry, CombatManager combatManager);
+    void activate (PlayerSession<? extends CBCPlayer> players);
 
     void deactivate ();
 

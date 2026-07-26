@@ -1,9 +1,12 @@
 package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.managers.PlayerSession;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
+import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,23 +15,22 @@ import java.util.stream.Collectors;
 
 public class MapMechanicsManager {
 
-    private final PlayerRegistry registry;
-    private final CombatManager combatManager;
-    private final MapMechanicLoader mechanicsLoader;
+    private final PlayerSession<? extends CBCPlayer> players;
 
     private final List<MapMechanic> activeMechanics = new ArrayList<>();
 
-    public MapMechanicsManager (PlayerRegistry registry, CombatManager combatManager, MapMechanicLoader mechanicsLoader) {
-        this.registry = registry;
-        this.combatManager = combatManager;
-        this.mechanicsLoader = mechanicsLoader;
+    public MapMechanicsManager (PlayerSession<? extends CBCPlayer> players) {
+        this.players = players;
     }
 
     public void setupMapMechanics (CBCMap map) {
-        List<MapMechanic> mechanics = map.getMechanicConfigs().stream()
-                .map(c -> mechanicsLoader.fromConfig(c, registry, combatManager, combatManager.getWorld()))
+
+        World world = map.getWorld();
+        List<MapMechanic> mechanics = map.getMechanicSpecs().stream()
+                .map(m -> m.createMechanic(world))
                 .toList();
         mechanics.forEach(this::register);
+
     }
 
     /*public void setupMapMechanics (CBCMap map) {
@@ -59,7 +61,7 @@ public class MapMechanicsManager {
 
     public void register (MapMechanic mechanic) {
         activeMechanics.add(mechanic);
-        mechanic.activate(registry, combatManager);
+        mechanic.activate(players);
     }
 
     public void unregisterAll () {
