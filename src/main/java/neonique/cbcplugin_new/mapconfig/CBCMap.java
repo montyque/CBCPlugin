@@ -16,7 +16,7 @@ import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousMap;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownMap;
 import neonique.cbcplugin_new.gamemodes.tdm.TDMMap;
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownMap;
-import neonique.cbcplugin_new.mapmechanics.MapMechanicsManager;
+import neonique.cbcplugin_new.mapmechanics.MapMechanicSpec;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.managers.DeathMessageGenerator;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -64,7 +64,7 @@ public class CBCMap {
     // Gameplay information
     private final List<Vector> defaultSpawnCoords;
     private final Map<TeamColor, List<Vector>> defaultTeamSpawns;
-    private final List<ConfigurationSection> mechanicConfigs;
+    private final List<MapMechanicSpec> mechanicSpecs;
 
     // Map options
     private final MapOptions options;
@@ -126,15 +126,12 @@ public class CBCMap {
 
         // Parse map mechanics
         List<?> mechanicsSection = ConfigUtil.getList(config, "map_mechanics").orElse(List.of());
-        mechanicConfigs = mechanicsSection.stream()
+        mechanicSpecs = mechanicsSection.stream()
                 .map(o -> {
-                    if (!(o instanceof ConfigurationSection)) throw new ConfigUtil.InvalidConfigValueException(config,
+                    if (!(o instanceof ConfigurationSection c)) throw new ConfigUtil.InvalidConfigValueException(config,
                             "map_mechanics", "All values in map_mechanics must be of type ConfigurationSection");
-                    return (ConfigurationSection) o;})
+                    return mechanicLoader.fromConfig(c);})
                 .toList();
-
-        // Verify that all map mechanics parse correctly
-        mechanicLoader.verifyMapMechanicConfigs(mechanicConfigs);
 
         // Parse death message overrides
         deathMessageOverrides = ConfigUtil.getConfigurationSection(config, "death_message_overrides")
@@ -205,7 +202,8 @@ public class CBCMap {
         // Get boundaries of map for chunk loading
         lowerBound = VectorUtil.strToBlockVec(ConfigUtil.requireString(ymlConfig, "MapBoundaryLow"));
         upperBound = VectorUtil.strToBlockVec(ConfigUtil.requireString(ymlConfig, "MapBoundaryHigh"));
-        mechanicConfigs = new ArrayList<>();
+        List<ConfigurationSection> mechanicConfigs = new ArrayList<>();
+        mechanicSpecs = new ArrayList<>();
 
         // Get FFA spawn point coordinates
         List<String> spawnpointStringList = ConfigUtil.requireStringList(ymlConfig, "DefaultFFASpawns");
@@ -317,6 +315,7 @@ public class CBCMap {
                 materialAtEnd = Material.valueOf(ymlConfig.getString("MaterialAtEnd"));
             }
         }
+
     }
 
     public World getWorld() {
@@ -507,8 +506,8 @@ public class CBCMap {
         return deathMessageOverrides;
     }
 
-    public List<ConfigurationSection> getMechanicConfigs () {
-        return mechanicConfigs;
+    public List<MapMechanicSpec> getMechanicSpecs () {
+        return Collections.unmodifiableList(mechanicSpecs);
     }
 
 }
