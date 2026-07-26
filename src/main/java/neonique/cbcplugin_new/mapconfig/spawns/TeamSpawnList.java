@@ -1,8 +1,7 @@
-package neonique.cbcplugin_new.gamemodes;
+package neonique.cbcplugin_new.mapconfig.spawns;
 
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.core.TeamLike;
-import neonique.cbcplugin_new.gamemodes.ctf.CTFMapData;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;

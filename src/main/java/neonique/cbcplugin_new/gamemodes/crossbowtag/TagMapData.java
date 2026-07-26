@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.core.TeamColor;
-import neonique.cbcplugin_new.gamemodes.TeamSpawnList;
+import neonique.cbcplugin_new.mapconfig.spawns.TeamSpawnList;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapconfig.TeamMapData;
 import neonique.cbcplugin_new.util.ConfigUtil;

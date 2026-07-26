@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.mapconfig;
+package neonique.cbcplugin_new.mapconfig.spawns;
 
 public interface MapStartSpawn extends MapSpawn {
 

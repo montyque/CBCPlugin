@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.mapconfig;
+package neonique.cbcplugin_new.mapconfig.spawns;
 
 import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
