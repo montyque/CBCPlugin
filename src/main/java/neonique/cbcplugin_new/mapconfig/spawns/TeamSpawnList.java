@@ -4,7 +4,6 @@ import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
@@ -15,24 +14,24 @@ import java.util.stream.IntStream;
 
 public interface TeamSpawnList {
 
-    Map<TeamColor, List<Vector>> getTeamSpawns (List<TeamColor> colors);
+    Map<TeamColor, List<StartSpawnConfig>> getTeamSpawns (List<TeamColor> colors);
 
-    default Map<TeamColor, List<Location>> getTeamColorSpawnLocations (List<TeamColor> colors, World world) {
+    default Map<TeamColor, List<MapStartSpawn>> getTeamColorSpawnLocations (List<TeamColor> colors, World world) {
         return getTeamSpawns(colors).entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         e -> e.getValue().stream()
-                                .map(v -> VectorUtil.vecToLocation(v, world))
+                                .map(c -> c.getSpawn(world))
                                 .toList()
                 ));
     }
 
-    default <T extends TeamLike> Map<T, List<Location>> getTeamSpawnLocations (List<T> teams, World world) {
+    default <T extends TeamLike> Map<T, List<MapStartSpawn>> getTeamSpawnLocations (List<T> teams, World world) {
         var colorSpawnLocations = getTeamColorSpawnLocations(teams.stream().map(TeamLike::teamColor).toList(), world);
         return teams.stream()
                 .collect(Collectors.toMap(
                         t -> t,
-                        t -> colorSpawnLocations.get(t)
+                        t -> colorSpawnLocations.get(t.teamColor())
                 ));
     }
 
@@ -57,13 +56,11 @@ public interface TeamSpawnList {
     }
 
     static TeamSpawnList fromConfig (ConfigurationSection config,
-                                     String typeKey,
-                                     String spawnKey,
                                      List<TeamColor> requiredColors,
                                      int maxTeams) {
 
-        TeamSpawnListType type = ConfigUtil.requireEnum(config, typeKey, TeamSpawnListType.class);
-        return type.fromConfig(config, spawnKey, requiredColors, maxTeams);
+        TeamSpawnListType type = ConfigUtil.requireEnum(config, "assignment_type", TeamSpawnListType.class);
+        return type.fromConfig(config, requiredColors, maxTeams);
 
     }
 
@@ -72,35 +69,31 @@ public interface TeamSpawnList {
         SINGLE () {
             @Override
             public TeamSpawnList fromConfig (ConfigurationSection config,
-                                             String typeKey,
                                              List<TeamColor> requiredColors,
                                              int maxTeams) {
-                return SingleSpawnList.fromConfig(config, typeKey);
+                return SingleSpawnList.fromConfig(config);
             }
         },
 
         ASSIGNED () {
             @Override
             public TeamSpawnList fromConfig (ConfigurationSection config,
-                                             String typeKey,
                                              List<TeamColor> requiredColors,
                                              int maxTeams) {
-                return AssignedSpawnList.fromConfig(config, typeKey, requiredColors);
+                return AssignedSpawnList.fromConfig(config, requiredColors);
             }
         },
 
         RANDOM () {
             @Override
             public TeamSpawnList fromConfig (ConfigurationSection config,
-                                             String typeKey,
                                              List<TeamColor> requiredColors,
                                              int maxTeams) {
-                return RandomSpawnList.fromConfig(config, typeKey, maxTeams);
+                return RandomSpawnList.fromConfig(config, maxTeams);
             }
         };
 
         public abstract TeamSpawnList fromConfig (ConfigurationSection config,
-                                                  String typeKey,
                                                   List<TeamColor> requiredColors,
                                                   int maxTeams);
 
@@ -111,30 +104,34 @@ public interface TeamSpawnList {
 
 class AssignedSpawnList implements TeamSpawnList {
 
-    private final Map<TeamColor, List<Vector>> teamSpawns;
+    private final Map<TeamColor, List<StartSpawnConfig>> teamSpawns;
 
-    private AssignedSpawnList (Map<TeamColor, List<Vector>> teamSpawns) {
+    private AssignedSpawnList (Map<TeamColor, List<StartSpawnConfig>> teamSpawns) {
         this.teamSpawns = teamSpawns;
     }
 
     public static TeamSpawnList fromConfig (ConfigurationSection config,
-                                                String spawnKey,
                                                 List<TeamColor> requiredColors) {
 
-        ConfigurationSection spawnConfig = ConfigUtil.requireConfigurationSection(config, spawnKey);
+        StartSpawnType spawnType = ConfigUtil.requireEnum(config, "spawn_type", StartSpawnType.class);
+        ConfigurationSection spawnConfig = ConfigUtil.requireConfigurationSection(config, "locations");
 
         // Must ensure all colors in requiredColors are included in config section
         // Must ensure no invalid colors in requiredColors are included in config section
         Map<String, Object> teamConfigs = spawnConfig.getValues(true);
-        Map<TeamColor, List<Vector>> spawns = new HashMap<>();
+        Map<TeamColor, List<StartSpawnConfig>> spawns = new HashMap<>();
 
         for (var teamConfig : teamConfigs.entrySet()) {
             TeamColor teamColor = TeamColor.valueOf(teamConfig.getKey());
             if (!requiredColors.contains(teamColor)) {
                 throw new IllegalArgumentException(teamColor.color() + " is not an allowed color");
             }
-            List<Vector> spawnVectors = TeamSpawnList.parseLocations(teamConfig.getValue());
-            spawns.put(teamColor, spawnVectors);
+
+            List<StartSpawnConfig> spawnConfigs = TeamSpawnList.parseLocations(teamConfig.getValue()).stream()
+                            .map(t -> spawnType.fromConfig(config, t))
+                            .toList();
+            spawns.put(teamColor, spawnConfigs);
+
         }
 
         // TODO: highlight missing color values
@@ -147,7 +144,7 @@ class AssignedSpawnList implements TeamSpawnList {
     }
 
     @Override
-    public Map<TeamColor, List<Vector>> getTeamSpawns(List<TeamColor> colors) {
+    public Map<TeamColor, List<StartSpawnConfig>> getTeamSpawns(List<TeamColor> colors) {
         return teamSpawns;
     }
 
@@ -156,20 +153,25 @@ class AssignedSpawnList implements TeamSpawnList {
 
 class SingleSpawnList implements TeamSpawnList {
 
-    private final List<Vector> teamSpawns;
+    private final List<StartSpawnConfig> teamSpawns;
 
-    private SingleSpawnList (List<Vector> teamSpawns) {
+    private SingleSpawnList (List<StartSpawnConfig> teamSpawns) {
         this.teamSpawns = teamSpawns;
     }
 
-    public static TeamSpawnList fromConfig (ConfigurationSection config,
-                                            String spawnKey) {
-        List<Vector> spawnList = ConfigUtil.requireVectorList(config, spawnKey);
+    public static TeamSpawnList fromConfig (ConfigurationSection config) {
+
+        StartSpawnType spawnType = ConfigUtil.requireEnum(config, "spawn_type", StartSpawnType.class);
+        List<StartSpawnConfig> spawnList = ConfigUtil.requireVectorList(config, "locations").stream()
+                .map(v -> spawnType.fromConfig(config, v))
+                .toList();
+
         return new SingleSpawnList(spawnList);
+
     }
 
     @Override
-    public Map<TeamColor, List<Vector>> getTeamSpawns(List<TeamColor> colors) {
+    public Map<TeamColor, List<StartSpawnConfig>> getTeamSpawns(List<TeamColor> colors) {
         return colors.stream().collect(
                 Collectors.toMap(
                         c -> c,
@@ -185,20 +187,23 @@ class RandomSpawnList implements TeamSpawnList {
     private final static Random GLOBAL_RANDOM = new Random();
 
     private final Random random;
-    private final List<List<Vector>> teamSpawns;
+    private final List<List<StartSpawnConfig>> teamSpawns;
 
-    private RandomSpawnList (Random random, List<List<Vector>> teamSpawns) {
+    private RandomSpawnList (Random random, List<List<StartSpawnConfig>> teamSpawns) {
         this.random = random;
         this.teamSpawns = teamSpawns;
     }
 
     public static TeamSpawnList fromConfig (ConfigurationSection config,
-                                            String spawnKey,
                                             int maxTeams) {
 
-        List<?> configList = ConfigUtil.requireList(config, spawnKey);
-        List<List<Vector>> spawnList = configList.stream()
-                .map(TeamSpawnList::parseLocations)
+        StartSpawnType spawnType = ConfigUtil.requireEnum(config, "spawn_type", StartSpawnType.class);
+
+        List<?> configList = ConfigUtil.requireList(config, "locations");
+        List<List<StartSpawnConfig>> spawnList = configList.stream()
+                .map(l -> TeamSpawnList.parseLocations(l).stream()
+                        .map(v -> spawnType.fromConfig(config, v))
+                        .toList())
                 .toList();
 
         if (spawnList.size() < maxTeams) {
@@ -210,9 +215,9 @@ class RandomSpawnList implements TeamSpawnList {
     }
 
     @Override
-    public Map<TeamColor, List<Vector>> getTeamSpawns(List<TeamColor> colors) {
+    public Map<TeamColor, List<StartSpawnConfig>> getTeamSpawns(List<TeamColor> colors) {
 
-        List<List<Vector>> shuffledSpawns = new ArrayList<>(teamSpawns);
+        List<List<StartSpawnConfig>> shuffledSpawns = new ArrayList<>(teamSpawns);
         List<TeamColor> shuffledColors = new ArrayList<>(colors);
         Collections.shuffle(shuffledSpawns, random);
         Collections.shuffle(shuffledColors, random);
