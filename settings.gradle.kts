@@ -3,3 +3,7 @@
  */
 
 rootProject.name = "cbcplugin_new"
+
+include("core")
+include("plugin")
+include("gamemodes")
