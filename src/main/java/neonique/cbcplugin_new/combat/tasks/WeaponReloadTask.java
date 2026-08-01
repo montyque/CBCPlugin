@@ -4,13 +4,16 @@ import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Collection;
+import java.util.function.Supplier;
+
 public class WeaponReloadTask extends BukkitRunnable {
 
-    private final PlayerRegistry playerRegistry;
+    private final Supplier<Collection<? extends CBCPlayer>> players;
     private boolean updateItems = false;
 
-    public WeaponReloadTask(PlayerRegistry playerRegistry) {
-        this.playerRegistry = playerRegistry;
+    public WeaponReloadTask(Supplier<Collection<? extends CBCPlayer>> players) {
+        this.players = players;
     }
 
     @Override
@@ -18,7 +21,7 @@ public class WeaponReloadTask extends BukkitRunnable {
 
         updateItems = !updateItems;
 
-        for (CBCPlayer player : playerRegistry.getPlayers()) {
+        for (CBCPlayer player : players.get()) {
             if (player.isAlive()) {
                 player.getInventory().updateWeaponReloads();
                 player.updateActionBarDisplay(true);

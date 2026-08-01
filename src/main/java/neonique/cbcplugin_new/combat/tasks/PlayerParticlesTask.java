@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.combat.tasks;
 
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Particle;
@@ -9,38 +10,49 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Collection;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class PlayerParticlesTask extends BukkitRunnable {
 
-    private final GameManager gameManager;
+    private final Supplier<Collection<? extends CBCPlayer>> players;
 
-    public PlayerParticlesTask (GameManager gameManager) {
-        this.gameManager = gameManager;
+    public PlayerParticlesTask (Supplier<Collection<? extends CBCPlayer>> players) {
+        this.players = players;
     }
 
     @Override
     public void run() {
 
-        World world = gameManager.getWorld();
-        Set<CBCPlayer> playerSet = gameManager.getAlivePlayers();
-
-        for (CBCPlayer player : playerSet) {
+        for (CBCPlayer player : players.get()) {
 
             if (!player.isOnline()) return;
             Player playerEntity = player.getPlayer();
 
             // If player is immune
             if (player.isImmune()) {
-                world.spawnParticle(Particle.TOTEM_OF_UNDYING, player.getPlayer().getLocation().add(0, 2, 0),
-                        1, 0.5, 0.5, 0.5, 0);
+
+                Particle.TOTEM_OF_UNDYING.builder()
+                        .location(player.getPlayer().getLocation().add(0, 2, 0))
+                        .offset(0.5, 0.5, 0.5)
+                        .count(1)
+                        .extra(0)
+                        .receivers(128, true);
+
             }
 
             // If player is healing
             PotionEffect currentPotionEffect = playerEntity.getPotionEffect(PotionEffectType.REGENERATION);
             if (currentPotionEffect != null) {
-                world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, player.getPlayer().getLocation().add(0, 0, 0),
-                        5, 0.5, 0.5, 0.5, 0);
+
+                Particle.TRIAL_SPAWNER_DETECTION_OMINOUS.builder()
+                        .location(player.getPlayer().getLocation())
+                        .offset(0.5, 0.5, 0.5)
+                        .count(5)
+                        .extra(0)
+                        .receivers(128, true);
+
             }
 
         }
