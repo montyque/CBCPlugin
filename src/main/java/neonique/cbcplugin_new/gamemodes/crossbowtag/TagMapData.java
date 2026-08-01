@@ -27,13 +27,13 @@ public record TagMapData (CBCMap map,
                 .map(s -> TeamColor.valueOf(s.toUpperCase()))
                 .collect(Collectors.toList());
 
-        ConfigurationSection evaderSpawnSection = ConfigUtil.requireConfigurationSection(gamemodeConfig, "evader_spawns");
-        TeamSpawnList evaderSpawnList = TeamSpawnList.fromConfig(evaderSpawnSection,
+        ConfigurationSection taggerSpawnSection = ConfigUtil.requireConfigurationSection(gamemodeConfig, "tagger_spawns");
+        TeamSpawnList taggerSpawnList = TeamSpawnList.fromConfig(taggerSpawnSection,
                 validTeamColors,
                 maxTeams);
 
-        ConfigurationSection taggerSpawnSection = ConfigUtil.requireConfigurationSection(gamemodeConfig, "evader_spawns");
-        TeamSpawnList taggerSpawnList = TeamSpawnList.fromConfig(taggerSpawnSection,
+        ConfigurationSection evaderSpawnSection = ConfigUtil.requireConfigurationSection(gamemodeConfig, "evader_spawns");
+        TeamSpawnList evaderSpawnList = TeamSpawnList.fromConfig(evaderSpawnSection,
                 validTeamColors,
                 maxTeams);
 
@@ -41,7 +41,7 @@ public record TagMapData (CBCMap map,
                 .orElse(true);
 
         return new TagMapData(map, minTeams, maxTeams, validTeamColors,
-                evaderSpawnList, taggerSpawnList, evadersFrozenOnSetup);
+                taggerSpawnList, evaderSpawnList, evadersFrozenOnSetup);
 
     }
 
