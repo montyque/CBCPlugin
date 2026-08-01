@@ -2,8 +2,8 @@ package neonique.cbcplugin_new.gamemodes.ctf;
 
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
-import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import neonique.cbcplugin_new.mapconfig.TeamMapData;
+import neonique.cbcplugin_new.mapconfig.TeamRequirements;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
@@ -14,71 +14,67 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class CTFMapData implements TeamMapData {
-
-    private final CBCMap map;
-
-    private final int minTeams;
-    private final int maxTeams;
-    private final List<TeamColor> validTeamColors;
-
-    private final Map<TeamColor, CTFBaseInfo> teamBaseInfo;
-    private final double defensiveKillRadius;
-    private final List<Integer> respawnTimers;
-    private final DeathBorder.DeathBorderOptions deathBorderInfo;
-
-    public CTFMapData (CBCMap map, Configuration gamemodeConfig) {
-
-        this.map = map;
-
-        minTeams = ConfigUtil.requireInt(gamemodeConfig, "min_teams");
-        maxTeams = ConfigUtil.requireInt(gamemodeConfig, "max_teams");
-        validTeamColors = ConfigUtil.requireStringList(gamemodeConfig, "valid_team_colors").stream()
-                .map(s -> TeamColor.valueOf(s.toUpperCase()))
-                .collect(Collectors.toList());
+public record CTFMapData (CBCMap map,
+                          TeamRequirements teamRequirements,
+                          Map<TeamColor, CTFBaseInfo> teamBaseInfo,
+                          double defensiveKillRadius,
+                          List<Integer> respawnTimers,
+                          DeathBorder.DeathBorderOptions deathBorderInfo) implements TeamMapData {
 
 
-        // TODO: validate minTeams <= maxTeams
-        ConfigurationSection baseConfigSection = ConfigUtil.requireConfigurationSection(gamemodeConfig, "bases");
-        Map<String, ConfigurationSection> baseConfigs = ConfigUtil.getAllConfigSections(baseConfigSection);
-        teamBaseInfo = new HashMap<>();
-        for (var baseConfig : baseConfigs.entrySet()) {
+    public static CTFMapData fromConfig (CBCMap map, Configuration gamemodeConfig) {
 
-            // TODO: throw error if color not present
-            TeamColor baseTeamColor = TeamColor.valueOf(baseConfig.getKey());
-            if (!validTeamColors.contains(baseTeamColor)) {
-                // TODO: throw error as color is not valid
-                continue;
-            }
-            CTFBaseInfo base = parseBase(baseConfig.getValue());
-            teamBaseInfo.put(baseTeamColor, base);
-
-        }
-
-        if (validTeamColors.size() != teamBaseInfo.size()) {
-            // TODO: throw error as not all valid colors are included
-        }
+        TeamRequirements req = TeamRequirements.fromConfig(gamemodeConfig);
+        Map<TeamColor, CTFBaseInfo> baseInfo = parseTeamBases(gamemodeConfig, req);
 
         // Parse defensive kill radius
-        defensiveKillRadius = ConfigUtil.requireDouble(gamemodeConfig, "defensive_kill_radius");
+        double defensiveKillRadius = ConfigUtil.requireDouble(gamemodeConfig, "defensive_kill_radius");
 
         // Parse respawn timers - default value if not provided is 4
-        respawnTimers = ConfigUtil.getList(gamemodeConfig, "respawn_timer")
+        List<Integer> respawnTimers = ConfigUtil.getList(gamemodeConfig, "respawn_timer")
                 .map(l -> l.stream()
                         .map(o -> (int) o)
                         .toList())
                 .orElse(List.of(4));
 
         // Parse sudden death border
-        deathBorderInfo = ConfigUtil.getConfigurationSection(gamemodeConfig, "sudden_death_border")
+        DeathBorder.DeathBorderOptions deathBorderInfo = ConfigUtil.getConfigurationSection(gamemodeConfig, "sudden_death_border")
                 .map(DeathBorder.DeathBorderOptions::fromConfig)
                 .orElse(null);
 
+        return new CTFMapData(map, req, baseInfo, defensiveKillRadius, respawnTimers, deathBorderInfo);
+
+
     }
 
-    public CTFBaseInfo parseBase (ConfigurationSection config) {
+    private static Map<TeamColor, CTFBaseInfo> parseTeamBases (ConfigurationSection config, TeamRequirements req) {
+
+        Map<TeamColor, CTFBaseInfo> teamBases = new HashMap<>();
+        ConfigurationSection baseConfigSection = ConfigUtil.requireConfigurationSection(config, "bases");
+        Map<String, ConfigurationSection> baseConfigs = ConfigUtil.getAllConfigSections(baseConfigSection);
+        for (var baseConfig : baseConfigs.entrySet()) {
+
+            // TODO: throw error if color not present
+            TeamColor baseTeamColor = TeamColor.valueOf(baseConfig.getKey());
+            if (!req.validTeamColors().contains(baseTeamColor)) {
+                // TODO: throw error as color is not valid
+                continue;
+            }
+            CTFBaseInfo base = parseBase(baseConfig.getValue());
+            teamBases.put(baseTeamColor, base);
+
+        }
+
+        if (req.validTeamColors().size() != teamBases.size()) {
+            // TODO: throw error as not all valid colors are included
+        }
+
+        return Map.copyOf(teamBases);
+
+    }
+
+    private static CTFBaseInfo parseBase (ConfigurationSection config) {
         return new CTFBaseInfo(
                 ConfigUtil.requireVector(config, "flag").add(VectorUtil.BLOCK_CENTER_OFFSET),
                 ConfigUtil.requireVectorList(config, "spawns").stream()
@@ -97,38 +93,6 @@ public class CTFMapData implements TeamMapData {
                         .map(v -> VectorUtil.vecToLocation(v, map.getWorld()))
                         .toList()
         );
-    }
-
-    public double defensiveKillRadius () {
-        return defensiveKillRadius;
-    }
-
-    public List<Integer> respawnTimers () {
-        return respawnTimers;
-    }
-
-    public DeathBorder.DeathBorderOptions deathBorderInfo () {
-        return deathBorderInfo;
-    }
-
-    @Override
-    public CBCMap map() {
-        return map;
-    }
-
-    @Override
-    public int minTeams () {
-        return minTeams;
-    }
-
-    @Override
-    public int maxTeams () {
-        return maxTeams;
-    }
-
-    @Override
-    public List<TeamColor> validTeamColors () {
-        return validTeamColors;
     }
 
 }
