@@ -6,8 +6,18 @@ import java.util.List;
 
 public interface TeamMapData extends GamemodeMapData {
 
-    int minTeams ();
-    int maxTeams ();
-    List<TeamColor> validTeamColors ();
+    TeamRequirements teamRequirements ();
+
+    default int minTeams () {
+        return teamRequirements().minTeams();
+    }
+
+    default int maxTeams () {
+        return teamRequirements().minTeams();
+    }
+
+    default List<TeamColor> validTeamColors () {
+        return teamRequirements().validTeamColors();
+    }
 
 }
