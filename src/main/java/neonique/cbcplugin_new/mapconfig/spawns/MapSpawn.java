@@ -4,6 +4,9 @@ import org.bukkit.Location;
 
 public interface MapSpawn {
 
+    /**
+     * @return The spawn's location.
+     */
     Location location ();
 
 }
