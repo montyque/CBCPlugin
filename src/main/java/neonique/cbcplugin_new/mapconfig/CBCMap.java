@@ -510,4 +510,7 @@ public class CBCMap {
         return Collections.unmodifiableList(mechanicSpecs);
     }
 
+    public List<Vector> getDefaultSpawns() {
+        return defaultSpawnCoords;
+    }
 }
