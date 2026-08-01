@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.combat.listeners;
 
 import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
@@ -11,12 +12,10 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class PlayerDeathListener implements Listener {
 
-    private final GameManager gameManager;
-    private final CombatManager combatManager;
+    private final PlayerStore players;
 
-    public PlayerDeathListener(GameManager gameManager, CombatManager combatManager) {
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
+    public PlayerDeathListener(PlayerStore players) {
+        this.players = players;
     }
 
     @EventHandler
@@ -26,12 +25,12 @@ public class PlayerDeathListener implements Listener {
         Player playerEntity = e.getEntity();
 
         // Check if the player is in game
-        if (!gameManager.hasPlayer(playerEntity)) {
+        if (!players.hasPlayer(playerEntity)) {
             return;
         }
 
         // Get player
-        CBCPlayer player = gameManager.getPlayer(playerEntity);
+        CBCPlayer player = players.getPlayer(playerEntity);
 
         // If player is not alive, cancel event
         if (!player.isAlive()) {

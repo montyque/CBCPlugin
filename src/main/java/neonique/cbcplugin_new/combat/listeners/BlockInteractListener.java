@@ -1,30 +1,30 @@
 package neonique.cbcplugin_new.combat.listeners;
 
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.function.Predicate;
+
 public class BlockInteractListener implements Listener {
 
-    private final GameManager gameManager;
-    private final CombatManager combatManager;
+    private final Predicate<Entity> playerChecker;
 
-    public BlockInteractListener(GameManager gameManager, CombatManager combatManager) {
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
+    public BlockInteractListener (Predicate<Entity> playerChecker) {
+        this.playerChecker = playerChecker;
     }
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
 
-        if (combatManager.isCanTrapdoorsOpen()) return;
-        Player player = e.getPlayer();
-        if (!gameManager.hasPlayer(player)) return;
+        if (!playerChecker.test(e.getPlayer())) return;
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (e.getClickedBlock() != null) {
                 Material type = e.getClickedBlock().getType();

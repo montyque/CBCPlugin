@@ -1,9 +1,11 @@
 package neonique.cbcplugin_new.combat.listeners;
 
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.combat.ProjectileManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.core.PlayerSession;
 import neonique.cbcplugin_new.weapons.projectiles.*;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 import org.bukkit.entity.*;
@@ -11,22 +13,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
+import java.util.function.Function;
+
 public class ArrowHitPlayerListener implements Listener {
 
-    private final GameManager gameManager;
-    private final CombatManager combatManager;
+    private final ProjectileManager projManager;
+    private final Function<Entity, CBCPlayer> playerGetter;
 
-    public ArrowHitPlayerListener (GameManager gameManager, CombatManager combatManager) {
-
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
-
+    public ArrowHitPlayerListener (ProjectileManager projManager, Function<Entity, CBCPlayer> playerGetter) {
+        this.projManager = projManager;
+        this.playerGetter = playerGetter;
     }
 
     @EventHandler
     public void onArrowHit(ProjectileHitEvent e) {
-
-        ProjectileManager projectileManager = combatManager.getProjectileManager();
 
         // Check if it was an arrow that hit
         Entity projectileEntity = e.getEntity();
@@ -34,7 +34,7 @@ public class ArrowHitPlayerListener implements Listener {
             return;
         }
 
-        Projectile projectile = projectileManager.getProjectile(projectileEntity.getUniqueId());
+        Projectile projectile = projManager.getProjectile(projectileEntity.getUniqueId());
         if (projectile == null) {
             return;
         }
@@ -52,22 +52,7 @@ public class ArrowHitPlayerListener implements Listener {
             return;
         }
 
-        Entity hitEntity = e.getHitEntity();
-
-        // Make sure hit entity is a player
-        if (hitEntity.getType() != EntityType.PLAYER) return;
-
-        Player hitPlayer = (Player) hitEntity;
-        // Check if the player damaged is in the game
-        if (!(gameManager.hasPlayer(hitPlayer))) {
-            return;
-        }
-
-        CBCPlayer player = gameManager.getPlayer(hitPlayer);
-        // Check if the player damaged is alive
-        if (!player.isAlive()) {
-            return;
-        }
+        CBCPlayer player = playerGetter.apply(e.getHitEntity());
 
         // Check if player is immune
         if (player.isImmune()) {
@@ -81,6 +66,7 @@ public class ArrowHitPlayerListener implements Listener {
             return;
         }
 
-        hitPlayer.setNoDamageTicks(0);
+        player.getPlayer().setNoDamageTicks(0);
+
     }
 }

@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.combat.listeners;
 
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.combat.ProjectileManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
@@ -18,15 +19,17 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
 
 public class CrossbowFiredListener implements Listener {
 
-    private final PlayerRegistry playerRegistry;
+    private final Function<Entity, CBCPlayer> playerGetter;
     private final ProjectileManager projectileManager;
 
-    public CrossbowFiredListener(PlayerRegistry playerRegistry, ProjectileManager projectileManager) {
-        this.playerRegistry = playerRegistry;
+    public CrossbowFiredListener (ProjectileManager projectileManager, PlayerStore players) {
         this.projectileManager = projectileManager;
+        this.playerGetter = players::getPlayer;
     }
 
     @EventHandler
@@ -44,7 +47,7 @@ public class CrossbowFiredListener implements Listener {
 
     public void crossbowFired (Entity entityFired, ItemStack itemFired, Arrow arrowFired) {
 
-        CBCPlayer playerSource = playerRegistry.getPlayerByUUID(entityFired.getUniqueId());
+        CBCPlayer playerSource = playerGetter.apply(entityFired);
         if (playerSource == null) return;
 
         Optional<Integer> itemSlotId = getItemSlotId(itemFired);

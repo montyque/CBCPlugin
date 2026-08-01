@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.combat.listeners;
 
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Material;
@@ -21,13 +22,13 @@ import java.util.Set;
 
 public class PlayerItemListener implements Listener {
 
-    private final PlayerRegistry playerRegistry;
+    private final PlayerStore players;
 
     private final Set<Material> DISALLOWED_ITEM_DROPS = new HashSet<>();
 
-    public PlayerItemListener (PlayerRegistry playerRegistry) {
+    public PlayerItemListener (PlayerStore players) {
 
-        this.playerRegistry = playerRegistry;
+        this.players = players;
 
         // All items below are disallowed to be dropped
         DISALLOWED_ITEM_DROPS.add(Material.CROSSBOW);
@@ -43,7 +44,7 @@ public class PlayerItemListener implements Listener {
     public void changeHand(PlayerItemHeldEvent e) {
 
         Player playerEntity = e.getPlayer();
-        CBCPlayer player = playerRegistry.getPlayer(playerEntity);
+        CBCPlayer player = players.getPlayer(playerEntity);
         if (player == null) return;
         player.updateActionBarDisplay(true);
 
@@ -53,7 +54,7 @@ public class PlayerItemListener implements Listener {
     public void dropItem(PlayerDropItemEvent e) {
 
         Player playerEntity = e.getPlayer();
-        CBCPlayer player = playerRegistry.getPlayer(playerEntity);
+        CBCPlayer player = players.getPlayer(playerEntity);
         if (player == null) return;
 
         if (DISALLOWED_ITEM_DROPS.contains(e.getItemDrop().getItemStack().getType())) {
@@ -70,7 +71,7 @@ public class PlayerItemListener implements Listener {
             return;
         }
 
-        CBCPlayer player = playerRegistry.getPlayer(playerEntity);
+        CBCPlayer player = players.getPlayer(playerEntity);
         if (player == null) return;
 
         if (DISALLOWED_ITEM_DROPS.contains(e.getItem().getItemStack().getType())) {
@@ -82,7 +83,7 @@ public class PlayerItemListener implements Listener {
     @EventHandler
     public void swapItem(PlayerSwapHandItemsEvent e) {
 
-        CBCPlayer player = playerRegistry.getPlayer(e.getPlayer());
+        CBCPlayer player = players.getPlayer(e.getPlayer());
         if (player == null) return;
 
         if (DISALLOWED_ITEM_DROPS.contains(e.getMainHandItem().getType())) {

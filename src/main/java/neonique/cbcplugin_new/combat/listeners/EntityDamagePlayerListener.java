@@ -4,6 +4,7 @@ package neonique.cbcplugin_new.combat.listeners;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.combat.ProjectileManager;
@@ -22,20 +23,18 @@ import org.bukkit.util.Vector;
 
 public class EntityDamagePlayerListener implements Listener {
 
-    private final GameManager gameManager;
-    private final CombatManager combatManager;
+    private final ProjectileManager projectileManager;
+    private final PlayerStore players;
 
     private final static double CREEPER_DAMAGE_MULTIPLIER = 0.22;
 
-    public EntityDamagePlayerListener(GameManager gameManager, CombatManager combatManager) {
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
+    public EntityDamagePlayerListener (ProjectileManager projectileManager, PlayerStore players) {
+        this.projectileManager = projectileManager;
+        this.players = players;
     }
 
     @EventHandler
-    public void onEntityDamagePlayer(EntityDamageByEntityEvent e) {
-
-        ProjectileManager projectileManager = combatManager.getProjectileManager();
+    public void onEntityDamagePlayer (EntityDamageByEntityEvent e) {
 
         // Check if player died due to creeper
         Entity entity = e.getEntity();
@@ -47,11 +46,11 @@ public class EntityDamagePlayerListener implements Listener {
         }
 
         // Check if the player damaged is in the game
-        if (!(gameManager.hasPlayer(playerEntity))) {
+        if (!(players.hasPlayer(playerEntity))) {
             return;
         }
 
-        CBCPlayer player = gameManager.getPlayer(playerEntity);
+        CBCPlayer player = players.getPlayer(playerEntity);
         // Check if the player damaged is alive
         if (!player.isAlive()) {
             return;
@@ -192,7 +191,7 @@ public class EntityDamagePlayerListener implements Listener {
             }
 
             // Find player who damaged other player
-            CBCPlayer sourcePlayer = gameManager.getPlayer((Player) damageSource);
+            CBCPlayer sourcePlayer = players.getPlayer((Player) damageSource);
 
             // See if players are allies
             if (sourcePlayer.isAlly(player)) {
