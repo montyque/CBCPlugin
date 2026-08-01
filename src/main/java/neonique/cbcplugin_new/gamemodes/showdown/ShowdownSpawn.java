@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
-import neonique.cbcplugin_new.gamemodes._base.BoxSpawn;
+import neonique.cbcplugin_new.mapconfig.spawns.BoxSpawn;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 
