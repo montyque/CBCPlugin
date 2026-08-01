@@ -1,6 +1,5 @@
-package neonique.cbcplugin_new.managers;
+package neonique.cbcplugin_new.core;
 
-import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -9,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public interface PlayerSession<P extends CBCPlayer> {
+public interface PlayerSession<P extends CBCPlayer> extends PlayerStore {
 
     P createPlayer (Player playerEntity);
 
