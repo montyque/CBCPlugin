@@ -7,6 +7,7 @@ import neonique.cbcplugin_new.combat.tasks.RespawnTimerTask;
 import neonique.cbcplugin_new.combat.tasks.WeaponReloadTask;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.PlayerStore;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapmechanics.MapMechanicsManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -31,8 +32,8 @@ public class CombatSession {
 
     private final Plugin plugin;
     private final World world;
-    private final CombatDisplay combatDisplay;
     private final PlayerStore players;
+    private CombatDisplay combatDisplay;
 
     private final MapMechanicsManager mapMechanicsManager;
     private final ProjectileManager projectileManager;
@@ -42,21 +43,28 @@ public class CombatSession {
 
     private int timer = 0;
 
-    public CombatSession (Plugin plugin, World world, CombatDisplay combatDisplay, PlayerStore players) {
+    public CombatSession (Plugin plugin, World world, PlayerStore players) {
 
         this.plugin = plugin;
         this.world = world;
         this.players = players;
-        this.combatDisplay = combatDisplay;
 
         this.mapMechanicsManager = new MapMechanicsManager(players);
         this.projectileManager = new ProjectileManager();
 
     }
 
+    public void setCombatDisplay (CombatDisplay combatDisplay) {
+        this.combatDisplay = combatDisplay;
+    }
+
     public void activate () {
         setupListeners();
         setupTasks();
+    }
+
+    public void setupMap (CBCMap map) {
+        mapMechanicsManager.setupMapMechanics(map);
     }
 
     public void deactivate () {
@@ -102,7 +110,9 @@ public class CombatSession {
 
         }
 
-        combatDisplay.onPlayerDeath(victim, killer, cause, direct);
+        if (combatDisplay != null) {
+            combatDisplay.onPlayerDeath(victim, killer, cause, direct);
+        }
 
     }
 
@@ -172,10 +182,11 @@ public class CombatSession {
 
     }
 
-
-
     public void incrementTimer () {
         timer++;
     }
 
+    public MapMechanicsManager mapMechanicsManager() {
+        return mapMechanicsManager;
+    }
 }
