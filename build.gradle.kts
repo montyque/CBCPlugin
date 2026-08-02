@@ -35,7 +35,7 @@ repositories {
 dependencies {
 
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
-    compileOnly(libs.com.comphenix.protocol.protocollib)
+    compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
 
     // JUnit 5
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
