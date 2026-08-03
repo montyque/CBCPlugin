@@ -16,6 +16,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -36,6 +37,9 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
     private BaseGameCommands gameCommands;
 
     private final Map<UUID, P> playerList = new HashMap<>();
+    private final Set<UUID> spectatorUUIDs = new HashSet<>();
+    private final Set<UUID> audiences = new HashSet<>();
+
     private boolean gameOver = false;
     private int gameLength = 0;
 
@@ -79,6 +83,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     public void addPlayer (P player) {
         playerList.put(player.getUUID(), player);
+        audiences.remove(player.getUUID());
     }
 
     public Optional<P> getPlayerByUUID (UUID uuid) {
@@ -87,6 +92,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     public void removePlayer (P player) {
         playerList.remove(player.getUUID());
+        audiences.remove(player.getUUID());
     }
 
     public P getTypedPlayer (CBCPlayer player) {
@@ -205,12 +211,34 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     }
 
+    public void teleportSpectator (Player player) {
+
+        // Player is spectating, put player into spectator mode
+        player.setGameMode(GameMode.SPECTATOR);
+        player.teleport(getMap().getMapCentre());
+        player.sendMessage(
+                Component.text("You are now spectating this " +
+                        "Crossbow Champions - " + getGamemode().getGamemodeName() + " game.").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD)
+        );
+
+    }
+
     public boolean isGlobalKillsEnabled() {
         return globalKillsEnabled;
     }
 
     public TextColor getGamemodeColor() {
         return getGamemode().getColor();
+    }
+
+    public void addSpectator (Player player) {
+        teleportSpectator(player);
+        audiences.add(player.getUniqueId());
+    }
+
+    public void removeSpectator (Player player) {
+        teleportSpectator(player);
+        audiences.remove(player.getUniqueId());
     }
 
     public void teleportSpectators () {
@@ -232,7 +260,9 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     @Override
     public @NotNull Iterable<? extends Audience> audiences () {
-        return List.of(world);
+        return audiences.stream()
+                .map(Bukkit::getPlayer)
+                .toList();
     }
 
     public Iterable<Player> audiencePlayers () {
