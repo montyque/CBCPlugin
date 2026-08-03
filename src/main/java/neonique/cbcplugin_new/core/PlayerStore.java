@@ -21,8 +21,14 @@ public interface PlayerStore {
         return getPlayerByUUID(player.getUniqueId()).orElse(null);
     }
 
+    default boolean hasPlayer (CBCPlayer player) { return getPlayers().contains(player); }
+
     default boolean hasPlayer (Player player) {
         return getPlayerByUUID(player.getUniqueId()).isPresent();
+    }
+
+    default boolean hasPlayer (Entity entity) {
+        return getPlayerByUUID(entity.getUniqueId()).isPresent();
     }
 
 }

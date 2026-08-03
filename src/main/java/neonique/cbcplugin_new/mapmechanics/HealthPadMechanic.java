@@ -2,7 +2,8 @@ package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerSession;
+import neonique.cbcplugin_new.core.PlayerSession;
+import neonique.cbcplugin_new.core.PlayerStore;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collection;
@@ -11,7 +12,7 @@ public class HealthPadMechanic implements MapMechanic {
 
     private final Collection<HealthPad> healthPads;
 
-    private PlayerSession<? extends CBCPlayer> players;
+    private PlayerStore players;
     private BukkitRunnable updateTask;
 
     public HealthPadMechanic (Collection<HealthPad> healthPads) {
@@ -19,7 +20,7 @@ public class HealthPadMechanic implements MapMechanic {
     }
 
     @Override
-    public void activate (PlayerSession<? extends CBCPlayer> players) {
+    public void activate (PlayerStore players) {
         this.players = players;
         enableAll();
 

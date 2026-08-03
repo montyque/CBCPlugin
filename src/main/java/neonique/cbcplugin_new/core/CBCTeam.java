@@ -114,7 +114,9 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike, Forwardi
         player.setTeam(null);
     }
 
-    public void removeTeam () {}
+    public void removeTeam () {
+        scoreboardTeam.unregister();
+    }
 
     public int getColorNumber() {
         return teamColor.num();

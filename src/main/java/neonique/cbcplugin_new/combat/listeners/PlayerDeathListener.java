@@ -1,10 +1,12 @@
 package neonique.cbcplugin_new.combat.listeners;
 
 import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.combat.events.CBCPlayerDeathEvent;
 import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,7 +41,9 @@ public class PlayerDeathListener implements Listener {
         }
 
         // Kill player because they are still alive
-        combatManager.playerDeath(player, DeathCause.NATURAL);
+        Bukkit.getPluginManager().callEvent(new CBCPlayerDeathEvent(
+                player, player.getLastPlayerHitBy(), DeathCause.NATURAL, true
+        ));
 
         // Cancel the player's death event
         e.setCancelled(true);

@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.combat;
 
+import neonique.cbcplugin_new.combat.events.CBCPlayerDeathEvent;
 import neonique.cbcplugin_new.combat.listeners.*;
 import neonique.cbcplugin_new.combat.tasks.PlayerParticlesTask;
 import neonique.cbcplugin_new.combat.tasks.ProjectileUpdateTask;
@@ -19,6 +20,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -27,8 +29,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class CombatSession {
+public class CombatSession implements Listener {
 
     private final Plugin plugin;
     private final World world;
@@ -40,6 +43,9 @@ public class CombatSession {
 
     private List<Listener> listeners = new ArrayList<>();
     private List<BukkitRunnable> tasks = new ArrayList<>();
+
+    private Consumer<DeathInfo> deathListener = (d) -> {};
+    private Consumer<CBCPlayer> respawnListener = (p) -> {};
 
     private int timer = 0;
 
@@ -56,6 +62,10 @@ public class CombatSession {
 
     public void setCombatDisplay (CombatDisplay combatDisplay) {
         this.combatDisplay = combatDisplay;
+    }
+
+    public void setDeathListener (Consumer<DeathInfo> deathListener) {
+        this.deathListener = deathListener;
     }
 
     public void activate () {
@@ -81,6 +91,16 @@ public class CombatSession {
 
     }
 
+    @EventHandler
+    public void playerDeath (CBCPlayerDeathEvent e) {
+
+        if (players.hasPlayer(e.victim())) return;
+        if (e.killer() != null && players.hasPlayer(e.killer())) return;
+
+        playerDeath(e.victim(), e.killer(), e.cause(), e.direct());
+
+    }
+
     public void playerDeath (CBCPlayer playerKilled, DeathCause cause) {
         playerDeath(playerKilled, playerKilled.getLastPlayerHitBy(), cause, false);
     }
@@ -88,56 +108,27 @@ public class CombatSession {
     // Runs when a player takes fatal damage
     public void playerDeath (CBCPlayer victim, CBCPlayer killer, DeathCause cause, boolean direct) {
 
+        DeathInfo deathInfo = new DeathInfo(victim, killer, cause, direct, timer);
+
         victim.playerDie();
         victim.playerAfterDeath(killer);
 
         if (killer != null) {
-            killer.playerKill();
+            killer.playerKill(deathInfo);
             killer.playerAfterKill(victim);
         }
 
-        // Check if player that was killed is online
-        if (victim.isOnline()) {
-
-            // Get player entity of the player who was killed
-            Player victimEntity = victim.getPlayer();
-            victimEntity.setGameMode(GameMode.SPECTATOR);
-            Location location = victimEntity.getLocation();
-
-            // Show death title
-            victimEntity.showTitle(victim.getDeathTitle());
-            victim.updateActionBarDisplay(true);
-
-        }
-
+        deathListener.accept(deathInfo);
         if (combatDisplay != null) {
             combatDisplay.onPlayerDeath(victim, killer, cause, direct);
         }
 
     }
 
-    // Respawn player
     public void playerRespawn (CBCPlayer player) {
-
         if (!player.isOnline()) return;
-
-        Player playerEntity = player.getPlayer();
-
         player.playerSpawn();
-
-        // Set gamemode of player to adventure and reset their stats
-        playerEntity.setGameMode(GameMode.ADVENTURE);
-        player.healToFull();
-        player.setAlive(true); // Set player's state to alive
-
-        // Show respawned title
-        Component respawnedComponent = Component.text("Respawned!").color(NamedTextColor.GREEN)
-                .decorate(TextDecoration.BOLD);
-        Title respawnedTitle = Title.title(respawnedComponent, Component.empty(),Title.Times.times(
-                Duration.ofMillis(0), Duration.ofMillis(250), Duration.ofMillis(250)));
-        playerEntity.showTitle(respawnedTitle);
-        playerEntity.playSound(playerEntity.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 5, 2);
-
+        respawnListener.accept(player);
     }
 
     private void setupListeners () {
@@ -162,7 +153,7 @@ public class CombatSession {
         weaponReloadTask.runTaskTimer(plugin, 0, 1);
 
         // TODO: add respawning method
-        BukkitRunnable respawnTimerTask = new RespawnTimerTask(players::getPlayers, null);
+        BukkitRunnable respawnTimerTask = new RespawnTimerTask(players::getPlayers, this::playerRespawn);
         respawnTimerTask.runTaskTimer(plugin, 0, 1);
 
         BukkitRunnable projectileUpdateTask = new ProjectileUpdateTask(players::getPlayers, projectileManager);
@@ -177,6 +168,14 @@ public class CombatSession {
         BukkitRunnable playerParticlesTask = new PlayerParticlesTask(players::getPlayers);
         playerParticlesTask.runTaskTimer(plugin, 0, 1);
 
+        BukkitRunnable combatTimerTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                incrementTimer();
+            }
+        };
+        combatTimerTask.runTaskTimer(plugin, 0, 1);
+
         tasks = List.of(weaponReloadTask, respawnTimerTask, projectileUpdateTask,
                 weaponManagerTimerTask, playerParticlesTask);
 
@@ -189,4 +188,5 @@ public class CombatSession {
     public MapMechanicsManager mapMechanicsManager() {
         return mapMechanicsManager;
     }
+
 }

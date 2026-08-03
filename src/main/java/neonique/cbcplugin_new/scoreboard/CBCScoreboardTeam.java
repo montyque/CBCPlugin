@@ -197,5 +197,9 @@ public class CBCScoreboardTeam {
         manager.syncTeam(this);
     }
 
+    public void unregister () {
+        manager.unregisterTeam(this);
+    }
+
 
 }

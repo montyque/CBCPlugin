@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.managers;
 
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.core.PlayerSession;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;

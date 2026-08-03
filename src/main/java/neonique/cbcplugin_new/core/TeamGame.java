@@ -5,11 +5,14 @@ import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 
 import java.time.Duration;
 import java.util.*;
@@ -22,8 +25,8 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
 
     private T winningTeam = null;
 
-    public TeamGame(GameManager gameManager) {
-        super(gameManager);
+    public TeamGame (Plugin plugin, CBCScoreboardManager scoreboardManager, World world) {
+        super(plugin, scoreboardManager, world);
     }
 
     /**
@@ -56,13 +59,6 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
         gamemodeTeam.removePlayer(gamemodePlayer);
     }
 
-    @Override
-    public void setupDefaultGameVars (Map<String, Boolean> boolVars, Map<String, Integer> intVars, Map<String, String> stringVars) {
-        super.setupDefaultGameVars(boolVars, intVars, stringVars);
-        restoreTeamsAfterGame = boolVars.getOrDefault("restoreTeamsAfterGame", true);
-    }
-
-
     public void createTeams (List<? extends TeamLike> originalTeams) {
 
         int teamNum = 1;
@@ -76,7 +72,7 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
 
             // Create team and register on scoreboard manager
             T team = createGamemodeTeam(originalTeam, teamNum);
-            team.registerTeam(getGameManager().getCbcScoreboardManager());
+            team.registerTeam(scoreboardManager());
 
             for (PlayerLike onlinePlayer : teamOnlinePlayers) {
                 P player = createPlayer(onlinePlayer.getPlayer());
@@ -93,31 +89,23 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
 
     @Override
     public void resetGame () {
-
         super.resetGame();
-
-        // Remove all teams
-        for (T team : teams.values()) {
-            getGameManager().getCbcScoreboardManager().unregisterTeam(team.scoreboardTeam());
-            team.removeTeam();
-        }
-
+        teams.values().forEach(CBCTeam::removeTeam);
     }
 
     public void gameWon (T team) {
 
-        final GameManager gameManager = getGameManager();
         winningTeam = team;
 
         // Display title of game win
         Component titleToDisplay = Component.text(team.name().toUpperCase() + " WINS!")
                 .decorate(TextDecoration.BOLD).color(team.textColor());
 
-        gameManager.sendGlobalTitle(Title.title(titleToDisplay, Component.space(),
+        showTitle(Title.title(titleToDisplay, Component.space(),
                 Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(3000), Duration.ofMillis(500))));
 
         // Send message of game win
-        gameManager.sendGlobalMessage(
+        sendMessage(
                 Component.newline()
                         .append(Component.text("GAME WIN > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
                         .append(Component.text(team.name()).decorate(TextDecoration.BOLD).color(team.textColor()))
@@ -125,12 +113,9 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
                         .append(Component.newline())
         );
 
-        // Play sound to all players
-        gameManager.playGlobalSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 100, 1);
-
         // Set all alive players to immune
-        getCombatManager().setAllPlayersImmune(true);
-        getCombatManager().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(v -> v.setKillOnVoid(false));
+        combatSession().setAllPlayersImmune(true);
+        combatSession().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(v -> v.setKillOnVoid(false));
 
         // Play fireworks
         playVictoryFireworks(team);

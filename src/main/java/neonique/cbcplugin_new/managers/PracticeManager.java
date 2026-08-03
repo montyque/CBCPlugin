@@ -4,6 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.core.PlayerLike;
+import neonique.cbcplugin_new.core.PlayerSession;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.listeners.practice.PracticePlayerTeleport;

@@ -4,6 +4,7 @@ package neonique.cbcplugin_new.combat.listeners;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.combat.events.CBCPlayerDeathEvent;
 import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
@@ -12,6 +13,7 @@ import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.weapons.CreeperCannon;
 import neonique.cbcplugin_new.weapons.projectiles.*;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -105,15 +107,13 @@ public class EntityDamagePlayerListener implements Listener {
             // Check if this explosion kills the player
             if (e.getFinalDamage() >= playerEntity.getHealth()) {
                 if (player.isAlly(sourcePlayer)) {
-                    // If the killing blow is from an ally, check if player has been hit in last 6 seconds
-                    if (player.getLastPlayerHitBy() == null) {
-                        combatManager.playerDeath(player, null, DeathCause.CREEPER, false);
-                    } else {
-                        combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.CREEPER, false);
-                    }
+                    Bukkit.getPluginManager().callEvent(new CBCPlayerDeathEvent(
+                            player, player.getLastPlayerHitBy(), DeathCause.CREEPER, false
+                    ));
                 } else {
-                    // The killing blow was from an enemy
-                    combatManager.playerDeath(player, sourcePlayer, DeathCause.CREEPER, true);
+                    Bukkit.getPluginManager().callEvent(new CBCPlayerDeathEvent(
+                            player, sourcePlayer, DeathCause.CREEPER, false
+                    ));
                 }
             }
 
@@ -166,16 +166,18 @@ public class EntityDamagePlayerListener implements Listener {
             if (playerProjectile instanceof XbowArrow) {
                 // Run player death function
                 player.addPlayerDamaged(sourcePlayer);
-                combatManager.playerDeath(player, sourcePlayer, DeathCause.XBOW, true);
+                Bukkit.getPluginManager().callEvent(new CBCPlayerDeathEvent(
+                        player, sourcePlayer, DeathCause.XBOW, true
+                ));
             }  else if (playerProjectile instanceof FlameArrow) {
                 player.addPlayerDamaged(sourcePlayer);
 
                 e.setDamage(0);
 
-                CBCPlugin.getPlugin().getLogger().info("Flame arrow did damage of " + e.getDamage());
-                CBCPlugin.getPlugin().getLogger().info("Flame arrow did final damage of " + e.getFinalDamage());
                 if (2 >= playerEntity.getHealth()) {
-                    combatManager.playerDeath(player, sourcePlayer, DeathCause.FLAMEZONE, true);
+                    Bukkit.getPluginManager().callEvent(new CBCPlayerDeathEvent(
+                            player, sourcePlayer, DeathCause.FLAMEZONE, true
+                    ));
                 } else {
                     player.getPlayer().setHealth(player.getPlayer().getHealth() - 2);
                 }
@@ -184,7 +186,7 @@ public class EntityDamagePlayerListener implements Listener {
         } else if (damageSource instanceof Player) {
 
             // Check if damage is in game
-            if (!gameManager.hasPlayer((Player) damageSource)) {
+            if (!players.hasPlayer(damageSource)) {
                 // Cancel damage
                 e.setCancelled(true);
                 return;
@@ -202,7 +204,9 @@ public class EntityDamagePlayerListener implements Listener {
             player.setLastPlayerHitBy(sourcePlayer);
             // Check if the hit kills the player
             if (e.getFinalDamage() > playerEntity.getHealth()) {
-                combatManager.playerDeath(player, sourcePlayer, DeathCause.MELEE, true);
+                Bukkit.getPluginManager().callEvent(new CBCPlayerDeathEvent(
+                        player, sourcePlayer, DeathCause.MELEE, true
+                ));
             }
 
         } else if (damageSource instanceof Firework) {

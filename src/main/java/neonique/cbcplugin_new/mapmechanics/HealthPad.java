@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerSession;
+import neonique.cbcplugin_new.core.PlayerSession;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;

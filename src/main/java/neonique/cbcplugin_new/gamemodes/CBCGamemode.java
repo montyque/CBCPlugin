@@ -40,7 +40,7 @@ public enum CBCGamemode {
             1,
             TextColor.color(86, 197, 209),
             CTFGame::new,
-            CTFMapData::new,
+            CTFMapData::fromConfig,
             CTFSettings::new
     ),
 
@@ -52,8 +52,9 @@ public enum CBCGamemode {
             ShowdownGame::new,
             null,
             null
-    ),
+    );
 
+    /*
     TDM ("Team Deathmatch",
             3,
             true,
@@ -132,7 +133,7 @@ public enum CBCGamemode {
             KOTHGame::new,
             null,
             null
-    );
+    );*/
 
 
 

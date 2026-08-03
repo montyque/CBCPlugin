@@ -1,21 +1,14 @@
 package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.combat.CombatSession;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.GameContext;
-import neonique.cbcplugin_new.gamemodes._base.GameSidebarManager;
-import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
-import neonique.cbcplugin_new.cbcevents.CBCEventManager;
-import neonique.cbcplugin_new.managers.PlayerSession;
-import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
-import neonique.cbcplugin_new.managers.GameBossBarManager;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
-import neonique.cbcplugin_new.tasks.gamemodetasks.UpdateBossbarsTask;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.tasks.gamemodetasks.VictoryFireworkTask;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
@@ -26,60 +19,62 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.kyori.adventure.text.Component.newline;
-
 public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, ForwardingAudience {
 
-    private Component headerTitle = Component.text("");
-
-    private final GameManager gameManager;
-    private final CombatManager combatManager;
+    private final Plugin plugin;
+    private final CBCScoreboardManager scoreboardManager;
     private final World world;
+    private final CombatSession combatSession;
 
     private BaseGameCommands gameCommands;
 
     private final Map<UUID, P> playerList = new HashMap<>();
     private boolean gameOver = false;
-    private boolean nightVisionDisabled = false;
     private int gameLength = 0;
 
     // If global kills is enabled
     private boolean globalKillsEnabled = true;
 
-    // Sidebar manager
-    private GameSidebarManager baseSidebarManager = null;
-
-    // Bossbar manager
-    private GameBossBarManager baseBossBarManager = null;
-
-    public abstract GameSidebarManager createSidebarManager ();
-
-    public abstract GameBossBarManager createBossbarManager ();
-
-    public abstract PostGameStats getPostGameStats ();
+    public Game (Plugin plugin, CBCScoreboardManager scoreboardManager, World world) {
+        this.plugin = plugin;
+        this.scoreboardManager = scoreboardManager;
+        this.world = world;
+        this.combatSession = new CombatSession(plugin, world, this);
+    }
 
     public abstract CBCGamemode getGamemode ();
 
     public abstract CBCMap getMap();
 
-    public Game (GameManager gameManager) {
-        this.gameManager = gameManager;
-        this.combatManager = gameManager.getCombatManager();
-        this.world = gameManager.getWorld();
-    }
-
     public abstract void setupGame (GameContext context);
 
-    public P getTypedPlayer (CBCPlayer player) {
-        if (player == null) return null;
-        return playerList.get(player.getUUID());
+    /**
+     * Cleans up the game when the game ends.
+     * This should clean up all dependencies a gamemode uses, such as listeners, tasks, or teams.
+     */
+    public abstract void gameCleanup();
+
+    public Plugin plugin () {
+        return plugin;
+    }
+
+    public World world () {
+        return world;
+    }
+
+    public CBCScoreboardManager scoreboardManager () {
+        return scoreboardManager;
+    }
+
+    public CombatSession combatSession () {
+        return combatSession;
     }
 
     public void addPlayer (P player) {
@@ -94,51 +89,22 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         playerList.remove(player.getUUID());
     }
 
-    public void createUIManagers () {
-
-        baseSidebarManager = createSidebarManager();
-        baseSidebarManager.setupSidebar(world.getPlayers());
-        baseSidebarManager.updateServerBoard();
-
-        baseBossBarManager = createBossbarManager();
-        gameManager.showGlobalBossbarManager(baseBossBarManager);
-        new UpdateBossbarsTask(this).runTaskTimer(CBCPlugin.getPlugin(), 0, 5);
-
+    public P getTypedPlayer (CBCPlayer player) {
+        if (player == null) return null;
+        return playerList.get(player.getUUID());
     }
 
     public void resetGame () {
-
+        combatSession.deactivate();
         setGameOver(true);
-
-        // Remove sidebar and bossbar
-        baseSidebarManager.removeSidebar();
-        gameManager.hideGlobalBossbarManager(baseBossBarManager);
-
-        // Reset all players
-        for (CBCPlayer player : playerList.values()) {
-            player.resetPlayer();
-            player.setRespawnTicks(0);
-            player.setAlive(false);
-        }
-
-        // Clear game manager player list
-        gameManager.resetPlayerList();
-
-        // Disable all combat functions
-        getCombatManager().disableWeapons();
-
+        gameCleanup();
     }
 
     public void createHeaderTitle () {
 
         String firstPart = "Crossbow Champions: ";
 
-        if (gameManager.isEventGame()) {
-            CBCEventManager eventManager = gameManager.getEventManager();
-            firstPart = eventManager.getEventName() + ": " + eventManager.getGameName() + " - ";
-        }
-
-        headerTitle = smallText("          " + firstPart).color(NamedTextColor.YELLOW)
+        /*headerTitle = smallText("          " + firstPart).color(NamedTextColor.YELLOW)
             .append(
                     smallText(getGamemode().getGamemodeName().toUpperCase() + "          ").color(NamedTextColor.AQUA)
             ).append(
@@ -147,33 +113,12 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
                     smallText(getMap().getName() + " - ").color(NamedTextColor.GRAY)
             ).append(
                     smallText(gameLengthToText()).color(NamedTextColor.GRAY)
-            );
-
-        gameManager.setPlayerListHeader(headerTitle);
+            );*/
 
     }
 
     public Component smallText(String target) {
         return ResourcePackManager.setTextFont(target, ResourcePackFont.SMALL_5X5);
-    }
-
-    public void setupDefaultGameVars (Map<String, Boolean> boolVars, Map<String, Integer> intVars, Map<String, String> stringVars) {
-
-        if (boolVars.getOrDefault("beaconHeads", false)) {
-            combatManager.setBeaconHeadsEnabled(true);
-        }
-
-        if (boolVars.getOrDefault("doDayCycle", false)) {
-            combatManager.setDoDayCycleEnabled(true);
-        }
-
-        if (boolVars.getOrDefault("nightVisionDisabled", false)) {
-            combatManager.setNightVisionDisabled(true);
-            nightVisionDisabled = true;
-        }
-
-        globalKillsEnabled = boolVars.getOrDefault("globalKillsEnabled", true);
-
     }
 
     public BaseGameCommands getGameCommands() {
@@ -203,12 +148,6 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
             setPlayerSpectator(playerEntity);
         }
 
-        if (baseBossBarManager != null) {
-            baseBossBarManager.addPlayer(playerEntity);
-        }
-
-        baseSidebarManager.addPlayerSidebar(playerEntity);
-
     }
 
     public void playerLeaveServer(Player playerEntity) {
@@ -216,11 +155,9 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         if (hasPlayer(playerEntity)) {
             P player = getPlayer(playerEntity);
             if (player.isAlive()) {
-                combatManager.playerDeath(player, DeathCause.DISCONNECT);
+                combatSession.playerDeath(player, DeathCause.DISCONNECT);
             }
         }
-
-        baseSidebarManager.removePlayerSidebar(playerEntity);
 
     }
 
@@ -249,20 +186,11 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     public void incrementGameTime() {
         createHeaderTitle();
-        gameManager.setPlayerListHeader(headerTitle);
         gameLength++;
     }
 
     public int getGameLength() {
         return gameLength;
-    }
-
-    public GameManager getGameManager() {
-        return gameManager;
-    }
-
-    public CombatManager getCombatManager() {
-        return combatManager;
     }
 
     public void setPlayerSpectator(Player player) {
@@ -275,46 +203,10 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
                         "Crossbow Champions - " + getGamemode().getGamemodeName() + " game.").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD)
         );
 
-        // Remove night vision if needed
-        if (combatManager.isNightVisionDisabled()) {
-            player.addScoreboardTag("NVDisable");
-            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
-        }
-
-    }
-
-    public String gameLengthToText() {
-        return String.format("%d:%02d", gameLength / 60, gameLength % 60);
     }
 
     public boolean isGlobalKillsEnabled() {
         return globalKillsEnabled;
-    }
-
-    public GameBossBarManager getBossbarManager () {
-        return baseBossBarManager;
-    }
-
-    public GameSidebarManager getSidebarManager () {
-        return baseSidebarManager;
-    }
-
-    public void updateServerSidebar () {
-        if (baseSidebarManager == null) return;
-        baseSidebarManager.updateServerBoard();
-    }
-
-    public void updateClientSidebar (Player client) {
-        baseSidebarManager.updateClientBoard(client);
-    }
-
-    public void updateBossbarManager () {
-        if (baseBossBarManager == null) return;
-        baseBossBarManager.update();
-    }
-
-    public void updateHeaderTitle() {
-        gameManager.setPlayerListHeader(headerTitle);
     }
 
     public TextColor getGamemodeColor() {
@@ -336,10 +228,6 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     public Set<String> getPlayerNames() {
         return playerList.values().stream().map(CBCPlayer::name).collect(Collectors.toSet());
-    }
-
-    public CBCScoreboardManager getCBCScoreboardManager () {
-        return gameManager.getCbcScoreboardManager();
     }
 
     @Override

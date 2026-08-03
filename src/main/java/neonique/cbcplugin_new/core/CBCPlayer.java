@@ -14,6 +14,7 @@ import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -386,10 +387,30 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     }
 
     public void playerSpawn() {
+
         respawnTicks = 0;
-        immune = true;
-        new TempImmunityTask(gameManager, combatManager, this, 20).runTaskTimer(CBCPlugin.getPlugin(), 0, 3);
+        healToFull();
         playerSetup();
+
+        showTitle(Title.title(
+                Component.text()
+                        .content("Respawned!")
+                        .color(NamedTextColor.GREEN)
+                        .decorate(TextDecoration.BOLD)
+                        .build(),
+                Component.empty(),
+                Title.Times.times(
+                        Duration.ofMillis(0),
+                        Duration.ofMillis(250),
+                        Duration.ofMillis(250)
+                )
+        ));
+
+        playSound(net.kyori.adventure.sound.Sound.sound(Sound.BLOCK_NOTE_BLOCK_PLING,
+                net.kyori.adventure.sound.Sound.Source.MASTER,
+                5, 2)
+        );
+
     }
 
     public void decrementLastPlayerHit() {

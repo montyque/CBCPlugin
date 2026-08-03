@@ -23,15 +23,13 @@ import org.bukkit.entity.Player;
 import java.time.Duration;
 import java.util.*;
 
-public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, ShowdownTeam> {
+public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
     // Game related variables
     private int roundsToWin = 4;
 
     // Map related variables
-    private boolean randomSpawns;
-    private List<ShowdownSpawn> randomTeamSpawns;
-    private HashMap<String, ShowdownSpawn> nonRandomTeamSpawns;
+    private ShowdownMapData mapData;
 
     // Sudden death variables
     private boolean suddenDeathEnabled;
@@ -77,38 +75,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
 
     @Override
     public ShowdownPlayer createPlayer(Player playerEntity) {
-        return new ShowdownPlayer(this, getGameManager(), getCombatManager(), playerEntity);
-    }
-
-    @Override
-    public GameSidebarManager createSidebarManager () {
-        return new ShowdownSidebarManager(getGameManager(), getCombatManager(), this);
-    }
-
-    @Override
-    public GameBossBarManager createBossbarManager () {
-        return new ShowdownBossbarManager(this);
-    }
-
-    @Override
-    public void setupMap (ShowdownMap map) {
-
-        super.setupMap(map);
-
-        // Get spawns
-        randomSpawns = map.isRandomTeamSpawns();
-        if (randomSpawns) {
-            randomTeamSpawns = map.getTeamSpawns();
-            randomTeamSpawns = sortSpawns();
-        } else {
-            nonRandomTeamSpawns = map.getTeamSpawnsWithKeys();
-        }
-
-        // Setup sudden death
-        if (map.isSuddenDeathEnabled()) {
-            suddenDeathBorderEnabled = map.isSuddenDeathBorderEnabled();
-            suddenDeathMaxTimer = map.getSuddenDeathTimer();
-        }
+        return new ShowdownPlayer(playerEntity);
     }
 
     @Override
@@ -152,6 +119,27 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownMap, Showdown
         // Start round 1
         setupRound();
 
+    }
+
+    @Override
+    public void setupMap (ShowdownMap map) {
+
+        super.setupMap(map);
+
+        // Get spawns
+        randomSpawns = map.isRandomTeamSpawns();
+        if (randomSpawns) {
+            randomTeamSpawns = map.getTeamSpawns();
+            randomTeamSpawns = sortSpawns();
+        } else {
+            nonRandomTeamSpawns = map.getTeamSpawnsWithKeys();
+        }
+
+        // Setup sudden death
+        if (map.isSuddenDeathEnabled()) {
+            suddenDeathBorderEnabled = map.isSuddenDeathBorderEnabled();
+            suddenDeathMaxTimer = map.getSuddenDeathTimer();
+        }
     }
 
     public void setupRound () {

@@ -1,11 +1,9 @@
 package neonique.cbcplugin_new.mapmechanics;
 
-import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerSession;
+import neonique.cbcplugin_new.core.PlayerSession;
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
-import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
 import org.bukkit.World;
 
 import java.util.ArrayList;
@@ -15,11 +13,11 @@ import java.util.stream.Collectors;
 
 public class MapMechanicsManager {
 
-    private final PlayerSession<? extends CBCPlayer> players;
+    private final PlayerStore players;
 
     private final List<MapMechanic> activeMechanics = new ArrayList<>();
 
-    public MapMechanicsManager (PlayerSession<? extends CBCPlayer> players) {
+    public MapMechanicsManager (PlayerStore players) {
         this.players = players;
     }
 

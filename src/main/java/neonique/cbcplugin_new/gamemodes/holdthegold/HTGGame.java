@@ -5,6 +5,7 @@ import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.FFAGameContext;
+import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGPlayerNearbyGold;
 import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGScoreTask;
@@ -12,6 +13,7 @@ import neonique.cbcplugin_new.gamemodes.holdthegold.tasks.HTGStartGameTimer;
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
@@ -67,8 +69,18 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
     }
 
     @Override
+    public CBCMap getMap() {
+        return ;
+    }
+
+    @Override
     public HTGTeam createGamemodeTeam (TeamLike team, int teamNum) {
         return new HTGTeam(this, team, Integer.toString(teamNum));
+    }
+
+    @Override
+    public void setupGame(TeamGameContext context) {
+
     }
 
     @Override
