@@ -34,19 +34,8 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 
 public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
-    private final GameManager gameManager;
-
-    public GameManager getGameManager() {
-        return gameManager;
-    }
-
-    private final CombatManager combatManager;
-
-    public CombatManager getCombatManager() {
-        return combatManager;
-    }
-
     private final UUID playerUUID;
+    private final PlayerStore playerStore;
 
     private int kills;
     private int deaths;
@@ -79,14 +68,11 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     // Display in player list
     private List<Component> playerListSuffixes;
 
-    public CBCPlayer(GameManager gameManager, CombatManager combatManager, Player player) {
+    public CBCPlayer (Player player, PlayerStore playerStore) {
 
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
         this.playerUUID = player.getUniqueId();
-
-        this.inventory = new CBCInventory(this, combatManager.getWeaponFactory(), combatManager.getEquipmentFactory());
-
+        this.playerStore = playerStore;
+        this.inventory = new CBCInventory(this, new WeaponFactory(), new EquipmentFactory());
         playerListSuffixes = new ArrayList<>();
 
     }
@@ -133,19 +119,14 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     }
 
     public boolean isPlayerEntityAliveEnemy (Player playerEntity) {
-        CBCPlayer player = gameManager.getPlayer(playerEntity);
-        if (player == null) {
-            return false;
-        }
-        if (!player.isAlive()) {
-            return false;
-        }
+        CBCPlayer player = playerStore.getPlayer(playerEntity);
+        if (player == null || !player.isAlive()) return false;
         return !isAlly(player);
     }
 
     public boolean isPlayerEntityAlly (Player playerEntity) {
-        CBCPlayer player = gameManager.getPlayer(playerEntity);
-        if (player == null) return false;
+        CBCPlayer player = playerStore.getPlayer(playerEntity);
+        if (player == null || !player.isAlive()) return false;
         return isAlly(player);
     }
 
@@ -220,16 +201,7 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     }
 
     public void checkNightVision () {
-
         Player player = getPlayer();
-        if (combatManager.isNightVisionDisabled()) {
-            player.addScoreboardTag("NVDisable");
-            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
-        }
-        else {
-            player.removeScoreboardTag("NVDisable");
-        }
-
     }
 
     public void teleportPlayerToSpawn (Location spawn, Location faceLocation) {
@@ -270,13 +242,13 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         lastPlayerHitBy = player; lastPlayerHitByReset = 7;
     }
 
-    public void addPlayerDamaged (CBCPlayer player) {
+    public void addPlayerDamaged (CBCPlayer player, int time) {
         if (!player.isAlly(this)) {
-            timeDamaged.put(player, combatManager.getTimer());
+            timeDamaged.put(player, time);
         }
     }
 
-    public void playerKill () {
+    public void playerKill (int time) {
 
         this.kills++;
         this.killStreak++;
@@ -286,7 +258,7 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         }
 
         this.multiKill++;
-        this.lastKillTime = combatManager.getTimer();
+        this.lastKillTime = time;
 
         if (isOnline()) {
             Player player = getPlayer();
