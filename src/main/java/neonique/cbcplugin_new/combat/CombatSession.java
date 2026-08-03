@@ -35,6 +35,7 @@ public class CombatSession implements Listener {
     private List<BukkitRunnable> tasks = new ArrayList<>();
 
     private Consumer<DeathInfo> deathListener = (d) -> {};
+    private Consumer<CBCPlayer> afterDeathListener = (d) -> {};
     private Consumer<CBCPlayer> respawnListener = (p) -> {};
 
     private int timer = 0;
@@ -52,6 +53,10 @@ public class CombatSession implements Listener {
 
     public void setCombatDisplay (CombatDisplay combatDisplay) {
         this.combatDisplay = combatDisplay;
+    }
+
+    public void setAfterDeathListener (Consumer<CBCPlayer> afterDeathListener) {
+        this.afterDeathListener = afterDeathListener;
     }
 
     public void setDeathListener (Consumer<DeathInfo> deathListener) {
@@ -113,6 +118,11 @@ public class CombatSession implements Listener {
             combatDisplay.onPlayerDeath(victim, killer, cause, direct);
         }
 
+    }
+
+    public void playerAfterDeath (CBCPlayer player) {
+        player.afterDeath();
+        afterDeathListener.accept(player);
     }
 
     public void playerRespawn (CBCPlayer player) {

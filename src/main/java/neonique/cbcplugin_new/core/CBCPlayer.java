@@ -307,12 +307,16 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         lastPlayerHitBy = null;
         timeDamaged.clear();
 
-        // Clear player inventory and effects
+    }
+
+    public void afterDeath () {
+
         if (isOnline()) {
             Player player = getPlayer();
             for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
                 if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
             }
+            player.setGameMode(GameMode.SPECTATOR);
             player.getInventory().clear();
             player.setLevel(0);
             player.setExp(0);
