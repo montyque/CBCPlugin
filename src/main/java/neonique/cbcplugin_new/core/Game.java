@@ -147,11 +147,9 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         // Check if player is a player
         if (hasPlayer(playerEntity)) {
             P player = getPlayer(playerEntity);
-            playerEntity.setGameMode(GameMode.SPECTATOR);
-            playerEntity.showTitle(player.getDeathTitle());
-            player.playerAfterDeath(null);
-        } else {
-            setPlayerSpectator(playerEntity);
+            combatSession.playerAfterDeath(player);
+        } else if (spectatorUUIDs.contains(playerEntity.getUniqueId())) {
+            teleportSpectator(playerEntity);
         }
 
     }
