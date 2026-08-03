@@ -2,15 +2,12 @@ package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.gamemodes.TeamGameContext;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 
@@ -113,14 +110,14 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
                         .append(Component.newline())
         );
 
-        // Set all alive players to immune
-        combatSession().setAllPlayersImmune(true);
+        // Set all alive players to immune and remove void death
+        for (P plr : getPlayers()) {
+            if (plr.isAlive()) plr.setImmune(true);
+        }
         combatSession().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(v -> v.setKillOnVoid(false));
 
         // Play fireworks
         playVictoryFireworks(team);
-        updateServerSidebar();
-        updateBossbarManager();
 
     }
 

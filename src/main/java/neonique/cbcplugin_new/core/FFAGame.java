@@ -2,27 +2,26 @@ package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes.GameContext;
-import neonique.cbcplugin_new.gamemodes.TeamGameContext;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 
 import java.time.Duration;
 import java.util.Collection;
-
 
 public abstract class FFAGame<P extends CBCPlayer> extends Game<P> {
 
     private P winningPlayer;
 
-    public FFAGame(GameManager gameManager) {
-        super(gameManager);
+    public FFAGame (Plugin plugin, CBCScoreboardManager scoreboardManager, World world) {
+        super(plugin, scoreboardManager, world);
     }
+
 
     public void setupGame (GameContext context) {
         setupGame((FFAGameContext) context);
@@ -39,13 +38,7 @@ public abstract class FFAGame<P extends CBCPlayer> extends Game<P> {
 
     public void playerWonGame (P player) {
 
-        final GameManager gameManager = getGameManager();
-
         winningPlayer = player;
-
-        // Set all alive players to immune
-        getCombatManager().setAllPlayersImmune(true);
-        getCombatManager().setVoidKill(false);
 
         // Display title of game win
         Component titleToDisplay = Component.text("GAME OVER")
@@ -54,11 +47,11 @@ public abstract class FFAGame<P extends CBCPlayer> extends Game<P> {
         Component subtitleToDisplay = Component.text(player.name()).color(NamedTextColor.GREEN).append(
                 Component.text(" has won the game!").color(NamedTextColor.WHITE)).decorate(TextDecoration.BOLD);
 
-        gameManager.sendGlobalTitle(Title.title(titleToDisplay, subtitleToDisplay,
+        showTitle(Title.title(titleToDisplay, subtitleToDisplay,
                 Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(3000), Duration.ofMillis(500))));
 
         // Send message of game win
-        gameManager.sendGlobalMessage(
+        sendMessage(
                 Component.newline()
                         .append(Component.text("GAME WIN > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
                         .append(Component.text(player.name()).decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN))
@@ -66,20 +59,14 @@ public abstract class FFAGame<P extends CBCPlayer> extends Game<P> {
                         .append(Component.newline())
         );
 
-        // Play sound to all players
-        gameManager.playGlobalSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 200, 1);
-
         // Set all alive players to immune
         for (P plr : getPlayers()) {
-            if (plr.isAlive()) {
-                plr.setImmune(true);
-            }
+            if (plr.isAlive()) plr.setImmune(true);
         }
+        combatSession().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(v -> v.setKillOnVoid(false));
 
         // Play fireworks
         playVictoryFireworks(null);
-        updateServerSidebar();
-        updateBossbarManager();
 
     }
 
