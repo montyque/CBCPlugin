@@ -4,12 +4,10 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.core.BaseGameCommands;
 import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.gamemodes.GameContext;
-import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
@@ -20,19 +18,15 @@ import neonique.cbcplugin_new.weapons.WeaponFactory;
 import neonique.cbcplugin_new.weapons.WeaponType;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
-import neonique.cbcplugin_new.mechanics.GamemodeOptions;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import neonique.cbcplugin_new.listeners.GameJoinListener;
 import neonique.cbcplugin_new.listeners.GameLeaveListener;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -319,7 +313,7 @@ public class GameManager {
 
         // Update global kills
         if (game.isGlobalKillsEnabled()) {
-            globalKillsManager.addPlayersKills(game.getPlayers());
+            globalKillsManager.addPlayersKills(game.players());
         }
     }
 

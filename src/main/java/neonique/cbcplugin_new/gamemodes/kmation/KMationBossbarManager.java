@@ -71,7 +71,7 @@ public class KMationBossbarManager extends GameBossBarManager {
         setServerText(2, cycleInfo);
 
         // Go through each team and each player in every team
-        for (KMationPlayer player : game.getPlayers()) {
+        for (KMationPlayer player : game.players()) {
 
             if (!player.isOnline()) continue;
             Component placeComponent;

@@ -113,7 +113,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
         teleportSpectators();
 
         List<KMationSpawn> gameStartSpawns = sortSpawns();
-        List<KMationPlayer> shuffledPlayers = getPlayers();
+        List<KMationPlayer> shuffledPlayers = this.players();
         Collections.shuffle(shuffledPlayers);
         int spawnNum = 0;
 
@@ -146,7 +146,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
         eliminatedTeam.setColor(NamedTextColor.RED); // Set team color
 
         // Check if game starts in final cycle
-        if (getPlayers().size() <= maxPlayersInFinalCycle) finalCycle = true;
+        if (this.players().size() <= maxPlayersInFinalCycle) finalCycle = true;
 
         // Set list of players in last
         updatePlayersInLast();
@@ -198,7 +198,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
         noMoveListener = null;
 
         // Initialise all players
-        for (KMationPlayer player : getPlayers()) {
+        for (KMationPlayer player : this.players()) {
             if (!player.isOnline()) return;
             player.playerStartGame();
         }
@@ -596,7 +596,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
         List<KMationPlayer> playersSorted;
 
         if (includeEliminatedPlayers) {
-            playersSorted = new ArrayList<>(getPlayers());
+            playersSorted = new ArrayList<>(this.players());
         } else {
             playersSorted = new ArrayList<>(getKMationPlayersInGame());
         }
@@ -658,7 +658,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
         spawnOrder.add(roundSpawnList.get(0));
         roundSpawnList.remove(0);
 
-        while (spawnOrder.size() < getPlayers().size()) {
+        while (spawnOrder.size() < this.players().size()) {
             double minDistanceFromSpawns = 0;
             KMationSpawn spawnSelected = null;
             for (KMationSpawn spawn : new ArrayList<>(roundSpawnList)) {
@@ -681,7 +681,7 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
     }
 
     public List<KMationPlayer> getKMationPlayersInGame() {
-        return getPlayers().stream().filter(p -> !p.isEliminated()).toList();
+        return this.players().stream().filter(p -> !p.isEliminated()).toList();
     }
 
     public int getCycleTimer() {

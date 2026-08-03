@@ -66,7 +66,7 @@ public class ThrowdownBossbarManager extends GameBossBarManager {
         String playerSeparator = "\uF823";
 
         // Teams
-        Collection<ThrowdownPlayer> players = game.getPlayers();
+        Collection<ThrowdownPlayer> players = game.players();
 
         // Update player display
         int i = 0;

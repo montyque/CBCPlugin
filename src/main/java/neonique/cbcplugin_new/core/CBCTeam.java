@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike, ForwardingAudience {
+public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike, ForwardingAudience, PlayerStore {
 
     // List of members
     private final HashMap<UUID, P> players = new HashMap<>();
@@ -68,6 +68,10 @@ public abstract class CBCTeam<P extends CBCPlayer> implements TeamLike, Forwardi
 
     public Collection<P> players () {
         return players.values();
+    }
+
+    public Optional<P> getPlayerByUUID (UUID uuid) {
+        return Optional.ofNullable(players.get(uuid));
     }
 
     public Collection<P> alivePlayers() {

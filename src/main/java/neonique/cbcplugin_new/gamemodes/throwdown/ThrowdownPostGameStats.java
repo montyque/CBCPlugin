@@ -31,7 +31,7 @@ public class ThrowdownPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        List<ThrowdownPlayer> playersList = game.getPlayers();
+        List<ThrowdownPlayer> playersList = game.players();
 
         if (!playersList.isEmpty()) {
 
@@ -66,7 +66,7 @@ public class ThrowdownPostGameStats extends PostGameStats {
         );
 
         // Sort players on statistics
-        List<ThrowdownPlayer> playersList = game.getPlayers();
+        List<ThrowdownPlayer> playersList = game.players();
 
         if (!playersList.isEmpty()) {
 
@@ -191,7 +191,7 @@ public class ThrowdownPostGameStats extends PostGameStats {
     @Override
     public Inventory createInventoryGui(Player user) {
         return inventoryGuiGenerate(user, false,
-                new ArrayList<>(), new ArrayList<>(game.getPlayers()));
+                new ArrayList<>(), new ArrayList<>(game.players()));
     }
 
     @Override

@@ -36,7 +36,7 @@ public class KOTHPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        playersList = game.getPlayers();
+        playersList = game.players();
 
         playersByKills = new ArrayList<>();
         playersByTimeInHill = new ArrayList<>();
@@ -289,7 +289,7 @@ public class KOTHPostGameStats extends PostGameStats {
 
     public Inventory createInventoryGui(Player user) {
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.players()));
     }
 
 }

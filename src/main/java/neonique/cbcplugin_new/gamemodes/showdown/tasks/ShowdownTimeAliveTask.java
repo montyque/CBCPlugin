@@ -27,7 +27,7 @@ public class ShowdownTimeAliveTask extends BukkitRunnable {
             return;
         }
 
-        for (ShowdownPlayer player : game.getPlayers()) {
+        for (ShowdownPlayer player : game.players()) {
             if (player.isAlive()) continue;
             player.incrementPlayerSecondsAlive();
         }

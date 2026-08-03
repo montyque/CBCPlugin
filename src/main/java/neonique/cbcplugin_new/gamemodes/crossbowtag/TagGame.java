@@ -266,7 +266,7 @@ public class TagGame extends TeamGame<TagPlayer, TagTeam> {
             noMoveListener.setEvadersMove(true);
         }
 
-        for (TagPlayer player : getPlayers()) {
+        for (TagPlayer player : this.players()) {
             if (player.isOnline()) {
                 player.setCanMove(false);
             }
@@ -293,7 +293,7 @@ public class TagGame extends TeamGame<TagPlayer, TagTeam> {
 
         // Make it so evaders can move and make them alive
         noMoveListener.setEvadersMove(true);
-        for (TagPlayer player : getPlayers()) {
+        for (TagPlayer player : this.players()) {
             if (player.team() != taggers) {
                 if (!player.isOnline()) {
                     if (!player.isInGame()) continue;
@@ -367,7 +367,7 @@ public class TagGame extends TeamGame<TagPlayer, TagTeam> {
         // Make it so taggers can move and make them alive
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
 
-        for (TagPlayer player : getPlayers()) {
+        for (TagPlayer player : this.players()) {
             if (player.team() == taggers) {
                 player.playerStartRound();
             }
@@ -738,7 +738,7 @@ public class TagGame extends TeamGame<TagPlayer, TagTeam> {
 
     public Set<TagPlayer> getEvaders () {
         Set<TagPlayer> evaders = new HashSet<>();
-        for (TagPlayer player : getPlayers()) {
+        for (TagPlayer player : this.players()) {
             // Add player to evaders list if they are not a tagger
             if (!player.isTagger()) evaders.add(player);
         }

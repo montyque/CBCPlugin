@@ -38,7 +38,7 @@ public class KMationPostGameStats extends PostGameStats {
         );
 
         // Sort players on statistics
-        List<KMationPlayer> playersList = game.getPlayers();
+        List<KMationPlayer> playersList = game.players();
 
         List<KMationPlayer> playersByKills = new ArrayList<>(playersList);
         playersByKills.sort(Comparator.comparingInt(KMationPlayer::getKills));
@@ -87,7 +87,7 @@ public class KMationPostGameStats extends PostGameStats {
         inventory.setItem(0, gameSummaryItem);
 
         // Sort players on statistics
-        List<KMationPlayer> playersList = game.getPlayers();
+        List<KMationPlayer> playersList = game.players();
         playersList.sort(Comparator.comparingInt(KMationPlayer::getCyclesSurvived).reversed()
                 .thenComparing(Comparator.comparingInt(KMationPlayer::getCycleKills).reversed())
                 .thenComparing(Comparator.comparingInt(KMationPlayer::getKills).reversed())

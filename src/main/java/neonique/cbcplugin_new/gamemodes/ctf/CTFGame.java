@@ -336,7 +336,7 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFTeam> {
         getCombatManager().disableAllHealPads();
 
         // Heal all players
-        for (CBCPlayer player : getPlayers()) {
+        for (CBCPlayer player : this.players()) {
             if (!player.isAlive()) continue;
             player.healToFull();
         }

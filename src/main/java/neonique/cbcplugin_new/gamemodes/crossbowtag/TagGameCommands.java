@@ -79,7 +79,7 @@ public class TagGameCommands extends BaseTeamGameCommands {
             return;
         }
 
-        List<TagPlayer> players = game.getPlayers();
+        List<TagPlayer> players = game.players();
         TagPlayer playerTargeted = null;
 
         // Try find player

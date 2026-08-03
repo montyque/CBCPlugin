@@ -183,7 +183,7 @@ public class PracticeManager implements PlayerSession<PracticePlayer>, Forwardin
     }
 
     @Override
-    public Collection<PracticePlayer> getPlayers() {
+    public Collection<PracticePlayer> players() {
         return players.values();
     }
 
@@ -202,7 +202,7 @@ public class PracticeManager implements PlayerSession<PracticePlayer>, Forwardin
         combatManager.disableWeapons();
 
         // Teleport all players
-        for (PracticePlayer p : List.copyOf(getPlayers())) {
+        for (PracticePlayer p : List.copyOf(this.players())) {
             removePlayer(p);
         }
 
@@ -251,7 +251,7 @@ public class PracticeManager implements PlayerSession<PracticePlayer>, Forwardin
         }
 
         // Respawn every player
-        for (CBCPlayer player : getPlayers()) {
+        for (CBCPlayer player : this.players()) {
             player.playerSpawn();
         }
 

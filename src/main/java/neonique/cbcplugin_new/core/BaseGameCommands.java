@@ -65,7 +65,7 @@ public class BaseGameCommands {
     }
 
     public Set<String> getPlayerNamesInGame (Predicate<CBCPlayer> condition) {
-        return game.getPlayers().stream()
+        return game.players().stream()
                 .filter(condition)
                 .map(CBCPlayer::name)
                 .collect(Collectors.toUnmodifiableSet());

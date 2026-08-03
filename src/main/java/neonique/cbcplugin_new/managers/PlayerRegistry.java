@@ -21,7 +21,7 @@ public class PlayerRegistry {
     }
 
     public Collection<? extends CBCPlayer> getPlayers () {
-        return activeSession.getPlayers();
+        return activeSession.players();
     }
 
     public Collection<Player> getPlayerEntities () {

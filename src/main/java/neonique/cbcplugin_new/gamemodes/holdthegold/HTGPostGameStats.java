@@ -34,7 +34,7 @@ public class HTGPostGameStats extends PostGameStats {
         this.game = HTGGame;
 
         // Sort players on statistics
-        playersList = game.getPlayers();
+        playersList = game.players();
 
         if (!playersList.isEmpty()) {
 
@@ -247,6 +247,6 @@ public class HTGPostGameStats extends PostGameStats {
     @Override
     public Inventory createInventoryGui(Player user) {
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.players()));
     }
 }

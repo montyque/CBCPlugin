@@ -18,7 +18,7 @@ public class AssassinGlowUpdateTask extends BukkitRunnable {
         if (this.game.isGameOver()) return;
 
         // Get all players in the world
-        for (AssassinPlayer player : game.getPlayers()) {
+        for (AssassinPlayer player : game.players()) {
 
             AssassinPlayer glowingPlayer = player.getCurrentTarget();
 

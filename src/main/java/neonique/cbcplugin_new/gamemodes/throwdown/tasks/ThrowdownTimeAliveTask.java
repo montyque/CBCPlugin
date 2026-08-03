@@ -30,7 +30,7 @@ public class ThrowdownTimeAliveTask extends BukkitRunnable {
             return;
         }
 
-        for (ThrowdownPlayer player : game.getPlayers()) {
+        for (ThrowdownPlayer player : game.players()) {
             if (player.isAlive()) {
                 player.incrementPlayerSecondsAlive();
             }

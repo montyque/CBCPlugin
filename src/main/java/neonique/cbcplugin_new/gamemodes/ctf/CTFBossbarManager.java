@@ -62,7 +62,7 @@ public class CTFBossbarManager extends GameBossBarManager {
 
         } else {
             CTFTeam winner = game.getWinner();
-            for (CTFPlayer player : game.getPlayers()) {
+            for (CTFPlayer player : game.players()) {
                 if (player.isOnline()) {
                     setClientText(player.getPlayer(), 2, smallText(winner.name() + " WINS!").color(winner.textColor()));
                 }

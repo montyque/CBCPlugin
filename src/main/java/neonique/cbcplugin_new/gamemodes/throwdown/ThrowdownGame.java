@@ -166,13 +166,13 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         roundNumber++;
 
         // Reset players
-        for (ThrowdownPlayer player : getPlayers()) {
+        for (ThrowdownPlayer player : this.players()) {
             player.playerSetupRound();
         }
 
         // Select each player's spawn randomly
         List<FFASpawnpoint> spawnOrder = sortSpawns();
-        List<ThrowdownPlayer> randomPlayerList = new ArrayList<>(getPlayers());
+        List<ThrowdownPlayer> randomPlayerList = new ArrayList<>(this.players());
         Collections.shuffle(randomPlayerList);
 
         int spawnNum = 0;
@@ -250,7 +250,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         this.getMap().fillBlocksAtEnd();
 
         // Start round for players
-        for (ThrowdownPlayer player : getPlayers()) {
+        for (ThrowdownPlayer player : this.players()) {
             player.playerStartRound();
         }
 
@@ -291,7 +291,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         }
 
         List<ThrowdownPlayer> playersAlive = new ArrayList<>();
-        for (ThrowdownPlayer player : getPlayers()) {
+        for (ThrowdownPlayer player : this.players()) {
             if (!player.isEliminated()) playersAlive.add(player);
         }
 
@@ -395,7 +395,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
         spawnOrder.add(roundSpawnList.get(0));
         roundSpawnList.remove(0);
 
-        while (spawnOrder.size() < getPlayers().size()) {
+        while (spawnOrder.size() < this.players().size()) {
             double minDistanceFromSpawns = 0;
             FFASpawnpoint spawnSelected = null;
             for (FFASpawnpoint spawn : new ArrayList<>(roundSpawnList)) {
@@ -519,7 +519,7 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
     }
 
     public List<ThrowdownPlayer> getSortedPlayersIncludingEliminated() {
-        List<ThrowdownPlayer> playerList = new ArrayList<>(getPlayers());
+        List<ThrowdownPlayer> playerList = new ArrayList<>(this.players());
         playerList.sort(Comparator.comparing(ThrowdownPlayer::isEliminated)
                 .thenComparing(Comparator.comparingInt(ThrowdownPlayer::getRoundsWon).reversed())
                 .thenComparing(Comparator.comparingInt(ThrowdownPlayer::getKills).reversed())

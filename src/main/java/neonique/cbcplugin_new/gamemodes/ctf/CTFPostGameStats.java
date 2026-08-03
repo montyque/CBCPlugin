@@ -32,7 +32,7 @@ public class CTFPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        playersList = game.getPlayers();
+        playersList = game.players();
 
         if (!playersList.isEmpty()) {
 
@@ -270,6 +270,6 @@ public class CTFPostGameStats extends PostGameStats {
     public Inventory createInventoryGui (Player user) {
 
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.players()));
     }
 }

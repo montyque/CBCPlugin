@@ -8,7 +8,6 @@ import neonique.cbcplugin_new.gamemodes.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.showdown.tasks.*;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
-import neonique.cbcplugin_new.managers.GameBossBarManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
@@ -217,7 +216,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         roundInPlay = true;
         getCombatManager().setVoidKill(true);
 
-        for (ShowdownPlayer player : getPlayers()) {
+        for (ShowdownPlayer player : this.players()) {
             player.playerStartRound();
         }
 
@@ -332,7 +331,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         roundInPlay = false;
 
         // Set all alive players to immune
-        for (ShowdownPlayer player : getPlayers()) {
+        for (ShowdownPlayer player : this.players()) {
             if (player.isAlive()) {
                 player.setImmune(true);
             }
@@ -598,7 +597,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     }
 
     public int getPlayersAlive () {
-        return (int) getPlayers().stream().filter(ShowdownPlayer::isAlive).count();
+        return (int) this.players().stream().filter(ShowdownPlayer::isAlive).count();
     }
 
 }

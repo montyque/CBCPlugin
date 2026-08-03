@@ -22,7 +22,7 @@ public class AssassinSpawn extends Location {
     }
 
     public boolean isEnemyNearbySpawn(CBCPlayer ownPlayer)  {
-        return game.getPlayers().stream()
+        return game.players().stream()
                 .filter(CBCPlayer::isOnline)
                 .filter(CBCPlayer::isAlive)
                 .filter(p -> !p.isAlly(ownPlayer))

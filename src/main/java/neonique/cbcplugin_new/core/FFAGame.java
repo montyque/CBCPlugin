@@ -60,7 +60,7 @@ public abstract class FFAGame<P extends CBCPlayer> extends Game<P> {
         );
 
         // Set all alive players to immune
-        for (P plr : getPlayers()) {
+        for (P plr : this.players()) {
             if (plr.isAlive()) plr.setImmune(true);
         }
         combatSession().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(v -> v.setKillOnVoid(false));

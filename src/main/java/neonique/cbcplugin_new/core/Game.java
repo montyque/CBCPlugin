@@ -132,7 +132,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         this.gameCommands = gameCommands;
     }
 
-    public List<P> getPlayers () {
+    public List<P> players() {
         return List.copyOf(playerList.values());
     }
 

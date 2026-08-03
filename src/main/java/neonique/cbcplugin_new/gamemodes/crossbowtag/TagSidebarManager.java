@@ -148,7 +148,7 @@ public class TagSidebarManager extends GameSidebarManager {
         }
 
         if (statCycle != null) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.players());
         }
 
         displayToEveryone.add(blankComponent());

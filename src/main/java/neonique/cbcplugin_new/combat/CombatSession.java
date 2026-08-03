@@ -10,23 +10,13 @@ import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapmechanics.MapMechanicsManager;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.title.Title;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -149,14 +139,14 @@ public class CombatSession implements Listener {
 
     private void setupTasks () {
 
-        BukkitRunnable weaponReloadTask = new WeaponReloadTask(players::getPlayers);
+        BukkitRunnable weaponReloadTask = new WeaponReloadTask(players::players);
         weaponReloadTask.runTaskTimer(plugin, 0, 1);
 
         // TODO: add respawning method
-        BukkitRunnable respawnTimerTask = new RespawnTimerTask(players::getPlayers, this::playerRespawn);
+        BukkitRunnable respawnTimerTask = new RespawnTimerTask(players::players, this::playerRespawn);
         respawnTimerTask.runTaskTimer(plugin, 0, 1);
 
-        BukkitRunnable projectileUpdateTask = new ProjectileUpdateTask(players::getPlayers, projectileManager);
+        BukkitRunnable projectileUpdateTask = new ProjectileUpdateTask(players::players, projectileManager);
         projectileUpdateTask.runTaskTimer(plugin, 0, 1);
 
         BukkitRunnable weaponManagerTimerTask = new BukkitRunnable() {
@@ -165,7 +155,7 @@ public class CombatSession implements Listener {
         };
         weaponManagerTimerTask.runTaskTimer(plugin, 0, 20);
 
-        BukkitRunnable playerParticlesTask = new PlayerParticlesTask(players::getPlayers);
+        BukkitRunnable playerParticlesTask = new PlayerParticlesTask(players::players);
         playerParticlesTask.runTaskTimer(plugin, 0, 1);
 
         BukkitRunnable combatTimerTask = new BukkitRunnable() {

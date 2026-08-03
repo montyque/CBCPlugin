@@ -32,7 +32,7 @@ public class AssassinPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        List<AssassinPlayer> playersList = game.getPlayers();
+        List<AssassinPlayer> playersList = game.players();
 
         if (!playersList.isEmpty()) {
 
@@ -69,7 +69,7 @@ public class AssassinPostGameStats extends PostGameStats {
         );
 
         // Sort players on statistics
-        List<AssassinPlayer> playersList = game.getPlayers();
+        List<AssassinPlayer> playersList = game.players();
 
         if (!playersList.isEmpty()) {
 
@@ -110,7 +110,7 @@ public class AssassinPostGameStats extends PostGameStats {
     @Override
     public Inventory createInventoryGui(Player user) {
         return inventoryGuiGenerate(user, false,
-                new ArrayList<>(), new ArrayList<>(game.getPlayers()));
+                new ArrayList<>(), new ArrayList<>(game.players()));
     }
 
     @Override

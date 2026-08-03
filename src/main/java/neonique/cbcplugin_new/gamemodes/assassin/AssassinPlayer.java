@@ -88,7 +88,7 @@ public class AssassinPlayer extends CBCPlayer {
 
     public AssassinPlayer selectNextTarget() {
 
-        List<AssassinPlayer> playerList = new ArrayList<>(game.getPlayers().stream().filter(CBCPlayer::isAlive).toList());
+        List<AssassinPlayer> playerList = new ArrayList<>(game.players().stream().filter(CBCPlayer::isAlive).toList());
         Collections.shuffle(playerList);
 
         // Clear target order if length of target order is the same or greater as the amount of players minus 1
@@ -97,7 +97,7 @@ public class AssassinPlayer extends CBCPlayer {
         }
 
         // List of players that are already targets
-        final Set<AssassinPlayer> alreadyTargetedPlayers = game.getPlayers().stream()
+        final Set<AssassinPlayer> alreadyTargetedPlayers = game.players().stream()
                 .map(AssassinPlayer::getCurrentTarget)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());

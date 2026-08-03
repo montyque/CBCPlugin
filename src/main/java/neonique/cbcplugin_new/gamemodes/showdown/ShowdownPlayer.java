@@ -110,7 +110,7 @@ public class ShowdownPlayer extends CBCPlayer {
         int killPts = KILL_PTS;
 
         // Check if less than half of players remain after kill
-        if (game.getPlayers().size() / 2 <= game.getPlayersAlive()) {
+        if (game.players().size() / 2 <= game.getPlayersAlive()) {
             killPts += CLUTCH_KILL_PTS;
         }
 

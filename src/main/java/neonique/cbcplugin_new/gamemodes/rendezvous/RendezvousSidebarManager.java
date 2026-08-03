@@ -148,7 +148,7 @@ public class RendezvousSidebarManager extends GameSidebarManager {
         displayToEveryone.add(blankComponent());
 
         if (game.getGameManager().isEventGame()) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.players());
         }
 
         updateAllClientBoards();

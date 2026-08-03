@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface PlayerStore {
 
-    Collection<? extends CBCPlayer> getPlayers ();
+    Collection<? extends CBCPlayer> players();
 
     Optional<? extends CBCPlayer> getPlayerByUUID (UUID uuid);
 
@@ -21,7 +21,7 @@ public interface PlayerStore {
         return getPlayerByUUID(player.getUniqueId()).orElse(null);
     }
 
-    default boolean hasPlayer (CBCPlayer player) { return getPlayers().contains(player); }
+    default boolean hasPlayer (CBCPlayer player) { return players().contains(player); }
 
     default boolean hasPlayer (Player player) {
         return getPlayerByUUID(player.getUniqueId()).isPresent();

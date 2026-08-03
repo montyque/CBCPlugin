@@ -16,7 +16,7 @@ public interface PlayerSession<P extends CBCPlayer> extends PlayerStore {
 
     void removePlayer (P player);
 
-    Collection<P> getPlayers ();
+    Collection<P> players();
 
     Optional<P> getPlayerByUUID (UUID uuid);
 
@@ -42,7 +42,7 @@ public interface PlayerSession<P extends CBCPlayer> extends PlayerStore {
     default Collection<P> playersWithinRadius (Location loc, double radius) {
 
         double r2 = radius * radius;
-        return getPlayers().stream()
+        return players().stream()
                 .filter(CBCPlayer::isOnline)
                 .filter(p -> p.getPlayer().getLocation().distanceSquared(loc) <= r2)
                 .collect(Collectors.toUnmodifiableSet());

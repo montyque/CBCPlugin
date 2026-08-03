@@ -33,7 +33,7 @@ public class TagPostGameStats extends PostGameStats {
         this.game = game;
 
         // Sort players on statistics
-        List<TagPlayer> playersList = game.getPlayers();
+        List<TagPlayer> playersList = game.players();
 
         if (!playersList.isEmpty()) {
 
@@ -80,7 +80,7 @@ public class TagPostGameStats extends PostGameStats {
         audience.sendMessage(finalScore);
 
         // Sort players on statistics
-        List<TagPlayer> playersList = game.getPlayers();
+        List<TagPlayer> playersList = game.players();
         if (!playersList.isEmpty()) {
 
             // Show which players were in first for points scored
@@ -145,7 +145,7 @@ public class TagPostGameStats extends PostGameStats {
     @Override
     public Inventory createInventoryGui (Player user) {
         return inventoryGuiGenerate(user, true,
-                new ArrayList<>(game.getTeams()), new ArrayList<>(game.getPlayers()));
+                new ArrayList<>(game.getTeams()), new ArrayList<>(game.players()));
     }
 
     @Override

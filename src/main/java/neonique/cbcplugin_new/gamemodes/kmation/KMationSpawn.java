@@ -1,6 +1,5 @@
 package neonique.cbcplugin_new.gamemodes.kmation;
 
-import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -36,7 +35,7 @@ public class KMationSpawn extends Location {
 
         double nearestEnemyDistance = 1000000;
         // Go through all enemy alive players and check the distance between them and this spawn point
-        for (CBCPlayer player : game.getPlayers()) {
+        for (CBCPlayer player : game.players()) {
             if (!player.isAlive()) continue;
             if (calculateDistance(player.getPlayer().getLocation()) < nearestEnemyDistance) {
                 nearestEnemyDistance = calculateDistance(player.getPlayer().getLocation());

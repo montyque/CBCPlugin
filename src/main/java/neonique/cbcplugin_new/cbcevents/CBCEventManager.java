@@ -883,7 +883,7 @@ public class CBCEventManager {
     // Calculate scores
     public void calculateScores (Game<?> g) {
 
-        List<? extends CBCPlayer> cbcPlayers = g.getPlayers();
+        List<? extends CBCPlayer> cbcPlayers = g.players();
 
         if (cbcPlayers.isEmpty()) return;
 

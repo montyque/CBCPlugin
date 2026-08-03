@@ -123,7 +123,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer> {
         glowUpdateTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
         // Set player's targets
-        for (AssassinPlayer player : getPlayers()) {
+        for (AssassinPlayer player : this.players()) {
             player.newTarget(false);
             inGameTeam.addEntityUUID(player.getUUID());
         }
@@ -143,7 +143,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer> {
     private void setupPlayers () {
 
         List<AssassinSpawn> gameStartSpawns = sortSpawns();
-        List<AssassinPlayer> shuffledPlayers = getPlayers();
+        List<AssassinPlayer> shuffledPlayers = this.players();
         Collections.shuffle(shuffledPlayers);
         for (int spawnNum = 0; spawnNum < shuffledPlayers.size(); spawnNum++) {
             AssassinSpawn spawn = gameStartSpawns.get(spawnNum);
@@ -166,7 +166,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer> {
         noMoveListener = null;
 
         // Initialise all players
-        for (AssassinPlayer player : getPlayers()) {
+        for (AssassinPlayer player : this.players()) {
             if (!player.isOnline()) return;
             player.playerStartGame();
         }
@@ -193,7 +193,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer> {
         spawnOrder.add(roundSpawnList.get(0));
         roundSpawnList.remove(0);
 
-        while (spawnOrder.size() < getPlayers().size()) {
+        while (spawnOrder.size() < this.players().size()) {
             double minDistanceFromSpawns = 0;
             AssassinSpawn spawnSelected = null;
             for (AssassinSpawn spawn : new ArrayList<>(roundSpawnList)) {
@@ -217,7 +217,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer> {
 
     public List<AssassinPlayer> getPlayersByTargets () {
 
-        List<AssassinPlayer> sortedPlayerList = new ArrayList<>(getPlayers());
+        List<AssassinPlayer> sortedPlayerList = new ArrayList<>(this.players());
         sortedPlayerList.sort(Comparator.comparingInt(AssassinPlayer::getTargetsLeft));
 
         return sortedPlayerList;
@@ -278,7 +278,7 @@ public class AssassinGame extends FFAGame<AssassinPlayer> {
 
         AssassinPlayer player = getPlayer(playerEntity);
         if (player != null) {
-            for (AssassinPlayer p : getPlayers()) {
+            for (AssassinPlayer p : this.players()) {
                 if (p.getCurrentTarget() == player) {
                     if (p.isOnline()) {
                         Player assassinPlayerEntity = p.getPlayer();

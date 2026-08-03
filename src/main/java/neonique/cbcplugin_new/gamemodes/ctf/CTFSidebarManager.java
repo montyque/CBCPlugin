@@ -144,7 +144,7 @@ public class CTFSidebarManager extends GameSidebarManager {
         }
 
         if (game.getGameManager().isEventGame()) {
-            spectatorLeaderboardComponents = statCycle.getComponents(game.getPlayers());
+            spectatorLeaderboardComponents = statCycle.getComponents(game.players());
         }
 
         displayToEveryone.add(blankComponent());

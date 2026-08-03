@@ -23,7 +23,7 @@ public class CTFGlowManagerTask extends BukkitRunnable {
             return;
         }
 
-        for (CTFPlayer player : game.getPlayers()) {
+        for (CTFPlayer player : game.players()) {
 
             // Update glow manager if player is online
             if (!player.isOnline()) continue;

@@ -43,7 +43,7 @@ public class HTGSpawn extends Location {
     }
 
     public boolean isEnemyNearby (Location loc, HTGPlayer ownPlayer)  {
-        return playerSession.getPlayers().stream()
+        return playerSession.players().stream()
                 .filter(CBCPlayer::isOnline)
                 .filter(CBCPlayer::isAlive)
                 .filter(p -> !p.isAlly(ownPlayer))
@@ -51,7 +51,7 @@ public class HTGSpawn extends Location {
     }
 
     public boolean isOutOfCombatAllyNearSpawn (HTGPlayer ownPlayer) {
-        return playerSession.getPlayers().stream()
+        return playerSession.players().stream()
                 .filter(CBCPlayer::isOnline)
                 .filter(CBCPlayer::isAlive)
                 .filter(p -> p.isAlly(ownPlayer) && p != ownPlayer)
