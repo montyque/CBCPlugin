@@ -50,7 +50,10 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
     // Combat variables
     private boolean alive = false;
-    private boolean immune = false;
+
+    private boolean permanentlyImmune = false;
+    private int tempImmunityTicks = 0;
+
     private TempImmunityTask tempImmunityTask = null;
     private int respawnTicks = 0;
     private CBCPlayer lastPlayerHitBy = null;
@@ -416,8 +419,20 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
     }
 
-    public boolean isImmune() {
-        return immune;
+    public boolean isImmune () {
+        return permanentlyImmune || tempImmunityTicks > 0;
+    }
+
+    public void decrementImmunityTicks () {
+        tempImmunityTicks--;
+    }
+
+    public void setTempImmunity (int ticks) {
+        tempImmunityTicks = ticks;
+    }
+
+    public void setPermanentlyImmune (boolean permanentlyImmune) {
+        this.permanentlyImmune = permanentlyImmune;
     }
 
     public void setImmune(boolean b) {
