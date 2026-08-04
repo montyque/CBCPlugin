@@ -16,6 +16,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class CombatSession implements Listener {
     private final ProjectileManager projectileManager;
 
     private List<Listener> listeners = new ArrayList<>();
-    private List<BukkitRunnable> tasks = new ArrayList<>();
+    private List<BukkitTask> tasks = new ArrayList<>();
 
     private Consumer<DeathInfo> deathListener = (d) -> {};
     private Consumer<CBCPlayer> afterDeathListener = (d) -> {};
@@ -78,7 +79,7 @@ public class CombatSession implements Listener {
             HandlerList.unregisterAll(listener);
         }
 
-        for (BukkitRunnable task : tasks) {
+        for (BukkitTask task : tasks) {
             if (!task.isCancelled()) task.cancel();
         }
 
@@ -149,32 +150,31 @@ public class CombatSession implements Listener {
 
     private void setupTasks () {
 
-        BukkitRunnable weaponReloadTask = new WeaponReloadTask(players::players);
-        weaponReloadTask.runTaskTimer(plugin, 0, 1);
+        BukkitTask weaponReloadTask = new WeaponReloadTask(players::players)
+                .runTaskTimer(plugin, 0, 1);
 
-        // TODO: add respawning method
-        BukkitRunnable respawnTimerTask = new RespawnTimerTask(players::players, this::playerRespawn);
-        respawnTimerTask.runTaskTimer(plugin, 0, 1);
+        BukkitTask respawnTimerTask = new RespawnTimerTask(players::players, this::playerRespawn)
+                .runTaskTimer(plugin, 0, 1);
 
-        BukkitRunnable projectileUpdateTask = new ProjectileUpdateTask(players::players, projectileManager);
-        projectileUpdateTask.runTaskTimer(plugin, 0, 1);
+        BukkitTask projectileUpdateTask = new ProjectileUpdateTask(players::players, projectileManager)
+                .runTaskTimer(plugin, 0, 1);
 
-        BukkitRunnable weaponManagerTimerTask = new BukkitRunnable() {
+        BukkitTask weaponManagerTimerTask = new BukkitRunnable() {
             @Override
             public void run() {timer++;}
-        };
-        weaponManagerTimerTask.runTaskTimer(plugin, 0, 20);
+        }
+                .runTaskTimer(plugin, 0, 20);
 
-        BukkitRunnable playerParticlesTask = new PlayerParticlesTask(players::players);
-        playerParticlesTask.runTaskTimer(plugin, 0, 1);
+        BukkitTask playerParticlesTask = new PlayerParticlesTask(players::players)
+                .runTaskTimer(plugin, 0, 1);
 
-        BukkitRunnable combatTimerTask = new BukkitRunnable() {
+        BukkitTask combatTimerTask = new BukkitRunnable() {
             @Override
             public void run() {
                 incrementTimer();
             }
-        };
-        combatTimerTask.runTaskTimer(plugin, 0, 1);
+        }
+                .runTaskTimer(plugin, 0, 1);
 
         tasks = List.of(weaponReloadTask, respawnTimerTask, projectileUpdateTask,
                 weaponManagerTimerTask, playerParticlesTask);
