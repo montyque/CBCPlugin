@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
@@ -15,8 +16,6 @@ import java.time.Duration;
 
 public class ShowdownPlayer extends CBCPlayer {
 
-    private final ShowdownGame game;
-
     // Stats
     private int playerRoundKills = 0;
     private int secondsAlive = 0;
@@ -28,9 +27,8 @@ public class ShowdownPlayer extends CBCPlayer {
     private final static int ROUND_SURVIVAL_PTS = 15; // Points you gain for surviving a round
     private final static int TIME_ALIVE_PTS = 5; // Points you gain every 30 seconds you are alive
 
-    public ShowdownPlayer(ShowdownGame game, GameManager gameManager, CombatManager combatManager, Player player) {
-        super(gameManager, combatManager, player);
-        this.game = game;
+    public ShowdownPlayer (Player player, PlayerStore playerStore) {
+        super(player, playerStore);
     }
 
     // Runs for every player when a round is being setup
@@ -64,69 +62,12 @@ public class ShowdownPlayer extends CBCPlayer {
         setTempImmune(60);
 
         playerEntity.removePotionEffect(PotionEffectType.INVISIBILITY);
-        if (game.isPlayerGlowingEnabled()) {
-            playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
-        }
+        playerEntity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 800000, 0, false, false, false));
 
     }
 
-    @Override
-    public void playerAfterDeath (CBCPlayer playerKiller) {
-
-        // Update player counts
-        game.checkPlayerCounts();
-        // The player will not respawn, so we are overriding the old method
-        if (isOnline()) {
-            Component titleComponent = Component.text("YOU DIED!").color(NamedTextColor.RED)
-                    .decorate(TextDecoration.BOLD);
-            Title diedTitle = Title.title(titleComponent, Component.text("You've been eliminated!")
-                    .color(NamedTextColor.YELLOW), Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
-            getPlayer().showTitle(diedTitle);
-
-            // Remove potion effects
-            for (PotionEffect effect : getPlayer().getActivePotionEffects()) {
-                if (effect.getType() != PotionEffectType.NIGHT_VISION) getPlayer().removePotionEffect(effect.getType());
-            }
-        }
-
-        // Update boss bar
-        game.updateBossbarManager();
-        game.updateServerSidebar();
-
-    }
-
-    @Override
-    public Title getDeathTitle() {
-        return Title.title(
-                Component.text("YOU DIED!").color(NamedTextColor.RED),
-                Component.text("You've been eliminated!").color(NamedTextColor.YELLOW),
-                Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(2000), Duration.ofMillis(1000)));
-    }
-
-    @Override
     public void playerAfterKill (CBCPlayer playerKilled) {
-
-        // Calculate points gained from kill
-        int killPts = KILL_PTS;
-
-        // Check if less than half of players remain after kill
-        if (game.players().size() / 2 <= game.getPlayersAlive()) {
-            killPts += CLUTCH_KILL_PTS;
-        }
-
-        // Check if only player remains is this player
-        if (isAlive() && game.getPlayersAlive() == 1) {
-            killPts += WINNING_KILL;
-        }
-
-        addGamePoints(killPts);
-
         playerRoundKills++;
-        game.updateServerSidebar();
-    }
-
-    public void playerSurvivedRound () {
-        addGamePoints(ROUND_SURVIVAL_PTS);
     }
 
     public void incrementPlayerSecondsAlive () {
@@ -147,6 +88,5 @@ public class ShowdownPlayer extends CBCPlayer {
     @Override
     public void addGamePoints (int points) {
         super.addGamePoints(points);
-        game.updateServerSidebar();
     }
 }

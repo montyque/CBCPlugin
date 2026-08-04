@@ -2,22 +2,22 @@ package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.core.TeamLike;
+import neonique.cbcplugin_new.mapconfig.spawns.MapStartSpawn;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Location;
 
 public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
 
     // Set variables relating to showdown game
-    private final ShowdownGame game;
     private int roundsWon;
     private int playersLeftAlive;
     private boolean teamAlive;
     private ShowdownSpawn currentRoundSpawn;
 
-    public ShowdownTeam (ShowdownGame game, TeamLike originalTeam, String teamIdNum) {
+    public ShowdownTeam (TeamLike originalTeam, String teamIdNum) {
         super(originalTeam, teamIdNum);
-        this.game = game;
         roundsWon = 0;
         teamAlive = false;
     }
@@ -26,9 +26,9 @@ public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
         return roundsWon;
     }
 
-    public void teleportPlayers (ShowdownSpawn spawn) {
+    public void teleportPlayers (MapStartSpawn spawn, Location lookLocation) {
         for (ShowdownPlayer player : onlinePlayers()) {
-            player.teleportPlayerToSpawn(spawn, game.getMap().getMapCentre());
+            player.teleportPlayerToSpawn(spawn.location(), lookLocation);
             player.playerSetupRound();
         }
     }
@@ -50,6 +50,7 @@ public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
     public void eliminateTeam () {
 
         teamAlive = false;
+        // TODO: move to game
         // Send message
         game.getGameManager().sendGlobalMessage(
                 Component.text("TEAM ELIMINATED > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
@@ -61,7 +62,7 @@ public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
     public void reviveTeam () {
 
         teamAlive = true;
-
+        // TODO: move to game
         // Send message
         game.getGameManager().sendGlobalMessage(
                 Component.text("TEAM REVIVED > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
