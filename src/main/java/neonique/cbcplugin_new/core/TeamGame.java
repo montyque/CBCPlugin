@@ -112,7 +112,7 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
 
         // Set all alive players to immune and remove void death
         for (P plr : this.players()) {
-            if (plr.isAlive()) plr.setImmune(true);
+            plr.setPermanentlyImmune(true);
         }
         combatSession().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(v -> v.setKillOnVoid(false));
 
