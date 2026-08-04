@@ -405,30 +405,20 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     // IMMUNITY FUNCTIONS
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void setTempImmune(long duration) {
-
-        if (tempImmunityTask != null) {
-            if (!tempImmunityTask.isCancelled()) {
-                tempImmunityTask.cancel();
-            }
-        }
-
-        setImmune(true);
-        tempImmunityTask = new TempImmunityTask(gameManager, combatManager, this, (int) (duration / 5));
-        tempImmunityTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 5);
-
+    public void setTempImmune (int duration) {
+        tempImmunityTicks = duration;
     }
 
     public boolean isImmune () {
         return permanentlyImmune || tempImmunityTicks > 0;
     }
 
-    public void decrementImmunityTicks () {
-        tempImmunityTicks--;
+    public int getTempImmunityTicks () {
+        return tempImmunityTicks;
     }
 
-    public void setTempImmunity (int ticks) {
-        tempImmunityTicks = ticks;
+    public void decrementImmunityTicks (int decrement) {
+        tempImmunityTicks = Math.min(0, tempImmunityTicks - decrement);
     }
 
     public void setPermanentlyImmune (boolean permanentlyImmune) {

@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.combat.tasks;
 
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
@@ -7,42 +8,23 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class TempImmunityTask extends BukkitRunnable {
 
-    private final GameManager gameManager;
-    private final CombatManager combatManager;
-    private final CBCPlayer player;
-    private int tick = 0;
-    private final int tickLimit;
+    private final PlayerStore players;
+    private final int frequency;
 
-    public TempImmunityTask(GameManager gameManager, CombatManager combatManager, CBCPlayer player, int tickLimit) {
-        this.gameManager = gameManager;
-        this.combatManager = combatManager;
-        this.player = player;
-        this.tickLimit = tickLimit;
+    public TempImmunityTask (PlayerStore players, int frequency) {
+        this.players = players;
+        this.frequency = frequency;
     }
 
     @Override
     public void run() {
 
-        if (!player.isOnline()) return;
-
-        // If all players are immune, make sure player is permanently immune
-        if (combatManager.isAllPlayersImmune()) {
-            this.cancel();
-            return;
+        for (CBCPlayer player : players.players()) {
+            if (player.isAlive() && player.getTempImmunityTicks() > 0) {
+                player.decrementImmunityTicks(frequency);
+            }
         }
-
-        // Make sure player is still alive
-        if (!player.isAlive()) {
-            player.setImmune(false);
-            this.cancel();
-            return;
-        }
-
-        if (tick >= tickLimit) {
-            player.setImmune(false);
-            this.cancel();
-        }
-        tick++;
 
     }
+
 }

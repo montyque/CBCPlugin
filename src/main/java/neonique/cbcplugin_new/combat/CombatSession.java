@@ -2,10 +2,7 @@ package neonique.cbcplugin_new.combat;
 
 import neonique.cbcplugin_new.combat.events.CBCPlayerDeathEvent;
 import neonique.cbcplugin_new.combat.listeners.*;
-import neonique.cbcplugin_new.combat.tasks.PlayerParticlesTask;
-import neonique.cbcplugin_new.combat.tasks.ProjectileUpdateTask;
-import neonique.cbcplugin_new.combat.tasks.RespawnTimerTask;
-import neonique.cbcplugin_new.combat.tasks.WeaponReloadTask;
+import neonique.cbcplugin_new.combat.tasks.*;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
@@ -176,8 +173,11 @@ public class CombatSession implements Listener {
         }
                 .runTaskTimer(plugin, 0, 1);
 
+        BukkitTask tempImmunityTask = new TempImmunityTask(players, 5)
+                .runTaskTimer(plugin, 0, 5);
+
         tasks = List.of(weaponReloadTask, respawnTimerTask, projectileUpdateTask,
-                weaponManagerTimerTask, playerParticlesTask);
+                weaponManagerTimerTask, playerParticlesTask, combatTimerTask, tempImmunityTask);
 
     }
 
