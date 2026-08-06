@@ -43,7 +43,7 @@ public class practice_changemap {
         }
 
         // Check if map choice is same as current map
-        if (gameManager.practiceManager.getMap().getId().equals(mapChoice.getId())) {
+        if (gameManager.practiceManager.getMap().id().equals(mapChoice.id())) {
             user.sendMessage(Component.text("That map is already the Practice Arena map!").color(NamedTextColor.YELLOW));
             return;
         }
@@ -63,12 +63,12 @@ public class practice_changemap {
             if (perms >= 1) {
                 // Show all practice maps
                 for (CBCMap map : gameManager.getPracticeMaps()) {
-                    tabCompletions.add(map.getId());
+                    tabCompletions.add(map.id());
                 }
 
                 // Remove the map currently set
                 if (gameManager.practiceManager.getMap() != null) {
-                    tabCompletions.remove(gameManager.practiceManager.getMap().getId());
+                    tabCompletions.remove(gameManager.practiceManager.getMap().id());
                 }
             }
         }

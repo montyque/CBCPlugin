@@ -82,7 +82,7 @@ public class PracticeManager implements PlayerSession<PracticePlayer>, Forwardin
 
         // Send message
         world.sendMessage(
-                Component.text("The practice arena has been opened on " + map.getName() + ".").color(NamedTextColor.GREEN)
+                Component.text("The practice arena has been opened on " + map.name() + ".").color(NamedTextColor.GREEN)
         );
 
         // Remove glass barrier at portal
@@ -111,7 +111,7 @@ public class PracticeManager implements PlayerSession<PracticePlayer>, Forwardin
 
         // Change display name of hologram
         if (hologram != null) {
-            hologram.customName(Component.text("Practice - " + map.getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD));
+            hologram.customName(Component.text("Practice - " + map.name()).color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD));
         }
 
         // Start new player teleport task
@@ -242,12 +242,12 @@ public class PracticeManager implements PlayerSession<PracticePlayer>, Forwardin
         setupMap(map);
 
         // Send message to all players
-        world.sendMessage(Component.text("The practice arena's map has been changed to " + map.getName() + ".")
+        world.sendMessage(Component.text("The practice arena's map has been changed to " + map.name() + ".")
                 .color(NamedTextColor.GREEN));
 
         // Change area effect cloud
         for (Entity e : new Location(world, -1069.5, 126.0, -1659.5).getNearbyEntitiesByType(AreaEffectCloud.class, 1)) {
-            e.customName(Component.text("Practice - " + map.getName()).color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD));
+            e.customName(Component.text("Practice - " + map.name()).color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD));
         }
 
         // Respawn every player

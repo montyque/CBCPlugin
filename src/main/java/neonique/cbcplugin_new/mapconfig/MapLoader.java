@@ -32,7 +32,7 @@ public class MapLoader {
         for (File mapFile : mapFiles) {
             try {
                 CBCMap map = loadMap(mapFile);
-                maps.put(map.getId(), map);
+                maps.put(map.id(), map);
             } catch (InvalidMapConfigException e) {
                 logger.log(Level.WARNING, e.getMessage(), e.getCause());
             }
@@ -83,7 +83,7 @@ public class MapLoader {
         for (File mapFile : mapFiles) {
             try {
                 GamemodeMapData mapData = loadGamemodeMapData(gamemode, maps, mapFile);
-                gamemodeMapDataList.put(mapData.map().getId(), mapData);
+                gamemodeMapDataList.put(mapData.mapData().id(), mapData);
             } catch (InvalidMapConfigException e) {
                 logger.log(Level.WARNING, e.getMessage(), e.getCause());
             }

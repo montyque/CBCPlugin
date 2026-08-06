@@ -57,7 +57,7 @@ public class practice_start {
             if (perms >= 1) {
                 // Show all practice maps
                 for (CBCMap map : gameManager.getPracticeMaps()) {
-                    tabCompletions.add(map.getId());
+                    tabCompletions.add(map.id());
                 }
             }
         }

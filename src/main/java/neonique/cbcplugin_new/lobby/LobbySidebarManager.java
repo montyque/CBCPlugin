@@ -135,7 +135,7 @@ public class LobbySidebarManager {
         } else {
             gamemodeComponent = normalText(TextUtil.getSpaceOfLength(8))
                     .append(smallText("MAP: ").color(NamedTextColor.YELLOW))
-                    .append(smallText(lobby.getMapSelected().getName()).color(NamedTextColor.GREEN));
+                    .append(smallText(lobby.getMapSelected().name()).color(NamedTextColor.GREEN));
         }
         displayToEveryone.add(gamemodeComponent);
 
@@ -237,7 +237,7 @@ public class LobbySidebarManager {
         } else {
             gamemodeComponent = normalText(TextUtil.getSpaceOfLength(8))
                     .append(smallText("MAP: ").color(NamedTextColor.YELLOW))
-                    .append(smallText(lobby.getMapSelected().getName()).color(NamedTextColor.GREEN));
+                    .append(smallText(lobby.getMapSelected().name()).color(NamedTextColor.GREEN));
         }
 
         displayToEveryone.add(gamemodeComponent);

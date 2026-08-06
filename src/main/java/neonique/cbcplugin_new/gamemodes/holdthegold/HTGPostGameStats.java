@@ -62,7 +62,7 @@ public class HTGPostGameStats extends PostGameStats {
 
         // Adding lore fields
         List<Component> loreList = new ArrayList<>();
-        addLoreField(loreList, "Map", game.getMap().getName(), NamedTextColor.GREEN);
+        addLoreField(loreList, "Map", game.getMap().name(), NamedTextColor.GREEN);
         if (game.getWinner() != null) {
             addLoreField(loreList, "Winner", game.getWinner().name(), game.getWinner().textColor());
         }

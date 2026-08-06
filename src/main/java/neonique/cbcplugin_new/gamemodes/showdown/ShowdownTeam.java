@@ -64,4 +64,12 @@ public class ShowdownTeam extends CBCTeam<ShowdownPlayer> {
         return playersLeftAlive;
     }
 
+    public void reviveTeam () {
+        teamAlive = true;
+    }
+
+    public void eliminateTeam () {
+        teamAlive = false;
+    }
+
 }

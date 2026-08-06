@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public record CTFMapData (CBCMap map,
+public record CTFMapData (CBCMap mapData,
                           TeamRequirements teamRequirements,
                           Map<TeamColor, CTFBaseInfo> teamBaseInfo,
                           double defensiveKillRadius,
@@ -88,9 +88,9 @@ public record CTFMapData (CBCMap map,
     public CTFBase getBase (TeamColor color) {
         CTFBaseInfo info = teamBaseInfo.get(color);
         return new CTFBase(
-                VectorUtil.vecToLocation(info.flagLocation, map.getWorld()),
+                VectorUtil.vecToLocation(info.flagLocation, mapData.getWorld()),
                 info.spawns.stream()
-                        .map(v -> VectorUtil.vecToLocation(v, map.getWorld()))
+                        .map(v -> VectorUtil.vecToLocation(v, mapData.getWorld()))
                         .toList()
         );
     }

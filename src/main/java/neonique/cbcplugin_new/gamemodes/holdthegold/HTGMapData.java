@@ -11,7 +11,7 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 
-public record HTGMapData (CBCMap map,
+public record HTGMapData (CBCMap mapData,
                           TeamRequirements teamRequirements,
                           Vector goldSpawn,
                           TeamSpawnList startingSpawns,

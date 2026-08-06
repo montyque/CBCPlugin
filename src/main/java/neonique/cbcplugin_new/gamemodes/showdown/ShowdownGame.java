@@ -54,7 +54,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     public enum RoundState {PRE_ROUND, DURING_ROUND, AFTER_ROUND}
 
     // Map related variables
-    private ShowdownMapData mapData;
+    private ShowdownMap map;
     private ShowdownSettings settings;
 
     // Game related variables
@@ -77,7 +77,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
     @Override
     public CBCMap getMap () {
-        return mapData.map();
+        return map.map();
     }
 
     @Override
@@ -117,7 +117,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     }
 
     private void setupMap (TeamGameContext ctx) {
-        mapData = (ShowdownMapData) ctx.mapData();
+        map = new ShowdownMap(world(), (ShowdownMapData) ctx.mapData());
     }
 
     public void setupRound () {
@@ -142,7 +142,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         // this.getMap().fillBlocksAtStart();
 
         // Setup spawns
-        roundSpawns = mapData.spawns().getTeamSpawnLocations(getTeams(), getWorld());
+        roundSpawns = map.roundSpawns(getTeams());
         for (List<MapStartSpawn> spawns : roundSpawns.values()) {
             spawns.forEach(MapStartSpawn::onSetup);
         }
@@ -167,7 +167,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
                 this,
                 this::players,
                 this::spectators,
-                getMap().getName(),
+                getMap().name(),
                 () -> !isGameOver() && roundState == RoundState.PRE_ROUND,
                 this::startRound,
                 roundNumber
@@ -177,8 +177,6 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     public void startRound () {
 
         roundState = RoundState.DURING_ROUND;
-
-        this.getMap().fillBlocksAtEnd();
 
         // Activate void
         combatSession().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(
@@ -196,7 +194,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
         startTimeAliveTracker();
 
-        if (mapData.suddenDeathEnabled()) {
+        if (map.suddenDeathEnabled()) {
             startSuddenDeathTimer();
         }
 
@@ -224,7 +222,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     private void startSuddenDeathTimer () {
         suddenDeathTimer = new ShowdownSDTimer(
                 this,
-                mapData.suddenDeathTimer(),
+                map.suddenDeathTimer(),
                 i -> {},
                 () -> (!isGameOver() && roundState == RoundState.DURING_ROUND),
                 this::startSuddenDeath
@@ -466,12 +464,12 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         }
 
         // If sudden death border is enabled activate the border
-        if (mapData.suddenDeathData().borderOptions() != null) {
+        if (map.deathBorderOptions() != null) {
             // TODO: fix death border needing game manager
             suddenDeathBorder = new DeathBorder(
                     null,
                     getMap().getMapCentre(),
-                    mapData.suddenDeathData().borderOptions()
+                    map.deathBorderOptions()
             );
             suddenDeathBorder.activateBorder();
         }

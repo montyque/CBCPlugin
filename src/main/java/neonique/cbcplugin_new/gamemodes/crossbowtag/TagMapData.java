@@ -8,7 +8,7 @@ import neonique.cbcplugin_new.util.ConfigUtil;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 
-public record TagMapData (CBCMap map,
+public record TagMapData (CBCMap mapData,
                           TeamRequirements teamRequirements,
                           TeamSpawnList taggerSpawnList,
                           TeamSpawnList evaderSpawnList,

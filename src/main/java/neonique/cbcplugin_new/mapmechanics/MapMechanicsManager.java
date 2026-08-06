@@ -1,7 +1,5 @@
 package neonique.cbcplugin_new.mapmechanics;
 
-import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.core.PlayerSession;
 import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import org.bukkit.World;
@@ -24,7 +22,7 @@ public class MapMechanicsManager {
     public void setupMapMechanics (CBCMap map) {
 
         World world = map.getWorld();
-        List<MapMechanic> mechanics = map.getMechanicSpecs().stream()
+        List<MapMechanic> mechanics = map.mechanicSpecs().stream()
                 .map(m -> m.createMechanic(world))
                 .toList();
         mechanics.forEach(this::register);

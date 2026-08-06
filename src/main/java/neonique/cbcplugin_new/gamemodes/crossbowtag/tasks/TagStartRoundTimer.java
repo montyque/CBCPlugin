@@ -45,7 +45,7 @@ public class TagStartRoundTimer extends BaseStartGameTimer {
                         Component.text(gamemodeIcon).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
                 );
 
-        subtitleComponent = Component.text(game.getMap().getName()).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE);
+        subtitleComponent = Component.text(game.getMap().name()).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE);
 
         if (getCountdownTimer() == 10 && gameStart) {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 100, 1);

@@ -420,14 +420,14 @@ public class Lobby {
 
         // Find all maps loaded for this gamemode
         List<GamemodeMapData> mapList = gameManager.getGamemodeMaps(gamemode);
-        mapList.sort(Comparator.comparing(m -> m.map().getName()));
+        mapList.sort(Comparator.comparing(m -> m.mapData().name()));
         Inventory gui = Bukkit.createInventory(user, 27, Component.text("Select Map - " + gamemode.getGamemodeName())
                 .decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
 
         // Put map items in inventory slots
         int mapCount = 0;
         for (GamemodeMapData map : mapList) {
-            ItemStack mapItem = getMapItem(gamemode.getColor(), map.map());
+            ItemStack mapItem = getMapItem(gamemode.getColor(), map.mapData());
             gui.setItem(mapCount, mapItem);
         }
 
@@ -436,12 +436,12 @@ public class Lobby {
     }
 
     private ItemStack getMapItem (TextColor nameColor, CBCMap map) {
-        ItemStack item = new ItemStack(map.getBlockSymbol());
+        ItemStack item = new ItemStack(map.blockSymbol());
         item.editMeta((m) -> {
             m.getPersistentDataContainer().set(MenuClickEvent.MENU_ITEM_ID_KEY,
-                    PersistentDataType.STRING, map.getId()
+                    PersistentDataType.STRING, map.id()
             );
-            Component itemTitle = Component.text(map.getName()).color(nameColor)
+            Component itemTitle = Component.text(map.name()).color(nameColor)
                     .decorate(TextDecoration.BOLD)
                     .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
             m.displayName(itemTitle);
@@ -460,7 +460,7 @@ public class Lobby {
         mapSelected = map;
 
         // Send message to say what map has been selected
-        Component message = Component.text().content(gamemodeSelected.getGamemodeName() + " - " + map.map().getName())
+        Component message = Component.text().content(gamemodeSelected.getGamemodeName() + " - " + map.mapData().name())
                         .color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD)
                         .append(
                                 Component.text().content(" has been selected!").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD,
@@ -474,7 +474,7 @@ public class Lobby {
         // Change image map
         imageMaps.clearImage();
 
-        String imageFileName = gameManager.getImageFile(gamemode, map.map().getId());
+        String imageFileName = gameManager.getImageFile(gamemode, map.mapData().id());
         if (imageFileName != null) {
             imageMaps.setImage(imageFileName);
         }
@@ -485,7 +485,7 @@ public class Lobby {
     }
 
     public CBCMap getMapSelected () {
-        return mapSelected != null ? mapSelected.map() : null;
+        return mapSelected != null ? mapSelected.mapData() : null;
     }
 
     public void addNewLobbyPlayer(Player player) {

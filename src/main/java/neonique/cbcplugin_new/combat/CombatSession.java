@@ -53,12 +53,16 @@ public class CombatSession implements Listener {
         this.combatDisplay = combatDisplay;
     }
 
+    public void setDeathListener (Consumer<DeathInfo> deathListener) {
+        this.deathListener = deathListener;
+    }
+
     public void setJoinAfterDeathListener (Consumer<CBCPlayer> joinAfterDeathListener) {
         this.joinAfterDeathListener = joinAfterDeathListener;
     }
 
-    public void setDeathListener (Consumer<DeathInfo> deathListener) {
-        this.deathListener = deathListener;
+    public void setRespawnListener (Consumer<CBCPlayer> respawnListener) {
+        this.respawnListener = respawnListener;
     }
 
     public void activate () {

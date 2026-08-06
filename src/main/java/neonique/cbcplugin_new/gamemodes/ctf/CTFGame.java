@@ -89,7 +89,7 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFTeam> {
 
     @Override
     public CBCMap getMap () {
-        return mapData.map();
+        return mapData.mapData();
     }
 
     @Override

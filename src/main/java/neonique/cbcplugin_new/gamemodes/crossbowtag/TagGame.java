@@ -87,7 +87,7 @@ public class TagGame extends TeamGame<TagPlayer, TagTeam> {
 
     @Override
     public CBCMap getMap () {
-        return mapData.map();
+        return mapData.mapData();
     }
 
     @Override
