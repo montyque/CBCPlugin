@@ -147,7 +147,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         // Check if player is a player
         if (hasPlayer(playerEntity)) {
             P player = getPlayer(playerEntity);
-            combatSession.playerAfterDeath(player);
+            combatSession.playerJoinAfterDeath(player);
         } else if (spectatorUUIDs.contains(playerEntity.getUniqueId())) {
             teleportSpectator(playerEntity);
         }
@@ -231,12 +231,22 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     public void addSpectator (Player player) {
         teleportSpectator(player);
+        spectatorUUIDs.remove(player.getUniqueId());
         audiences.add(player.getUniqueId());
     }
 
     public void removeSpectator (Player player) {
         teleportSpectator(player);
+        spectatorUUIDs.remove(player.getUniqueId());
         audiences.remove(player.getUniqueId());
+    }
+
+    public Collection<Player> spectators () {
+        return spectatorUUIDs.stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .filter(Player::isOnline)
+                .toList();
     }
 
     public void teleportSpectators () {
@@ -261,10 +271,6 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         return audiences.stream()
                 .map(Bukkit::getPlayer)
                 .toList();
-    }
-
-    public Iterable<Player> audiencePlayers () {
-        return world.getPlayers();
     }
 
 }
