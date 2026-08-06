@@ -1,12 +1,9 @@
 package neonique.cbcplugin_new.mechanics;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
-import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.combat.events.CBCPlayerDeathEvent;
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.tasks.gametasks.DeathBorderDamageTask;
-import neonique.cbcplugin_new.tasks.gametasks.DeathBorderShrinkTask;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,6 +12,8 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -22,7 +21,8 @@ import java.util.Set;
 
 public class DeathBorder {
 
-    private final GameManager gameManager;
+    private final Plugin plugin;
+    private final PlayerStore players;
 
     // Defualt variables
     private final Location center;
@@ -39,12 +39,13 @@ public class DeathBorder {
     private double currentRadius;
 
     // Border tasks
-    private DeathBorderShrinkTask borderShrinkTask;
-    private DeathBorderDamageTask borderDamageTask;
+    private BukkitRunnable borderShrinkTask;
+    private BukkitRunnable borderDamageTask;
 
-    public DeathBorder (GameManager gameManager, Location center, DeathBorderOptions options) {
+    public DeathBorder (Plugin plugin, PlayerStore players, Location center, DeathBorderOptions options) {
 
-        this.gameManager = gameManager;
+        this.plugin = plugin;
+        this.players = players;
         this.center = center;
         this.shape = options.shape;
         this.startRadius = options.maxRadius;
@@ -56,53 +57,52 @@ public class DeathBorder {
 
     }
 
-    public DeathBorder (GameManager gameManager, Location center, DeathBorderShape shape, int startRadius,
-                        int finalRadius, int highestY, int lowestY, int shrinkRate) {
-
-        this.gameManager = gameManager;
-
-        this.center = center;
-        this.shape = shape;
-        this.startRadius = startRadius;
-        this.finalRadius = finalRadius;
-        this.highestY = highestY;
-        this.lowestY = lowestY;
-        this.shrinkRate = shrinkRate;
-
-        this.warnDistance = 5;
-
-    }
-
     public void activateBorder () {
 
         active = true;
 
         // Reset radius to start radius
-        this.currentRadius = startRadius;
+        currentRadius = startRadius;
 
-        borderShrinkTask = new DeathBorderShrinkTask(this);
-        borderShrinkTask.runTaskTimer(CBCPlugin.getPlugin(), 0, (long) shrinkRate * 3L);
-        borderDamageTask = new DeathBorderDamageTask(gameManager.getPlayerRegistry(), gameManager.getCombatManager(), this);
-        borderDamageTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
+        startShrinkTask();
+        startDamageTask();
 
+    }
+
+    private void startShrinkTask () {
+        borderShrinkTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                shrinkBorder();
+            }
+        };
+        borderShrinkTask.runTaskTimer(plugin, 0, shrinkRate * 3L);
+    }
+
+    private void startDamageTask () {
+        borderDamageTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (CBCPlayer player : players.players()) {
+                    if (player.isOnline()) {
+                        checkIfPlayerOutsideBorder(player);
+                    }
+                }
+            }
+        };
+        borderDamageTask.runTaskTimer(plugin, 0, 10);
     }
 
     public void deactivateBorder () {
 
         active = false;
 
-        if (borderShrinkTask != null) {
-            if (borderShrinkTask.isCancelled()) {
-                borderShrinkTask.cancel();
-            }
-            borderShrinkTask = null;
+        if (borderShrinkTask != null && !borderShrinkTask.isCancelled()) {
+            borderShrinkTask.cancel();
         }
 
-        if (borderDamageTask != null) {
-            if (borderDamageTask.isCancelled()) {
-                borderDamageTask.cancel();
-            }
-            borderDamageTask = null;
+        if (borderDamageTask != null && !borderDamageTask.isCancelled()) {
+            borderDamageTask.cancel();
         }
 
     }
@@ -114,8 +114,7 @@ public class DeathBorder {
         // Make sure border does not shrink completely
         if (currentRadius - 1.5 < finalRadius) {
             currentRadius = finalRadius;
-        }
-        else {
+        } else {
             currentRadius -= 1.5;
         }
 
@@ -163,19 +162,15 @@ public class DeathBorder {
         if (!player.isOnline()) return;
         if (player.isImmune()) return;
 
-        CombatManager combatManager = gameManager.combatManager;
-
         if (player.getPlayer().getHealth() <= 1) {
-            // Kill player
-            if (player.getLastPlayerHitBy() == null) {
-                combatManager.playerDeath(player, null, DeathCause.DEATH_BORDER, false);
-            } else {
-                combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.DEATH_BORDER, false);
-            }
+            plugin.getServer().getPluginManager().callEvent(new CBCPlayerDeathEvent(
+                    player, player.getLastPlayerHitBy(), DeathCause.DEATH_BORDER, false
+            ));
         } else {
             player.getPlayer().damage(1);
             warnPlayer(player, true);
         }
+
     }
 
     public void warnPlayer(CBCPlayer player, boolean isOutsideBorder) {
@@ -201,7 +196,7 @@ public class DeathBorder {
         }
 
         // Display title
-        player.getPlayer().showTitle(Title.title(title, subtitle, times));
+        player.showTitle(Title.title(title, subtitle, times));
     }
 
     public void playParticles () {
@@ -259,8 +254,6 @@ public class DeathBorder {
                             1, 0, 0, 0, 1, dustOptions, true);
                 }
             }
-
-            CBCPlugin.getPlugin().getLogger().info("DEATH PARTICLE MADE");
         }
     }
 
