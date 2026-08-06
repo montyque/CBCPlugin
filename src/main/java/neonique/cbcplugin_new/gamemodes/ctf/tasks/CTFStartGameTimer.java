@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.gamemodes.ctf.tasks;
 
 import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.tasks.gamemodetasks.BaseStartGameTimer;
+import neonique.cbcplugin_new.core.tasks.BaseStartGameTimer;
 
 public class CTFStartGameTimer extends BaseStartGameTimer {
 

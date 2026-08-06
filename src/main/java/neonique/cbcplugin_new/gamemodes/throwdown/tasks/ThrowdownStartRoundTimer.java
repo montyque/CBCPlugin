@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.gamemodes.throwdown.tasks;
 
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownGame;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.tasks.gamemodetasks.BaseStartGameTimer;
+import neonique.cbcplugin_new.core.tasks.BaseStartGameTimer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;

@@ -1,10 +1,14 @@
 package neonique.cbcplugin_new.gamemodes.showdown.tasks;
 
+import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.core.CBCTeam;
 import neonique.cbcplugin_new.core.TeamColor;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownTeam;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.tasks.gamemodetasks.BaseStartGameTimer;
+import neonique.cbcplugin_new.core.tasks.BaseStartGameTimer;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -13,58 +17,50 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
 
 import java.time.Duration;
+import java.util.Collection;
+import java.util.function.Supplier;
 
 public class ShowdownStartRoundTimer extends BaseStartGameTimer {
 
-    private final ShowdownGame game;
-    private final boolean gameStart;
+    private final int round;
 
-    public ShowdownStartRoundTimer(GameManager gameManager, ShowdownGame game, int countdownTimer, boolean gameStart) {
-        super(game, countdownTimer);
-        this.game = game;
-        this.gameStart = gameStart;
+    public ShowdownStartRoundTimer(Audience audience,
+                                   Supplier<Collection<? extends CBCPlayer>> players,
+                                   Supplier<Collection<Player>> spectators,
+                                   String mapName,
+                                   Supplier<Boolean> runCondition,
+                                   Runnable gameStarter,
+                                   int round) {
+        super(audience, round == 1 ? 10 : 5, players, spectators, CBCGamemode.SHOWDOWN, mapName, runCondition, gameStarter);
+        this.round = round;
     }
 
-    @Override
-    public Title getDefaultTitle (Player player) {
-
-        ShowdownTeam team = game.getPlayer(player) != null ? game.getPlayerTeam(game.getPlayer(player)) : null;
-
-        Component titleComponent;
-        Component subtitleComponent;
-
-        TextColor textColor = team != null ? team.textColor() : game.getGamemodeColor();
-        TeamColor teamColor = team != null ? team.teamColor() : null;
-        String gamemodeIcon = game.getGamemode().getIcon(teamColor);
-
-        titleComponent = Component.text(gamemodeIcon).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
-                .append(
-                        Component.text(" " + game.getGamemode().getGamemodeName() + " ").color(textColor).decoration(TextDecoration.BOLD, TextDecoration.State.TRUE)
-                ).append(
-                        Component.text(gamemodeIcon).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
-                );
-
-        subtitleComponent = Component.text(game.getMap().getName()).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE);
-
-        if (!gameStart) {
-            titleComponent = Component.text("ROUND " + game.getRoundNumber()).decorate(TextDecoration.BOLD).color(textColor);
+    public Component getTitleComponent (int secs, CBCTeam<?> team) {
+        TextColor textColor = team != null ? team.textColor() : CBCGamemode.SHOWDOWN.getColor();
+        if (round == 1 && secs <= 5) {
+            return super.getTitleComponent(secs, team);
+        } else {
+            return Component.text()
+                    .content("ROUND " + round)
+                    .color(textColor)
+                    .build();
         }
+    }
 
-        if (getCountdownTimer() <= 5) {
-            subtitleComponent = Component.text("Starting in ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
-                    .append(Component.text(getCountdownTimer()).decorate(TextDecoration.BOLD).color(textColor));
+    public Component getSubtitleComponent (int secs, CBCTeam<?> team) {
+        TextColor textColor = team != null ? team.textColor() : CBCGamemode.SHOWDOWN.getColor();
+        if (round == 1) {
+            return super.getSubtitleComponent(secs, team);
+        } else {
+            return Component.text()
+                    .content("Starting in ")
+                    .color(NamedTextColor.WHITE)
+                    .decorate(TextDecoration.BOLD)
+                    .content(String.valueOf(secs))
+                    .color(textColor)
+                    .decorate(TextDecoration.BOLD)
+                    .build();
         }
-
-        // Show title
-        return Title.title(
-                titleComponent,
-                subtitleComponent,
-                Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(3000), Duration.ofMillis(500))
-        );
-
     }
 
-    public void startGame () {
-        game.startRound();
-    }
 }

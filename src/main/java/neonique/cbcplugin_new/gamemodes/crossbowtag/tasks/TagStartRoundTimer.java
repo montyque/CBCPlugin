@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagTeam;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.tasks.gamemodetasks.BaseStartGameTimer;
+import neonique.cbcplugin_new.core.tasks.BaseStartGameTimer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
