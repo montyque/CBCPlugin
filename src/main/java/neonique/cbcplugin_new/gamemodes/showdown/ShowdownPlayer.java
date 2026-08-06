@@ -1,18 +1,10 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.core.PlayerStore;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import java.time.Duration;
 
 public class ShowdownPlayer extends CBCPlayer {
 
@@ -38,9 +30,8 @@ public class ShowdownPlayer extends CBCPlayer {
         if (!isOnline()) return;
         Player playerEntity = getPlayer();
 
-        setAlive(false); // Set player's alive state to false
-
-        // Set gamemode of player to adventure and reset their stats
+        setAlive(false);
+        setPermanentlyImmune(false);
         resetPlayer();
 
         // Reset statistics

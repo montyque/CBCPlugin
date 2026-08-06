@@ -1,65 +1,39 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.combat.DeathInfo;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.FFAGameContext;
+import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.showdown.tasks.*;
+import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.mapconfig.spawns.MapStartSpawn;
+import neonique.cbcplugin_new.mapmechanics.HealthPadMechanic;
+import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.*;
+import net.kyori.adventure.sound.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.Duration;
 import java.util.*;
 
 public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
-    // Game related variables
-    private int roundsToWin = 4;
-
-    // Map related variables
-    private ShowdownMapData mapData;
-
-    // Sudden death variables
-    private boolean suddenDeathEnabled;
-    private boolean suddenDeathBorderEnabled;
-    private int suddenDeathMaxTimer;
-
-    // Set up round related variables
-    private boolean roundInPlay = false;
-    private boolean roundStartCountdown = false;
-    private int roundNumber = 0;
-    private final List<ShowdownTeam> roundWinOrder = new ArrayList<>();
-    private ShowdownTeam roundWinner = null;
-
-    // Sudden death related variables
-    private int suddenDeathTimer;
-    private boolean suddenDeath = false;
-    private DeathBorder suddenDeathBorder = null;
-
-    // Event listeners and tasks
-    private ShowdownPlayerCounts showdownPlayerCountsTask;
-    private ShowdownSDTimer sdTimerTask;
-
-    // Statistical variables
-    private int gameInRoundTime = 0;
-    private int suddenDeathRounds = 0;
-
-    // Other game variables
-    private boolean playersGlow = true;
-
-    public ShowdownGame (GameManager gameManager) {
-        super(gameManager);
+    public ShowdownGame(Plugin plugin, CBCScoreboardManager scoreboardManager, World world) {
+        super(plugin, scoreboardManager, world);
     }
 
     @Override
@@ -69,218 +43,273 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
     @Override
     public ShowdownTeam createGamemodeTeam (TeamLike team, int teamNum) {
-        return new ShowdownTeam(this, team, Integer.toString(teamNum));
+        return new ShowdownTeam(team, Integer.toString(teamNum));
     }
 
     @Override
     public ShowdownPlayer createPlayer(Player playerEntity) {
-        return new ShowdownPlayer(playerEntity);
+        return new ShowdownPlayer(playerEntity, this);
+    }
+
+    public enum RoundState {PRE_ROUND, DURING_ROUND, AFTER_ROUND}
+
+    // Map related variables
+    private ShowdownMapData mapData;
+    private ShowdownSettings settings;
+
+    // Game related variables
+    private final List<ShowdownTeam> roundWinOrder = new ArrayList<>();
+    private int roundNumber = 0;
+
+    // Set up round related variables
+    private Map<ShowdownTeam, List<MapStartSpawn>> roundSpawns = null;
+    private RoundState roundState;
+    private ShowdownTeam roundWinner = null;
+    private boolean suddenDeath = false;
+    private DeathBorder suddenDeathBorder = null;
+
+    // Event listeners and tasks
+    private ShowdownSDTimer suddenDeathTimer;
+
+    // Statistical variables
+    private int gameInRoundTime = 0;
+    private int suddenDeathRounds = 0;
+
+    @Override
+    public CBCMap getMap () {
+        return mapData.map();
     }
 
     @Override
-    public void setupGame (FFAGameContext ctx) {
-
-        final GameManager gameManager = getGameManager();
-        final CombatManager combatManager = getCombatManager();
-
-        // Setup map
-        setupMap((ShowdownMap) ctx.getMap());
-
-        // Setup default game variables
-        setupDefaultGameVars(ctx.getBoolVars(), ctx.getIntVars(), ctx.getStringVars());
-
-        // Set gamemode information
-        createHeaderTitle();
-
-        // Enable weapons
-        combatManager.activate(this);
-
-        // Setup game listeners and tasks
-        CBCPlugin plugin = CBCPlugin.getPlugin();
-
-        showdownPlayerCountsTask = new ShowdownPlayerCounts(gameManager, this);
-        showdownPlayerCountsTask.runTaskTimer(plugin, 0, 4);
-
-        // Setup gamemode game variables
-        this.roundsToWin = ctx.getIntVars().getOrDefault("pointsToWin", 4);
-        this.suddenDeathEnabled = ctx.getBoolVars().getOrDefault("suddenDeathEnabled", true);
-        this.playersGlow = ctx.getBoolVars().getOrDefault("playersGlow", true);
-
-        setGameCommands(new ShowdownGameCommands(this));
+    public void setupGame (TeamGameContext ctx) {
 
         // Create teams and players
-        createTeams(ctx.getTeams());
-        teleportSpectators();
+        List<TeamLike> teamTemplates = ctx.teams();
+        createTeams(teamTemplates);
 
-        // Create bossbar and sidebar displays
-        createUIManagers();
+        // Set up settings and map
+        settings = (ShowdownSettings) ctx.gameSettings();
+        setupMap(ctx);
 
-        // Start round 1
+        // TODO: Set gamemode information
+        // createHeaderTitle();
+
+        // Activate combat manager
+        setupCombat();
+
+        // TODO: Setup game commands
+        // setGameCommands(new TagGameCommands(this));
+
+        // TODO: Create Bossbar/Sidebar managers
+        // createUIManagers();
+
+        // Start first round
         setupRound();
 
     }
 
-    @Override
-    public void setupMap (ShowdownMap map) {
+    private void setupCombat () {
+        combatSession().activate();
+        combatSession().setupMap(getMap());
+        combatSession().setDeathListener(this::onPlayerDeath);
+        combatSession().setJoinAfterDeathListener(this::joinAfterDeath);
+        combatSession().setRespawnListener(this::onPlayerRespawn);
+    }
 
-        super.setupMap(map);
-
-        // Get spawns
-        randomSpawns = map.isRandomTeamSpawns();
-        if (randomSpawns) {
-            randomTeamSpawns = map.getTeamSpawns();
-            randomTeamSpawns = sortSpawns();
-        } else {
-            nonRandomTeamSpawns = map.getTeamSpawnsWithKeys();
-        }
-
-        // Setup sudden death
-        if (map.isSuddenDeathEnabled()) {
-            suddenDeathBorderEnabled = map.isSuddenDeathBorderEnabled();
-            suddenDeathMaxTimer = map.getSuddenDeathTimer();
-        }
+    private void setupMap (TeamGameContext ctx) {
+        mapData = (ShowdownMapData) ctx.mapData();
     }
 
     public void setupRound () {
 
-        roundInPlay = false;
+        roundState = RoundState.PRE_ROUND;
         roundWinner = null;
-        roundStartCountdown = true;
         roundNumber++;
-
-        // Update footer
-        createFooter();
-
-        // Setup spawns
-        if (randomSpawns) {
-            for (ShowdownSpawn spawn : randomTeamSpawns) {
-                spawn.setupSpawn();
-            }
-        } else {
-            for (ShowdownSpawn spawn : nonRandomTeamSpawns.values()) {
-                spawn.setupSpawn();
-            }
-        }
-
-        this.getMap().fillBlocksAtStart();
-
-        // Teleport players to spawns
-        if (randomSpawns) {
-            List<ShowdownTeam> shuffledTeams = new ArrayList<>(getTeams());
-            Collections.shuffle(shuffledTeams);
-            int spawnNum = 0;
-            for (ShowdownTeam team : shuffledTeams) {
-                ShowdownSpawn spawnToTeleport = randomTeamSpawns.get(spawnNum);
-                team.setRoundSpawn(spawnToTeleport);
-                team.teleportPlayers(spawnToTeleport);
-                spawnNum++;
-            }
-        } else {
-            for (ShowdownTeam team : getTeams()) {
-                ShowdownSpawn spawn = nonRandomTeamSpawns.get(team.id());
-                team.setRoundSpawn(spawn);
-                team.teleportPlayers(spawn);
-            }
-        }
 
         // Reset sudden death variables
         suddenDeath = false;
         suddenDeathBorder = null;
-        suddenDeathTimer = suddenDeathMaxTimer;
 
-        getCombatManager().setAllPlayersImmune(false);
-        getCombatManager().enableAllHealPads();
+        // TODO: Update footer
+        // createFooter();
+
+        // Setup map for start of round
+        combatSession().mapMechanicsManager().getMechanicsOfType(HealthPadMechanic.class).forEach(
+                HealthPadMechanic::enableAll
+        );
+
+        // TODO: fill blocks at start
+        // this.getMap().fillBlocksAtStart();
+
+        // Setup spawns
+        roundSpawns = mapData.spawns().getTeamSpawnLocations(getTeams(), getWorld());
+        for (List<MapStartSpawn> spawns : roundSpawns.values()) {
+            spawns.forEach(MapStartSpawn::onSetup);
+        }
+
+        // Teleport players to spawns
+        for (ShowdownTeam team : getTeams()) {
+            team.teleportPlayers(roundSpawns.get(team), getMap().getMapCentre());
+        }
 
         // Reset team variables
         for (ShowdownTeam team : getTeams()) {
             team.setupRound();
         }
 
-        // Start countdown for next round
-        if (roundNumber == 1) {
-            new ShowdownStartRoundTimer(getGameManager(), this, 11, true).runTaskTimer(CBCPlugin.getPlugin(), 0, 20);
-        } else {
-            new ShowdownStartRoundTimer(getGameManager(), this, 6, false).runTaskTimer(CBCPlugin.getPlugin(), 0, 20);
-        }
+        // Start countdown for start of next round
+        startRoundTimer();
 
-        // Update UI elements
-        updateBossbarManager();
-        updateServerSidebar();
+    }
 
+    public void startRoundTimer () {
+        new ShowdownStartRoundTimer(
+                this,
+                this::players,
+                this::spectators,
+                getMap().getName(),
+                () -> !isGameOver() && roundState == RoundState.PRE_ROUND,
+                this::startRound,
+                roundNumber
+        ).start(plugin());
     }
 
     public void startRound () {
 
+        roundState = RoundState.DURING_ROUND;
+
         this.getMap().fillBlocksAtEnd();
 
-        roundInPlay = true;
-        getCombatManager().setVoidKill(true);
+        // Activate void
+        combatSession().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(
+                VoidMechanic::deactivate
+        );
 
-        for (ShowdownPlayer player : this.players()) {
+        // Reset spawns
+        for (List<MapStartSpawn> spawns : roundSpawns.values()) {
+            spawns.forEach(MapStartSpawn::reset);
+        }
+
+        for (ShowdownPlayer player : players()) {
             player.playerStartRound();
         }
 
-        // Release players
-        if (randomSpawns) {
-            for (ShowdownSpawn spawn : randomTeamSpawns) {
-                spawn.roundStart();
-            }
-        } else {
-            for (ShowdownSpawn spawn : nonRandomTeamSpawns.values()) {
-                spawn.roundStart();
-            }
-        }
+        startTimeAliveTracker();
 
-        roundStartCountdown = false;
-
-        // Start counting player alive time
-        new ShowdownTimeAliveTask(this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
-
-        // Start sudden death mechanisms
-        if (suddenDeathEnabled) {
-            sdTimerTask = new ShowdownSDTimer(getGameManager(), this);
-            sdTimerTask.runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
+        if (mapData.suddenDeathEnabled()) {
+            startSuddenDeathTimer();
         }
 
         if (roundNumber == 1) {
             new IncrementGameTimeTask(this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
         }
 
-        // Update UI elements
-        updateServerSidebar();
+        updatePlayerCounts();
+
     }
 
-    public void checkPlayerCounts () {
+    private void startTimeAliveTracker () {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (isGameOver()) cancel();
+                if (roundState != RoundState.DURING_ROUND) cancel();
+                for (ShowdownPlayer player : players()) {
+                    if (player.isAlive()) player.incrementPlayerSecondsAlive();
+                }
+            }
+        }.runTaskTimer(plugin(), 20, 20);
+    }
 
-        if (isGameOver()) {
-            return;
+    private void startSuddenDeathTimer () {
+        suddenDeathTimer = new ShowdownSDTimer(
+                this,
+                mapData.suddenDeathTimer(),
+                i -> {},
+                () -> (!isGameOver() && roundState == RoundState.DURING_ROUND),
+                this::startSuddenDeath
+        );
+        suddenDeathTimer.runTaskTimer(plugin(), 20, 20);
+    }
+
+    public void onPlayerDeath (DeathInfo deathInfo) {
+
+        CBCPlayer victim = deathInfo.victim();
+        victim.showTitle(getDeathTitle(deathInfo.victim(), deathInfo.killer()));
+
+        // Check if round has ended
+        if (roundState == RoundState.DURING_ROUND) {
+            updatePlayerCounts();
         }
 
-        // Check if round is in play
-        if (!roundInPlay) {
-            return;
-        }
+    }
+
+    public void onPlayerRespawn (CBCPlayer player) {
+        ShowdownTeam playerTeam = getPlayerTeam(getTypedPlayer(player));
+        player.teleportPlayerToSpawn(roundSpawns.get(playerTeam).getFirst().location(), getMap().getMapCentre());
+    }
+
+    public void joinAfterDeath (CBCPlayer victim) {
+        victim.showTitle(getDeathTitle(victim, null));
+    }
+
+    private Title getDeathTitle (CBCPlayer victim, CBCPlayer killer) {
+
+        return Title.title(
+            Component.text()
+                    .content("YOU DIED!")
+                    .color(NamedTextColor.RED)
+                    .build(),
+            Component.text()
+                    .content("You've been eliminated!")
+                    .color(NamedTextColor.YELLOW)
+                    .build(),
+            Title.Times.times(
+                    Duration.ofMillis(0),
+                    Duration.ofMillis(1500),
+                    Duration.ofMillis(500)
+            )
+        );
+
+    }
+
+    public void updatePlayerCounts() {
 
         List<ShowdownTeam> teamsAlive = new ArrayList<>();
         for (ShowdownTeam team : getTeams()) {
             if (!team.isTeamAlive()) continue; // Make sure team is alive
-
             int teamPlayerCount = team.updatePlayersLeftAlive(true);
             if (teamPlayerCount > 0) {
                 teamsAlive.add(team);
             } else {
-                // Eliminate team if they are no longer alive
                 if (team.isTeamAlive()) {
-                    team.eliminateTeam();
+                    eliminateTeam(team);
                 }
             }
         }
 
-        // Check if only one team is alive
         if (teamsAlive.size() == 1) {
-            // Team has won round
-            teamWonRound(teamsAlive.get(0));
+            teamWonRound(teamsAlive.getFirst());
         }
+
+    }
+
+    public void eliminateTeam (ShowdownTeam team) {
+        team.eliminateTeam();
+        sendMessage(
+                Component.text("TEAM ELIMINATED > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+                        .append(team.nameComponent().decorate(TextDecoration.BOLD))
+                        .append(Component.text(" has been eliminated!").decoration(TextDecoration.BOLD, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
+        );
+    }
+
+    public void reviveTeam (ShowdownTeam team) {
+        team.reviveTeam();
+        sendMessage(
+                Component.text("TEAM ELIMINATED > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+                        .append(team.nameComponent().decorate(TextDecoration.BOLD))
+                        .append(Component.text(" has been revived!").decoration(TextDecoration.BOLD, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
+        );
     }
 
     public void teamWonRound (ShowdownTeam team) {
@@ -293,51 +322,81 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         roundWinOrder.add(team);
 
         // Update footer
-        createFooter();
+        updateFooter();
 
         // Check if team has reached the required amount of points
-        if (team.getRoundsWon() >= roundsToWin) {
+        if (team.getRoundsWon() >= settings.roundsToWin()) {
             gameWon(team);
+            roundOver(false);
         } else {
-            // Display title of round win
-            Component titleToDisplay = Component.text(team.name().toUpperCase() + " WINS ROUND " + roundNumber + "!")
-                            .decorate(TextDecoration.BOLD).color(team.textColor());
-
-            getGameManager().sendGlobalTitle(Title.title(titleToDisplay, Component.space(),
-                    Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(3000), Duration.ofMillis(500))));
-
-            // Send message of round win
-            getGameManager().sendGlobalMessage(
-                    Component.newline()
-                            .append(Component.text("ROUND WIN > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
-                            .append(Component.text(team.name()).decorate(TextDecoration.BOLD).color(team.textColor()))
-                            .append(Component.text(" has won the round!").color(NamedTextColor.WHITE))
-                            .append(Component.newline())
-            );
-
-            // Play sound to all players
-            getGameManager().playGlobalSound(Sound.ENTITY_PLAYER_LEVELUP, 200, 0);
-
-            // End round and start the next round
+            showRoundWinTitle(team);
+            sendRoundWinMessage(team);
+            playSound(Sound.sound(org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, Sound.Source.MASTER,200, 0));
             roundOver(true);
         }
 
-        // Update bossbar
-        updateBossbarManager();
+    }
+
+    private void showRoundWinTitle (ShowdownTeam team) {
+
+        showTitle(Title.title(
+            Component.text(team.name().toUpperCase() + " WINS ROUND " + roundNumber + "!")
+                    .decorate(TextDecoration.BOLD)
+                    .color(team.textColor()),
+            Component.space(),
+            Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(3000), Duration.ofMillis(500))
+        ));
+
+    }
+
+    private void sendRoundWinMessage (ShowdownTeam team) {
+        sendMessage(
+                Component.newline()
+                        .append(Component.text("ROUND WIN > ").decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE))
+                        .append(Component.text(team.name()).decorate(TextDecoration.BOLD).color(team.textColor()))
+                        .append(Component.text(" has won the round!").color(NamedTextColor.WHITE))
+                        .append(Component.newline())
+        );
     }
 
     public void roundOver (boolean startNextRound) {
 
-        roundInPlay = false;
+        roundState = RoundState.AFTER_ROUND;
 
         // Set all alive players to immune
-        for (ShowdownPlayer player : this.players()) {
+        for (ShowdownPlayer player : players()) {
             if (player.isAlive()) {
-                player.setImmune(true);
+                player.setPermanentlyImmune(true);
             }
         }
 
-        // Deactivate border
+        // Make the void do nothing
+        combatSession().mapMechanicsManager().getMechanicsOfType(VoidMechanic.class).forEach(
+                VoidMechanic::deactivate
+        );
+
+        cleanupRound();
+
+        // Start timer for next round
+        if (startNextRound) {
+            startNextRoundTimer();
+        }
+
+    }
+
+    private void startNextRoundTimer () {
+        new ShowdownNextRoundTimer(
+                this,
+                10,
+                () -> isGameOver() && roundState == RoundState.AFTER_ROUND,
+                this::setupRound
+        ).runTaskTimer(plugin(), 20, 20);
+    }
+
+    private void cleanupRound () {
+
+        cancelTask(suddenDeathTimer);
+
         if (suddenDeathBorder != null) {
             if (suddenDeathBorder.isActive()) {
                 suddenDeathBorder.deactivateBorder();
@@ -345,23 +404,6 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
             suddenDeathBorder = null;
         }
 
-        // Cancel sudden death tasks if they are active
-        cancelTask(sdTimerTask);
-
-        // Make the void do nothing
-        getCombatManager().setAllPlayersImmune(true);
-        getCombatManager().setVoidKill(false);
-
-        // Turn off heal pads
-        getCombatManager().disableAllHealPads();
-
-        // Start timer for next round
-        if (startNextRound) {
-            new ShowdownNextRoundTimer(getGameManager(), this, 10).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
-        }
-
-        // Update sidebar manager
-        updateServerSidebar();
     }
 
     @Override
@@ -384,20 +426,8 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     }
 
     @Override
-    public void resetGame() {
-
-        super.resetGame();
-
-        if (suddenDeathBorder != null) {
-            if (suddenDeathBorder.isActive()) {
-                suddenDeathBorder.deactivateBorder();
-            }
-            suddenDeathBorder = null;
-        }
-
-        cancelTask(sdTimerTask);
-        cancelTask(showdownPlayerCountsTask);
-
+    public void gameCleanup () {
+        cleanupRound();
     }
 
     public int getRoundNumber() {
@@ -405,50 +435,11 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     }
 
     public boolean isRoundNotInPlay() {
-        return !roundInPlay;
+        return roundState == RoundState.DURING_ROUND;
     }
 
     public int getRoundsToWin() {
-        return roundsToWin;
-    }
-
-    // Sudden death functions
-    public void decrementSDTimer(ShowdownSDTimer sdTimerTask) {
-
-        if (suddenDeath) {
-            sdTimerTask.cancel();
-            return;
-        }
-
-        if (!roundInPlay) {
-            sdTimerTask.cancel();
-            return;
-        }
-
-        // Decrement timer
-        suddenDeathTimer--;
-
-        // Check if timer is 30 or 20 or equal or below 5
-        if (suddenDeathTimer != 0) {
-            if (suddenDeathTimer == 30 || suddenDeathTimer == 10 || suddenDeathTimer <= 3) {
-                NamedTextColor timeColor = NamedTextColor.RED;
-                if (suddenDeathTimer == 30) timeColor = NamedTextColor.YELLOW;
-                else if (suddenDeathTimer == 10) timeColor = NamedTextColor.GOLD;
-                getGameManager().sendGlobalMessage(
-                        Component.text("Sudden Death").decorate(TextDecoration.BOLD).color(NamedTextColor.RED)
-                                .append(Component.text(" begins in ").decoration(TextDecoration.BOLD, TextDecoration.State.FALSE).color(NamedTextColor.WHITE))
-                                .append(Component.text(suddenDeathTimer + " seconds!").decorate(TextDecoration.BOLD).color(timeColor))
-                );
-                getGameManager().playGlobalSound(Sound.UI_BUTTON_CLICK, 200, 1);
-            }
-        }
-        // If timer is zero then start sudden death
-        else {
-            startSuddenDeath();
-            sdTimerTask.cancel();
-        }
-
-        updateBossbarManager();
+        return settings.roundsToWin();
     }
 
     public void startSuddenDeath () {
@@ -456,29 +447,35 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         suddenDeath = true;
         suddenDeathRounds++;
 
-        // Display title to everyone
-        Title title = Title.title(
-                Component.space(), Component.text("Sudden Death has started!").color(NamedTextColor.RED),
+        // Title and sound
+        showTitle(Title.title(
+                Component.space(),
+                Component.text("Sudden Death has started!").color(NamedTextColor.RED),
                 Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(1500), Duration.ofMillis(500))
+        ));
+        playSound(Sound.sound(org.bukkit.Sound.ENTITY_BEE_STING, Sound.Source.MASTER, 200, 1));
+
+        // Disable heal pads
+        combatSession().mapMechanicsManager().getMechanicsOfType(HealthPadMechanic.class).forEach(
+                HealthPadMechanic::disableAll
         );
 
-        getGameManager().sendGlobalTitle(title);
-        getGameManager().playGlobalSound(Sound.ENTITY_WITHER_DEATH, 200, 1);
-        getCombatManager().disableAllHealPads();
-
         // Heal all players
-        for (CBCPlayer player : getGameManager().getAlivePlayers()) {
-            if (!player.isOnline()) continue;
-            player.healToFull();
+        for (CBCPlayer player : players()) {
+            if (player.isAlive()) player.healToFull();
         }
 
         // If sudden death border is enabled activate the border
-        if (suddenDeathBorderEnabled) {
-
-            suddenDeathBorder = this.getMap().getSuddenDeathBorder(getGameManager());
+        if (mapData.suddenDeathData().borderOptions() != null) {
+            // TODO: fix death border needing game manager
+            suddenDeathBorder = new DeathBorder(
+                    null,
+                    getMap().getMapCentre(),
+                    mapData.suddenDeathData().borderOptions()
+            );
             suddenDeathBorder.activateBorder();
-
         }
+
     }
 
     public boolean isSuddenDeath() {
@@ -486,7 +483,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     }
 
     public int getSuddenDeathTimer() {
-        return suddenDeathTimer;
+        return suddenDeathTimer != null ? suddenDeathTimer.getSecs() : 0;
     }
 
     public int getGameInRoundTime() {
@@ -500,104 +497,55 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     @Override
     public void incrementGameTime() {
         super.incrementGameTime();
-        if (roundInPlay) {
+        if (roundState == RoundState.DURING_ROUND) {
             gameInRoundTime++;
         }
     }
 
     @Override
     public void playerJoinServer(Player playerEntity) {
-
         super.playerJoinServer(playerEntity);
-
         ShowdownPlayer player = getPlayer(playerEntity);
         if (player != null) {
-
             ShowdownTeam team = getPlayerTeam(player);
             if (team == null) return;
-
-            // If player joins before round starts, put them into game
-            if (!roundInPlay && roundStartCountdown) {
+            if (roundState == RoundState.AFTER_ROUND) {
                 player.playerSetupRound();
-                player.teleportPlayerToSpawn(team.getRoundSpawn(), this.getMap().getMapCentre());
+                player.teleportPlayerToSpawn(roundSpawns.get(team).getFirst().location(), this.getMap().getMapCentre());
             }
-
         }
-
     }
 
-    public void createFooter () {
+    public void updateFooter () {
+        sendPlayerListFooter(createFooter());
+    }
 
-        int maxRounds = (roundsToWin - 1) * getTeams().size() + 1;
+    public Component createFooter () {
 
-        Component footer = Component.newline().append(smallText("Round " + roundNumber + " ")
-                .color(NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
+        int maxRounds = (settings.roundsToWin() - 1) * getTeams().size() + 1;
+
+        TextComponent.Builder footer = Component.text()
+                .append(Component.newline())
+                .append(smallText("Round " + roundNumber + " ").color(NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
 
         for (int rd = 1; rd <= maxRounds; rd++) {
             if (roundWinOrder.size() >= rd) {
-                footer = footer.append(smallText("■").color(roundWinOrder.get(rd - 1).textColor()));
+                footer.append(smallText("■").color(roundWinOrder.get(rd - 1).textColor()));
             } else {
                 if (rd == roundNumber) {
-                    footer = footer.append(smallText("□").color(NamedTextColor.WHITE));
+                    footer.append(smallText("□").color(NamedTextColor.WHITE));
                 } else {
-                    footer = footer.append(smallText("□").color(NamedTextColor.GRAY));
+                    footer.append(smallText("□").color(NamedTextColor.GRAY));
                 }
             }
         }
 
-        getGameManager().setPlayerListFooter(footer);
-    }
+        return footer.build();
 
-    public boolean isRoundStartCountdown () {
-        return roundStartCountdown;
     }
 
     public ShowdownTeam getRoundWinner () {
         return roundWinner;
-    }
-
-    public List<ShowdownSpawn> sortSpawns() {
-
-        List<ShowdownSpawn> roundSpawnList = new ArrayList<>(randomTeamSpawns);
-        List<ShowdownSpawn> spawnOrder = new ArrayList<>();
-
-        // Select the first spawn
-        Comparator<ShowdownSpawn> byDistanceFromCenter =
-                (ShowdownSpawn loc1, ShowdownSpawn loc2) -> Double.compare(loc1.distanceSquared(this.getMap().getMapCentre()), loc2.distanceSquared(this.getMap().getMapCentre()));
-        roundSpawnList.sort(byDistanceFromCenter);
-        Collections.reverse(roundSpawnList);
-
-        spawnOrder.add(roundSpawnList.get(0));
-        roundSpawnList.remove(0);
-
-        while (spawnOrder.size() < randomTeamSpawns.size()) {
-            double minDistanceFromSpawns = 0;
-            ShowdownSpawn spawnSelected = null;
-            for (ShowdownSpawn spawn : new ArrayList<>(roundSpawnList)) {
-                double spawnMinDistanceFromSpawns = 300000;
-                for (ShowdownSpawn spawnAlreadySelected : spawnOrder) {
-                    if (spawn.distanceSquared(spawnAlreadySelected) < spawnMinDistanceFromSpawns) {
-                        spawnMinDistanceFromSpawns = spawn.distanceSquared(spawnAlreadySelected);
-                    }
-                }
-                if (spawnMinDistanceFromSpawns > minDistanceFromSpawns) {
-                    minDistanceFromSpawns = spawnMinDistanceFromSpawns;
-                    spawnSelected = spawn;
-                }
-            }
-            spawnOrder.add(spawnSelected);
-            roundSpawnList.remove(spawnSelected);
-        }
-
-        return spawnOrder;
-    }
-
-    public boolean isPlayerGlowingEnabled () {
-        return playersGlow;
-    }
-
-    public int getPlayersAlive () {
-        return (int) this.players().stream().filter(ShowdownPlayer::isAlive).count();
     }
 
 }
