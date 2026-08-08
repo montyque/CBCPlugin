@@ -103,7 +103,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         loadMaps();
 
         // Create practice manager
-        PracticeManager practiceManager = new PracticeManager(this, world,
+        practiceManager = new PracticeManager(this, world, mapRepository,
                 new Location(world, 0, 50, 0),
                 new Location(world, 0, 50 ,0),
                 new Location(world, 0, 50, 0)

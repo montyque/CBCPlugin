@@ -2,6 +2,8 @@ package neonique.cbcplugin_new.practice;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMapData;
+import neonique.cbcplugin_new.mapconfig.MapRepository;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.entity.AreaEffectCloud;
@@ -20,6 +22,7 @@ public class PracticeManager {
 
     private final Plugin plugin;
     private final UUID worldUUID;
+    private final MapRepository maps;
 
     private AreaEffectCloud hologram;
 
@@ -34,12 +37,14 @@ public class PracticeManager {
 
     public PracticeManager (Plugin plugin,
                             World world,
+                            MapRepository maps,
                             Location portalLocation,
                             Location hologramLocation,
                             Location teleportLocation) {
 
         this.plugin = plugin;
         this.worldUUID = world.getUID();
+        this.maps = maps;
         this.portalLocation = portalLocation;
         this.hologramLocation = hologramLocation;
         this.teleportLocation = teleportLocation;
@@ -142,6 +147,10 @@ public class PracticeManager {
 
     public World getWorld () {
         return Bukkit.getWorld(worldUUID);
+    }
+
+    public Collection<CBCMapData> getPracticeMaps () {
+        return maps.allMaps().values();
     }
 
 }
