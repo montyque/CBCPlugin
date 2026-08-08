@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.ProjectileManager;
+import neonique.cbcplugin_new.weapons.presets.CreeperCannonSettings;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.weapons.projectiles.CBCCreeper;
@@ -24,6 +25,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
+import java.util.function.Consumer;
+
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowText;
 
 public class CreeperCannon implements CrossbowWeapon {
@@ -32,24 +35,23 @@ public class CreeperCannon implements CrossbowWeapon {
     public final static NamespacedKey verKbKey = new NamespacedKey(CBCPlugin.getPlugin(), "ver_kb");
     public final static NamespacedKey allyDamageRatioKey = new NamespacedKey(CBCPlugin.getPlugin(), "ally_dmg_ratio");
 
-    private final CBCPlayer owner;
     private final WeaponReloader weaponReloader;
-    private final CreeperPreset weaponOptions;
+    private final CreeperCannonSettings settings;
 
-    public CreeperCannon(CBCPlayer player, CreeperPreset creeperPreset) {
-        owner = player;
+    public CreeperCannon (CreeperCannonSettings settings) {
+
+        this.settings = settings;
+
         weaponReloader = new WeaponReloader();
+        weaponReloader.setReloadTime(settings.reloadTicks());
 
-        weaponOptions = creeperPreset;
-        weaponReloader.setReloadTime(weaponOptions.getReloadTicks());
     }
 
     @Override
-    public void fireWeapon (Arrow arrowFired, ProjectileManager projManager) {
-
-        Projectile projectile = fireProjectile(arrowFired, projManager);
+    public void fireWeapon (CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
+        Projectile projectile = fireProjectile(player, arrowFired);
+        projectileRegistry.accept(projectile);
         weaponReloader.startReload();
-
     }
 
     @Override
@@ -108,7 +110,7 @@ public class CreeperCannon implements CrossbowWeapon {
     }
 
     @Override
-    public Projectile fireProjectile(Arrow arrowFired, ProjectileManager projManager) {
+    public Projectile fireProjectile (CBCPlayer player, Arrow arrowFired) {
 
         arrowFired.setDamage(0);
         Vector arrowVelocity = arrowFired.getVelocity();
@@ -117,36 +119,29 @@ public class CreeperCannon implements CrossbowWeapon {
         Creeper creeperFired = (Creeper) world.spawnEntity(new Location(world, 0, 100, 0), EntityType.CREEPER,
                 CreatureSpawnEvent.SpawnReason.CUSTOM,
                 creeper -> {
-                    creeper.setVelocity(arrowVelocity.multiply(weaponOptions.getLaunchVelocityModifier()));
+                    creeper.setVelocity(arrowVelocity.multiply(settings.launchVelocityModifier()));
                     creeper.setInvulnerable(true);
                 }
         );
 
         creeperFired.setPowered(true);
-        creeperFired.setExplosionRadius(weaponOptions.getCreeperExplosionRadius());
+        creeperFired.setExplosionRadius(settings.explosionRadius());
         creeperFired.teleport(creeperSpawnLocation);
         arrowFired.remove();
 
         // Change name of creeper depending on team name
-        if (owner.team() != null) {
-            creeperFired.customName(Component.text(owner.team().name() + "Creeper"));
+        if (player.team() != null) {
+            creeperFired.customName(Component.text(player.team().name() + "Creeper"));
         }
 
         // Add data to creeper used when creeper does damage
         PersistentDataContainer data = creeperFired.getPersistentDataContainer();
-        data.set(horKbKey, PersistentDataType.DOUBLE, weaponOptions.getHorizontalKnockbackCoefficient());
-        data.set(verKbKey, PersistentDataType.DOUBLE, weaponOptions.getVerticalKnockbackCoefficient());
-        data.set(allyDamageRatioKey, PersistentDataType.DOUBLE, weaponOptions.getCreeperAllyDamageRatio());
+        data.set(horKbKey, PersistentDataType.DOUBLE, settings.horizontalKnockbackCoefficient());
+        data.set(verKbKey, PersistentDataType.DOUBLE, settings.verticalKnockbackCoefficient());
+        data.set(allyDamageRatioKey, PersistentDataType.DOUBLE, settings.allyDamageModifier());
 
-        CBCCreeper proj = new CBCCreeper(owner, creeperFired);
-        projManager.addProjectile(proj);
-        return proj;
+        return new CBCCreeper(player, creeperFired);
 
-    }
-
-    @Override
-    public CBCPlayer getPlayer() {
-        return owner;
     }
 
     @Override
