@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new;
 
+import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
 import neonique.cbcplugin_new.commands.*;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.managers.GameState;
@@ -44,6 +45,8 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
     private MapMechanicLoader mechanicLoader;
     private MapLoader mapLoader;
     private MapRepository mapRepository;
+
+    private DeathMessageLoader deathMessageLoader;
 
     private ResourcePackManager resourcePackManager;
     private ArmorTrimService trimService;
@@ -96,9 +99,16 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         resourcePackManager = new ResourcePackManager();
         // weaponPresetService = new WeaponPresetService();
 
+        deathMessageLoader = new DeathMessageLoader(getLogger());
+        try {
+            deathMessageLoader.loadDefaults(getDataFolder());
+        } catch (FileNotFoundException e) {
+            throw new IllegalStateException("deathmessages.yml was not found!");
+        }
+
         // Load maps
         mechanicLoader = new MapMechanicLoader();
-        mapLoader = new MapLoader(mechanicLoader, getLogger());
+        mapLoader = new MapLoader(mechanicLoader, deathMessageLoader, getLogger());
         mapRepository = new MapRepository();
         loadMaps();
 

@@ -1,14 +1,12 @@
 package neonique.cbcplugin_new.practice;
 
-import neonique.cbcplugin_new.combat.CombatDisplay;
+import neonique.cbcplugin_new.combat.display.CombatDisplay;
 import neonique.cbcplugin_new.combat.CombatSession;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.combat.DeathInfo;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.PlayerSession;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownTeam;
-import neonique.cbcplugin_new.managers.DeathMessageManager;
+import neonique.cbcplugin_new.combat.display.DeathMessageProvider;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import net.kyori.adventure.audience.Audience;
@@ -21,7 +19,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scoreboard.ScoreboardManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -44,7 +41,7 @@ public class PracticeInstance implements PlayerSession<PracticePlayer>, Forwardi
         this.world = world;
         this.scoreboardManager = scoreboardManager;
         this.combatSession = new CombatSession(plugin, world, scoreboardManager, this);
-        this.combatDisplay = new CombatDisplay(this, new DeathMessageManager());
+        this.combatDisplay = new CombatDisplay(this);
         combatSession.setCombatDisplay(combatDisplay);
     }
 

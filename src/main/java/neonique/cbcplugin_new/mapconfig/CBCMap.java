@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.mapconfig;
 
+import neonique.cbcplugin_new.combat.display.DeathMessageProvider;
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.mapmechanics.MapMechanicSpec;
 import neonique.cbcplugin_new.util.VectorUtil;
@@ -80,6 +81,10 @@ public class CBCMap {
 
     public MapOptions mapOptions () {
         return mapData.options();
+    }
+
+    public DeathMessageProvider deathMessageProvider () {
+        return mapData.deathMessageProvider();
     }
 
 

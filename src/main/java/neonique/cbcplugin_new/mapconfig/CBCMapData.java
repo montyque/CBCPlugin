@@ -1,16 +1,11 @@
 package neonique.cbcplugin_new.mapconfig;
 
-import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
+import neonique.cbcplugin_new.combat.display.DeathMessageProvider;
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.mapmechanics.MapMechanicSpec;
-import neonique.cbcplugin_new.mechanics.FFASpawnpoint;
 import neonique.cbcplugin_new.util.ConfigUtil;
-import neonique.cbcplugin_new.util.VectorUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
@@ -29,9 +24,12 @@ public record CBCMapData (String id,
                           List<Vector> defaultSpawnCoords,
                           Map<TeamColor, List<Vector>> defaultTeamSpawns,
                           MapOptions options,
-                          List<MapMechanicSpec> mechanicSpecs) {
+                          List<MapMechanicSpec> mechanicSpecs,
+                          DeathMessageProvider deathMessageProvider) {
 
-    public static CBCMapData fromConfig (Configuration config, MapMechanicLoader mechanicLoader) {
+    public static CBCMapData fromConfig (Configuration config,
+                                         MapMechanicLoader mechanicLoader,
+                                         DeathMessageLoader dmLoader) {
 
         String id = ConfigUtil.requireString(config, "id");
 
@@ -70,6 +68,11 @@ public record CBCMapData (String id,
         // Parse map mechanics
         List<MapMechanicSpec> mechanicSpecs = mechanicsFromConfig(config, mechanicLoader);
 
+        DeathMessageProvider overrideProvider = ConfigUtil.getConfigurationSection(config, "death_message_overrides")
+                .map(DeathMessageProvider::fromConfig)
+                .orElse(DeathMessageProvider.empty());
+        DeathMessageProvider mapProvider = dmLoader.getOverriddenProvider(overrideProvider);
+
         return new CBCMapData(
                 id,
                 name,
@@ -80,7 +83,8 @@ public record CBCMapData (String id,
                 defaultSpawnCoords,
                 defaultTeamSpawns,
                 options,
-                mechanicSpecs
+                mechanicSpecs,
+                mapProvider
         );
 
     }

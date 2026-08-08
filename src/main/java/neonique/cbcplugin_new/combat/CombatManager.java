@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.listeners.*;
 import neonique.cbcplugin_new.combat.tasks.*;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
-import neonique.cbcplugin_new.managers.DeathMessageManager;
+import neonique.cbcplugin_new.combat.display.DeathMessageProvider;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.mapmechanics.*;
 import neonique.cbcplugin_new.core.CBCPlayer;
@@ -38,7 +38,7 @@ public class CombatManager {
 
     // Death message manager
     private Audience audience = Audience.empty();
-    private final DeathMessageManager deathMessageManager;
+    private final DeathMessageProvider deathMessageManager;
 
     // Colors for glowing arrows
     private CBCScoreboardTeam flameZoneArrowTeam;
@@ -90,7 +90,7 @@ public class CombatManager {
         this.gameManager = gameManager;
 
         // Load death messages
-        deathMessageManager = new DeathMessageManager();
+        deathMessageManager = new DeathMessageProvider();
         boolean success = deathMessageManager.loadDeathMessages();
 
         if (success) {
@@ -384,7 +384,7 @@ public class CombatManager {
         return canTrapdoorsOpen;
     }
 
-    public DeathMessageManager getDeathMessageManager () {
+    public DeathMessageProvider getDeathMessageManager () {
         return deathMessageManager;
     }
 

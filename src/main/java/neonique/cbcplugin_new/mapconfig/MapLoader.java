@@ -1,9 +1,8 @@
 package neonique.cbcplugin_new.mapconfig;
 
-import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,12 +12,13 @@ import java.util.logging.Logger;
 
 public class MapLoader {
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(MapLoader.class);
     private final MapMechanicLoader mechanicsLoader;
+    private final DeathMessageLoader deathMessageLoader;
     private final Logger logger;
 
-    public MapLoader (MapMechanicLoader loader, Logger logger) {
+    public MapLoader (MapMechanicLoader loader, DeathMessageLoader deathMessageLoader, Logger logger) {
         this.mechanicsLoader = loader;
+        this.deathMessageLoader = deathMessageLoader;
         this.logger = logger;
     }
 
@@ -88,7 +88,7 @@ public class MapLoader {
             if (ymlMapConfig.getKeys(false).isEmpty()) {
                 throw new IllegalArgumentException("Config is empty or could not be parsed into YAMLConfiguration");
             }
-            return CBCMapData.fromConfig(ymlMapConfig, mechanicsLoader);
+            return CBCMapData.fromConfig(ymlMapConfig, mechanicsLoader, deathMessageLoader);
         } catch (Exception e) {
             throw new InvalidMapConfigException(mapId, e);
         }

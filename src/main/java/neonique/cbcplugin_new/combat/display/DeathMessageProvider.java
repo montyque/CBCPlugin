@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.managers;
+package neonique.cbcplugin_new.combat.display;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
@@ -6,86 +6,63 @@ import neonique.cbcplugin_new.core.CBCPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
 
-public class DeathMessageManager {
+public record DeathMessageProvider (Map<DeathCause, DeathMessageGenerator> generators) {
 
-    // List of possible death messages
-    private Map<DeathCause, DeathMessageGenerator> defaultDeathMessages;
-
-    // If a map overrides certain death messages, use these instead
-    private Map<DeathCause, DeathMessageGenerator> overrideDeathMessages;
-
-    public DeathMessageManager () {
-        defaultDeathMessages = new HashMap<>();
-        overrideDeathMessages = new HashMap<>();
+    public static DeathMessageProvider fromConfig (ConfigurationSection config) {
+        return new DeathMessageProvider(
+                config.getKeys(false).stream()
+                    .filter(k -> Arrays.stream(DeathCause.values())
+                            .anyMatch(d -> d.name().equals(k.toUpperCase())))
+                    .filter(k -> config.getConfigurationSection(k) != null)
+                    .collect(Collectors.toUnmodifiableMap(
+                            k -> DeathCause.valueOf(k.toUpperCase()),
+                            k -> DeathMessageGenerator.fromConfig(config.getConfigurationSection(k))
+                    )));
     }
 
-    public boolean loadDeathMessages () {
-
-        final String deathMessagesFileName = "deathmessages.yml";
-        defaultDeathMessages = new HashMap<>();
-
-        // Attempt to find weapons folder
-        File weaponsFolderFile = new File(CBCPlugin.getPlugin().getDataFolder(), "weapons");
-
-        // Attempt to make this a directory
-        if (!weaponsFolderFile.exists()) {
-            boolean folderMade = weaponsFolderFile.mkdir();
-            if (!folderMade) {
-                return false;
-            }
-        }
-
-        // Get file that has all death messages
-        File file = new File(weaponsFolderFile, deathMessagesFileName);
-        if (!file.exists()) return false;
-
-        YamlConfiguration deathMessagesFile = YamlConfiguration.loadConfiguration(file);
-
-        defaultDeathMessages = DeathMessageGenerator.loadDeathMessageGenerators(deathMessagesFile);
-
-        return true;
-
+    public static DeathMessageProvider empty () {
+        return new DeathMessageProvider(Map.of());
     }
 
-
-    public Component getDeathMessage(CBCPlayer playerKilled, CBCPlayer playerKiller, DeathCause cause, boolean direct) {
+    public Component getDeathMessage(CBCPlayer playerKilled,
+                                     CBCPlayer playerKiller,
+                                     DeathCause cause,
+                                     boolean direct,
+                                     TextColor baseColor) {
 
         // Retrieve death message via cause and circumstances of kill
-        DeathMessageGenerator dmGenerator;
-        if (overrideDeathMessages.containsKey(cause)) {
-            dmGenerator = overrideDeathMessages.get(cause);
-        } else {
-            dmGenerator = defaultDeathMessages.getOrDefault(cause, defaultDeathMessages.get(DeathCause.NATURAL));
-        }
+        DeathMessageGenerator gen = generators.get(cause);
 
-        Component deathMessage = dmGenerator.getDeathMessageComponent(playerKilled, playerKiller, direct);
+        Component deathMessage = gen.getDeathMessageComponent(playerKilled, playerKiller, direct, baseColor);
 
         // Add multi kill counter
         if (playerKiller != null) {
             playerKiller.updateMultiKill();
             String multiText = "";
-            if (playerKiller.getMultiKill() + 1 == 2) {
+            if (playerKiller.getMultiKill() == 2) {
                 multiText = " DOUBLE KILL!";
-            } else if (playerKiller.getMultiKill() + 1 == 3) {
+            } else if (playerKiller.getMultiKill() == 3) {
                 multiText = " TRIPLE KILL!";
-            } else if (playerKiller.getMultiKill() + 1 == 4) {
+            } else if (playerKiller.getMultiKill() == 4) {
                 multiText = " QUADRA KILL!";
-            } else if (playerKiller.getMultiKill() + 1 == 5) {
+            } else if (playerKiller.getMultiKill() == 5) {
                 multiText = " PENTAKILL!";
             }
             deathMessage = deathMessage.append(smallText(multiText).color(NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
         }
 
-        Component deathIcon = cause.deathIconComponent(playerKilled, playerKiller).append(Component.space());
-        return deathIcon.append(deathMessage);
+        return deathMessage;
 
     }
 
@@ -126,9 +103,5 @@ public class DeathMessageManager {
                     .append(Component.text("!").color(NamedTextColor.WHITE))
                     .decorate(TextDecoration.BOLD);
         }
-    }
-
-    public void setOverrides (Map<DeathCause, DeathMessageGenerator> overrides) {
-        overrideDeathMessages = overrides;
     }
 }

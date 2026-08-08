@@ -1,7 +1,7 @@
-package neonique.cbcplugin_new.combat;
+package neonique.cbcplugin_new.combat.display;
 
+import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.DeathMessageManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -13,11 +13,25 @@ import java.time.Duration;
 public class CombatDisplay {
 
     private final Audience audience;
-    private final DeathMessageManager deathMessageManager;
+    private DeathMessageProvider deathMessageProvider;
 
-    public CombatDisplay (Audience audience, DeathMessageManager deathMessageManager) {
+    public CombatDisplay (Audience audience) {
         this.audience = audience;
-        this.deathMessageManager = deathMessageManager;
+    }
+    
+    public void setDeathMessageProvider (DeathMessageProvider deathMessageProvider) {
+        this.deathMessageProvider = deathMessageProvider;
+    }
+
+    public Component getDeathMessage (CBCPlayer victim, CBCPlayer killer, DeathCause cause, boolean direct) {
+        return Component.text()
+                .content("[")
+                .color(NamedTextColor.GRAY)
+                .append(cause.deathIconComponent(victim, killer))
+                .content("] ")
+                .color(NamedTextColor.GRAY)
+                .append(deathMessageProvider.getDeathMessage(victim, killer, cause, direct, NamedTextColor.GRAY))
+                .build();
     }
 
     public void onPlayerDeath (CBCPlayer victim, CBCPlayer killer, DeathCause cause, boolean direct) {
@@ -41,10 +55,6 @@ public class CombatDisplay {
                 )
         ));
 
-    }
-
-    public Component getDeathMessage (CBCPlayer victim, CBCPlayer killer, DeathCause cause, boolean direct) {
-        return deathMessageManager.getDeathMessage(victim, killer, cause, direct);
     }
 
     public Component getKillDisplay (CBCPlayer victim, CBCPlayer killer, DeathCause cause) {

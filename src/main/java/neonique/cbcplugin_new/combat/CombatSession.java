@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.combat;
 
+import neonique.cbcplugin_new.combat.display.CombatDisplay;
 import neonique.cbcplugin_new.combat.events.CBCPlayerDeathEvent;
 import neonique.cbcplugin_new.combat.listeners.*;
 import neonique.cbcplugin_new.combat.tasks.*;
@@ -74,6 +75,7 @@ public class CombatSession implements CombatContext, Listener {
 
     public void setupMap (CBCMap map) {
         mapMechanicsManager.setupMapMechanics(map);
+        combatDisplay.setDeathMessageProvider(map.deathMessageProvider());
     }
 
     public void deactivate () {
