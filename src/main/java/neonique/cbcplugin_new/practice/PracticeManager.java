@@ -1,9 +1,9 @@
 package neonique.cbcplugin_new.practice;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapconfig.CBCMapData;
 import neonique.cbcplugin_new.mapconfig.MapRepository;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.entity.AreaEffectCloud;
@@ -22,6 +22,7 @@ public class PracticeManager {
 
     private final Plugin plugin;
     private final UUID worldUUID;
+    private final CBCScoreboardManager scoreboardManager;
     private final MapRepository maps;
 
     private AreaEffectCloud hologram;
@@ -37,6 +38,7 @@ public class PracticeManager {
 
     public PracticeManager (Plugin plugin,
                             World world,
+                            CBCScoreboardManager scoreboardManager,
                             MapRepository maps,
                             Location portalLocation,
                             Location hologramLocation,
@@ -44,6 +46,7 @@ public class PracticeManager {
 
         this.plugin = plugin;
         this.worldUUID = world.getUID();
+        this.scoreboardManager = scoreboardManager;
         this.maps = maps;
         this.portalLocation = portalLocation;
         this.hologramLocation = hologramLocation;
@@ -85,7 +88,7 @@ public class PracticeManager {
 
     public void newInstance (CBCMap map) {
 
-        currentInstance = new PracticeInstance(plugin, getWorld());
+        currentInstance = new PracticeInstance(plugin, getWorld(), scoreboardManager);
         currentInstance.activate();
         currentInstance.setMap(map);
 

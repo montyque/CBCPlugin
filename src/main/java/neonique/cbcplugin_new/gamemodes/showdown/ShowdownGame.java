@@ -49,7 +49,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
     @Override
     public ShowdownPlayer createPlayer(Player playerEntity) {
-        return new ShowdownPlayer(playerEntity, this);
+        return new ShowdownPlayer(playerEntity, combatSession());
     }
 
     public enum RoundState {PRE_ROUND, DURING_ROUND, AFTER_ROUND}

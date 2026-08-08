@@ -77,7 +77,7 @@ public class FlameDamager {
         CBCPlayer playerSource = source.getSource();
         if (playerEntity.getHealth() <= 1) {
             playerEntity.removePotionEffect(PotionEffectType.WITHER);
-            player.getCombatManager().playerDeath(player, playerSource, DeathCause.FLAMEZONE, true);
+            player.combatContext().playerDeath(player, playerSource, DeathCause.FLAMEZONE, true);
         } else {
             playerEntity.setNoDamageTicks(0);
             playerEntity.damage(1);

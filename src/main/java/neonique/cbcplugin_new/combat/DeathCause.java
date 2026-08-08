@@ -110,7 +110,8 @@ public enum DeathCause {
     {
         @Override
         public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
-            audience.playSound(location, Sound.ENTITY_ZOMBIE_CONVERTED_TO_DROWNED, 3F, (float) 1);
+            audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_ZOMBIE_CONVERTED_TO_DROWNED, Sound.Source.PLAYER, 3, 1),
+                    location.getX(), location.getY(), location.getZ());
             location.getWorld().spawnParticle(Particle.BUBBLE_POP, location.clone().add(0, 1, 0), 
                     150, 0.5, 0.5, 0.5, 0.5);
         }

@@ -1,7 +1,8 @@
 package neonique.cbcplugin_new.combat.projectiles;
 
-import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.util.CosSineTable;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -33,12 +34,10 @@ public class FlameArrow extends PlayerProjectile {
     }
 
     @Override
-    public void update() {
+    public void update(CombatContext ctx) {
 
         Arrow arrow = getArrow();
         if (arrow == null) return;
-
-        GameManager gameManager = getSource().getGameManager();
 
         Location arrowLocation = arrow.getLocation();
         Collection<Player> playersNearby = arrowLocation.getNearbyPlayers(flameRadius);
@@ -46,19 +45,18 @@ public class FlameArrow extends PlayerProjectile {
         for (Player playerNearby : playersNearby) {
             if (arrowLocation.distanceSquared(playerNearby.getLocation()) < (flameRadius * flameRadius)) {
 
-                CBCPlayer playerInZone = gameManager.getPlayer(playerNearby);
+                CBCPlayer playerInZone = ctx.players().getPlayer(playerNearby);
                 if (playerInZone == null) continue;
                 if (!playerInZone.isAlive()) continue;
                 if (playerInZone.isImmune()) continue;
                 if (playerInZone.isAlly(getSource())) continue;
-
                 playerInZone.getFlameDamager().checkNewFlameArrow(this);
 
             }
         }
 
         ticksAlive++;
-        playParticles();
+        playParticles(ctx.players());
 
         if (despawning) {
             ticksLeft--;
@@ -91,7 +89,7 @@ public class FlameArrow extends PlayerProjectile {
 
     }
 
-    public void playParticles () {
+    public void playParticles (PlayerStore players) {
 
         // Find every player within 64 blocks and check if we should show flame or soul flame particles to them
         assert getProjectileEntity() != null;
@@ -100,7 +98,7 @@ public class FlameArrow extends PlayerProjectile {
         Set<Player> playerSoulFlames = new HashSet<>();
 
         for (Player p : arrowLocation.getNearbyPlayers(64)) {
-            if (getSource().isPlayerEntityAlly(p)) {
+            if (players.getPlayer(p) != null && players.getPlayer(p).isAlly(getSource())) {
                 playerSoulFlames.add(p);
             } else {
                 playerFlames.add(p);

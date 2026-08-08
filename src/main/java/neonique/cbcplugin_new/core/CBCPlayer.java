@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.core;
 
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.combat.weapons.*;
 import neonique.cbcplugin_new.mapmechanics.SwimTimer;
@@ -32,7 +33,7 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
     private final UUID playerUUID;
-    private final PlayerStore playerStore;
+    private final CombatContext combatContext;
 
     private int kills;
     private int deaths;
@@ -68,10 +69,10 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     // Display in player list
     private List<Component> playerListSuffixes;
 
-    public CBCPlayer (Player player, PlayerStore playerStore) {
+    public CBCPlayer (Player player, CombatContext combatContext) {
 
         this.playerUUID = player.getUniqueId();
-        this.playerStore = playerStore;
+        this.combatContext = combatContext;
 
         this.loadout = new CBCLoadout(
                 CBCLoadout.DEFAULT_WEAPONS,
@@ -133,18 +134,6 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
     public boolean isInSameTeam (CBCPlayer player) {
         return (player.team() != null && player.team() == this.team);
-    }
-
-    public boolean isPlayerEntityAliveEnemy (Player playerEntity) {
-        CBCPlayer player = playerStore.getPlayer(playerEntity);
-        if (player == null || !player.isAlive()) return false;
-        return !isAlly(player);
-    }
-
-    public boolean isPlayerEntityAlly (Player playerEntity) {
-        CBCPlayer player = playerStore.getPlayer(playerEntity);
-        if (player == null || !player.isAlive()) return false;
-        return isAlly(player);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,13 +252,13 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         lastPlayerHitBy = player; lastPlayerHitByReset = 7;
     }
 
-    public void addPlayerDamaged (CBCPlayer player, int time) {
+    public void addPlayerDamaged (CBCPlayer player) {
         if (!player.isAlly(this)) {
-            timeDamaged.put(player, time);
+            timeDamaged.put(player, combatContext.timer());
         }
     }
 
-    public void playerKill (int time) {
+    public void playerKill () {
 
         this.kills++;
         this.killStreak++;
@@ -279,7 +268,7 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         }
 
         this.multiKill++;
-        this.lastKillTime = time;
+        this.lastKillTime = combatContext.timer();
 
         if (isOnline()) {
             Player player = getPlayer();
@@ -468,11 +457,9 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     }
 
     public void updateMultiKill() {
-
-        if (combatManager.getTimer() - lastKillTime > 120) {
+        if (combatContext.timer() - lastKillTime > 120) {
             this.multiKill = 0;
         }
-
     }
 
     public void startSwimTimer (int length) {
@@ -591,7 +578,7 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     }
 
     public Set<CBCPlayer> damagingPlayersInLastTime (int ticks) {
-        int currentTime = combatManager.getTimer();
+        int currentTime = combatContext.timer();
         return timeDamaged.keySet().stream()
                 .filter(p -> (currentTime - timeDamaged.get(p)) < ticks)
                 .collect(Collectors.toSet());
@@ -682,4 +669,9 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         if (!isOnline()) return List.of();
         return List.of(getPlayer());
     }
+
+    public CombatContext combatContext () {
+        return combatContext;
+    }
+
 }

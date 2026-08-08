@@ -10,6 +10,7 @@ import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownTeam;
 import neonique.cbcplugin_new.managers.DeathMessageManager;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import org.bukkit.Location;
@@ -20,6 +21,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.ScoreboardManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -30,16 +32,18 @@ public class PracticeInstance implements PlayerSession<PracticePlayer>, Forwardi
 
     private final Plugin plugin;
     private final World world;
+    private final CBCScoreboardManager scoreboardManager;
     private final CombatSession combatSession;
     private final CombatDisplay combatDisplay;
 
     private CBCMap map;
     private List<Location> spawns;
 
-    public PracticeInstance (Plugin plugin, World world) {
+    public PracticeInstance (Plugin plugin, World world, CBCScoreboardManager scoreboardManager) {
         this.plugin = plugin;
         this.world = world;
-        this.combatSession = new CombatSession(plugin, world, this);
+        this.scoreboardManager = scoreboardManager;
+        this.combatSession = new CombatSession(plugin, world, scoreboardManager, this);
         this.combatDisplay = new CombatDisplay(this, new DeathMessageManager());
         combatSession.setCombatDisplay(combatDisplay);
     }
@@ -116,7 +120,7 @@ public class PracticeInstance implements PlayerSession<PracticePlayer>, Forwardi
 
     @Override
     public PracticePlayer createPlayer(Player playerEntity) {
-        return new PracticePlayer(playerEntity, this);
+        return new PracticePlayer(playerEntity, combatSession);
     }
 
     @Override

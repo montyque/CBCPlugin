@@ -50,7 +50,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         this.plugin = ctx.plugin();
         this.scoreboardManager = ctx.scoreboardManager();
         this.world = ctx.world();
-        this.combatSession = new CombatSession(plugin, world, this);
+        this.combatSession = new CombatSession(plugin, world, scoreboardManager, this);
     }
 
     public abstract CBCGamemode getGamemode ();

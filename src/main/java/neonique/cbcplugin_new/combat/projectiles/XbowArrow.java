@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.combat.projectiles;
 
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Particle;
 import org.bukkit.entity.Arrow;
@@ -12,7 +13,7 @@ public class XbowArrow extends PlayerProjectile {
     }
 
     @Override
-    public void update() {
+    public void update(CombatContext ctx) {
 
         Arrow arrow = getArrow();
         if (arrow == null) return;

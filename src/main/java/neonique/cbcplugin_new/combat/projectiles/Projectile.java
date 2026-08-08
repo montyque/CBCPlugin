@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.combat.projectiles;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.combat.CombatContext;
 import org.bukkit.entity.Entity;
 
 import javax.annotation.Nullable;
@@ -32,6 +33,6 @@ public abstract class Projectile {
         return removalMark;
     }
 
-    public abstract void update();
+    public abstract void update(CombatContext ctx);
 
 }

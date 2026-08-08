@@ -7,6 +7,7 @@ import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapmechanics.MapMechanicsManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class CombatSession implements Listener {
+public class CombatSession implements CombatContext, Listener {
 
     private final Plugin plugin;
     private final World world;
@@ -38,14 +39,14 @@ public class CombatSession implements Listener {
 
     private int timer = 0;
 
-    public CombatSession (Plugin plugin, World world, PlayerStore players) {
+    public CombatSession (Plugin plugin, World world, CBCScoreboardManager scoreboardManager, PlayerStore players) {
 
         this.plugin = plugin;
         this.world = world;
         this.players = players;
 
         this.mapMechanicsManager = new MapMechanicsManager(players);
-        this.projectileManager = new ProjectileManager();
+        this.projectileManager = new ProjectileManager(scoreboardManager, this);
 
     }
 
@@ -68,6 +69,7 @@ public class CombatSession implements Listener {
     public void activate () {
         setupListeners();
         setupTasks();
+        projectileManager.setup();
     }
 
     public void setupMap (CBCMap map) {
@@ -84,7 +86,7 @@ public class CombatSession implements Listener {
             if (!task.isCancelled()) task.cancel();
         }
 
-        projectileManager.clearAllProjectiles();
+        projectileManager.cleanup();
 
     }
 
@@ -110,7 +112,7 @@ public class CombatSession implements Listener {
         victim.playerDie();
 
         if (killer != null) {
-            killer.playerKill(deathInfo);
+            killer.playerKill();
             killer.playerAfterKill(victim);
         }
 
@@ -190,6 +192,14 @@ public class CombatSession implements Listener {
 
     public MapMechanicsManager mapMechanicsManager() {
         return mapMechanicsManager;
+    }
+
+    public PlayerStore players () {
+        return players;
+    }
+
+    public int timer () {
+        return timer;
     }
 
 }

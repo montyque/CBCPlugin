@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.entity.Player;
@@ -19,8 +20,8 @@ public class ShowdownPlayer extends CBCPlayer {
     private final static int ROUND_SURVIVAL_PTS = 15; // Points you gain for surviving a round
     private final static int TIME_ALIVE_PTS = 5; // Points you gain every 30 seconds you are alive
 
-    public ShowdownPlayer (Player player, PlayerStore playerStore) {
-        super(player, playerStore);
+    public ShowdownPlayer (Player player, CombatContext combatContext) {
+        super(player, combatContext);
     }
 
     // Runs for every player when a round is being setup

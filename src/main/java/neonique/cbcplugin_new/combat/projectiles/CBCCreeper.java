@@ -1,6 +1,8 @@
 package neonique.cbcplugin_new.combat.projectiles;
 
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.core.PlayerStore;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
 import org.bukkit.entity.Creeper;
@@ -41,10 +43,10 @@ public class CBCCreeper extends PlayerProjectile {
 
     }
 
-    public void update() {
+    public void update(CombatContext ctx) {
 
         if (markedForRemoval()) return;
-        checkExplosion();
+        checkExplosion(ctx.players());
         ticksAlive++;
 
     }
@@ -82,7 +84,7 @@ public class CBCCreeper extends PlayerProjectile {
      * </ul>
      * This method is intended to run every tick.
      */
-    public void checkExplosion () {
+    public void checkExplosion (PlayerStore players) {
 
         Creeper creeper = getCreeper();
         if (creeper == null) return;
@@ -100,7 +102,7 @@ public class CBCCreeper extends PlayerProjectile {
             return;
         }
 
-        if (isHittingEnemy()) {
+        if (isHittingEnemy(players)) {
             explode(true);
             return;
         }
@@ -138,7 +140,7 @@ public class CBCCreeper extends PlayerProjectile {
 
     }
 
-    private boolean isHittingEnemy () {
+    private boolean isHittingEnemy (PlayerStore players) {
 
         Creeper creeper = getCreeper();
         Location creeperLocation = creeper.getLocation();
@@ -151,9 +153,8 @@ public class CBCCreeper extends PlayerProjectile {
         }
 
         for (Player player : playersNearby) {
-            if (getSource().isPlayerEntityAliveEnemy(player)) {
-                return true;
-            }
+            CBCPlayer p = players.getPlayer(player);
+            if (p != null && !getSource().isAlly(p)) return true;
         }
 
         return false;
