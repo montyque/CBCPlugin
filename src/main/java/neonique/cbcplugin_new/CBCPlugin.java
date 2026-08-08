@@ -148,7 +148,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         try {
             mapLoader.loadAllIntoRepository(getDataFolder(), mapRepository, ENABLED_GAMEMODES);
         } catch (FileNotFoundException e) {
-            getLogger().info("The plugin's data folder does not exist!");
+            getLogger().warning("The plugin's data folder does not exist");
         }
     }
 
