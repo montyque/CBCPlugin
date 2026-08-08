@@ -13,6 +13,7 @@ import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import neonique.cbcplugin_new.mapconfig.MapLoader;
 import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
+import neonique.cbcplugin_new.practice.PracticeManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
 import neonique.cbcplugin_new.combat.weapons.WeaponType;

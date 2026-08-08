@@ -384,11 +384,12 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     }
 
     public void playerSpawn() {
-
         respawnTicks = 0;
         healToFull();
         playerSetup();
+    }
 
+    public void playRespawnedTitle () {
         showTitle(Title.title(
                 Component.text()
                         .content("Respawned!")
@@ -407,7 +408,6 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
                 net.kyori.adventure.sound.Sound.Source.MASTER,
                 5, 2)
         );
-
     }
 
     public void decrementLastPlayerHit() {

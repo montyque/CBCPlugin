@@ -2,7 +2,6 @@ package neonique.cbcplugin_new.commands.practicesubcommands;
 
 import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.playerclasses.PracticePlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;

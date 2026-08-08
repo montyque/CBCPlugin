@@ -128,6 +128,7 @@ public class CombatSession implements Listener {
     public void playerRespawn (CBCPlayer player) {
         if (!player.isOnline()) return;
         player.playerSpawn();
+        player.playRespawnedTitle();
         respawnListener.accept(player);
     }
 

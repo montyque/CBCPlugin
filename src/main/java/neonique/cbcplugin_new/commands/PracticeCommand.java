@@ -1,20 +1,15 @@
 package neonique.cbcplugin_new.commands;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.commands.practicesubcommands.*;
 import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.managers.PracticeManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import neonique.cbcplugin_new.practice.PracticeManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class PracticeCommand extends _BaseCommand {
