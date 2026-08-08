@@ -1,12 +1,8 @@
 package neonique.cbcplugin_new.core;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.mapmechanics.SwimTimer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.combat.tasks.TempImmunityTask;
 import neonique.cbcplugin_new.weapons.*;
 import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;
 import net.kyori.adventure.audience.Audience;
@@ -21,6 +17,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -54,12 +51,12 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     private boolean permanentlyImmune = false;
     private int tempImmunityTicks = 0;
 
-    private TempImmunityTask tempImmunityTask = null;
     private int respawnTicks = 0;
     private CBCPlayer lastPlayerHitBy = null;
     private int lastPlayerHitByReset = 0;
     private final HashMap<CBCPlayer, Integer> timeDamaged = new HashMap<>();
 
+    private final CBCLoadout loadout;
     private final CBCInventory inventory;
 
     // Important stats for fighting
@@ -75,7 +72,24 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
         this.playerUUID = player.getUniqueId();
         this.playerStore = playerStore;
-        this.inventory = new CBCInventory(this, new WeaponFactory(), new EquipmentFactory());
+
+        this.loadout = new CBCLoadout(
+                CBCLoadout.DEFAULT_WEAPONS,
+                () -> TrimPattern.TIDE,
+                () -> teamOptional()
+                        .map(TeamLike::teamColor)
+                        .map(TeamColor::trimMat)
+                        .orElse(null),
+                () -> teamOptional()
+                        .map(TeamLike::getGlassHead)
+                        .orElse(null)
+        );
+
+        this.inventory = new CBCInventory(loadout, () -> {
+            if (isOnline() && isAlive()) {
+                getPlayer().updateInventory();
+            }
+        });
         playerListSuffixes = new ArrayList<>();
 
     }
@@ -156,7 +170,6 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
             giveEffects();
         } else {
             clearEffects();
-            checkNightVision();
         }
 
     }
@@ -165,14 +178,26 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         setAlive(true);
         setRespawnTicks(0);
         resetPlayer();
-        inventory.setWeapons();
-        inventory.loadEquipment();
         giveEffects();
+        inventory.setWeapons();
+        inventory.loadEquipment(getPlayer().getInventory());
+        updateInventory();
     }
 
     public void playerSetup (double weaponReloadTimer) {
         playerSetup();
         inventory.setReloadsBySecond(weaponReloadTimer);
+        updateInventorySlots();
+    }
+
+    public void updateInventory () {
+        inventory.loadEquipment(getPlayer().getInventory());
+        getPlayer().updateInventory();
+    }
+
+    public void updateInventorySlots () {
+        inventory.loadSlots(getPlayer().getInventory());
+        getPlayer().updateInventory();
     }
 
     public void clearEffects () {
@@ -198,13 +223,6 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
             player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, -1, 0, false, false, false));
         }
 
-        // Remove night vision effect if needed
-        checkNightVision();
-
-    }
-
-    public void checkNightVision () {
-        Player player = getPlayer();
     }
 
     public void teleportPlayerToSpawn (Location spawn, Location faceLocation) {
@@ -423,13 +441,6 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
     public void setPermanentlyImmune (boolean permanentlyImmune) {
         this.permanentlyImmune = permanentlyImmune;
-    }
-
-    public void setImmune(boolean b) {
-        immune = b;
-        if (!b) {
-            tempImmunityTask = null;
-        }
     }
 
     public void setTeam(CBCTeam<?> cbcTeam) {
