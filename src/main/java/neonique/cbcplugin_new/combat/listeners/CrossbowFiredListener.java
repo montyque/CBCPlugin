@@ -56,7 +56,7 @@ public class CrossbowFiredListener implements Listener {
         InventorySlot slotFrom = playerSource.getInventory().getSlot(itemSlotId.get());
 
         if (slotFrom instanceof WeaponSlot weaponSlot) {
-            weaponSlot.getWeapon().fireWeapon(arrowFired, projectileManager);
+            weaponSlot.getWeapon().fireWeapon(playerSource, arrowFired, projectileManager::addProjectile);
             if (entityFired instanceof Player playerEntity) {
                 playerEntity.playSound(playerEntity.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 10, 2);
             }
