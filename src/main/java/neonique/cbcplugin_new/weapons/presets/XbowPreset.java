@@ -4,7 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.Objects;
 
-public class XbowPreset extends WeaponPreset {
+public class XbowPreset extends WeaponSettings {
 
     private double arrowVelocityModifier; // Arrow velocity multiplier -- default 1.15
 

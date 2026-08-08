@@ -7,15 +7,15 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Arrow;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.function.Consumer;
+
 public interface CrossbowWeapon {
 
-    void fireWeapon (Arrow arrowFired, ProjectileManager projManager);
+    void fireWeapon (CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry);
 
     ItemStack getWeaponItem ();
 
-    Projectile fireProjectile (Arrow arrowFired, ProjectileManager projManager);
-
-    CBCPlayer getPlayer();
+    Projectile fireProjectile (CBCPlayer player, Arrow arrowFired);
 
     WeaponReloader getWeaponReloader();
 

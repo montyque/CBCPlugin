@@ -1,9 +1,8 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.combat.ProjectileManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.weapons.presets.FlamePreset;
+import neonique.cbcplugin_new.weapons.presets.FlameZonerSettings;
 import neonique.cbcplugin_new.weapons.projectiles.FlameArrow;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 import net.kyori.adventure.key.Key;
@@ -21,30 +20,29 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.function.Consumer;
+
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowText;
 
 public class FlameZoner implements CrossbowWeapon {
 
-    private final CBCPlayer owner;
     private final WeaponReloader weaponReloader;
-    private final FlamePreset weaponOptions;
+    private final FlameZonerSettings settings;
 
-    public FlameZoner(CBCPlayer player, FlamePreset weaponPreset) {
+    public FlameZoner(FlameZonerSettings settings) {
 
-        owner = player;
+        this.settings = settings;
+
         weaponReloader = new WeaponReloader();
-
-        weaponOptions = weaponPreset;
-        weaponReloader.setReloadTime(weaponOptions.getReloadTicks());
+        weaponReloader.setReloadTime(settings.reloadTicks());
 
     }
 
     @Override
-    public void fireWeapon(Arrow arrowFired, ProjectileManager projManager) {
-
-        Projectile projectile = fireProjectile(arrowFired, projManager);
+    public void fireWeapon (CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
+        Projectile projectile = fireProjectile(player, arrowFired);
+        projectileRegistry.accept(projectile);
         weaponReloader.startReload();
-
     }
 
     @Override
@@ -99,7 +97,7 @@ public class FlameZoner implements CrossbowWeapon {
     }
 
     @Override
-    public Projectile fireProjectile(Arrow arrowFired, ProjectileManager projManager) {
+    public Projectile fireProjectile (CBCPlayer player, Arrow arrowFired) {
 
         arrowFired.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
         arrowFired.setInvulnerable(true);
@@ -107,17 +105,8 @@ public class FlameZoner implements CrossbowWeapon {
         arrowFired.setPierceLevel(20);
         arrowFired.setGlowing(true);
 
-        FlameArrow proj = new FlameArrow(owner, arrowFired, weaponOptions.getZoneRadius(),
-                (int) Math.round(weaponOptions.getZoneLife() * 20));
-        projManager.addProjectile(proj);
-        projManager.flameZoneArrowTeam().addEntityUUID(arrowFired.getUniqueId());
-        return proj;
+        return new FlameArrow(player, arrowFired, settings.zoneRadius(), settings.zoneLifeTicks());
 
-    }
-
-    @Override
-    public CBCPlayer getPlayer() {
-        return owner;
     }
 
     @Override

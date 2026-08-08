@@ -1,9 +1,8 @@
 package neonique.cbcplugin_new.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.combat.ProjectileManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.weapons.presets.XbowPreset;
+import neonique.cbcplugin_new.weapons.presets.XbowSettings;
 import neonique.cbcplugin_new.weapons.projectiles.Projectile;
 import neonique.cbcplugin_new.weapons.projectiles.XbowArrow;
 import net.kyori.adventure.key.Key;
@@ -22,30 +21,29 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.function.Consumer;
+
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowText;
 
 public class XBow implements CrossbowWeapon {
 
-    private final CBCPlayer owner;
     private final WeaponReloader weaponReloader;
-    private final XbowPreset weaponOptions;
+    private final XbowSettings settings;
 
-    public XBow(CBCPlayer player, XbowPreset weaponPreset) {
+    public XBow(XbowSettings settings) {
 
-        owner = player;
+        this.settings = settings;
+
         weaponReloader = new WeaponReloader();
-
-        weaponOptions = weaponPreset;
-        weaponReloader.setReloadTime(weaponOptions.getReloadTicks());
+        weaponReloader.setReloadTime(settings.reloadTicks());
 
     }
 
     @Override
-    public void fireWeapon(Arrow arrowFired, ProjectileManager projManager) {
-
-        Projectile projectile = fireProjectile(arrowFired, projManager);
+    public void fireWeapon (CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
+        Projectile projectile = fireProjectile(player, arrowFired);
+        projectileRegistry.accept(projectile);
         weaponReloader.startReload();
-
     }
 
     @Override
@@ -101,24 +99,17 @@ public class XBow implements CrossbowWeapon {
     }
 
     @Override
-    public Projectile fireProjectile(Arrow arrowFired, ProjectileManager projManager) {
+    public Projectile fireProjectile(CBCPlayer player, Arrow arrowFired) {
 
         arrowFired.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
         arrowFired.setInvulnerable(true);
         arrowFired.setDamage(1);
         arrowFired.setPierceLevel(127);
         arrowFired.setGlowing(true);
-        arrowFired.setVelocity(arrowFired.getVelocity().multiply(weaponOptions.getArrowVelocityModifier()));
+        arrowFired.setVelocity(arrowFired.getVelocity().multiply(settings.arrowVelocityModifier()));
 
-        Projectile proj = new XbowArrow(owner, arrowFired);
-        projManager.addProjectile(proj);
-        projManager.xbowArrowTeam().addEntityUUID(proj.getProjectileEntityUUID());
+        return new XbowArrow(player, arrowFired);
 
-    }
-
-    @Override
-    public CBCPlayer getPlayer() {
-        return owner;
     }
 
     @Override

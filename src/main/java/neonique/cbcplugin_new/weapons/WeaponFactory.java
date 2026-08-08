@@ -4,7 +4,7 @@ import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
-import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
+import neonique.cbcplugin_new.weapons.presets.WeaponSettings;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public class WeaponFactory {
         xbowTeamOverrides.put(teamId, preset);
     }
 
-    public WeaponPreset getWeaponVar (WeaponType weaponType) {
+    public WeaponSettings getWeaponVar (WeaponType weaponType) {
         if (weaponType == WeaponType.CREEPER) return creeperVar;
         else if (weaponType == WeaponType.FLAME) return flameVar;
         else if (weaponType == WeaponType.XBOW) return xbowVar;
