@@ -1,39 +1,74 @@
 package neonique.cbcplugin_new.mapconfig;
 
+import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.managers.GameManager;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MapLoader {
 
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(MapLoader.class);
     private final MapMechanicLoader mechanicsLoader;
-    private final GameManager gameManager;
     private final Logger logger;
 
-    public MapLoader (GameManager gameManager, MapMechanicLoader loader, Logger logger) {
-        this.gameManager = gameManager;
+    public MapLoader (MapMechanicLoader loader, Logger logger) {
         this.mechanicsLoader = loader;
         this.logger = logger;
     }
 
-    public Map<String, CBCMap> loadMapsFromDirectory (File mapDirectory) {
+    public void loadAllIntoRepository (File mainDir, MapRepository repo, Collection<CBCGamemode> gamemodes)
+            throws FileNotFoundException {
+
+        if (!mainDir.exists())
+            throw new FileNotFoundException("Main directory '%s' could not be found".formatted(mainDir.getPath()));
+
+        // Find maps directory
+        File mapFolder = new File(mainDir, "maps");
+        File gamemodesFolder = new File(mainDir, "gamemodes");
+
+        // Load all base maps
+        Map<String, CBCMapData> maps = loadMapsFromDirectory(mapFolder);
+
+        // Load all gamemodes
+        Map<CBCGamemode, Map<String, GamemodeMapData>> gamemodeMaps = new HashMap<>();
+        for (CBCGamemode gamemode : gamemodes) {
+            File gamemodeMapsFolder = new File(gamemodesFolder, "maps");
+            gamemodeMaps.put(gamemode, loadGamemodeMapsFromDirectory(gamemode, maps, gamemodeMapsFolder));
+        }
+
+        // Load maps into repo
+        repo.addMaps(maps.values());
+        logger.info("Successfully loaded " + maps.size() + " base maps");
+
+        // Load gamemode maps into repo
+        for (CBCGamemode gamemode : gamemodeMaps.keySet()) {
+            repo.addGamemodeMaps(gamemode, gamemodeMaps.get(gamemode).values());
+            logger.info("Successfully loaded " + maps.size() + " " + gamemode + " maps");
+        }
+
+    }
+
+    public Map<String, CBCMapData> loadMapsFromDirectory (File mapDirectory) throws FileNotFoundException {
+        if (!mapDirectory.exists())
+            throw new FileNotFoundException("Map directory '%s' could not be found".formatted(mapDirectory.getPath()));
         return loadMaps(getYamlFiles(mapDirectory));
     }
 
-    public Map<String, CBCMap> loadMaps (Collection<File> mapFiles) {
+    public Map<String, CBCMapData> loadMaps (Collection<File> mapFiles) {
 
-        Map<String, CBCMap> maps = new HashMap<>();
+        Map<String, CBCMapData> maps = new HashMap<>();
 
         for (File mapFile : mapFiles) {
             try {
-                CBCMap map = loadMap(mapFile);
+                CBCMapData map = loadMap(mapFile);
                 maps.put(map.id(), map);
-            } catch (InvalidMapConfigException e) {
+            } catch (InvalidMapConfigException | FileNotFoundException e) {
                 logger.log(Level.WARNING, e.getMessage(), e.getCause());
             }
         }
@@ -42,26 +77,42 @@ public class MapLoader {
 
     }
 
-    public CBCMap loadMap (File mapFile) {
+    public CBCMapData loadMap (File mapFile) throws FileNotFoundException {
+
+        if (!mapFile.exists())
+            throw new FileNotFoundException("Map file '%s' could not be found".formatted(mapFile.getPath()));
+
         String mapId = mapFile.getName();
         try {
             YamlConfiguration ymlMapConfig = YamlConfiguration.loadConfiguration(mapFile);
             if (ymlMapConfig.getKeys(false).isEmpty()) {
                 throw new IllegalArgumentException("Config is empty or could not be parsed into YAMLConfiguration");
             }
-            return new CBCMap(gameManager.getWorld(), ymlMapConfig, mechanicsLoader);
+            return CBCMapData.fromConfig(ymlMapConfig, mechanicsLoader);
         } catch (Exception e) {
             throw new InvalidMapConfigException(mapId, e);
         }
     }
 
     public Map<String, GamemodeMapData> loadGamemodeMapsFromDirectory (CBCGamemode gamemode,
-                                                                Map<String, CBCMap> maps,
+                                                                Map<String, CBCMapData> maps,
                                                                 File mapDirectory) {
-        return loadGamemodeMaps(gamemode, maps, getYamlFiles(mapDirectory));
+
+        try {
+            List<File> files = getYamlFiles(mapDirectory);
+            return loadGamemodeMaps(gamemode, maps, getYamlFiles(mapDirectory));
+        } catch (FileNotFoundException e) {
+            logger.log(Level.WARNING, e.getMessage(), e.getCause());
+            return Map.of();
+        }
+
     }
 
-    private List<File> getYamlFiles(File mapDirectory) {
+    private List<File> getYamlFiles(File mapDirectory) throws FileNotFoundException {
+
+        if (!mapDirectory.exists())
+            throw new FileNotFoundException("Directory '%s' could not be found".formatted(mapDirectory.getPath()));
+
         File[] dirFiles = mapDirectory.listFiles(file -> {
             String name = file.getName().toLowerCase();
             return file.isFile() && (name.endsWith(".yaml") || name.endsWith(".yml"));
@@ -75,7 +126,7 @@ public class MapLoader {
     }
 
     public Map<String, GamemodeMapData> loadGamemodeMaps (CBCGamemode gamemode,
-                                                   Map<String, CBCMap> maps,
+                                                   Map<String, CBCMapData> maps,
                                                    Collection<File> mapFiles) {
 
         Map<String, GamemodeMapData> gamemodeMapDataList = new HashMap<>();
@@ -84,7 +135,7 @@ public class MapLoader {
             try {
                 GamemodeMapData mapData = loadGamemodeMapData(gamemode, maps, mapFile);
                 gamemodeMapDataList.put(mapData.mapData().id(), mapData);
-            } catch (InvalidMapConfigException e) {
+            } catch (InvalidMapConfigException | FileNotFoundException e) {
                 logger.log(Level.WARNING, e.getMessage(), e.getCause());
             }
         }
@@ -94,8 +145,11 @@ public class MapLoader {
     }
 
     public GamemodeMapData loadGamemodeMapData (CBCGamemode gamemode,
-                                                Map<String, CBCMap> maps,
-                                                File file) {
+                                                Map<String, CBCMapData> maps,
+                                                File file) throws FileNotFoundException {
+
+        if (!file.exists())
+            throw new FileNotFoundException("Gamemode map file '%s' could not be found".formatted(file.getPath()));
 
         String mapId = file.getName();
         try {
@@ -107,7 +161,7 @@ public class MapLoader {
             }
 
             // Retrieve base map
-            CBCMap baseMap = maps.get(mapId);
+            CBCMapData baseMap = maps.get(mapId);
             if (baseMap == null) {
                 throw new IllegalArgumentException("No base map exists with map id '" + mapId + "'");
             }

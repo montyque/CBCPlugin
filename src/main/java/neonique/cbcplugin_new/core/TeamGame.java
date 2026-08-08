@@ -22,8 +22,8 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
 
     private T winningTeam = null;
 
-    public TeamGame (Plugin plugin, CBCScoreboardManager scoreboardManager, World world) {
-        super(plugin, scoreboardManager, world);
+    public TeamGame (GameInitContext ctx) {
+        super(ctx);
     }
 
     /**

@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathInfo;
+import neonique.cbcplugin_new.core.GameInitContext;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.gamemodes.CBCGamemode;
@@ -32,8 +33,8 @@ import java.util.*;
 
 public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
-    public ShowdownGame(Plugin plugin, CBCScoreboardManager scoreboardManager, World world) {
-        super(plugin, scoreboardManager, world);
+    public ShowdownGame(GameInitContext ctx) {
+        super(ctx);
     }
 
     @Override
@@ -199,7 +200,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         }
 
         if (roundNumber == 1) {
-            new IncrementGameTimeTask(this).runTaskTimer(CBCPlugin.getPlugin(), 20, 20);
+            new IncrementGameTimeTask(this).runTaskTimer(plugin(), 20, 20);
         }
 
         updatePlayerCounts();

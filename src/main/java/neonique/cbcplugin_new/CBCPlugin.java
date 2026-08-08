@@ -1,12 +1,21 @@
 package neonique.cbcplugin_new;
 
 import neonique.cbcplugin_new.commands.*;
+import neonique.cbcplugin_new.gamemodes.CBCGamemode;
 import neonique.cbcplugin_new.managers.GameState;
+import neonique.cbcplugin_new.mapconfig.CBCMapData;
+import neonique.cbcplugin_new.mapconfig.MapLoader;
+import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
+import neonique.cbcplugin_new.mapconfig.MapRepository;
+import neonique.cbcplugin_new.practice.PracticeManager;
+import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.services.ArmorTrimService;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.services.WeaponPresetService;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -18,22 +27,31 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 public final class CBCPlugin extends JavaPlugin implements Listener {
 
+    private Set<CBCGamemode> ENABLED_GAMEMODES = Set.of(
+            CBCGamemode.SHOWDOWN
+    );
+
     private static CBCPlugin plugin;
 
-    private static GameManager gameManager;
-    private static ResourcePackManager resourcePackManager;
+    private MapMechanicLoader mechanicLoader;
+    private MapLoader mapLoader;
+    private MapRepository mapRepository;
 
+    private ResourcePackManager resourcePackManager;
     private ArmorTrimService trimService;
-    private WeaponPresetService weaponPresetService;
+    // private WeaponPresetService weaponPresetService;
 
-    private static Set<UUID> gameOperators;
-    private static Set<UUID> gameAdmins;
+    private CBCScoreboardManager scoreboardManager;
+    private PracticeManager practiceManager;
+    // private GameManager gameManager;
 
     @Override
     public void onEnable() {
@@ -44,9 +62,21 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         // Create config yml file if not existent
         plugin.saveDefaultConfig();
 
-        System.out.println("=======================================");
-        System.out.println("Starting the Crossbow Champions plugin (1.21.1) developed by Neonique");
+        getLogger().info("=======================================");
+        getLogger().info("Crossbow Champions - A combat Minecraft minigame");
+        getLogger().info("Written by Neonique");
+        getLogger().info("Initialising...");
 
+        getLogger().info("");
+
+        String worldName = "world";
+        getLogger().info("Primary world: " + worldName);
+
+        World world = getServer().getWorld(worldName);
+        assert world != null;
+        getLogger().info("Primary world found!");
+
+        /*
         // Load permissions from config.yml
         loadPermissions();
 
@@ -54,37 +84,53 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         List<String> operatorNames = new ArrayList<>(gameOperators).stream().map(uuid -> Bukkit.getOfflinePlayer(uuid).getName()).collect(Collectors.toList());
         System.out.println("CBC Operators (perms no. 2): " + String.join(", ", operatorNames));
         List<String> adminNames = new ArrayList<>(gameAdmins).stream().map(uuid -> Bukkit.getOfflinePlayer(uuid).getName()).collect(Collectors.toList());
-        System.out.println("CBC Administrators (perms no. 1): " + String.join(", ", adminNames));
-
-        // Create all required services
-        trimService = new ArmorTrimService();
-
-        weaponPresetService = new WeaponPresetService();
-        weaponPresetService.loadWeaponPresets();
-
-        resourcePackManager = new ResourcePackManager();
+        System.out.println("CBC Administrators (perms no. 1): " + String.join(", ", adminNames));*/
 
         // Register join server and leave server listeners
         getServer().getPluginManager().registerEvents(this, this);
 
+        scoreboardManager = new CBCScoreboardManager(getServer().getScoreboardManager());
+
+        // Create all required services
+        trimService = new ArmorTrimService();
+        resourcePackManager = new ResourcePackManager();
+        // weaponPresetService = new WeaponPresetService();
+
+        // Load maps
+        mechanicLoader = new MapMechanicLoader();
+        mapLoader = new MapLoader(mechanicLoader, getLogger());
+        mapRepository = new MapRepository();
+        loadMaps();
+
+        // Create practice manager
+        PracticeManager practiceManager = new PracticeManager(this, world,
+                new Location(world, 0, 50, 0),
+                new Location(world, 0, 50 ,0),
+                new Location(world, 0, 50, 0)
+        );
+
         // Create game manager
-        gameManager = new GameManager(this);
+        // gameManager = new GameManager(this);
 
         // Register commands
+        /*
         registerCommand("lobby", new LobbyCommand(gameManager));
         registerCommand("practice", new PracticeCommand(gameManager, gameManager.practiceManager));
         registerCommand("game", new GameCommand(gameManager));
         registerCommand("chat", new ChatCommand(gameManager, gameManager.getChatManager()));
         registerCommand("cbcevent", new CBCEventCommand(gameManager));
         registerCommand("cbcpack", new CBCPackCommand(resourcePackManager));
-        registerCommand("alphaorder", new AlphaOrderCommand());
+        registerCommand("alphaorder", new AlphaOrderCommand());*/
 
+        /*
         Objects.requireNonNull(getCommand("getblockcoords")).setExecutor(new GetBlockLocationsCommand());
         Objects.requireNonNull(getCommand("cbcreload")).setExecutor(new CBCReloadCommand(gameManager));
-        Objects.requireNonNull(getCommand("sidebar")).setExecutor(new SidebarCommand());
+        Objects.requireNonNull(getCommand("sidebar")).setExecutor(new SidebarCommand());*/
 
         // Print to show finished initialisation
-        System.out.println("Crossbow Champions plugin initialisation finished");
+        getLogger().info("Finished initialising Crossbow Champions!");
+        getLogger().info("=======================================");
+
     }
 
     public void registerCommand(String command, TabExecutor commandObject) {
@@ -98,13 +144,26 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
     }
 
+    public void loadMaps () {
+        try {
+            mapLoader.loadAllIntoRepository(getDataFolder(), mapRepository, ENABLED_GAMEMODES);
+        } catch (FileNotFoundException e) {
+            getLogger().info("The plugin's data folder does not exist!");
+        }
+    }
+
     @Override
     public void onDisable() {
 
         // Plugin shutdown logic
-        System.out.println("Shutting down CBC Plugin...");
+        System.out.println("Shutting down the Crossbow Champions Plugin...");
 
-        gameManager.onServerClose();
+        //
+        if (practiceManager.instanceActive()) {
+            practiceManager.endInstance();
+        }
+
+        /*gameManager.onServerClose();
 
         // Check if game is active
         if (gameManager.getCurrentGame() != null) {
@@ -122,7 +181,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         if (gameManager.isPracticeActive()) {
             System.out.println("Shutting down practice arena...");
             gameManager.practiceManager.disable();
-        }
+        }*/
 
     }
 
@@ -130,10 +189,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         return plugin;
     }
 
-    public static ResourcePackManager getResourcePackManager() {
-        return resourcePackManager;
-    }
-
+    /*
     public static void loadPermissions () {
 
         // Open configuration file
@@ -163,8 +219,9 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
             } catch (IllegalArgumentException ignored) {}
         }
 
-    }
+    }*/
 
+    /*
     public static void savePermissions () {}
 
     public static boolean isPlayerOperator (UUID uuid) {
@@ -173,7 +230,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
     public static boolean isPlayerAdmin (UUID uuid) {
         return gameAdmins.contains(uuid);
-    }
+    }*/
 
     @EventHandler
     public void playerJoin(PlayerJoinEvent e) {
@@ -188,7 +245,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
             public void run() {
                 resourcePackManager.addPlayerHead(playerJoined.getUniqueId(), playerJoined.getName(), plugin);
             }
-        }.runTaskAsynchronously(CBCPlugin.getPlugin());
+        }.runTaskAsynchronously(this);
 
         // Load player's armor trim
         new BukkitRunnable() {
@@ -196,11 +253,12 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
             @Override
             public void run() {
                 trimService.loadPlayerTrimFromFile(playerJoined);
-                gameManager.getGlobalKillsManager().loadPlayerGlobalKills(playerJoined);
+                // gameManager.getGlobalKillsManager().loadPlayerGlobalKills(playerJoined);
             }
-        }.runTaskAsynchronously(CBCPlugin.getPlugin());
+        }.runTaskAsynchronously(this);
     }
 
+    /*
     public static GameManager getGameManager() {
         return gameManager;
     }
@@ -219,6 +277,6 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
     public void unregisterListener (Listener listener) {
         HandlerList.unregisterAll(listener);
-    }
+    }*/
 
 }

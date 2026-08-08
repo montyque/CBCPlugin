@@ -88,7 +88,7 @@ public class PracticeManager {
 
         // Start new player teleport task
         portalListener = new PracticePortalListener(portalLocation, this::playerJoin);
-        plugin.getServer().getPluginManager().registerEvents(portalListener, CBCPlugin.getPlugin());
+        plugin.getServer().getPluginManager().registerEvents(portalListener, plugin);
 
     }
 

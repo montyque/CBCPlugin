@@ -46,10 +46,10 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
     // If global kills is enabled
     private boolean globalKillsEnabled = true;
 
-    public Game (Plugin plugin, CBCScoreboardManager scoreboardManager, World world) {
-        this.plugin = plugin;
-        this.scoreboardManager = scoreboardManager;
-        this.world = world;
+    public Game (GameInitContext ctx) {
+        this.plugin = ctx.plugin();
+        this.scoreboardManager = ctx.scoreboardManager();
+        this.world = ctx.world();
         this.combatSession = new CombatSession(plugin, world, this);
     }
 

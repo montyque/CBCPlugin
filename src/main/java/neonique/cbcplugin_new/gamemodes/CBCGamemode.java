@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.gamemodes;
 
 import neonique.cbcplugin_new.core.Game;
+import neonique.cbcplugin_new.core.GameInitContext;
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.assassin.AssassinGame;
 import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
@@ -14,10 +15,13 @@ import neonique.cbcplugin_new.gamemodes.kmation.KMationGame;
 import neonique.cbcplugin_new.gamemodes.koth.KOTHGame;
 import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousGame;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownMapData;
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownSettings;
 import neonique.cbcplugin_new.gamemodes.tdm.TDMGame;
 import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownGame;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.mapconfig.CBCMapData;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -34,7 +38,7 @@ import java.util.function.Supplier;
 
 public enum CBCGamemode {
 
-    CTF ("Capture The Flag",
+    /*CTF ("Capture The Flag",
             1,
             true,
             1,
@@ -42,7 +46,7 @@ public enum CBCGamemode {
             CTFGame::new,
             CTFMapData::fromConfig,
             CTFSettings::new
-    ),
+    ),*/
 
     SHOWDOWN ("Showdown",
             2,
@@ -50,8 +54,8 @@ public enum CBCGamemode {
             2,
             TextColor.color(255, 132, 66),
             ShowdownGame::new,
-            null,
-            null
+            ShowdownMapData::fromConfig,
+            ShowdownSettings::new
     );
 
     /*
@@ -143,8 +147,8 @@ public enum CBCGamemode {
     private final boolean teamGamemode;
     private final int gamemodeIdInCategory;
     private final TextColor color;
-    private final Function<GameManager, Game<?>> gameFactory;
-    private final BiFunction<CBCMap, Configuration, GamemodeMapData> gamemodeMapDataFactory;
+    private final Function<GameInitContext, Game<?>> gameFactory;
+    private final BiFunction<CBCMapData, Configuration, GamemodeMapData> gamemodeMapDataFactory;
     private final Supplier<GameSettings> defaultGameSettings;
 
     CBCGamemode (String gamemodeName,
@@ -152,8 +156,8 @@ public enum CBCGamemode {
                  boolean teamGamemode,
                  int gamemodeIdInCategory,
                  TextColor color,
-                 Function<GameManager, Game<?>> gameFactory,
-                 BiFunction<CBCMap, Configuration, GamemodeMapData> gamemodeMapDataFactory,
+                 Function<GameInitContext, Game<?>> gameFactory,
+                 BiFunction<CBCMapData, Configuration, GamemodeMapData> gamemodeMapDataFactory,
                  Supplier<GameSettings> defaultGameSettings) {
 
         this.gamemodeName = gamemodeName;
@@ -248,11 +252,11 @@ public enum CBCGamemode {
 
     }
 
-    public Game<?> newGameInstance (GameManager gameManager) {
-        return gameFactory.apply(gameManager);
+    public Game<?> newGameInstance (GameInitContext ctx) {
+        return gameFactory.apply(ctx);
     }
 
-    public GamemodeMapData mapDataFromConfig (CBCMap map, Configuration gamemodeConfig) {
+    public GamemodeMapData mapDataFromConfig (CBCMapData map, Configuration gamemodeConfig) {
         return gamemodeMapDataFactory.apply(map, gamemodeConfig);
     }
 
