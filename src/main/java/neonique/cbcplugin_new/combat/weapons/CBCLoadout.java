@@ -1,8 +1,8 @@
-package neonique.cbcplugin_new.weapons;
+package neonique.cbcplugin_new.combat.weapons;
 
-import neonique.cbcplugin_new.weapons.presets.CreeperCannonSettings;
-import neonique.cbcplugin_new.weapons.presets.FlameZonerSettings;
-import neonique.cbcplugin_new.weapons.presets.XbowSettings;
+import neonique.cbcplugin_new.combat.weapons.presets.CreeperCannonSettings;
+import neonique.cbcplugin_new.combat.weapons.presets.FlameZonerSettings;
+import neonique.cbcplugin_new.combat.weapons.presets.XbowSettings;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;

@@ -1,8 +1,7 @@
-package neonique.cbcplugin_new.weapons;
+package neonique.cbcplugin_new.combat.weapons;
 
-import neonique.cbcplugin_new.combat.ProjectileManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.weapons.projectiles.Projectile;
+import neonique.cbcplugin_new.combat.projectiles.Projectile;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Arrow;
 import org.bukkit.inventory.ItemStack;

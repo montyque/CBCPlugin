@@ -1,10 +1,10 @@
 package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.combat.weapons.*;
 import neonique.cbcplugin_new.mapmechanics.SwimTimer;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
-import neonique.cbcplugin_new.weapons.*;
-import neonique.cbcplugin_new.weapons.projectiles.FlameDamager;
+import neonique.cbcplugin_new.combat.projectiles.FlameDamager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;

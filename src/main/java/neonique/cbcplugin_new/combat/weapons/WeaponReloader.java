@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.weapons;
+package neonique.cbcplugin_new.combat.weapons;
 
 import neonique.cbcplugin_new.combat.CombatManager;
 
