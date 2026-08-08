@@ -1,12 +1,11 @@
 package neonique.cbcplugin_new.combat.listeners;
 
 import neonique.cbcplugin_new.core.PlayerStore;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.combat.ProjectileManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.weapons.CBCInventory;
-import neonique.cbcplugin_new.weapons.InventorySlot;
-import neonique.cbcplugin_new.weapons.WeaponSlot;
+import neonique.cbcplugin_new.combat.weapons.CBCInventory;
+import neonique.cbcplugin_new.combat.weapons.InventorySlot;
+import neonique.cbcplugin_new.combat.weapons.WeaponSlot;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.*;
@@ -19,7 +18,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Function;
 
 public class CrossbowFiredListener implements Listener {

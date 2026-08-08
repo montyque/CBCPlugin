@@ -1,13 +1,11 @@
 package neonique.cbcplugin_new.combat.listeners;
 
-import neonique.cbcplugin_new.core.PlayerStore;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.combat.projectiles.FlameArrow;
+import neonique.cbcplugin_new.combat.projectiles.PlayerProjectile;
+import neonique.cbcplugin_new.combat.projectiles.XbowArrow;
 import neonique.cbcplugin_new.combat.ProjectileManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.core.PlayerSession;
-import neonique.cbcplugin_new.weapons.projectiles.*;
-import neonique.cbcplugin_new.weapons.projectiles.Projectile;
+import neonique.cbcplugin_new.combat.projectiles.Projectile;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

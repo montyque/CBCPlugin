@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.services;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.weapons.WeaponType;
+import neonique.cbcplugin_new.combat.weapons.WeaponType;
 import neonique.cbcplugin_new.mechanics.OverallPreset;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;

@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.commands.practicesubcommands;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.commands.PracticeCommand;
-import neonique.cbcplugin_new.weapons.WeaponType;
+import neonique.cbcplugin_new.combat.weapons.WeaponType;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;

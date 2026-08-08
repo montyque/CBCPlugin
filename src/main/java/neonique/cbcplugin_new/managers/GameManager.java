@@ -15,7 +15,7 @@ import neonique.cbcplugin_new.mapconfig.MapLoader;
 import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.weapons.WeaponFactory;
-import neonique.cbcplugin_new.weapons.WeaponType;
+import neonique.cbcplugin_new.combat.weapons.WeaponType;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;

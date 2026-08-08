@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.combat;
 
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
-import neonique.cbcplugin_new.weapons.projectiles.Projectile;
+import neonique.cbcplugin_new.combat.projectiles.Projectile;
 
 import javax.annotation.Nullable;
 import java.util.*;

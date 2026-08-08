@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.weapons.projectiles;
+package neonique.cbcplugin_new.combat.projectiles;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import org.bukkit.entity.Entity;

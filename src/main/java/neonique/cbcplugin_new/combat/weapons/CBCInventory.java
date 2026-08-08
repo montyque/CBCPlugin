@@ -1,10 +1,7 @@
-package neonique.cbcplugin_new.weapons;
+package neonique.cbcplugin_new.combat.weapons;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;

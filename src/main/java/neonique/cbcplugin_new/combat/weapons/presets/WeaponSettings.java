@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.weapons.presets;
+package neonique.cbcplugin_new.combat.weapons.presets;
 
 public interface WeaponSettings {
 
