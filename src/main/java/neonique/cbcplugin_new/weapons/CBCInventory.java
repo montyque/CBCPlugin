@@ -17,18 +17,14 @@ public class CBCInventory {
 
     public final static NamespacedKey slotKey = new NamespacedKey(CBCPlugin.getPlugin(), "cbc_item_slot");
 
-    private final CBCPlayer player;
-    private final WeaponFactory weaponFactory;
-    private final EquipmentFactory equipmentFactory;
+    private final CBCLoadout loadout;
     private final Map<Integer, InventorySlot> permanentSlots;
 
     private ItemStack helmetOverride = null;
 
-    public CBCInventory (CBCPlayer player, WeaponFactory weaponFactory, EquipmentFactory equipmentFactory) {
+    public CBCInventory (CBCPlayer player) {
 
         this.player = player;
-        this.equipmentFactory = equipmentFactory;
-        this.weaponFactory = weaponFactory;
         permanentSlots = new HashMap<>();
         setWeapons();
 

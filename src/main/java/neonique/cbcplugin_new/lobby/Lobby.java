@@ -21,7 +21,7 @@ import neonique.cbcplugin_new.lobby.tasks.LobbySidebarManagerTask;
 import neonique.cbcplugin_new.lobby.tasks.PlayerSafetyTask;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
-import neonique.cbcplugin_new.weapons.presets.WeaponPreset;
+import neonique.cbcplugin_new.weapons.presets.WeaponSettings;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -781,7 +781,7 @@ public class Lobby {
         }
     }
 
-    public WeaponPreset getWeaponPreset (WeaponType weaponType) {
+    public WeaponSettings getWeaponPreset (WeaponType weaponType) {
         if (weaponType == WeaponType.CREEPER) {
             return creeperPreset;
         }

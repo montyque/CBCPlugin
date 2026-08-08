@@ -26,4 +26,8 @@ public record FlameZonerSettings (String name,
 
     }
 
+    public int zoneLifeTicks() {
+        return (int) Math.round(zoneLife() * 20);
+    }
+
 }

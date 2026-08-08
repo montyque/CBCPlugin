@@ -4,7 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.Objects;
 
-public class FlamePreset extends WeaponPreset {
+public class FlamePreset extends WeaponSettings {
 
     private double zoneLife; // Time zone stays alive in seconds
     private double zoneRadius; // Radius of zone in blocks
