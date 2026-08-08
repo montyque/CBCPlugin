@@ -26,7 +26,8 @@ public class WeaponReloadTask extends BukkitRunnable {
                 player.getInventory().updateWeaponReloads();
                 player.updateActionBarDisplay(true);
                 if (updateItems) {
-                    player.getInventory().loadSlots();
+                    player.getInventory().loadSlots(player.getPlayer().getInventory());
+                    player.updateInventorySlots();
                 }
             }
         }

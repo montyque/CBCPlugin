@@ -4,6 +4,7 @@ import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -18,75 +19,51 @@ public class CBCInventory {
     public final static NamespacedKey slotKey = new NamespacedKey(CBCPlugin.getPlugin(), "cbc_item_slot");
 
     private final CBCLoadout loadout;
-    private final Map<Integer, InventorySlot> permanentSlots;
+    private final Runnable inventoryUpdateListener;
 
+    private Map<Integer, InventorySlot> permanentSlots;
     private ItemStack helmetOverride = null;
 
-    public CBCInventory (CBCPlayer player) {
-
-        this.player = player;
-        permanentSlots = new HashMap<>();
+    public CBCInventory (CBCLoadout loadout, Runnable inventoryUpdateListener) {
+        this.loadout = loadout;
+        this.inventoryUpdateListener = inventoryUpdateListener;
         setWeapons();
-
     }
 
     public void setWeapons () {
-        int slotNum = 0;
-        for (CrossbowWeapon weapon : weaponFactory.getPlayerBaseWeapons(player)) {
-            permanentSlots.put(slotNum, new WeaponSlot(weapon));
-            slotNum++;
-        }
+        permanentSlots = new HashMap<>();
+        permanentSlots.putAll(loadout.getSlots());
     }
 
     public void setItem (int slot, ItemStack item) {
         permanentSlots.put(slot, new StaticItemSlot(item));
-        if (player.isAlive()) loadSlots();
     }
 
     public void removeItem (int slot) {
         permanentSlots.remove(slot);
-        if (player.isAlive()) {
-            Player playerEntity = player.getPlayer();
-            playerEntity.getInventory().setItem(slot, null);
-            playerEntity.updateInventory();
-            loadSlots();
-        }
     }
 
-    public void loadEquipment () {
-
-        Player playerEntity = player.getPlayer();
-        PlayerInventory inventory = playerEntity.getInventory();
-
-        // Set chestplate and helmet
-        inventory.setChestplate(equipmentFactory.getChestplate(player));
-        inventory.setHelmet(helmetOverride != null ? helmetOverride : equipmentFactory.getHelmet(player));
-        if (player.isAlive()) loadSlots();
-
-        playerEntity.updateInventory();
-
+    public void loadEquipment (PlayerInventory inventory) {
+        inventory.setChestplate(loadout.getChestplate());
+        inventory.setHelmet(helmetOverride != null ? helmetOverride : loadout.getHelmet());
+        loadSlots(inventory);
     }
 
-    public void loadSlots () {
+    public void loadSlots (PlayerInventory inventory) {
         for (Integer slot : permanentSlots.keySet()) {
-            setPlayerSlotItem(slot);
+            setPlayerSlotItem(inventory, slot);
         }
     }
 
-    public void setPlayerSlotItem (int slot) {
+    public void setPlayerSlotItem (PlayerInventory inventory, int slot) {
 
-        if (!player.isOnline()) return;
-
-        Player playerEntity = player.getPlayer();
         ItemStack slotItem = permanentSlots.get(slot).getItem();
 
         // Add PDC information for the slot of this weapon
         ItemMeta meta = slotItem.getItemMeta();
         meta.getPersistentDataContainer().set(slotKey, PersistentDataType.INTEGER, slot);
         slotItem.setItemMeta(meta);
-
-        playerEntity.getInventory().setItem(slot, slotItem);
-        playerEntity.updateInventory();
+        inventory.setItem(slot, slotItem);
 
     }
 
@@ -96,7 +73,6 @@ public class CBCInventory {
 
     public void setReloadsBySecond (double seconds) {
         forEachWeapon(w -> w.getWeaponReloader().setReloadBySecond(seconds));
-        if (player.isAlive()) loadSlots();
     }
 
     public InventorySlot getSlot (int slot) {
@@ -113,7 +89,6 @@ public class CBCInventory {
 
     public void setHelmetOverride (ItemStack override) {
         helmetOverride = override;
-        loadEquipment();
     }
 
 }
