@@ -1,9 +1,9 @@
 package neonique.cbcplugin_new.mapconfig;
 
-import neonique.cbcplugin_new.combat.display.DeathMessage;
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
 import neonique.cbcplugin_new.combat.display.DeathMessageProvider;
 import neonique.cbcplugin_new.core.TeamColor;
+import neonique.cbcplugin_new.mapconfig.spawns.TeamSpawnList;
 import neonique.cbcplugin_new.mapmechanics.MapMechanicSpec;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import org.bukkit.Material;
@@ -23,7 +23,7 @@ public record CBCMapData (String id,
                           Vector lowerBound,
                           Vector upperBound,
                           List<Vector> defaultSpawnCoords,
-                          Map<TeamColor, List<Vector>> defaultTeamSpawns,
+                          TeamSpawnList defaultTeamSpawns,
                           MapOptions options,
                           Map<String, MapMechanicSpec> mechanicSpecs,
                           DeathMessageProvider deathMessageProvider) {
@@ -59,7 +59,10 @@ public record CBCMapData (String id,
 
         // Parse individual and team spawns
         List<Vector> defaultSpawnCoords = ConfigUtil.requireVectorList(config, "default_player_spawns");
-        Map<TeamColor, List<Vector>> defaultTeamSpawns = loadTeamVectorList(ConfigUtil.requireConfigurationSection(config, "default_team_spawns"));
+
+        ConfigurationSection teamSpawnsSection = ConfigUtil.requireConfigurationSection(config, "default_team_spawns");
+        List<TeamColor> allColors = Arrays.asList(TeamColor.values());
+        TeamSpawnList defaultTeamSpawns = TeamSpawnList.fromConfig(teamSpawnsSection, allColors, allColors.size());
 
         // Parse map options
         MapOptions options = ConfigUtil.getConfigurationSection(config, "map_options")
@@ -98,14 +101,6 @@ public record CBCMapData (String id,
                                         Map.Entry::getKey,
                                         e -> mechanicLoader.fromConfig(e.getValue()))))
                 .orElse(Map.of());
-    }
-
-    public static Map<TeamColor, List<Vector>> loadTeamVectorList(ConfigurationSection section) {
-        return Arrays.stream(TeamColor.values())
-                .collect(Collectors.toMap(
-                        t -> t,
-                        t -> ConfigUtil.requireVectorList(section, t.name().toLowerCase())
-                ));
     }
 
     /*

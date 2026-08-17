@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.mapconfig;
 
 import neonique.cbcplugin_new.combat.display.DeathMessageProvider;
 import neonique.cbcplugin_new.core.TeamColor;
+import neonique.cbcplugin_new.mapconfig.spawns.MapStartSpawn;
 import neonique.cbcplugin_new.mapmechanics.MapMechanicSpec;
 import neonique.cbcplugin_new.util.VectorUtil;
 import net.kyori.adventure.text.Component;
@@ -10,9 +11,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CBCMap {
 
@@ -34,14 +35,9 @@ public class CBCMap {
                 .toList();
     }
 
-    public Map<TeamColor, List<Location>> defaultTeamSpawns () {
-        return mapData.defaultTeamSpawns().entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> e.getValue().stream()
-                                .map(v -> VectorUtil.vecToLocation(v, world))
-                                .toList()
-                ));
+    public Map<TeamColor, List<MapStartSpawn>> defaultTeamSpawns () {
+        return mapData.defaultTeamSpawns()
+                .getTeamColorSpawnLocations(Arrays.asList(TeamColor.values()), world);
     }
 
     public void loadMapChunks (boolean sendMessage) {
