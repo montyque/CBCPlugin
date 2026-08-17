@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static util.TestUtil.configFromString;
 
 public class DeathMessageProviderTest {
 
@@ -45,12 +46,6 @@ public class DeathMessageProviderTest {
                 () -> assertTrue(provider.generators().containsKey(DeathCause.FLAMEZONE))
         );
 
-    }
-
-    public static Configuration configFromString (String content) {
-        return YamlConfiguration.loadConfiguration(
-                new InputStreamReader(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)))
-        );
     }
 
 }

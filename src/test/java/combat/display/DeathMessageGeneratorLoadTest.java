@@ -13,6 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static util.TestUtil.configFromString;
 
 public class DeathMessageGeneratorLoadTest {
 
@@ -60,12 +61,6 @@ public class DeathMessageGeneratorLoadTest {
         assertEquals(List.of(new DeathMessage(" blew up while fighting ", "")), gen.indirect());
         assertEquals(List.of(new DeathMessage(" used a creeper to self-destruct", "")), gen.self());
 
-    }
-
-    public static Configuration configFromString (String content) {
-        return YamlConfiguration.loadConfiguration(
-                new InputStreamReader(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)))
-        );
     }
 
 }

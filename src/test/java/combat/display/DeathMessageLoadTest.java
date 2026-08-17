@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static util.TestUtil.configFromString;
 
 public class DeathMessageLoadTest {
 
@@ -61,12 +62,6 @@ public class DeathMessageLoadTest {
 
         }
 
-    }
-
-    public static Configuration configFromString (String content) {
-        return YamlConfiguration.loadConfiguration(
-                new InputStreamReader(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)))
-        );
     }
 
 
