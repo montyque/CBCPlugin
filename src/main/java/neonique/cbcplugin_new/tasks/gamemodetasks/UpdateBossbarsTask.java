@@ -19,7 +19,7 @@ public class UpdateBossbarsTask extends BukkitRunnable {
             return;
         }
 
-        game.updateBossbarManager();
+        // game.updateBossbarManager();
 
     }
 }

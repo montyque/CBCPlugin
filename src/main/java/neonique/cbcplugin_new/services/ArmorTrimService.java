@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.services;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.lobby.listeners.TrimSelectHandler;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.NamespacedKey;
@@ -23,7 +22,6 @@ public class ArmorTrimService {
     public final static String playerTrimsFileName = "playertrims.yaml";
 
     private final Map<UUID, TrimPattern> playerTrims;
-    private final TrimSelectHandler trimSelectHandler;
 
     private final TrimPattern defaultTrim = TrimPattern.COAST;
 
@@ -32,10 +30,6 @@ public class ArmorTrimService {
         CBCPlugin plugin = CBCPlugin.getPlugin();
 
         playerTrims = new HashMap<>();
-
-        // Start tasks and listeners
-        trimSelectHandler = new TrimSelectHandler(this);
-        plugin.getServer().getPluginManager().registerEvents(trimSelectHandler, plugin);
 
     }
 

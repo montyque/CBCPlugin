@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.mapconfig;
 
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.core.CBCGamemode;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;

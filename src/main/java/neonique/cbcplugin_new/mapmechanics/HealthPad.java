@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.PlayerSession;
+import neonique.cbcplugin_new.core.PlayerStore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
@@ -43,15 +44,15 @@ public class HealthPad {
                 3, 1d, 1d, 1d, 1);
     }
 
-    public void playerCheck (PlayerSession<?> registry) {
-         getNearestOnPad(registry).ifPresent(this::healPadPressed);
+    public void playerCheck (PlayerStore players) {
+         getNearestOnPad(players).ifPresent(this::healPadPressed);
     }
 
-    private Optional<? extends CBCPlayer> getNearestOnPad (PlayerSession<? extends CBCPlayer> registry) {
+    private Optional<? extends CBCPlayer> getNearestOnPad (PlayerStore players) {
         return location.getNearbyEntitiesByType(Player.class, 3).stream()
                 .filter(this::isOnPad)
                 .sorted(Comparator.comparingDouble(p -> p.getLocation().distanceSquared(location)))
-                .map(registry::getPlayer)
+                .map(players::getPlayer)
                 .filter(Objects::nonNull)
                 .filter(CBCPlayer::isAlive)
                 .findFirst();

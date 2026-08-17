@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.cbcevents;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.resourcepack.PlayerHeadType;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.core.CBCTeam;

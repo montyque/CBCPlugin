@@ -2,8 +2,8 @@ package neonique.cbcplugin_new.commands.lobbysubcommands;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.commands.LobbyCommand;
-import neonique.cbcplugin_new.gamemodes.GameSettings;
-import neonique.cbcplugin_new.gamemodes.InvalidSettingValueException;
+import neonique.cbcplugin_new.core.GameSettings;
+import neonique.cbcplugin_new.core.InvalidSettingValueException;
 import neonique.cbcplugin_new.combat.weapons.WeaponType;
 import neonique.cbcplugin_new.services.WeaponPresetService;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;

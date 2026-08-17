@@ -1,7 +1,5 @@
 package neonique.cbcplugin_new.core;
 
-import neonique.cbcplugin_new.gamemodes.FFAGameContext;
-import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import net.kyori.adventure.text.Component;
@@ -18,8 +16,8 @@ public abstract class FFAGame<P extends CBCPlayer> extends Game<P> {
 
     private P winningPlayer;
 
-    public FFAGame (Plugin plugin, CBCScoreboardManager scoreboardManager, World world) {
-        super(plugin, scoreboardManager, world);
+    public FFAGame (GameInitContext ctx) {
+        super(ctx);
     }
 
 

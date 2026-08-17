@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.gamemodes;
+package neonique.cbcplugin_new.core;
 
 import java.util.List;
 import java.util.Map;

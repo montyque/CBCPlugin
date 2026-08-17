@@ -1,11 +1,8 @@
 package neonique.cbcplugin_new.combat.listeners;
 
 import neonique.cbcplugin_new.core.PlayerStore;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;

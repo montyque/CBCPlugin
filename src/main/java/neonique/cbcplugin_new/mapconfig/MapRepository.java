@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.mapconfig;
 
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.core.CBCGamemode;
 
 import java.util.Collection;
 import java.util.Collections;

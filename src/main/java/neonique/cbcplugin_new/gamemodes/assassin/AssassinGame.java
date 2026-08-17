@@ -2,8 +2,8 @@ package neonique.cbcplugin_new.gamemodes.assassin;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.FFAGame;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.FFAGameContext;
+import neonique.cbcplugin_new.core.CBCGamemode;
+import neonique.cbcplugin_new.core.FFAGameContext;
 import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.listeners.gamemodes.PlayerNoMove;
 import neonique.cbcplugin_new.managers.GameBossBarManager;

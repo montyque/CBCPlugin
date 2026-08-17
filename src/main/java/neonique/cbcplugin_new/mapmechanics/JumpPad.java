@@ -1,9 +1,6 @@
 package neonique.cbcplugin_new.mapmechanics;
 
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
@@ -14,7 +11,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+/*
 public class JumpPad {
 
     private static final Random rd = new Random();
@@ -54,3 +51,4 @@ public class JumpPad {
     }
 
 }
+*/

@@ -1,10 +1,8 @@
 package neonique.cbcplugin_new.lobby.listeners;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.mapconfig.CBCMap;
+import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
-import neonique.cbcplugin_new.mechanics.GamemodeOptions;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameManager;

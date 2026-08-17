@@ -46,7 +46,7 @@ public class CombatSession implements CombatContext, Listener {
         this.world = world;
         this.players = players;
 
-        this.mapMechanicsManager = new MapMechanicsManager(players);
+        this.mapMechanicsManager = new MapMechanicsManager(world, this);
         this.projectileManager = new ProjectileManager(scoreboardManager, this);
 
     }
@@ -100,10 +100,6 @@ public class CombatSession implements CombatContext, Listener {
 
         playerDeath(e.victim(), e.killer(), e.cause(), e.direct());
 
-    }
-
-    public void playerDeath (CBCPlayer playerKilled, DeathCause cause) {
-        playerDeath(playerKilled, playerKilled.getLastPlayerHitBy(), cause, false);
     }
 
     // Runs when a player takes fatal damage
@@ -202,6 +198,10 @@ public class CombatSession implements CombatContext, Listener {
 
     public int timer () {
         return timer;
+    }
+
+    public Plugin plugin () {
+        return plugin;
     }
 
 }

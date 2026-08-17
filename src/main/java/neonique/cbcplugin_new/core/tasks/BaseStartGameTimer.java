@@ -1,11 +1,9 @@
 package neonique.cbcplugin_new.core.tasks;
 
-import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.CBCTeam;
-import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.core.TeamColor;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -16,11 +14,8 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collection;
-import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class BaseStartGameTimer {

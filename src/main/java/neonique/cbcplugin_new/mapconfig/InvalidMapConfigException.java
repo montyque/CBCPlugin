@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.mapconfig;
 
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.core.CBCGamemode;
 
 public class InvalidMapConfigException extends RuntimeException {
 

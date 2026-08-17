@@ -1,15 +1,13 @@
 package neonique.cbcplugin_new.mechanics;
 
-import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.Objects;
-
+/*
 // Used for setting spawnpoints in free for alls
 public class FFASpawnpoint {
 
@@ -43,3 +41,4 @@ public class FFASpawnpoint {
     }
 
 }
+*/

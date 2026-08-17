@@ -2,21 +2,15 @@ package neonique.cbcplugin_new.gamemodes.showdown.tasks;
 
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.CBCTeam;
-import neonique.cbcplugin_new.core.TeamColor;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownTeam;
-import neonique.cbcplugin_new.managers.GameManager;
+import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.core.tasks.BaseStartGameTimer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.function.Supplier;
 

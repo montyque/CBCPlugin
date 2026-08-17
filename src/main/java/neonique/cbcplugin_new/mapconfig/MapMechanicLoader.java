@@ -1,14 +1,10 @@
 package neonique.cbcplugin_new.mapconfig;
 
-import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.mapmechanics.*;
 import neonique.cbcplugin_new.util.ConfigUtil;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 

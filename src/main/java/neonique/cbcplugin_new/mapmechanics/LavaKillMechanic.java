@@ -1,32 +1,29 @@
 package neonique.cbcplugin_new.mapmechanics;
 
-import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class LavaKillMechanic implements MapMechanic, Listener {
 
-    private PlayerRegistry registry;
-    private CombatManager combatManager;
+    private CombatContext combatContext;
 
     @Override
-    public void activate (PlayerRegistry registry, CombatManager combatManager) {
-        this.registry = registry;
-        this.combatManager = combatManager;
-        CBCPlugin.getPlugin().registerListener(this);
+    public void activate (CombatContext combatContext) {
+        this.combatContext = combatContext;
+        combatContext.plugin().getServer().getPluginManager().registerEvents(this, combatContext.plugin());
     }
 
     @Override
     public void deactivate() {
-        CBCPlugin.getPlugin().unregisterListener(this);
+        HandlerList.unregisterAll(this);
     }
 
     @EventHandler
@@ -38,8 +35,8 @@ public class LavaKillMechanic implements MapMechanic, Listener {
             return;
         }
 
-        if (!registry.hasPlayer(playerEntity)) return;
-        CBCPlayer player = registry.getPlayer(playerEntity);
+        if (!combatContext.players().hasPlayer(playerEntity)) return;
+        CBCPlayer player = combatContext.players().getPlayer(playerEntity);
 
         // Check if damage was caused by lava
         if (e.getCause() == EntityDamageEvent.DamageCause.LAVA) {
@@ -49,7 +46,7 @@ public class LavaKillMechanic implements MapMechanic, Listener {
                 return;
             }
 
-            combatManager.playerDeath(player, DeathCause.LAVA);
+            combatContext.playerDeath(player, DeathCause.LAVA);
 
         }
 

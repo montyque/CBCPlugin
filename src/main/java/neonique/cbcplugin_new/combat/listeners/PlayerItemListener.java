@@ -1,7 +1,6 @@
 package neonique.cbcplugin_new.combat.listeners;
 
 import neonique.cbcplugin_new.core.PlayerStore;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;

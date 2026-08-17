@@ -1,6 +1,6 @@
 package neonique.cbcplugin_new.mechanics;
 
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.core.CBCGamemode;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.inventory.ItemStack;
 

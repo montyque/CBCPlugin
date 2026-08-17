@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.cbcevents.CBCEventTeam;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.mechanics.GamemodeOptions;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;

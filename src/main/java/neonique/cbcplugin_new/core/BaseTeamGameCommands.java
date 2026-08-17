@@ -11,13 +11,13 @@ import java.util.List;
 
 public class BaseTeamGameCommands extends BaseGameCommands {
 
-    private final TeamGame<? extends CBCPlayer, ?, ?> game;
+    private final TeamGame<?, ?> game;
 
-    public BaseTeamGameCommands(TeamGame<?, ?, ?> game) {
+    public BaseTeamGameCommands(TeamGame<?, ?> game) {
         super(game);
         this.game = game;
     }
-
+/*
     public List<String> getTeamIds() {
         return new ArrayList<>(game.getGeneralTeamList().keySet());
     }
@@ -165,5 +165,5 @@ public class BaseTeamGameCommands extends BaseGameCommands {
         }
         return tabCompletions;
     }
-
+*/
 }

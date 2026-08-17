@@ -1,7 +1,5 @@
 package neonique.cbcplugin_new.combat.tasks;
 
-import neonique.cbcplugin_new.core.PlayerStore;
-import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Particle;
 import org.bukkit.World;

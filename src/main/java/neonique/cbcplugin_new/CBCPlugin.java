@@ -1,46 +1,40 @@
 package neonique.cbcplugin_new;
 
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
-import neonique.cbcplugin_new.commands.*;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.managers.GameState;
-import neonique.cbcplugin_new.mapconfig.CBCMapData;
+import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.mapconfig.MapLoader;
 import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
 import neonique.cbcplugin_new.mapconfig.MapRepository;
 import neonique.cbcplugin_new.practice.PracticeManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.services.ArmorTrimService;
-import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
-import neonique.cbcplugin_new.services.WeaponPresetService;
-import org.bukkit.Bukkit;
+import neonique.cbcplugin_new.util.ConfigUtil;
+import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public final class CBCPlugin extends JavaPlugin implements Listener {
 
-    private Set<CBCGamemode> ENABLED_GAMEMODES = Set.of(
-            CBCGamemode.SHOWDOWN
-    );
+    private Set<CBCGamemode> ENABLED_GAMEMODES = Set.of();
 
     private static CBCPlugin plugin;
+
+    private World world;
 
     private MapMechanicLoader mechanicLoader;
     private MapLoader mapLoader;
@@ -72,12 +66,11 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
         getLogger().info("");
 
-        String worldName = "world";
-        getLogger().info("Primary world: " + worldName);
-
-        World world = getServer().getWorld(worldName);
-        assert world != null;
-        getLogger().info("Primary world found!");
+        // Load the world
+        String worldName = ConfigUtil.requireString(getConfig(), "world_name");
+        world = getServer().getWorld(worldName);
+        if (world == null) throw new IllegalStateException("World '" + "' was not found on this server");
+        getLogger().info("Primary world: " + worldName + " has been found.");
 
         /*
         // Load permissions from config.yml
@@ -113,11 +106,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         loadMaps();
 
         // Create practice manager
-        practiceManager = new PracticeManager(this, world, scoreboardManager, mapRepository,
-                new Location(world, 0, 50, 0),
-                new Location(world, 0, 50 ,0),
-                new Location(world, 0, 50, 0)
-        );
+        loadPracticeManager();
 
         // Create game manager
         // gameManager = new GameManager(this);
@@ -160,6 +149,19 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         } catch (FileNotFoundException e) {
             getLogger().warning("The plugin's data folder does not exist");
         }
+    }
+
+    public void loadPracticeManager () {
+
+        Configuration config = getConfig();
+        ConfigurationSection practiceSection = ConfigUtil.requireConfigurationSection(config, "practice");
+
+        Location portal = VectorUtil.vecToLocation(ConfigUtil.requireVector(practiceSection, "portal"), world);
+        Location hologram = VectorUtil.vecToLocation(ConfigUtil.requireVector(practiceSection, "hologram"), world);
+        Location teleport = VectorUtil.vecToLocation(ConfigUtil.requireVector(practiceSection, "teleport"), world);
+
+        practiceManager = new PracticeManager(this, world, scoreboardManager, mapRepository, portal, hologram, teleport);
+
     }
 
     @Override

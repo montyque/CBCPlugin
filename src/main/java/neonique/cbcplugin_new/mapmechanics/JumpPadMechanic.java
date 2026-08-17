@@ -1,9 +1,8 @@
 package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -12,14 +11,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
+/*
 public class JumpPadMechanic implements MapMechanic {
 
     private final Collection<JumpPad> jumpPads;
 
-    private PlayerRegistry registry;
-    private CombatManager combatManager;
-    private BukkitRunnable updateTask;
+    private CombatContext combatContext;
 
     private final Set<CBCPlayer> playersOnPad = new HashSet<>();
 
@@ -28,9 +25,8 @@ public class JumpPadMechanic implements MapMechanic {
     }
 
     @Override
-    public void activate (PlayerRegistry registry, CombatManager combatManager) {
-        this.registry = registry;
-        this.combatManager = combatManager;
+    public void activate (CombatContext combatContext) {
+        this.combatContext = combatContext;
         playersOnPad.clear();
 
         updateTask = new BukkitRunnable() {
@@ -90,3 +86,4 @@ public class JumpPadMechanic implements MapMechanic {
     }
 
 }
+*/

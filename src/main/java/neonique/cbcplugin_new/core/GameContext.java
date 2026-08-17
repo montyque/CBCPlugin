@@ -1,8 +1,6 @@
-package neonique.cbcplugin_new.gamemodes;
+package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
-
-import java.util.Map;
 
 public interface GameContext {
 

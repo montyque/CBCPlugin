@@ -1,15 +1,10 @@
 package neonique.cbcplugin_new.core;
 
-import neonique.cbcplugin_new.gamemodes.GameContext;
-import neonique.cbcplugin_new.gamemodes.TeamGameContext;
 import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
-import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.World;
-import org.bukkit.plugin.Plugin;
 
 import java.time.Duration;
 import java.util.*;

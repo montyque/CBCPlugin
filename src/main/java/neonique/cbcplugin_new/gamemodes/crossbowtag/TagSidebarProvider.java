@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
 import neonique.cbcplugin_new.core.CBCTeam;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
+import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.scoreboard.SidebarProvider;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;

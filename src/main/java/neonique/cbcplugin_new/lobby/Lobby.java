@@ -1,8 +1,7 @@
 package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.core.TeamColor;
-import neonique.cbcplugin_new.gamemodes.*;
+import neonique.cbcplugin_new.core.*;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import neonique.cbcplugin_new.mapconfig.TeamMapData;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;

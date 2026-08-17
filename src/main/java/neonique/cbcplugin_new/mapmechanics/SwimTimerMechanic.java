@@ -1,10 +1,9 @@
 package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -18,8 +17,7 @@ public class SwimTimerMechanic implements MapMechanic {
 
     private final int length;
 
-    private PlayerRegistry registry;
-    private CombatManager combatManager;
+    private CombatContext combatContext;
     private BukkitRunnable updateTask;
 
     public SwimTimerMechanic (int length) {
@@ -27,9 +25,8 @@ public class SwimTimerMechanic implements MapMechanic {
     }
 
     @Override
-    public void activate(PlayerRegistry registry, CombatManager combatManager) {
-        this.registry = registry;
-        this.combatManager = combatManager;
+    public void activate(CombatContext combatContext) {
+        this.combatContext = combatContext;
 
         updateTask = new BukkitRunnable() {
             @Override
@@ -47,7 +44,7 @@ public class SwimTimerMechanic implements MapMechanic {
 
     public void update() {
 
-        for (CBCPlayer player : registry.getPlayers()) {
+        for (CBCPlayer player : combatContext.players().players()) {
             if (!player.isAlive()) continue;
             if (player.isImmune()) continue;
             Player entity = player.getPlayer();
@@ -89,7 +86,7 @@ public class SwimTimerMechanic implements MapMechanic {
         entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_PLAYER_HURT_DROWN, 1, 1);
         entity.getWorld().spawnParticle(Particle.BUBBLE, entity.getLocation(), 10, null);
         if (entity.getHealth() <= 1) {
-            combatManager.playerDeath(player, player.getLastPlayerHitBy(), DeathCause.DROWN, false);
+            combatContext.playerDeath(player, DeathCause.DROWN);
         } else {
             entity.setHealth(entity.getHealth() - 1);
         }

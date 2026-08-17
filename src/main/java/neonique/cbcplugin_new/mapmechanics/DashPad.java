@@ -1,10 +1,7 @@
 package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -12,7 +9,7 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
+/*
 public class DashPad {
 
     private final Set<Location> checkLocations;
@@ -113,4 +110,4 @@ public class DashPad {
         cooldown.replaceAll((p, c) -> Math.max(c - 1, 0));
     }
 
-}
+}*/

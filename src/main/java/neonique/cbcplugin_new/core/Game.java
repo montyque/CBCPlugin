@@ -3,8 +3,6 @@ package neonique.cbcplugin_new.core;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.CombatSession;
 import neonique.cbcplugin_new.combat.DeathCause;
-import neonique.cbcplugin_new.gamemodes.CBCGamemode;
-import neonique.cbcplugin_new.gamemodes.GameContext;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;

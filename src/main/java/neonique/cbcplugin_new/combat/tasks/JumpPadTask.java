@@ -1,18 +1,5 @@
 package neonique.cbcplugin_new.combat.tasks;
 
-import neonique.cbcplugin_new.mapmechanics.JumpPad;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.core.CBCPlayer;
-import org.bukkit.Particle;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
-
 /*
 public class JumpPadTask extends BukkitRunnable {
 

@@ -1,12 +1,5 @@
 package neonique.cbcplugin_new.combat.tasks;
 
-import neonique.cbcplugin_new.mapmechanics.HealthPad;
-import neonique.cbcplugin_new.combat.CombatManager;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.*;
-
 /*
 public class HealPadTask extends BukkitRunnable {
 

@@ -37,13 +37,14 @@ public class VictoryFireworkTask extends BukkitRunnable {
         if (tick < 8) {
             double angleRad = ((double) tick / (double) 8) * Math.PI * 2;
 
-            double fireworkX = Math.cos(angleRad) * map.getFireworkSpawnRadius();
-            double fireworkZ = Math.sin(angleRad) * map.getFireworkSpawnRadius();
+            double fireworkX = Math.cos(angleRad) * 2;
+            double fireworkZ = Math.sin(angleRad) * 2;
 
-            fireworkSpawn = mapCentre.clone().add(fireworkX, map.getFireworkSpawnHeight(), fireworkZ);
+            fireworkSpawn = mapCentre.clone().add(fireworkX, 2, fireworkZ);
         }
 
         // Summon a firework
+        /*
         Firework firework = (Firework) map.getWorld().spawnEntity(fireworkSpawn.clone().add(0, 2, 0),
                 EntityType.FIREWORK_ROCKET, CreatureSpawnEvent.SpawnReason.COMMAND);
         FireworkMeta fireworkMeta = firework.getFireworkMeta();
@@ -69,7 +70,7 @@ public class VictoryFireworkTask extends BukkitRunnable {
         }
 
         // Increment tick by 1
-        tick++;
+        tick++;*/
     }
 
     private FireworkEffect.Builder addColorToEffect (FireworkEffect.Builder builder) {

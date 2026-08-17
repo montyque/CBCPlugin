@@ -1,26 +1,5 @@
-package neonique.cbcplugin_new.gamemodes;
+package neonique.cbcplugin_new.core;
 
-import neonique.cbcplugin_new.core.Game;
-import neonique.cbcplugin_new.core.GameInitContext;
-import neonique.cbcplugin_new.core.TeamColor;
-import neonique.cbcplugin_new.gamemodes.assassin.AssassinGame;
-import neonique.cbcplugin_new.gamemodes.crossbowtag.TagGame;
-import neonique.cbcplugin_new.gamemodes.crossbowtag.TagMapData;
-import neonique.cbcplugin_new.gamemodes.crossbowtag.TagSettings;
-import neonique.cbcplugin_new.gamemodes.ctf.CTFGame;
-import neonique.cbcplugin_new.gamemodes.ctf.CTFMapData;
-import neonique.cbcplugin_new.gamemodes.ctf.CTFSettings;
-import neonique.cbcplugin_new.gamemodes.holdthegold.HTGGame;
-import neonique.cbcplugin_new.gamemodes.kmation.KMationGame;
-import neonique.cbcplugin_new.gamemodes.koth.KOTHGame;
-import neonique.cbcplugin_new.gamemodes.rendezvous.RendezvousGame;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownMapData;
-import neonique.cbcplugin_new.gamemodes.showdown.ShowdownSettings;
-import neonique.cbcplugin_new.gamemodes.tdm.TDMGame;
-import neonique.cbcplugin_new.gamemodes.throwdown.ThrowdownGame;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapconfig.CBCMapData;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -36,7 +15,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public enum CBCGamemode {
+public enum CBCGamemode {;
 
     /*CTF ("Capture The Flag",
             1,
@@ -48,7 +27,7 @@ public enum CBCGamemode {
             CTFSettings::new
     ),*/
 
-    SHOWDOWN ("Showdown",
+    /*SHOWDOWN ("Showdown",
             2,
             true,
             2,
@@ -56,7 +35,7 @@ public enum CBCGamemode {
             ShowdownGame::new,
             ShowdownMapData::fromConfig,
             ShowdownSettings::new
-    );
+    );*/
 
     /*
     TDM ("Team Deathmatch",

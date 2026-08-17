@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
 
 public class BaseGameCommands {
 
-    private final Game<?, ?> game;
+    private final Game<?> game;
 
-    public BaseGameCommands (Game<?, ?> game) {
+    public BaseGameCommands (Game<?> game) {
         this.game = game;
     }
-
+/*
     public boolean checkIfPerms (Player user, int userPerms, int permsNeeded) {
         if (userPerms < permsNeeded) {
             user.sendMessage(Component.text("You do not have permission to run this command.").color(NamedTextColor.RED));
@@ -182,6 +182,6 @@ public class BaseGameCommands {
         if (level == 2) tabCompletions = new ArrayList<>(getPlayerNamesInGame(p -> p.isOnline() && !p.isAlive()));
         return tabCompletions;
     }
-
+*/
 
 }

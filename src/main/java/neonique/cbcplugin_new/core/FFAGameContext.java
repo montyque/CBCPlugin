@@ -1,17 +1,8 @@
-package neonique.cbcplugin_new.gamemodes;
+package neonique.cbcplugin_new.core;
 
-import neonique.cbcplugin_new.core.PlayerLike;
-import neonique.cbcplugin_new.core.TeamLike;
-import neonique.cbcplugin_new.mapconfig.CBCMap;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
-import neonique.cbcplugin_new.mapconfig.TeamMapData;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public record FFAGameContext (GamemodeMapData mapData,
                               List<PlayerLike> players,

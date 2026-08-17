@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.mapmechanics;
 
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import org.bukkit.World;
@@ -11,22 +12,21 @@ import java.util.stream.Collectors;
 
 public class MapMechanicsManager {
 
-    private final PlayerStore players;
+    private final World world;
+    private final CombatContext combatContext;
 
     private final List<MapMechanic> activeMechanics = new ArrayList<>();
 
-    public MapMechanicsManager (PlayerStore players) {
-        this.players = players;
+    public MapMechanicsManager (World world, CombatContext combatContext) {
+        this.world = world;
+        this.combatContext = combatContext;
     }
 
     public void setupMapMechanics (CBCMap map) {
-
-        World world = map.getWorld();
         List<MapMechanic> mechanics = map.mechanicSpecs().stream()
                 .map(m -> m.createMechanic(world))
                 .toList();
         mechanics.forEach(this::register);
-
     }
 
     /*public void setupMapMechanics (CBCMap map) {
@@ -57,7 +57,7 @@ public class MapMechanicsManager {
 
     public void register (MapMechanic mechanic) {
         activeMechanics.add(mechanic);
-        mechanic.activate(players);
+        mechanic.activate(combatContext);
     }
 
     public void unregisterAll () {

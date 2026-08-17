@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.core.CBCPlayer;
 import neonique.cbcplugin_new.core.PlayerSession;
 import neonique.cbcplugin_new.core.PlayerStore;
@@ -12,7 +13,7 @@ public class HealthPadMechanic implements MapMechanic {
 
     private final Collection<HealthPad> healthPads;
 
-    private PlayerStore players;
+    private CombatContext combatContext;
     private BukkitRunnable updateTask;
 
     public HealthPadMechanic (Collection<HealthPad> healthPads) {
@@ -20,8 +21,8 @@ public class HealthPadMechanic implements MapMechanic {
     }
 
     @Override
-    public void activate (PlayerStore players) {
-        this.players = players;
+    public void activate (CombatContext combatContext) {
+        this.combatContext = combatContext;
         enableAll();
 
         updateTask = new BukkitRunnable() {
@@ -30,7 +31,7 @@ public class HealthPadMechanic implements MapMechanic {
                 update();
             }
         };
-        updateTask.runTaskTimer(CBCPlugin.getPlugin(), 0, 1);
+        updateTask.runTaskTimer(combatContext.plugin(), 0, 1);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class HealthPadMechanic implements MapMechanic {
             if (!healPad.isEnabled()) continue;
             if (healPad.isOnline()) {
                 healPad.playParticles();
-                healPad.playerCheck(players);
+                healPad.playerCheck(combatContext.players());
             } else {
                 healPad.decrementTimer();
             }

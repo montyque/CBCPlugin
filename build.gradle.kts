@@ -48,8 +48,23 @@ tasks.test {
     useJUnitPlatform()
 }
 
+sourceSets {
+    main {
+        java {
+            exclude("neonique/cbcplugin_new/lobby/**")
+            exclude("neonique/cbcplugin_new/gamemodes/**")
+            exclude("neonique/cbcplugin_new/managers/**")
+            exclude("neonique/cbcplugin_new/listeners/**")
+            exclude("neonique/cbcplugin_new/commands/**")
+            exclude("neonique/cbcplugin_new/cbcevents/**")
+            exclude("neonique/cbcplugin_new/misc/**")
+            exclude("neonique/cbcplugin_new/combat/CombatManager.java")
+        }
+    }
+}
+
 group = "neonique"
-version = "1.0-SNAPSHOT"
+version = "2.0.0-SNAPSHOT"
 description = "CBCPlugin"
 java.sourceCompatibility = JavaVersion.VERSION_21
 

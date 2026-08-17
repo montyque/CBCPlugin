@@ -30,7 +30,7 @@ public class SidebarManager implements Listener {
     public void activate () {
 
         this.active = true;
-        CBCPlugin.getPlugin().registerListener(this);
+        // CBCPlugin.getPlugin().registerListener(this);
 
         // Add all players on the server to the sidebar
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -47,7 +47,7 @@ public class SidebarManager implements Listener {
             removePlayerSidebar(playerUUID);
         }
 
-        CBCPlugin.getPlugin().unregisterListener(this);
+        // CBCPlugin.getPlugin().unregisterListener(this);
         clientSidebars.clear();
 
     }

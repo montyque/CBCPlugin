@@ -1,8 +1,6 @@
 package neonique.cbcplugin_new.combat;
 
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

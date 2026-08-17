@@ -1,17 +1,15 @@
 package neonique.cbcplugin_new.mapmechanics;
 
 import neonique.cbcplugin_new.CBCPlugin;
-import neonique.cbcplugin_new.combat.CombatManager;
+import neonique.cbcplugin_new.combat.CombatContext;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.core.CBCPlayer;
-import neonique.cbcplugin_new.managers.PlayerRegistry;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class VoidMechanic implements MapMechanic {
 
-    private PlayerRegistry registry;
-    private CombatManager combatManager;
+    private CombatContext combatContext;
     private BukkitRunnable updateTask;
 
     private final Location teleportLocation;
@@ -19,19 +17,14 @@ public class VoidMechanic implements MapMechanic {
 
     private boolean killOnVoid = true;
 
-    public VoidMechanic (Location teleportLocation) {
-        this(teleportLocation, -64);
-    }
-
     public VoidMechanic (Location teleportLocation, double voidPlaneHeight) {
         this.teleportLocation = teleportLocation;
         this.voidPlaneHeight = voidPlaneHeight;
     }
 
     @Override
-    public void activate (PlayerRegistry registry, CombatManager combatManager) {
-        this.registry = registry;
-        this.combatManager = combatManager;
+    public void activate (CombatContext combatContext) {
+        this.combatContext = combatContext;
 
         updateTask = new BukkitRunnable() {
             @Override
@@ -49,11 +42,11 @@ public class VoidMechanic implements MapMechanic {
     }
 
     public void update () {
-        for (CBCPlayer player : registry.getPlayers()) {
+        for (CBCPlayer player : combatContext.players().players()) {
             if (!player.isAlive()) continue;
             if (player.getPlayer().getLocation().getY() < voidPlaneHeight) {
                 if (killOnVoid) {
-                    combatManager.playerDeath(player, DeathCause.VOID);
+                    combatContext.playerDeath(player, DeathCause.VOID);
                 } else {
                     player.getPlayer().teleport(teleportLocation);
                 }

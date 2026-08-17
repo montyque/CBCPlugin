@@ -3,8 +3,7 @@ package neonique.cbcplugin_new.combat.listeners;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.combat.events.CBCPlayerDeathEvent;
 import neonique.cbcplugin_new.core.PlayerStore;
-import neonique.cbcplugin_new.managers.GameManager;
-import neonique.cbcplugin_new.combat.CombatManager;
+
 import neonique.cbcplugin_new.core.CBCPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

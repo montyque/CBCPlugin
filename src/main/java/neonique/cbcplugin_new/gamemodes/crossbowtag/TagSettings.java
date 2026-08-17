@@ -1,7 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.crossbowtag;
 
-import neonique.cbcplugin_new.gamemodes.GameSetting;
-import neonique.cbcplugin_new.gamemodes.GameSettings;
+import neonique.cbcplugin_new.core.GameSetting;
+import neonique.cbcplugin_new.core.GameSettings;
 
 import java.util.Map;
 
