@@ -7,15 +7,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class DeathMessageLoader {
-
-    private final Logger logger;
-
-    public DeathMessageLoader (Logger logger) {
-        this.logger = logger;
-    }
 
     private DeathMessageProvider defaultProvider = DeathMessageProvider.empty();
 

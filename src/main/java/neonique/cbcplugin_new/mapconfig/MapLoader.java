@@ -14,15 +14,13 @@ public class MapLoader {
 
     private final MapMechanicLoader mechanicsLoader;
     private final DeathMessageLoader deathMessageLoader;
-    private final Logger logger;
 
-    public MapLoader (MapMechanicLoader loader, DeathMessageLoader deathMessageLoader, Logger logger) {
+    public MapLoader (MapMechanicLoader loader, DeathMessageLoader deathMessageLoader) {
         this.mechanicsLoader = loader;
         this.deathMessageLoader = deathMessageLoader;
-        this.logger = logger;
     }
 
-    public void loadAllIntoRepository (File mainDir, MapRepository repo, Collection<CBCGamemode> gamemodes)
+    public void loadAllIntoRepository (File mainDir, Logger logger, MapRepository repo, Collection<CBCGamemode> gamemodes)
             throws FileNotFoundException {
 
         if (!mainDir.exists())
@@ -33,13 +31,13 @@ public class MapLoader {
         File gamemodesFolder = new File(mainDir, "gamemodes");
 
         // Load all base maps
-        Map<String, CBCMapData> maps = loadMapsFromDirectory(mapFolder);
+        Map<String, CBCMapData> maps = loadMapsFromDirectory(mapFolder, logger);
 
         // Load all gamemodes
         Map<CBCGamemode, Map<String, GamemodeMapData>> gamemodeMaps = new HashMap<>();
         for (CBCGamemode gamemode : gamemodes) {
             File gamemodeMapsFolder = new File(gamemodesFolder, "maps");
-            gamemodeMaps.put(gamemode, loadGamemodeMapsFromDirectory(gamemode, maps, gamemodeMapsFolder));
+            gamemodeMaps.put(gamemode, loadGamemodeMapsFromDirectory(gamemode, maps, gamemodeMapsFolder, logger));
         }
 
         // Load maps into repo
@@ -54,13 +52,13 @@ public class MapLoader {
 
     }
 
-    public Map<String, CBCMapData> loadMapsFromDirectory (File mapDirectory) throws FileNotFoundException {
+    public Map<String, CBCMapData> loadMapsFromDirectory (File mapDirectory, Logger logger) throws FileNotFoundException {
         if (!mapDirectory.exists())
             throw new FileNotFoundException("Map directory '%s' could not be found".formatted(mapDirectory.getPath()));
-        return loadMaps(getYamlFiles(mapDirectory));
+        return loadMaps(getYamlFiles(mapDirectory), logger);
     }
 
-    public Map<String, CBCMapData> loadMaps (Collection<File> mapFiles) {
+    public Map<String, CBCMapData> loadMaps (Collection<File> mapFiles, Logger logger) {
 
         Map<String, CBCMapData> maps = new HashMap<>();
 
@@ -96,11 +94,11 @@ public class MapLoader {
 
     public Map<String, GamemodeMapData> loadGamemodeMapsFromDirectory (CBCGamemode gamemode,
                                                                 Map<String, CBCMapData> maps,
-                                                                File mapDirectory) {
+                                                                File mapDirectory, Logger logger) {
 
         try {
             List<File> files = getYamlFiles(mapDirectory);
-            return loadGamemodeMaps(gamemode, maps, getYamlFiles(mapDirectory));
+            return loadGamemodeMaps(gamemode, maps, getYamlFiles(mapDirectory), logger);
         } catch (FileNotFoundException e) {
             logger.log(Level.WARNING, e.getMessage(), e.getCause());
             return Map.of();
@@ -127,7 +125,7 @@ public class MapLoader {
 
     public Map<String, GamemodeMapData> loadGamemodeMaps (CBCGamemode gamemode,
                                                    Map<String, CBCMapData> maps,
-                                                   Collection<File> mapFiles) {
+                                                   Collection<File> mapFiles, Logger logger) {
 
         Map<String, GamemodeMapData> gamemodeMapDataList = new HashMap<>();
 

@@ -92,7 +92,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         resourcePackManager = new ResourcePackManager();
         // weaponPresetService = new WeaponPresetService();
 
-        deathMessageLoader = new DeathMessageLoader(getLogger());
+        deathMessageLoader = new DeathMessageLoader();
         try {
             deathMessageLoader.loadDefaults(getDataFolder());
         } catch (FileNotFoundException e) {
@@ -101,7 +101,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
         // Load maps
         mechanicLoader = new MapMechanicLoader();
-        mapLoader = new MapLoader(mechanicLoader, deathMessageLoader, getLogger());
+        mapLoader = new MapLoader(mechanicLoader, deathMessageLoader);
         mapRepository = new MapRepository();
         loadMaps();
 
@@ -145,7 +145,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
     public void loadMaps () {
         try {
-            mapLoader.loadAllIntoRepository(getDataFolder(), mapRepository, ENABLED_GAMEMODES);
+            mapLoader.loadAllIntoRepository(getDataFolder(), getLogger(), mapRepository, ENABLED_GAMEMODES);
         } catch (FileNotFoundException e) {
             getLogger().warning("The plugin's data folder does not exist");
         }
