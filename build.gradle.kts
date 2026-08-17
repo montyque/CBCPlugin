@@ -48,6 +48,10 @@ tasks.test {
     useJUnitPlatform()
 }
 
+tasks.compileJava {
+    finalizedBy(tasks.test)
+}
+
 sourceSets {
     main {
         java {

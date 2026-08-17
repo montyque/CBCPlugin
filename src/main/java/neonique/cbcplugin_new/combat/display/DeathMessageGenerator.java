@@ -30,10 +30,11 @@ public record DeathMessageGenerator (List<DeathMessage> direct,
     }
 
     public static List<DeathMessage> listFromConfig (ConfigurationSection section, String key) {
-        return ConfigUtil.requireList(section, key).stream()
-                .map(o -> (ConfigurationSection) o)
-                .map(DeathMessage::fromConfig)
-                .toList();
+        return ConfigUtil.getConfigurationSection(section, key).map(
+                sec -> ConfigUtil.getAllConfigSections(sec).values().stream()
+                        .map(DeathMessage::fromConfig)
+                        .toList())
+                .orElse(List.of());
     }
 
     public Component getDeathMessageComponent (CBCPlayer playerKilled, CBCPlayer playerKiller, boolean direct,

@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.util;
 
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 

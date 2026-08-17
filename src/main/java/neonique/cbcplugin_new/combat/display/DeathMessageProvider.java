@@ -3,6 +3,7 @@ package neonique.cbcplugin_new.combat.display;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.util.ConfigUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
@@ -21,13 +22,12 @@ public record DeathMessageProvider (Map<DeathCause, DeathMessageGenerator> gener
 
     public static DeathMessageProvider fromConfig (ConfigurationSection config) {
         return new DeathMessageProvider(
-                config.getKeys(false).stream()
-                    .filter(k -> Arrays.stream(DeathCause.values())
-                            .anyMatch(d -> d.name().equals(k.toUpperCase())))
-                    .filter(k -> config.getConfigurationSection(k) != null)
+                ConfigUtil.getAllConfigSections(config).entrySet().stream()
+                    .filter(e -> Arrays.stream(DeathCause.values())
+                            .anyMatch(d -> d.name().equals(e.getKey().toUpperCase())))
                     .collect(Collectors.toUnmodifiableMap(
-                            k -> DeathCause.valueOf(k.toUpperCase()),
-                            k -> DeathMessageGenerator.fromConfig(config.getConfigurationSection(k))
+                            e -> DeathCause.valueOf(e.getKey().toUpperCase()),
+                            e -> DeathMessageGenerator.fromConfig(e.getValue())
                     )));
     }
 
