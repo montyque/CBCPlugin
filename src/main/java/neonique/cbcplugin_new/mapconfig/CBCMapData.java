@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.mapconfig;
 
+import neonique.cbcplugin_new.combat.display.DeathMessage;
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
 import neonique.cbcplugin_new.combat.display.DeathMessageProvider;
 import neonique.cbcplugin_new.core.TeamColor;
@@ -24,7 +25,7 @@ public record CBCMapData (String id,
                           List<Vector> defaultSpawnCoords,
                           Map<TeamColor, List<Vector>> defaultTeamSpawns,
                           MapOptions options,
-                          List<MapMechanicSpec> mechanicSpecs,
+                          Map<String, MapMechanicSpec> mechanicSpecs,
                           DeathMessageProvider deathMessageProvider) {
 
     public static CBCMapData fromConfig (Configuration config,
@@ -66,7 +67,7 @@ public record CBCMapData (String id,
                 .orElse(MapOptions.DEFAULTS);
 
         // Parse map mechanics
-        List<MapMechanicSpec> mechanicSpecs = mechanicsFromConfig(config, mechanicLoader);
+        Map<String, MapMechanicSpec> mechanicSpecs = mechanicsFromConfig(config, mechanicLoader);
 
         DeathMessageProvider overrideProvider = ConfigUtil.getConfigurationSection(config, "death_message_overrides")
                 .map(DeathMessageProvider::fromConfig)
@@ -89,15 +90,14 @@ public record CBCMapData (String id,
 
     }
 
-    private static List<MapMechanicSpec> mechanicsFromConfig (ConfigurationSection config,
+    private static Map<String, MapMechanicSpec> mechanicsFromConfig (ConfigurationSection config,
                                                               MapMechanicLoader mechanicLoader) {
-        return ConfigUtil.getList(config, "map_mechanics").orElse(List.of())
-                .stream()
-                .map(o -> {
-                    if (!(o instanceof ConfigurationSection c)) throw new ConfigUtil.InvalidConfigValueException(config,
-                            "map_mechanics", "All values in map_mechanics must be of type ConfigurationSection");
-                    return mechanicLoader.fromConfig(c);})
-                .toList();
+        return ConfigUtil.getConfigurationSection(config, "map_mechanics").map(
+                        sec -> ConfigUtil.getAllConfigSections(sec).entrySet().stream()
+                                .collect(Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        e -> mechanicLoader.fromConfig(e.getValue()))))
+                .orElse(Map.of());
     }
 
     public static Map<TeamColor, List<Vector>> loadTeamVectorList(ConfigurationSection section) {

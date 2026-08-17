@@ -76,7 +76,7 @@ public class CBCMap {
     }
 
     public List<MapMechanicSpec> mechanicSpecs () {
-        return mapData.mechanicSpecs();
+        return List.copyOf(mapData.mechanicSpecs().values());
     }
 
     public MapOptions mapOptions () {
