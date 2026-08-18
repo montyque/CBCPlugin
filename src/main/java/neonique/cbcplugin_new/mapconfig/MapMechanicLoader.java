@@ -14,6 +14,7 @@ public class MapMechanicLoader {
 
     public MapMechanicLoader () {
         mechanicConfigFactories.put("health_pad", HealthPadMechanicSpec::fromConfig);
+        mechanicConfigFactories.put("void", VoidMechanicSpec::fromConfig);
     }
 
     public MapMechanicSpec fromConfig (ConfigurationSection config) {
