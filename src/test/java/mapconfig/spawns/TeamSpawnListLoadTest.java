@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static util.TestUtil.configFromString;
+import static testutil.TestUtil.configFromString;
 
 public class TeamSpawnListLoadTest {
 

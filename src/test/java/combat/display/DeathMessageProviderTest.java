@@ -1,20 +1,12 @@
 package combat.display;
 
 import neonique.cbcplugin_new.combat.DeathCause;
-import neonique.cbcplugin_new.combat.display.DeathMessage;
-import neonique.cbcplugin_new.combat.display.DeathMessageGenerator;
 import neonique.cbcplugin_new.combat.display.DeathMessageProvider;
 import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static util.TestUtil.configFromString;
+import static testutil.TestUtil.configFromString;
 
 public class DeathMessageProviderTest {
 
