@@ -51,6 +51,8 @@ public class ArrowHitPlayerListener implements Listener {
         }
 
         CBCPlayer player = playerGetter.apply(e.getHitEntity());
+        if (player == null) return;
+
 
         // Check if player is immune
         if (player.isImmune()) {

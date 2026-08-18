@@ -43,6 +43,7 @@ public class VoidMechanic implements MapMechanic {
 
     public void update () {
         for (CBCPlayer player : combatContext.players().players()) {
+            if (!player.isOnline()) continue;
             if (!player.isAlive()) continue;
             if (player.getPlayer().getLocation().getY() < voidPlaneHeight) {
                 if (killOnVoid) {

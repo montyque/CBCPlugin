@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -108,7 +109,7 @@ public class PracticeInstance implements PlayerSession<PracticePlayer>, Forwardi
     }
 
     @EventHandler
-    public void playerLeaveServer (PlayerJoinEvent e) {
+    public void playerLeaveServer (PlayerQuitEvent e) {
         Player playerEntity = e.getPlayer();
         if (hasPlayer(playerEntity)) {
             playerLeave(playerEntity);

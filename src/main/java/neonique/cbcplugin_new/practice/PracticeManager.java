@@ -52,6 +52,9 @@ public class PracticeManager {
         this.hologramLocation = hologramLocation;
         this.teleportLocation = teleportLocation;
 
+        createHologram();
+        updateHologram();
+
     }
 
     public void createHologram () {
@@ -103,8 +106,10 @@ public class PracticeManager {
     public void endInstance () {
 
         for (PracticePlayer player : currentInstance.players()) {
-            currentInstance.playerLeave(player.getPlayer());
-            resetPlayer(player.getPlayer());
+            if (player.isOnline()) {
+                currentInstance.playerLeave(player.getPlayer());
+                resetPlayer(player.getPlayer());
+            }
         }
 
         currentInstance.deactivate();
