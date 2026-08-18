@@ -26,11 +26,9 @@ public record DeathMessage (String middle, String after) {
             // Return a death message with both the killed player's name and the killer's name
             return Component.text()
                     .append(victim.nameComponent())
-                    .content(middle)
-                    .color(baseColor)
+                    .append(Component.text(middle))
                     .append(killer.nameComponent())
-                    .content(after)
-                    .color(baseColor)
+                    .append(Component.text(after))
                     .build();
 
         } else {
@@ -38,8 +36,7 @@ public record DeathMessage (String middle, String after) {
             // Return a death message with just the killed player's name
             return Component.text()
                     .append(victim.nameComponent())
-                    .content(middle)
-                    .color(baseColor)
+                    .append(Component.text(middle))
                     .build();
 
         }

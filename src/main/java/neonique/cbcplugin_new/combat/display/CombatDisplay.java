@@ -25,12 +25,11 @@ public class CombatDisplay {
 
     public Component getDeathMessage (CBCPlayer victim, CBCPlayer killer, DeathCause cause, boolean direct) {
         return Component.text()
-                .content("[")
-                .color(NamedTextColor.GRAY)
+                .append(Component.text("["))
                 .append(cause.deathIconComponent(victim, killer))
-                .content("] ")
-                .color(NamedTextColor.GRAY)
+                .append(Component.text("] "))
                 .append(deathMessageProvider.getDeathMessage(victim, killer, cause, direct, NamedTextColor.GRAY))
+                .color(NamedTextColor.GRAY)
                 .build();
     }
 
@@ -45,15 +44,17 @@ public class CombatDisplay {
         }
 
         // Show kill display to killer
-        killer.showTitle(Title.title(
-                Component.text(""),
-                getKillDisplay(victim, killer, cause),
-                Title.Times.times(
-                        Duration.ofMillis(0),
-                        Duration.ofMillis(1000),
-                        Duration.ofMillis(250)
-                )
-        ));
+        if (killer != null) {
+            killer.showTitle(Title.title(
+                    Component.text(""),
+                    getKillDisplay(victim, killer, cause),
+                    Title.Times.times(
+                            Duration.ofMillis(0),
+                            Duration.ofMillis(1000),
+                            Duration.ofMillis(250)
+                    )
+            ));
+        }
 
     }
 
