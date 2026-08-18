@@ -56,8 +56,10 @@ public class CBCLoadout {
 
         TrimMaterial material = trimMaterial.get();
         TrimPattern pattern = trimPattern.get();
-        ArmorTrim armorTrim = new ArmorTrim(material, pattern);
-        armorChestplateMeta.setTrim(armorTrim);
+        if (material != null) {
+            ArmorTrim armorTrim = new ArmorTrim(material, pattern);
+            armorChestplateMeta.setTrim(armorTrim);
+        }
 
         chestplateMeta.setUnbreakable(true);
         chestplate.setItemMeta(chestplateMeta);
