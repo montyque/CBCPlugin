@@ -1,13 +1,12 @@
-package combat.display;
+package neonique.cbcplugin_new.combat.display;
 
-import neonique.cbcplugin_new.combat.display.DeathMessage;
 import org.bukkit.configuration.Configuration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static testutil.TestUtil.configFromString;
+import static neonique.cbcplugin_new.testutil.TestUtil.configFromString;
 
 public class DeathMessageLoadTest {
 

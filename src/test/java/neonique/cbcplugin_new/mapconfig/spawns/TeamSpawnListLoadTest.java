@@ -1,10 +1,6 @@
-package mapconfig.spawns;
+package neonique.cbcplugin_new.mapconfig.spawns;
 
 import neonique.cbcplugin_new.core.TeamColor;
-import neonique.cbcplugin_new.mapconfig.spawns.AssignedSpawnList;
-import neonique.cbcplugin_new.mapconfig.spawns.SingleSpawnList;
-import neonique.cbcplugin_new.mapconfig.spawns.StartSpawnConfig;
-import neonique.cbcplugin_new.mapconfig.spawns.TeamSpawnList;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
@@ -13,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static testutil.TestUtil.configFromString;
+import static neonique.cbcplugin_new.testutil.TestUtil.configFromString;
 
 public class TeamSpawnListLoadTest {
 
