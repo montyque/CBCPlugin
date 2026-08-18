@@ -3,6 +3,13 @@ version: '2.0.0'
 main: neonique.cbcplugin_new.CBCPlugin
 api-version: '1.21'
 
+permissions:
+  cbcplugin.operator:
+    default: false
+    children:
+      cbcplugin.host: true
+  cbcplugin.host:
+    default: false
 commands:
   lobby:
     description: Commands for handling lobbies
