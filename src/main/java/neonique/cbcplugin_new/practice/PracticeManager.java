@@ -86,11 +86,11 @@ public class PracticeManager {
 
     }
 
-    public void newInstance (CBCMap map) {
+    public void newInstance (CBCMapData map) {
 
         currentInstance = new PracticeInstance(plugin, getWorld(), scoreboardManager);
         currentInstance.activate();
-        currentInstance.setMap(map);
+        currentInstance.setMap(new CBCMap(getWorld(), map));
 
         updateHologram();
 

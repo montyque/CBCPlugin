@@ -83,7 +83,7 @@ public class CBCScoreboardManager {
     }
 
     public void syncTeam (CBCScoreboardTeam team) {
-        if (!teams.containsKey(team.name())) throw new IllegalArgumentException("Team with id " + team + " not registered in scoreboard manager");
+        if (!teams.containsKey(team.name())) return;
         getAllScoreboards().forEach(team::syncToScoreboard);
     }
 

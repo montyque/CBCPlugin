@@ -86,6 +86,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         scoreboardManager = new CBCScoreboardManager(getServer().getScoreboardManager());
+        scoreboardManager.activate();
 
         // Create all required services
         trimService = new ArmorTrimService();
@@ -107,6 +108,8 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
         // Create practice manager
         loadPracticeManager();
+        practiceManager.newInstance(mapRepository.getMap("aeroasteroids"));
+        getLogger().info("Opened practice on Aero Asteroids.");
 
         // Create game manager
         // gameManager = new GameManager(this);
