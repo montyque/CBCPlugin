@@ -71,7 +71,7 @@ public class CombatDisplay {
 
     private String getMultiKillMarker (int multiKill) {
         return switch (multiKill) {
-            case 1 -> "I";
+            case 1 -> "";
             case 2 -> "II";
             case 3 -> "III";
             case 4 -> "IV";

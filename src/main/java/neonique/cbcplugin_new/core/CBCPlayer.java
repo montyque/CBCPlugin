@@ -267,7 +267,8 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
             maxKillStreak = killStreak;
         }
 
-        this.multiKill++;
+        updateMultiKill();
+        multiKill++;
         this.lastKillTime = combatContext.timer();
 
         if (isOnline()) {
@@ -305,6 +306,7 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
             player.setLevel(0);
             player.setExp(0);
             player.updateInventory();
+            player.sendActionBar(Component.space());
         }
 
     }
@@ -326,12 +328,8 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         // Set player's title
         if (isOnline()) {
 
-            // Update multi kill
-            updateMultiKill();
-
             Player player = getPlayer();
             Component titleComponent = Component.text("");
-
             String multiKillShow = "";
 
             if (multiKill == 2) {
