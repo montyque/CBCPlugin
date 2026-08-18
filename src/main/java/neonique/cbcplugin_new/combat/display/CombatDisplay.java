@@ -65,6 +65,7 @@ public class CombatDisplay {
                 .color(NamedTextColor.AQUA)
                 .append(Component.space())
                 .append(deathCauseIcon)
+                .append(Component.space())
                 .append(victim.nameComponent())
                 .build();
     }
