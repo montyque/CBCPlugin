@@ -36,7 +36,6 @@ public record HealthPadMechanicSpec(int cooldownTicks,
     public MapMechanic createMechanic (World world) {
 
         List<HealthPad> healthPads = locations.stream()
-                .map(v -> v.add(VectorUtil.BLOCK_CENTER_OFFSET))
                 .map(v -> new Location(world, v.getX(), v.getY(), v.getZ()))
                 .map(l -> new HealthPad(l, cooldownTicks, healing))
                 .toList();
