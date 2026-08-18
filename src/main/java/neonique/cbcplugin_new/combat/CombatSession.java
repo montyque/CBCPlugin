@@ -88,6 +88,7 @@ public class CombatSession implements CombatContext, Listener {
             if (!task.isCancelled()) task.cancel();
         }
 
+        mapMechanicsManager.unregisterAll();
         projectileManager.cleanup();
 
     }
