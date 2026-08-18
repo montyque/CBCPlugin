@@ -157,8 +157,8 @@ public class PracticeManager {
         return Bukkit.getWorld(worldUUID);
     }
 
-    public Collection<CBCMapData> getPracticeMaps () {
-        return maps.allMaps().values();
+    public Map<String, CBCMapData> getPracticeMaps () {
+        return maps.allMaps();
     }
 
 }

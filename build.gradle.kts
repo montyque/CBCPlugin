@@ -59,7 +59,7 @@ sourceSets {
             exclude("neonique/cbcplugin_new/gamemodes/**")
             exclude("neonique/cbcplugin_new/managers/**")
             exclude("neonique/cbcplugin_new/listeners/**")
-            exclude("neonique/cbcplugin_new/commands/**")
+            exclude("neonique/cbcplugin_new/commands_old/**")
             exclude("neonique/cbcplugin_new/cbcevents/**")
             exclude("neonique/cbcplugin_new/misc/**")
             exclude("neonique/cbcplugin_new/combat/CombatManager.java")
