@@ -94,6 +94,7 @@ public class FlameDamager {
         double smallestDif = Double.POSITIVE_INFINITY;
 
         for (FlameArrow arrow : arrows) {
+            if (arrow.getArrow() == null) continue;
             Location arrowLocation = arrow.getArrow().getLocation();
             if (playerLocation.distanceSquared(arrowLocation) < smallestDif) {
                 closestArrow = arrow;
