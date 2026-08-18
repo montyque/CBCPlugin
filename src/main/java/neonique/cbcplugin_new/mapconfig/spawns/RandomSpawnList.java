@@ -9,14 +9,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-class RandomSpawnList implements TeamSpawnList {
+public class RandomSpawnList implements TeamSpawnList {
 
     private final static Random GLOBAL_RANDOM = new Random();
 
     private final Random random;
     private final List<List<StartSpawnConfig>> teamSpawns;
 
-    private RandomSpawnList (Random random, List<List<StartSpawnConfig>> teamSpawns) {
+    public RandomSpawnList (Random random, List<List<StartSpawnConfig>> teamSpawns) {
         this.random = random;
         this.teamSpawns = teamSpawns;
     }

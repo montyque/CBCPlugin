@@ -18,7 +18,8 @@ public class VectorUtil {
     public static Vector listToVec (List<?> list) {
 
         // Ensure list has 3 elements to match 3 dimensions of vector
-        if (list.size() != 3) throw new IllegalArgumentException("Vector must have exactly 3 numerical elements");
+        if (list.size() != 3) throw new IllegalArgumentException("Vector must have exactly 3 numerical elements, " +
+                "result has " + list.size());
 
         // Avoid potential rounding errors if all three numbers are integers
         if (list.stream().allMatch(v -> v instanceof Integer)) {

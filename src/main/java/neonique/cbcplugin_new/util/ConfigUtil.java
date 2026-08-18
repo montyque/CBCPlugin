@@ -167,7 +167,7 @@ public class ConfigUtil {
             if (obj == null) throw new InvalidConfigValueException(config, key, "Vector list cannot contain null");
             if (!(obj instanceof List<?>)) throw new InvalidConfigValueException(config, key, "Vector must be of type List");
             try {
-                vectorList.add(VectorUtil.listToVec(list));
+                vectorList.add(VectorUtil.listToVec((List<?>) obj));
             } catch (IllegalArgumentException e) {
                 throw new InvalidConfigValueException(config, key, obj.toString(),
                         "Could not parse vector: " + e.getMessage());

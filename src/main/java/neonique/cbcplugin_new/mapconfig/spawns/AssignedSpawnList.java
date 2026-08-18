@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class AssignedSpawnList implements TeamSpawnList {
+public class AssignedSpawnList implements TeamSpawnList {
 
     private final Map<TeamColor, List<StartSpawnConfig>> teamSpawns;
 
@@ -28,7 +28,7 @@ class AssignedSpawnList implements TeamSpawnList {
         Map<TeamColor, List<StartSpawnConfig>> spawns = new HashMap<>();
 
         for (var teamConfig : teamConfigs.entrySet()) {
-            TeamColor teamColor = TeamColor.valueOf(teamConfig.getKey());
+            TeamColor teamColor = TeamColor.valueOf(teamConfig.getKey().toUpperCase());
             if (!requiredColors.contains(teamColor)) {
                 throw new IllegalArgumentException(teamColor.color() + " is not an allowed color");
             }

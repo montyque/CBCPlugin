@@ -17,6 +17,8 @@ public sealed interface StartSpawnConfig {
      */
     MapStartSpawn getSpawn (World world);
 
+    Vector vec ();
+
 }
 
 /**

@@ -10,7 +10,6 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public interface TeamSpawnList {
 
@@ -97,41 +96,6 @@ public interface TeamSpawnList {
 
         TeamSpawnListType type = ConfigUtil.requireEnum(config, "assignment_type", TeamSpawnListType.class);
         return type.fromConfig(config, requiredColors, maxTeams);
-
-    }
-
-    enum TeamSpawnListType {
-
-        SINGLE () {
-            @Override
-            public TeamSpawnList fromConfig (ConfigurationSection config,
-                                             List<TeamColor> requiredColors,
-                                             int maxTeams) {
-                return SingleSpawnList.fromConfig(config);
-            }
-        },
-
-        ASSIGNED () {
-            @Override
-            public TeamSpawnList fromConfig (ConfigurationSection config,
-                                             List<TeamColor> requiredColors,
-                                             int maxTeams) {
-                return AssignedSpawnList.fromConfig(config, requiredColors);
-            }
-        },
-
-        RANDOM () {
-            @Override
-            public TeamSpawnList fromConfig (ConfigurationSection config,
-                                             List<TeamColor> requiredColors,
-                                             int maxTeams) {
-                return RandomSpawnList.fromConfig(config, maxTeams);
-            }
-        };
-
-        public abstract TeamSpawnList fromConfig (ConfigurationSection config,
-                                                  List<TeamColor> requiredColors,
-                                                  int maxTeams);
 
     }
 
