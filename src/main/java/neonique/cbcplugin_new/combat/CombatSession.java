@@ -95,8 +95,8 @@ public class CombatSession implements CombatContext, Listener {
     @EventHandler
     public void playerDeath (CBCPlayerDeathEvent e) {
 
-        if (players.hasPlayer(e.victim())) return;
-        if (e.killer() != null && players.hasPlayer(e.killer())) return;
+        if (!players.hasPlayer(e.victim())) return;
+        if (e.killer() != null && !players.hasPlayer(e.killer())) return;
 
         playerDeath(e.victim(), e.killer(), e.cause(), e.direct());
 
@@ -135,6 +135,7 @@ public class CombatSession implements CombatContext, Listener {
     private void setupListeners () {
 
         listeners = List.of(
+                this,
                 new EntityDamagePlayerListener(projectileManager, players),
                 new CrossbowFiredListener(projectileManager, players),
                 new PlayerItemListener(players),
