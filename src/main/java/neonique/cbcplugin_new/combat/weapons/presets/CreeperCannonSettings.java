@@ -19,8 +19,8 @@ public record CreeperCannonSettings (String name,
             1.0,
             0.2,
             3,
-            1.25,
-            0.42
+            0.42,
+            1.25
     );
 
     public static CreeperCannonSettings fromConfig (String presetName, ConfigurationSection config) {
