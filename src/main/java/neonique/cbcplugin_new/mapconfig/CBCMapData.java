@@ -36,7 +36,7 @@ public record CBCMapData (String id,
 
         // Parse map metadata
         String name = ConfigUtil.requireString(config, "name");
-        Material blockSymbol = ConfigUtil.requireEnum(config, "name", Material.class);
+        Material blockSymbol = ConfigUtil.requireEnum(config, "block_symbol", Material.class);
 
         // Parse center coordinates
         Vector centerCoords = ConfigUtil.requireVector(config, "center");
