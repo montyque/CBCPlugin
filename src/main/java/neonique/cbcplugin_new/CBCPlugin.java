@@ -1,6 +1,12 @@
 package neonique.cbcplugin_new;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
+import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.mapconfig.MapLoader;
 import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
@@ -13,8 +19,6 @@ import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -108,26 +112,12 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
         // Create practice manager
         loadPracticeManager();
-        practiceManager.newInstance(mapRepository.getMap("aeroasteroids"));
-        getLogger().info("Opened practice on Aero Asteroids.");
 
         // Create game manager
         // gameManager = new GameManager(this);
 
         // Register commands
-        /*
-        registerCommand("lobby", new LobbyCommand(gameManager));
-        registerCommand("practice", new PracticeCommand(gameManager, gameManager.practiceManager));
-        registerCommand("game", new GameCommand(gameManager));
-        registerCommand("chat", new ChatCommand(gameManager, gameManager.getChatManager()));
-        registerCommand("cbcevent", new CBCEventCommand(gameManager));
-        registerCommand("cbcpack", new CBCPackCommand(resourcePackManager));
-        registerCommand("alphaorder", new AlphaOrderCommand());*/
-
-        /*
-        Objects.requireNonNull(getCommand("getblockcoords")).setExecutor(new GetBlockLocationsCommand());
-        Objects.requireNonNull(getCommand("cbcreload")).setExecutor(new CBCReloadCommand(gameManager));
-        Objects.requireNonNull(getCommand("sidebar")).setExecutor(new SidebarCommand());*/
+        registerMainCommand();
 
         // Print to show finished initialisation
         getLogger().info("Finished initialising Crossbow Champions!");
@@ -135,14 +125,21 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
     }
 
-    public void registerCommand(String command, TabExecutor commandObject) {
+    @SuppressWarnings("UnstableApiUsage")
+    private LiteralCommandNode<CommandSourceStack> createMainCommand () {
 
-        // Check if command is registered in config.yml
-        PluginCommand pluginCommand = getCommand(command);
-        if (pluginCommand == null) return;
+        return Commands.literal("cbc")
+                .then(new PracticeCommand(practiceManager).build())
+                .build();
 
-        // Register command
-        pluginCommand.setExecutor(commandObject);
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void registerMainCommand () {
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
+            commands.registrar().register(createMainCommand());
+        });
 
     }
 
@@ -171,7 +168,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
     public void onDisable() {
 
         // Plugin shutdown logic
-        System.out.println("Shutting down the Crossbow Champions Plugin...");
+        getLogger().info("Shutting down the Crossbow Champions Plugin...");
 
         //
         if (practiceManager.instanceActive()) {

@@ -26,7 +26,7 @@ public record CBCMapData (String id,
                           TeamSpawnList defaultTeamSpawns,
                           MapOptions options,
                           Map<String, MapMechanicSpec> mechanicSpecs,
-                          DeathMessageProvider deathMessageProvider) {
+                          DeathMessageProvider deathMessageProvider) implements MapData {
 
     public static CBCMapData fromConfig (Configuration config,
                                          MapMechanicLoader mechanicLoader,
