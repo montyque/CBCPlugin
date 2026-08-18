@@ -101,6 +101,8 @@ public class PracticeInstance implements PlayerSession<PracticePlayer>, Forwardi
     public void onPlayerSpawn (CBCPlayer player) {
         Location spawn = spawns.get(new Random().nextInt(spawns.size()));
         player.teleportPlayerToSpawn(spawn, map.getMapCentre());
+        player.getInventory().setReloadsBySecond(2);
+        player.setTempImmune(40);
     }
 
     public void joinAfterDeath (CBCPlayer victim) {
