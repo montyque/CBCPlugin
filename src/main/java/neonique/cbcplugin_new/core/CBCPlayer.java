@@ -289,6 +289,8 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         lastPlayerHitBy = null;
         timeDamaged.clear();
 
+        afterDeath();
+
     }
 
     public void afterDeath () {
