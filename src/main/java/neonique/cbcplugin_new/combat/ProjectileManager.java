@@ -30,7 +30,7 @@ public class ProjectileManager {
         this.flameZoneArrowTeam = scoreboardManager.registerNewTeam("flameArrows");
         flameZoneArrowTeam.setColor(NamedTextColor.GOLD);
         this.xbowArrowTeam = scoreboardManager.registerNewTeam("xbowArrows");
-        flameZoneArrowTeam.setColor(NamedTextColor.AQUA);
+        xbowArrowTeam.setColor(NamedTextColor.AQUA);
     }
 
     public void cleanup () {
