@@ -6,6 +6,7 @@ import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.combat.projectiles.Projectile;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -27,7 +28,9 @@ public class ProjectileManager {
 
     public void setup () {
         this.flameZoneArrowTeam = scoreboardManager.registerNewTeam("flameArrows");
+        flameZoneArrowTeam.setColor(NamedTextColor.GOLD);
         this.xbowArrowTeam = scoreboardManager.registerNewTeam("xbowArrows");
+        flameZoneArrowTeam.setColor(NamedTextColor.AQUA);
     }
 
     public void cleanup () {
