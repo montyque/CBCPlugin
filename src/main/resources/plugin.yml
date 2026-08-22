@@ -1,6 +1,7 @@
 name: CBCPlugin
 version: '2.0.0'
 main: neonique.cbcplugin_new.CBCPlugin
+depend: [CommandAPI]
 api-version: '1.21'
 
 permissions:

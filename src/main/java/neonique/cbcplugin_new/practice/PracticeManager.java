@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.practice;
 
+import dev.jorel.commandapi.CommandAPI;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapconfig.CBCMapData;
 import neonique.cbcplugin_new.mapconfig.MapRepository;
@@ -101,6 +102,10 @@ public class PracticeManager {
         portalListener = new PracticePortalListener(portalLocation, this::playerJoin);
         plugin.getServer().getPluginManager().registerEvents(portalListener, plugin);
 
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            CommandAPI.updateRequirements(p);
+        }
+
     }
 
     public void endInstance () {
@@ -110,6 +115,10 @@ public class PracticeManager {
                 currentInstance.playerLeave(player.getPlayer());
                 resetPlayer(player.getPlayer());
             }
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            CommandAPI.updateRequirements(p);
         }
 
         currentInstance.deactivate();
