@@ -1,42 +1,44 @@
 package neonique.cbcplugin_new.commands.practice;
 
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import neonique.cbcplugin_new.commands.CommandComponent;
+import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.CommandPermission;
+import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
+import dev.jorel.commandapi.executors.CommandArguments;
+import dev.jorel.commandapi.executors.CommandExecutor;
+import neonique.cbcplugin_new.CBCPlugin;
+import neonique.cbcplugin_new.commands.Subcommand;
+import neonique.cbcplugin_new.commands.arguments.MapDataArgumentParser;
 import neonique.cbcplugin_new.mapconfig.CBCMapData;
 import neonique.cbcplugin_new.practice.PracticeManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.incendo.cloud.Command;
-import org.incendo.cloud.CommandManager;
-import org.incendo.cloud.context.CommandContext;
-import org.incendo.cloud.execution.CommandExecutionHandler;
 
-import static neonique.cbcplugin_new.commands.parsers.CBCMapDataParser.mapDataParser;
+public class PracticeStartCommand implements Subcommand {
 
-public class PracticeStartCommand implements CommandComponent<CommandSender>, CommandExecutionHandler<CommandSender> {
+    public PracticeManager practiceManager;
 
-    private final PracticeManager practiceManager;
-
-    public PracticeStartCommand(PracticeManager practiceManager) {
+    public PracticeStartCommand (PracticeManager practiceManager) {
         this.practiceManager = practiceManager;
     }
 
     @Override
-    public void register(CommandManager<CommandSender> manager, Command.Builder<CommandSender> base) {
-        manager.command(
-                base.literal("start")
-                        .permission("cbcplugin.host")
-                        .required("mapId", mapDataParser(practiceManager::getPracticeMaps, CBCMapData.class))
-                        .handler(this)
-        );
+    public CommandAPICommand get() {
+        return new CommandAPICommand("start")
+                .withPermission(CommandPermission.OP)
+                .withRequirement(s -> !practiceManager.instanceActive())
+                .withArguments(
+                        MapDataArgumentParser.argument("mapId", practiceManager::getPracticeMaps)
+                )
+                .executes(this::run);
     }
 
-    @Override
-    public void execute (@NonNull CommandContext<CommandSender> ctx) {
-        CBCMapData practiceMap = ctx.get("mapId");
-        practiceManager.newInstance(practiceMap);
-        ctx.sender().sendMessage(Component.text("started practice arena").color(NamedTextColor.GREEN));
+    public void run (CommandSender sender, CommandArguments arguments) throws WrapperCommandSyntaxException {
+
+        CBCMapData map = (CBCMapData) arguments.get("mapId");
+        practiceManager.newInstance(map);
+
+        sender.sendMessage(Component.text("Opened the practice arena.").color(NamedTextColor.YELLOW));
+
     }
 }
