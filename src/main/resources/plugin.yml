@@ -12,8 +12,6 @@ permissions:
     default: false
 
 commands:
-  cbc:
-    description: The main command for CBC.
   lobby:
     description: Commands for handling lobbies
     usage: /<command> <subcommand>
