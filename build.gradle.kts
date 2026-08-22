@@ -30,8 +30,8 @@ repositories {
 
 dependencies {
 
-    compileOnly("org.incendo:cloud-core:2.0.0-beta.10")
-    compileOnly("org.incendo:cloud-paper:2.0.0-beta.10")
+    implementation("org.incendo:cloud-core:2.0.0-beta.10")
+    implementation("org.incendo:cloud-paper:2.0.0-beta.10")
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
 
