@@ -1,5 +1,7 @@
 package neonique.cbcplugin_new.commands.arguments;
 
+import dev.jorel.commandapi.arguments.Argument;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.CustomArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import neonique.cbcplugin_new.CBCPlugin;
@@ -40,8 +42,10 @@ public class MapDataArgumentParser<M extends MapData> implements CustomArgument.
 
     }
 
-    public static <T extends MapData> CustomArgument<T, String> argument (String arg, Supplier<Map<String, T>> mapSupplier) {
-        return new CustomArgument<>(new StringArgument(arg), new MapDataArgumentParser<>(mapSupplier));
+    public static <T extends MapData> Argument<T> argument (String arg, Supplier<Map<String, T>> mapSupplier) {
+        return new CustomArgument<>(new StringArgument(arg), new MapDataArgumentParser<>(mapSupplier))
+                .replaceSuggestions(ArgumentSuggestions.strings(
+                        i -> mapSupplier.get().keySet().toArray(new String[0])));
     }
 
 }
