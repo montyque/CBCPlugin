@@ -124,6 +124,8 @@ public class PracticeManager {
         currentInstance.deactivate();
         HandlerList.unregisterAll(portalListener);
 
+        currentInstance = null;
+
     }
 
     public void playerJoin (Player player) {
