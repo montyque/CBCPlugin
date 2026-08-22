@@ -32,6 +32,7 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.*;
 
 public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
+    private final String name;
     private final UUID playerUUID;
     private final CombatContext combatContext;
 
@@ -71,6 +72,7 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
     public CBCPlayer (Player player, CombatContext combatContext) {
 
+        this.name = player.getName();
         this.playerUUID = player.getUniqueId();
         this.combatContext = combatContext;
 
@@ -97,6 +99,11 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
     public UUID uuid () {
         return playerUUID;
+    }
+
+    @Override
+    public String name () {
+        return name;
     }
 
     // Set player to alive or dead

@@ -1,50 +1,42 @@
 package neonique.cbcplugin_new.commands.practice;
 
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
-import neonique.cbcplugin_new.commands.SubCommand;
-import neonique.cbcplugin_new.commands.arguments.CBCMapDataArgumentType;
+import neonique.cbcplugin_new.commands.CommandComponent;
 import neonique.cbcplugin_new.mapconfig.CBCMapData;
 import neonique.cbcplugin_new.practice.PracticeManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.command.CommandSender;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.incendo.cloud.Command;
+import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.context.CommandContext;
+import org.incendo.cloud.execution.CommandExecutionHandler;
 
-import java.util.List;
+import static neonique.cbcplugin_new.commands.parsers.CBCMapDataParser.mapDataParser;
 
-@SuppressWarnings("UnstableApiUsage")
-public class PracticeStartCommand implements SubCommand {
+public class PracticeStartCommand implements CommandComponent<CommandSender>, CommandExecutionHandler<CommandSender> {
 
     private final PracticeManager practiceManager;
-    private final CBCMapDataArgumentType mapArgument;
 
     public PracticeStartCommand(PracticeManager practiceManager) {
         this.practiceManager = practiceManager;
-        this.mapArgument = new CBCMapDataArgumentType(practiceManager::getPracticeMaps);
     }
 
     @Override
-    public LiteralArgumentBuilder<CommandSourceStack> build() {
-        return Commands.literal("start")
-                .requires(s -> s.getSender().hasPermission("cbcplugin.host"))
-                .requires(s -> !practiceManager.instanceActive())
-                .then(
-                    Commands.argument("mapId", mapArgument)
-                            .executes(this::startPracticeInstance)
-                );
+    public void register(CommandManager<CommandSender> manager, Command.Builder<CommandSender> base) {
+        manager.command(
+                base.literal("start")
+                        .permission("cbcplugin.host")
+                        .required("mapId", mapDataParser(practiceManager::getPracticeMaps, CBCMapData.class))
+                        .handler(this)
+        );
     }
 
-    private int startPracticeInstance (CommandContext<CommandSourceStack> ctx) {
-
-        CBCMapData practiceMap = ctx.getArgument("mapId", CBCMapData.class);
+    @Override
+    public void execute (@NonNull CommandContext<CommandSender> ctx) {
+        CBCMapData practiceMap = ctx.get("mapId");
         practiceManager.newInstance(practiceMap);
-        ctx.getSource().getSender().sendMessage(Component.text("started practice arena").color(NamedTextColor.GREEN));
-
-        return Command.SINGLE_SUCCESS;
-
+        ctx.sender().sendMessage(Component.text("started practice arena").color(NamedTextColor.GREEN));
     }
-
 }

@@ -5,24 +5,31 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import neonique.cbcplugin_new.commands.practice.PracticeStartCommand;
 import neonique.cbcplugin_new.practice.PracticeManager;
+import org.bukkit.command.CommandSender;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.incendo.cloud.Command;
+import org.incendo.cloud.CommandManager;
 
-@SuppressWarnings("UnstableApiUsage")
-public class PracticeCommand implements SubCommand {
+import java.util.List;
+
+public class PracticeCommand implements CommandComponent<CommandSender> {
 
     private final PracticeManager practiceManager;
 
     // Subcommands
-    private final PracticeStartCommand start;
+    private final List<CommandComponent<CommandSender>> subcommands;
 
     public PracticeCommand (PracticeManager practiceManager) {
         this.practiceManager = practiceManager;
-        this.start = new PracticeStartCommand(practiceManager);
+        this.subcommands = List.of(
+                new PracticeStartCommand(practiceManager)
+        );
     }
 
     @Override
-    public LiteralArgumentBuilder<CommandSourceStack> build() {
-        return Commands.literal("practice")
-                .then(start.build());
+    public void register(CommandManager<CommandSender> manager, Command.Builder<CommandSender> base) {
+        subcommands.forEach(c -> c.register(manager, base
+                .literal("practice")));
     }
 
 }
