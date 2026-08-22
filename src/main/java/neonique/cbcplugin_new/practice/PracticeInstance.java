@@ -11,6 +11,8 @@ import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -52,6 +54,9 @@ public class PracticeInstance implements PlayerSession<PracticePlayer>, Forwardi
 
         player.playerSpawn();
         onPlayerSpawn(player);
+
+        player.sendMessage(Component.text("You have joined a practice arena on map " + map.name() + ".")
+                .color(NamedTextColor.GREEN));
     }
 
     public void playerLeave (Player playerEntity) {
@@ -61,6 +66,9 @@ public class PracticeInstance implements PlayerSession<PracticePlayer>, Forwardi
         if (player.isAlive() && player.getLastPlayerHitBy() != null) {
             combatSession.playerDeath(player, DeathCause.LEAVE_PRACTICE);
         }
+
+        player.sendMessage(Component.text("You have left the practice arena instance.")
+                .color(NamedTextColor.YELLOW));
     }
 
     public void activate () {

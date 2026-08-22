@@ -111,10 +111,8 @@ public class PracticeManager {
     public void endInstance () {
 
         for (PracticePlayer player : currentInstance.players()) {
-            if (player.isOnline()) {
-                currentInstance.playerLeave(player.getPlayer());
-                resetPlayer(player.getPlayer());
-            }
+            currentInstance.playerLeave(player.getPlayer());
+            resetPlayer(player.getPlayer());
         }
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -135,6 +133,7 @@ public class PracticeManager {
 
     public void playerLeave (Player player) {
         currentInstance.playerLeave(player);
+        resetPlayer(player);
     }
 
     public boolean instanceHasPlayer (Player player) {

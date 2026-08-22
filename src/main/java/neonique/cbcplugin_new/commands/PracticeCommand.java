@@ -1,7 +1,9 @@
 package neonique.cbcplugin_new.commands;
 
+import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
+import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import neonique.cbcplugin_new.commands.arguments.MapDataArgumentParser;
 import neonique.cbcplugin_new.mapconfig.CBCMapData;
@@ -48,19 +50,22 @@ public class PracticeCommand implements Subcommand {
 
     }
 
-    private void startExecutor (CommandSender sender, CommandArguments arguments) {
+    private void startExecutor (CommandSender sender, CommandArguments arguments) throws WrapperCommandSyntaxException {
 
         CBCMapData map = (CBCMapData) arguments.get("mapId");
-        practiceManager.newInstance(map);
+        if (map == null) {
+            throw CommandAPI.failWithString("The given map does not exist.");
+        }
 
-        sender.sendMessage(Component.text("Opened the practice arena.").color(NamedTextColor.YELLOW));
+        practiceManager.newInstance(map);
+        sender.sendMessage(Component.text("You have opened the practice arena on " + map.name() + ".").color(NamedTextColor.GREEN));
 
     }
 
     private void stopExecutor (CommandSender sender, CommandArguments arguments) {
 
         practiceManager.endInstance();
-        sender.sendMessage(Component.text("Closed the practice arena.").color(NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("You have closed the practice arena.").color(NamedTextColor.YELLOW));
 
     }
 
