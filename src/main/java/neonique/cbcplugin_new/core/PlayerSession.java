@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -47,6 +48,12 @@ public interface PlayerSession<P extends CBCPlayer> extends PlayerStore {
                 .filter(p -> p.getPlayer().getLocation().distanceSquared(loc) <= r2)
                 .collect(Collectors.toUnmodifiableSet());
 
+    }
+
+    default List<String> playerNames () {
+        return players().stream()
+                .map(CBCPlayer::name)
+                .toList();
     }
 
 }

@@ -6,6 +6,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
+import neonique.cbcplugin_new.commands.CommandComponent;
 import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.mapconfig.MapLoader;
@@ -19,6 +20,7 @@ import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -27,6 +29,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.incendo.cloud.Command;
+import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
+import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.paper.LegacyPaperCommandManager;
 
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -37,6 +45,9 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
     private Set<CBCGamemode> ENABLED_GAMEMODES = Set.of();
 
     private static CBCPlugin plugin;
+
+    private LegacyPaperCommandManager<CommandSender> commandManager;
+    private List<CommandComponent<CommandSender>> commands;
 
     private World world;
 
@@ -117,6 +128,17 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         // gameManager = new GameManager(this);
 
         // Register commands
+        commandManager = new LegacyPaperCommandManager<>(this,
+                ExecutionCoordinator.simpleCoordinator(),
+                SenderMapper.identity()
+                );
+
+        if (commandManager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
+            commandManager.registerBrigadier();
+        } else if (commandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
+            commandManager.registerAsynchronousCompletions();
+        }
+
         registerMainCommand();
 
         // Print to show finished initialisation
@@ -125,21 +147,21 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
     }
 
-    @SuppressWarnings("UnstableApiUsage")
-    private LiteralCommandNode<CommandSourceStack> createMainCommand () {
-
-        return Commands.literal("cbc")
-                .then(new PracticeCommand(practiceManager).build())
-                .build();
-
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
     private void registerMainCommand () {
 
-        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
-            commands.registrar().register(createMainCommand());
-        });
+        // Create node
+        Command.Builder<CommandSender> base = commandManager.commandBuilder("cbc");
+
+        commandManager.command(
+                commandManager.commandBuilder("cbc")
+        );
+
+        // Register all subcommands
+        commands = List.of(
+                new PracticeCommand(practiceManager)
+        );
+
+        commands.forEach(c -> c.register(commandManager, base));
 
     }
 
