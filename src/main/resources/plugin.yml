@@ -11,38 +11,3 @@ permissions:
       cbcplugin.host: true
   cbcplugin.host:
     default: false
-
-commands:
-  lobby:
-    description: Commands for handling lobbies
-    usage: /<command> <subcommand>
-  practice:
-    description: Commands for handling lobbies
-    usage: /<command> <subcommand>
-  sidebar:
-    description: AAAAAAAAAAAA
-    usage: /<command>
-  game:
-    description: AAAAAAAAAAAA
-    usage: /<command>
-  getblockcoords:
-    description: AAAAAAAAAAAA
-    usage: /<command>
-  cbcreload:
-    description: Reload any data in the plugin folder.
-    usage: /<command>
-  launch:
-    description: Launch player with a desired velocity.
-    usage: /<command> <vx> <vy> <vz>
-  cbcpack:
-    description: Commands that are used for handling the Crossbow Champs resource packs.
-    usage: /<command> <subcommand>
-  chat:
-    description: Change chat mode.
-    usage: /<command> <chat|all>
-  cbcevent:
-    description: Used by Neonic for handling CBC events.
-    usage: /<command>
-  alphaorder:
-    description: Put in arguments in a certain order and it'll give a string of numbers that represent the arguments alphabetically. Used for utility in Rendezvous gamemode.
-    usage: /<command>
