@@ -30,6 +30,8 @@ import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowTe
 
 public class CreeperCannon implements CrossbowWeapon {
 
+    public final static NamespacedKey MODEL = new NamespacedKey("cbc", "creeper_cannon");
+
     public final static NamespacedKey horKbKey = new NamespacedKey(CBCPlugin.getPlugin(), "hor_kb");
     public final static NamespacedKey verKbKey = new NamespacedKey(CBCPlugin.getPlugin(), "ver_kb");
     public final static NamespacedKey allyDamageRatioKey = new NamespacedKey(CBCPlugin.getPlugin(), "ally_dmg_ratio");
@@ -54,57 +56,15 @@ public class CreeperCannon implements CrossbowWeapon {
     }
 
     @Override
-    public ItemStack getWeaponItem() {
+    public void editItem (ItemStack item) {
 
-        // Create crossbow weapon
-        ItemStack weaponItem = new ItemStack(Material.CROSSBOW);
-        CrossbowMeta itemMeta = (CrossbowMeta) weaponItem.getItemMeta();
-        Component itemTitle = Component.text("Creeper Cannon").color(TextColor.color(91, 183, 34))
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-        itemMeta.displayName(itemTitle);
-        itemMeta.addEnchant(Enchantment.QUICK_CHARGE, 10, true);
-
-        PersistentDataContainer itemTags = itemMeta.getPersistentDataContainer();
-
-        if (weaponReloader.isLoaded()) {
-
-            // Loads crossbow so the player is able to fire it
-            ItemStack ccProjectile = new ItemStack(Material.ARROW);
-            itemMeta.addChargedProjectile(ccProjectile);
-            itemTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 1);
-            itemMeta.setCustomModelData(1);
-            weaponItem.setItemMeta(itemMeta);
-
-        }
-        else {
-
-            // Changes the damage bar on the weapon depending on how much it has loaded
-            float reloadPercentage = weaponReloader.getReloadPercentage();
-            itemTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 0);
-
-            // Changes the sprite of the weapon depending on how much it has loaded
-            if (reloadPercentage > 0.7) {
-                itemMeta.setCustomModelData(4);
-            }
-            else if (reloadPercentage > 0.4) {
-                itemMeta.setCustomModelData(3);
-            }
-            else if (reloadPercentage > 0.1) {
-                itemMeta.setCustomModelData(2);
-            }
-            else {
-                itemMeta.setCustomModelData(1);
-            }
-
-            weaponItem.setItemMeta(itemMeta);
-
-            Damageable damageableMeta = (Damageable) weaponItem.getItemMeta();
-            damageableMeta.setDamage(Math.round((1.0f - reloadPercentage) * 465.0f));
-            weaponItem.setItemMeta(damageableMeta);
-
-        }
-
-        return weaponItem;
+        item.editMeta(m -> {
+            m.displayName(
+                    Component.text("Creeper Cannon").color(TextColor.color(91, 183, 34))
+                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            );
+            m.setItemModel(MODEL);
+        });
 
     }
 
