@@ -400,11 +400,17 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
                         Duration.ofMillis(250)
                 )
         ));
+    }
 
+    public void afterSpawn () {
+        playRespawnedTitle();
         playSound(net.kyori.adventure.sound.Sound.sound(Sound.BLOCK_NOTE_BLOCK_PLING,
                 net.kyori.adventure.sound.Sound.Source.MASTER,
                 5, 2)
         );
+        Location loc = getPlayer().getLocation();
+        loc.getWorld().spawnParticle(Particle.INSTANT_EFFECT, loc.clone().add(0, 1, 0),
+                50, 0, 1, 0, 1, new Particle.Spell(Color.fromRGB(nameColor().value()), 1));
     }
 
     public void decrementLastPlayerHit() {

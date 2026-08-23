@@ -162,8 +162,8 @@ public class CombatSession implements CombatContext, Listener {
     public void playerRespawn (CBCPlayer player) {
         if (!player.isOnline()) return;
         player.playerSpawn();
-        player.playRespawnedTitle();
         respawnListener.accept(player);
+        player.afterSpawn();
     }
 
     private void setupListeners () {
