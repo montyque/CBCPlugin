@@ -10,6 +10,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.ShadowColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
@@ -572,7 +573,8 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         // Show icon if needing to show icon
         if (showIcon) {
             // Remove shadow from crossbow hot bar icon
-            Component hotbarIcon = noShadowText(getHotbarIcon(team(), actionBarDisplay != null));
+            Component hotbarIcon = getHotbarIcon(team(), actionBarDisplay != null)
+                    .shadowColor(ShadowColor.shadowColor(0));
             if (actionBarDisplay == null) {
                 actionBarDisplay = hotbarIcon;
             } else {

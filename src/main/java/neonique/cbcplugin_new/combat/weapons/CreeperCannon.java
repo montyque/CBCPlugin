@@ -7,6 +7,7 @@ import neonique.cbcplugin_new.combat.projectiles.CBCCreeper;
 import neonique.cbcplugin_new.combat.projectiles.Projectile;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.ShadowColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -110,12 +111,9 @@ public class CreeperCannon implements CrossbowWeapon {
     public Component getXPBarComponent() {
 
         int charNum = Math.round(weaponReloader.getReloadPercentage() * 60.0f) + 57344;
-        Component xpBarComponent = Component.text(
-                String.valueOf((char) charNum)).style(Style.style().font(Key.key("cbc_customfonts", "xpreloadbars"))
-        );
-
-        xpBarComponent = noShadowText(xpBarComponent);
-        return xpBarComponent;
+        return Component.text(
+                        String.valueOf((char) charNum)).style(Style.style().font(Key.key("cbc_customfonts", "xpreloadbars")))
+                .shadowColor(ShadowColor.shadowColor(0));
 
     }
 
