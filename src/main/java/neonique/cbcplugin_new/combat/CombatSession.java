@@ -171,7 +171,7 @@ public class CombatSession implements CombatContext, Listener {
         listeners = List.of(
                 this,
                 new EntityDamagePlayerListener(projectileManager, players),
-                new CrossbowFiredListener(projectileManager, players),
+                new CrossbowFiredListener(plugin, projectileManager, players),
                 new PlayerItemListener(players),
                 new PlayerMiscDamageListener(players),
                 new PlayerDeathListener(players),

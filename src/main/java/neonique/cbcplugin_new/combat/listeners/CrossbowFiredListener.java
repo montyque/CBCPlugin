@@ -16,16 +16,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 
 import java.util.Optional;
 import java.util.function.Function;
 
 public class CrossbowFiredListener implements Listener {
 
+    private final Plugin plugin;
     private final Function<Entity, CBCPlayer> playerGetter;
     private final ProjectileManager projectileManager;
 
-    public CrossbowFiredListener (ProjectileManager projectileManager, PlayerStore players) {
+    public CrossbowFiredListener (Plugin plugin, ProjectileManager projectileManager, PlayerStore players) {
+        this.plugin = plugin;
         this.projectileManager = projectileManager;
         this.playerGetter = players::getPlayer;
     }
@@ -54,7 +57,7 @@ public class CrossbowFiredListener implements Listener {
         InventorySlot slotFrom = playerSource.getInventory().getSlot(itemSlotId.get());
 
         if (slotFrom instanceof WeaponSlot weaponSlot) {
-            weaponSlot.getWeapon().fireWeapon(playerSource, arrowFired, projectileManager::addProjectile);
+            weaponSlot.getWeapon().fireWeapon(plugin, playerSource, arrowFired, projectileManager::addProjectile);
             if (entityFired instanceof Player playerEntity) {
                 playerEntity.playSound(playerEntity.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 10, 2);
             }

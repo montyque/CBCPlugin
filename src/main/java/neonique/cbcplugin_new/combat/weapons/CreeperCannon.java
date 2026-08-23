@@ -21,6 +21,7 @@ import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
 import java.util.function.Consumer;
@@ -46,8 +47,8 @@ public class CreeperCannon implements CrossbowWeapon {
     }
 
     @Override
-    public void fireWeapon (CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
-        Projectile projectile = fireProjectile(player, arrowFired);
+    public void fireWeapon (Plugin plugin, CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
+        Projectile projectile = fireProjectile(plugin, player, arrowFired);
         projectileRegistry.accept(projectile);
         weaponReloader.startReload();
     }
@@ -108,37 +109,35 @@ public class CreeperCannon implements CrossbowWeapon {
     }
 
     @Override
-    public Projectile fireProjectile (CBCPlayer player, Arrow arrowFired) {
+    public Projectile fireProjectile (Plugin plugin, CBCPlayer player, Arrow arrowFired) {
 
         arrowFired.setDamage(0);
         Vector arrowVelocity = arrowFired.getVelocity();
         Location creeperSpawnLocation = arrowFired.getLocation();
+        Vector creeperVelocity = arrowVelocity.multiply(settings.launchVelocityModifier());
         World world = arrowFired.getWorld();
-        Creeper creeperFired = (Creeper) world.spawnEntity(new Location(world, 0, 100, 0), EntityType.CREEPER,
-                CreatureSpawnEvent.SpawnReason.CUSTOM,
-                creeper -> {
-                    creeper.setVelocity(arrowVelocity.multiply(settings.launchVelocityModifier()));
-                    creeper.setInvulnerable(true);
-                }
-        );
 
-        creeperFired.setPowered(true);
-        creeperFired.setExplosionRadius(settings.explosionRadius());
-        creeperFired.teleport(creeperSpawnLocation);
+        Creeper creeper = world.createEntity(creeperSpawnLocation, Creeper.class);
+        creeper.setInvulnerable(true);
+        creeper.setPowered(true);
+        creeper.setVelocity(creeperVelocity);
+
+        world.addEntity(creeper);
+
         arrowFired.remove();
 
         // Change name of creeper depending on team name
         if (player.team() != null) {
-            creeperFired.customName(Component.text(player.team().name() + "Creeper"));
+            creeper.customName(Component.text(player.team().name() + "Creeper"));
         }
 
         // Add data to creeper used when creeper does damage
-        PersistentDataContainer data = creeperFired.getPersistentDataContainer();
+        PersistentDataContainer data = creeper.getPersistentDataContainer();
         data.set(horKbKey, PersistentDataType.DOUBLE, settings.horizontalKnockbackCoefficient());
         data.set(verKbKey, PersistentDataType.DOUBLE, settings.verticalKnockbackCoefficient());
         data.set(allyDamageRatioKey, PersistentDataType.DOUBLE, settings.allyDamageModifier());
 
-        return new CBCCreeper(player, creeperFired);
+        return new CBCCreeper(player, creeper);
 
     }
 
