@@ -7,6 +7,7 @@ import neonique.cbcplugin_new.combat.projectiles.CBCCreeper;
 import neonique.cbcplugin_new.combat.projectiles.Projectile;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.ShadowColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -21,6 +22,7 @@ import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
 import java.util.function.Consumer;
@@ -28,6 +30,8 @@ import java.util.function.Consumer;
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowText;
 
 public class CreeperCannon implements CrossbowWeapon {
+
+    public final static NamespacedKey MODEL = new NamespacedKey("cbc", "creeper_cannon");
 
     public final static NamespacedKey horKbKey = new NamespacedKey(CBCPlugin.getPlugin(), "hor_kb");
     public final static NamespacedKey verKbKey = new NamespacedKey(CBCPlugin.getPlugin(), "ver_kb");
@@ -46,99 +50,55 @@ public class CreeperCannon implements CrossbowWeapon {
     }
 
     @Override
-    public void fireWeapon (CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
-        Projectile projectile = fireProjectile(player, arrowFired);
+    public void fireWeapon (Plugin plugin, CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
+        Projectile projectile = fireProjectile(plugin, player, arrowFired);
         projectileRegistry.accept(projectile);
         weaponReloader.startReload();
     }
 
     @Override
-    public ItemStack getWeaponItem() {
+    public void editItem (ItemStack item) {
 
-        // Create crossbow weapon
-        ItemStack weaponItem = new ItemStack(Material.CROSSBOW);
-        CrossbowMeta itemMeta = (CrossbowMeta) weaponItem.getItemMeta();
-        Component itemTitle = Component.text("Creeper Cannon").color(TextColor.color(91, 183, 34))
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-        itemMeta.displayName(itemTitle);
-        itemMeta.addEnchant(Enchantment.QUICK_CHARGE, 10, true);
-
-        PersistentDataContainer itemTags = itemMeta.getPersistentDataContainer();
-
-        if (weaponReloader.isLoaded()) {
-
-            // Loads crossbow so the player is able to fire it
-            ItemStack ccProjectile = new ItemStack(Material.ARROW);
-            itemMeta.addChargedProjectile(ccProjectile);
-            itemTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 1);
-            itemMeta.setCustomModelData(1);
-            weaponItem.setItemMeta(itemMeta);
-
-        }
-        else {
-
-            // Changes the damage bar on the weapon depending on how much it has loaded
-            float reloadPercentage = weaponReloader.getReloadPercentage();
-            itemTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 0);
-
-            // Changes the sprite of the weapon depending on how much it has loaded
-            if (reloadPercentage > 0.7) {
-                itemMeta.setCustomModelData(4);
-            }
-            else if (reloadPercentage > 0.4) {
-                itemMeta.setCustomModelData(3);
-            }
-            else if (reloadPercentage > 0.1) {
-                itemMeta.setCustomModelData(2);
-            }
-            else {
-                itemMeta.setCustomModelData(1);
-            }
-
-            weaponItem.setItemMeta(itemMeta);
-
-            Damageable damageableMeta = (Damageable) weaponItem.getItemMeta();
-            damageableMeta.setDamage(Math.round((1.0f - reloadPercentage) * 465.0f));
-            weaponItem.setItemMeta(damageableMeta);
-
-        }
-
-        return weaponItem;
+        item.editMeta(m -> {
+            m.displayName(
+                    Component.text("Creeper Cannon").color(TextColor.color(91, 183, 34))
+                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            );
+            m.setItemModel(MODEL);
+        });
 
     }
 
     @Override
-    public Projectile fireProjectile (CBCPlayer player, Arrow arrowFired) {
+    public Projectile fireProjectile (Plugin plugin, CBCPlayer player, Arrow arrowFired) {
 
         arrowFired.setDamage(0);
         Vector arrowVelocity = arrowFired.getVelocity();
         Location creeperSpawnLocation = arrowFired.getLocation();
+        Vector creeperVelocity = arrowVelocity.multiply(settings.launchVelocityModifier());
         World world = arrowFired.getWorld();
-        Creeper creeperFired = (Creeper) world.spawnEntity(new Location(world, 0, 100, 0), EntityType.CREEPER,
-                CreatureSpawnEvent.SpawnReason.CUSTOM,
-                creeper -> {
-                    creeper.setVelocity(arrowVelocity.multiply(settings.launchVelocityModifier()));
-                    creeper.setInvulnerable(true);
-                }
-        );
 
-        creeperFired.setPowered(true);
-        creeperFired.setExplosionRadius(settings.explosionRadius());
-        creeperFired.teleport(creeperSpawnLocation);
+        Creeper creeper = world.createEntity(creeperSpawnLocation, Creeper.class);
+        creeper.setInvulnerable(true);
+        creeper.setPowered(true);
+        creeper.setVelocity(creeperVelocity);
+
+        world.addEntity(creeper);
+
         arrowFired.remove();
 
         // Change name of creeper depending on team name
         if (player.team() != null) {
-            creeperFired.customName(Component.text(player.team().name() + "Creeper"));
+            creeper.customName(Component.text(player.team().name() + "Creeper"));
         }
 
         // Add data to creeper used when creeper does damage
-        PersistentDataContainer data = creeperFired.getPersistentDataContainer();
+        PersistentDataContainer data = creeper.getPersistentDataContainer();
         data.set(horKbKey, PersistentDataType.DOUBLE, settings.horizontalKnockbackCoefficient());
         data.set(verKbKey, PersistentDataType.DOUBLE, settings.verticalKnockbackCoefficient());
         data.set(allyDamageRatioKey, PersistentDataType.DOUBLE, settings.allyDamageModifier());
 
-        return new CBCCreeper(player, creeperFired);
+        return new CBCCreeper(player, creeper);
 
     }
 
@@ -151,12 +111,9 @@ public class CreeperCannon implements CrossbowWeapon {
     public Component getXPBarComponent() {
 
         int charNum = Math.round(weaponReloader.getReloadPercentage() * 60.0f) + 57344;
-        Component xpBarComponent = Component.text(
-                String.valueOf((char) charNum)).style(Style.style().font(Key.key("cbc_customfonts", "xpreloadbars"))
-        );
-
-        xpBarComponent = noShadowText(xpBarComponent);
-        return xpBarComponent;
+        return Component.text(
+                        String.valueOf((char) charNum)).style(Style.style().font(Key.key("cbc_customfonts", "xpreloadbars")))
+                .shadowColor(ShadowColor.shadowColor(0));
 
     }
 

@@ -1,14 +1,6 @@
 package neonique.cbcplugin_new;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.LiteralArgument;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
 import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.core.CBCGamemode;

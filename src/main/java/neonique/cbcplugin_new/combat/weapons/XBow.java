@@ -7,6 +7,7 @@ import neonique.cbcplugin_new.combat.projectiles.Projectile;
 import neonique.cbcplugin_new.combat.projectiles.XbowArrow;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.ShadowColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -20,12 +21,15 @@ import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 
 import java.util.function.Consumer;
 
 import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.noShadowText;
 
 public class XBow implements CrossbowWeapon {
+
+    public final static NamespacedKey MODEL = new NamespacedKey("cbc", "xbow");
 
     private final WeaponReloader weaponReloader;
     private final XbowSettings settings;
@@ -40,66 +44,27 @@ public class XBow implements CrossbowWeapon {
     }
 
     @Override
-    public void fireWeapon (CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
-        Projectile projectile = fireProjectile(player, arrowFired);
+    public void fireWeapon (Plugin plugin, CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
+        Projectile projectile = fireProjectile(plugin, player, arrowFired);
         projectileRegistry.accept(projectile);
         weaponReloader.startReload();
     }
 
     @Override
-    public ItemStack getWeaponItem () {
+    public void editItem (ItemStack item) {
 
-        // Create crossbow weapon
-        ItemStack weaponItem = new ItemStack(Material.CROSSBOW);
-        CrossbowMeta itemMeta = (CrossbowMeta) weaponItem.getItemMeta();
-        Component itemTitle = Component.text("X-Bow").color(TextColor.color(124, 226, 226))
-                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-        itemMeta.displayName(itemTitle);
-        itemMeta.addEnchant(Enchantment.QUICK_CHARGE, 10, true);
-
-        PersistentDataContainer itemTags = itemMeta.getPersistentDataContainer();
-
-        if (weaponReloader.isLoaded()) {
-            // Loads crossbow so the player is able to fire it
-            ItemStack arrow = new ItemStack(Material.ARROW);
-            itemMeta.addChargedProjectile(arrow);
-            itemTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 1);
-            itemMeta.setCustomModelData(9);
-            weaponItem.setItemMeta(itemMeta);
-        }
-        else {
-            // Changes the damage bar on the weapon depending on how much it has loaded
-            float reloadPercentage = weaponReloader.getReloadPercentage();
-            itemTags.set(new NamespacedKey(CBCPlugin.getPlugin(), "cbc_loaded"), PersistentDataType.INTEGER, 0);
-
-            // Changes the sprite of the weapon depending on how much it has loaded
-            if (reloadPercentage > 0.7) {
-                itemMeta.setCustomModelData(12);
-            }
-            else if (reloadPercentage > 0.4) {
-                itemMeta.setCustomModelData(11);
-            }
-            else if (reloadPercentage > 0.1) {
-                itemMeta.setCustomModelData(10);
-            }
-            else {
-                itemMeta.setCustomModelData(9);
-            }
-
-            weaponItem.setItemMeta(itemMeta);
-
-            Damageable damageableMeta = (Damageable) weaponItem.getItemMeta();
-            damageableMeta.setDamage(Math.round((1.0f - reloadPercentage) * 465.0f));
-            weaponItem.setItemMeta(damageableMeta);
-
-        }
-
-        return weaponItem;
+        item.editMeta(m -> {
+            m.displayName(
+                    Component.text("X-Bow").color(TextColor.color(124, 226, 226))
+                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            );
+            m.setItemModel(MODEL);
+        });
 
     }
 
     @Override
-    public Projectile fireProjectile(CBCPlayer player, Arrow arrowFired) {
+    public Projectile fireProjectile(Plugin plugin, CBCPlayer player, Arrow arrowFired) {
 
         arrowFired.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
         arrowFired.setInvulnerable(true);
@@ -121,12 +86,9 @@ public class XBow implements CrossbowWeapon {
     public Component getXPBarComponent() {
 
         int charNum = (int) Math.ceil(weaponReloader.getReloadPercentage() * 60.0) + 57856;
-        Component xpBarComponent = Component.text(
-                String.valueOf((char) charNum)).style(Style.style().font(Key.key("cbc_customfonts", "xpreloadbars"))
-        );
-
-        xpBarComponent = noShadowText(xpBarComponent);
-        return xpBarComponent;
+        return Component.text(
+                        String.valueOf((char) charNum)).style(Style.style().font(Key.key("cbc_customfonts", "xpreloadbars")))
+                .shadowColor(ShadowColor.shadowColor(0));
 
     }
 

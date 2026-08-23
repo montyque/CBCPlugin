@@ -10,6 +10,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.ShadowColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
@@ -399,11 +400,17 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
                         Duration.ofMillis(250)
                 )
         ));
+    }
 
+    public void afterSpawn () {
+        playRespawnedTitle();
         playSound(net.kyori.adventure.sound.Sound.sound(Sound.BLOCK_NOTE_BLOCK_PLING,
                 net.kyori.adventure.sound.Sound.Source.MASTER,
                 5, 2)
         );
+        Location loc = getPlayer().getLocation();
+        loc.getWorld().spawnParticle(Particle.INSTANT_EFFECT, loc.clone().add(0, 1, 0),
+                50, 0, 1, 0, 1, new Particle.Spell(Color.fromRGB(nameColor().value()), 1));
     }
 
     public void decrementLastPlayerHit() {
@@ -572,7 +579,8 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         // Show icon if needing to show icon
         if (showIcon) {
             // Remove shadow from crossbow hot bar icon
-            Component hotbarIcon = noShadowText(getHotbarIcon(team(), actionBarDisplay != null));
+            Component hotbarIcon = getHotbarIcon(team(), actionBarDisplay != null)
+                    .shadowColor(ShadowColor.shadowColor(0));
             if (actionBarDisplay == null) {
                 actionBarDisplay = hotbarIcon;
             } else {
@@ -595,12 +603,12 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         Player playerEntity = getPlayer();
         if (playerEntity == null) return;
 
-        AttributeInstance scaleAttr = playerEntity.getAttribute(Attribute.GENERIC_SCALE);
+        AttributeInstance scaleAttr = playerEntity.getAttribute(Attribute.SCALE);
         if (scaleAttr != null) {
             scaleAttr.setBaseValue(1.0);
         }
 
-        AttributeInstance jumpAttr = playerEntity.getAttribute(Attribute.GENERIC_JUMP_STRENGTH);
+        AttributeInstance jumpAttr = playerEntity.getAttribute(Attribute.JUMP_STRENGTH);
         if (jumpAttr != null) {
             jumpAttr.setBaseValue(0.42);
         }
@@ -615,7 +623,7 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     public double getMaxHealth () {
         if (!isOnline()) return 20;
         Player playerEntity = getPlayer();
-        AttributeInstance maxHealthAttribute = playerEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        AttributeInstance maxHealthAttribute = playerEntity.getAttribute(Attribute.MAX_HEALTH);
         if (maxHealthAttribute == null) return 20;
         return maxHealthAttribute.getValue();
     }

@@ -99,7 +99,7 @@ public class PracticeManager {
         updateHologram();
 
         // Start new player teleport task
-        portalListener = new PracticePortalListener(portalLocation, this::playerJoin);
+        portalListener = new PracticePortalListener(plugin, portalLocation, this::playerJoin);
         plugin.getServer().getPluginManager().registerEvents(portalListener, plugin);
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -110,8 +110,9 @@ public class PracticeManager {
 
     public void endInstance () {
 
+        currentInstance.deactivate();
+
         for (PracticePlayer player : currentInstance.players()) {
-            currentInstance.playerLeave(player.getPlayer());
             resetPlayer(player.getPlayer());
         }
 
@@ -119,7 +120,6 @@ public class PracticeManager {
             CommandAPI.updateRequirements(p);
         }
 
-        currentInstance.deactivate();
         HandlerList.unregisterAll(portalListener);
 
         currentInstance = null;
