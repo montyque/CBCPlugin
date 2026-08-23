@@ -99,7 +99,7 @@ public class PracticeManager {
         updateHologram();
 
         // Start new player teleport task
-        portalListener = new PracticePortalListener(portalLocation, this::playerJoin);
+        portalListener = new PracticePortalListener(plugin, portalLocation, this::playerJoin);
         plugin.getServer().getPluginManager().registerEvents(portalListener, plugin);
 
         for (Player p : Bukkit.getOnlinePlayers()) {
