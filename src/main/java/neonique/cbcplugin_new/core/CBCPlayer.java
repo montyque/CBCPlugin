@@ -595,12 +595,12 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         Player playerEntity = getPlayer();
         if (playerEntity == null) return;
 
-        AttributeInstance scaleAttr = playerEntity.getAttribute(Attribute.GENERIC_SCALE);
+        AttributeInstance scaleAttr = playerEntity.getAttribute(Attribute.SCALE);
         if (scaleAttr != null) {
             scaleAttr.setBaseValue(1.0);
         }
 
-        AttributeInstance jumpAttr = playerEntity.getAttribute(Attribute.GENERIC_JUMP_STRENGTH);
+        AttributeInstance jumpAttr = playerEntity.getAttribute(Attribute.JUMP_STRENGTH);
         if (jumpAttr != null) {
             jumpAttr.setBaseValue(0.42);
         }
@@ -615,7 +615,7 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     public double getMaxHealth () {
         if (!isOnline()) return 20;
         Player playerEntity = getPlayer();
-        AttributeInstance maxHealthAttribute = playerEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        AttributeInstance maxHealthAttribute = playerEntity.getAttribute(Attribute.MAX_HEALTH);
         if (maxHealthAttribute == null) return 20;
         return maxHealthAttribute.getValue();
     }
