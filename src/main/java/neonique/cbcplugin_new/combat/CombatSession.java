@@ -9,6 +9,7 @@ import neonique.cbcplugin_new.core.PlayerStore;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapmechanics.MapMechanicsManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -16,9 +17,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public class CombatSession implements CombatContext, Listener {
@@ -37,6 +40,8 @@ public class CombatSession implements CombatContext, Listener {
     private Consumer<DeathInfo> deathListener = (d) -> {};
     private Consumer<CBCPlayer> joinAfterDeathListener = (d) -> {};
     private Consumer<CBCPlayer> respawnListener = (p) -> {};
+
+    private final List<int[]> chunksLoaded = new ArrayList<>();
 
     private int timer = 0;
 
@@ -74,8 +79,35 @@ public class CombatSession implements CombatContext, Listener {
     }
 
     public void setupMap (CBCMap map) {
+        unForceLoadChunks();
+        loadChunks(map.lowerBound(), map.upperBound());
         mapMechanicsManager.setupMapMechanics(map);
         combatDisplay.setDeathMessageProvider(map.deathMessageProvider());
+    }
+
+    public void loadChunks (Location lowerBound, Location upperBound) {
+
+        int minChunkX = lowerBound.getBlockX() >> 4;
+        int maxChunkX = upperBound.getBlockX() >> 4;
+        int minChunkZ = lowerBound.getBlockZ() >> 4;
+        int maxChunkZ = upperBound.getBlockZ() >> 4;
+
+        for (int x = minChunkX; x <= maxChunkX; x++) {
+            for (int z = minChunkZ; z <= maxChunkZ; z++) {
+                world.getChunkAt(x, z, false).setForceLoaded(true);
+                chunksLoaded.add(new int[]{x, z});
+            }
+        }
+
+    }
+
+    public void unForceLoadChunks () {
+        for (int[] chunkCoords : chunksLoaded) {
+            if (chunkCoords.length == 2) {
+                world.getChunkAt(chunkCoords[0], chunkCoords[1], false).setForceLoaded(false);
+            }
+        }
+        chunksLoaded.clear();
     }
 
     public void deactivate () {
@@ -90,6 +122,7 @@ public class CombatSession implements CombatContext, Listener {
 
         mapMechanicsManager.unregisterAll();
         projectileManager.cleanup();
+        unForceLoadChunks();
 
     }
 

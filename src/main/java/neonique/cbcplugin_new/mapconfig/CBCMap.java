@@ -40,25 +40,6 @@ public class CBCMap {
                 .getTeamColorSpawnLocations(Arrays.asList(TeamColor.values()), world);
     }
 
-    public void loadMapChunks (boolean sendMessage) {
-
-        int startChunkX = mapData.upperBound().getBlockX() >> 4;
-        int startChunkZ = mapData.lowerBound().getBlockZ() >> 4;
-        int endChunkX = mapData.upperBound().getBlockX() >> 4;
-        int endChunkZ = mapData.lowerBound().getBlockZ() >> 4;
-
-        for (int chunkX = startChunkX; chunkX <= endChunkX; chunkX++) {
-            for (int chunkZ = startChunkZ; chunkZ <= endChunkZ; chunkZ++) {
-                world.getChunkAt(chunkX, chunkZ).load();
-            }
-        }
-
-        if (sendMessage) {
-            world.sendMessage(Component.text("Chunks for map " + name() + " successfully loaded!").color(NamedTextColor.YELLOW));
-        }
-
-    }
-
     public String name () {
         return mapData.name();
     }
@@ -69,6 +50,14 @@ public class CBCMap {
 
     public Material blockSymbol () {
         return mapData.blockSymbol();
+    }
+
+    public Location lowerBound () {
+        return mapData.lowerBound().toLocation(world);
+    }
+
+    public Location upperBound () {
+        return mapData.upperBound().toLocation(world);
     }
 
     public List<MapMechanicSpec> mechanicSpecs () {
