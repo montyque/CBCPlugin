@@ -85,7 +85,7 @@ public enum DeathCause {
             audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_ITEM_PICKUP, Sound.Source.PLAYER, 4, 1),
                     location.getX(), location.getY(), location.getZ());
             location.getWorld().spawnParticle(Particle.INSTANT_EFFECT, location.clone().add(0, 1, 0), 
-                    80, 0, 1, 0, 1);
+                    80, 0, 1, 0, 1, new Particle.Spell(Color.WHITE, 1));
         }
         @Override
         public Component deathIconComponent (CBCPlayer victim, CBCPlayer killer) {
