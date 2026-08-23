@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 
 import java.util.function.Consumer;
 
@@ -40,8 +41,8 @@ public class XBow implements CrossbowWeapon {
     }
 
     @Override
-    public void fireWeapon (CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
-        Projectile projectile = fireProjectile(player, arrowFired);
+    public void fireWeapon (Plugin plugin, CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry) {
+        Projectile projectile = fireProjectile(plugin, player, arrowFired);
         projectileRegistry.accept(projectile);
         weaponReloader.startReload();
     }
@@ -99,7 +100,7 @@ public class XBow implements CrossbowWeapon {
     }
 
     @Override
-    public Projectile fireProjectile(CBCPlayer player, Arrow arrowFired) {
+    public Projectile fireProjectile(Plugin plugin, CBCPlayer player, Arrow arrowFired) {
 
         arrowFired.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
         arrowFired.setInvulnerable(true);

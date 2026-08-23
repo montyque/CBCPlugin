@@ -110,8 +110,9 @@ public class PracticeManager {
 
     public void endInstance () {
 
+        currentInstance.deactivate();
+
         for (PracticePlayer player : currentInstance.players()) {
-            currentInstance.playerLeave(player.getPlayer());
             resetPlayer(player.getPlayer());
         }
 
@@ -119,7 +120,6 @@ public class PracticeManager {
             CommandAPI.updateRequirements(p);
         }
 
-        currentInstance.deactivate();
         HandlerList.unregisterAll(portalListener);
 
         currentInstance = null;
