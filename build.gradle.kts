@@ -7,7 +7,7 @@ plugins {
 group = "neonique"
 version = "2.0.0-SNAPSHOT"
 description = "CBCPlugin"
-java.sourceCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_25
 
 repositories {
     mavenLocal()
@@ -31,18 +31,18 @@ repositories {
 dependencies {
 
     compileOnly("dev.jorel:commandapi-paper-core:12.0.0")
-    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
 
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.20.0")
+    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.2:4.116.1")
 
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -66,11 +66,10 @@ tasks {
         // Configure the Minecraft version for our task.
         // This is the only required configuration besides applying the plugin.
         // Your plugin's jar (or shadowJar if present) will be used automatically.
-        minecraftVersion("1.21")
+        minecraftVersion("26.2")
     }
 
     shadowJar {
-        relocate("org.incendo.cloud", "neonique.cbcplugin_new.shaded.cloud")
     }
 
     build {
