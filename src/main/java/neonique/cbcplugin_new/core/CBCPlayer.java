@@ -39,7 +39,7 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
 
     private int kills;
     private int deaths;
-    private int killStreak;
+    private int killStreak = 0;
     private int maxKillStreak = 0;
     private int multiKill = 0;
     private int lastKillTime = 0;
@@ -298,11 +298,11 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
         lastPlayerHitBy = null;
         timeDamaged.clear();
 
-        afterDeath();
+        entityDeath();
 
     }
 
-    public void afterDeath () {
+    public void entityDeath () {
 
         if (isOnline()) {
             Player player = getPlayer();
@@ -324,9 +324,8 @@ public class CBCPlayer implements TeamPlayerLike, ForwardingAudience {
     }
 
     public void playerAfterDeath (CBCPlayer playerKiller) {
-        if (isOnline()) {
-            setRespawnTicks(80);
-        }
+        killStreak = 0;
+        multiKill = 0;
     }
 
     public void playerAfterKill(CBCPlayer playerKilled) {}

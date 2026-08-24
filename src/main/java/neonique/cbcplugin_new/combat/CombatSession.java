@@ -142,15 +142,18 @@ public class CombatSession implements CombatContext, Listener {
         DeathInfo deathInfo = new DeathInfo(victim, killer, cause, direct, timer);
 
         victim.playerDie();
-
         if (killer != null) {
             killer.playerKill();
-            killer.playerAfterKill(victim);
         }
 
         deathListener.accept(deathInfo);
         if (combatDisplay != null) {
             combatDisplay.onPlayerDeath(victim, killer, cause, direct);
+        }
+
+        victim.playerAfterDeath(killer);
+        if (killer != null) {
+            killer.playerAfterKill(victim);
         }
 
     }
