@@ -1,6 +1,6 @@
-package neonique.cbcplugin_new.lobby.tasks;
+package neonique.cbcplugin_new.lobby_old.tasks;
 
-import neonique.cbcplugin_new.lobby.Lobby;
+import neonique.cbcplugin_new.lobby_old.Lobby;
 import neonique.cbcplugin_new.managers.GameManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;

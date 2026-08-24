@@ -1,10 +1,10 @@
-package neonique.cbcplugin_new.lobby.listeners;
+package neonique.cbcplugin_new.lobby_old.listeners;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
-import neonique.cbcplugin_new.lobby.Lobby;
-import neonique.cbcplugin_new.lobby.LobbyTeam;
+import neonique.cbcplugin_new.lobby_old.Lobby;
+import neonique.cbcplugin_new.lobby_old.LobbyTeam;
 import neonique.cbcplugin_new.managers.GameManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;

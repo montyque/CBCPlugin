@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.lobby;
+package neonique.cbcplugin_new.lobby_old;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.misc.Tuple;

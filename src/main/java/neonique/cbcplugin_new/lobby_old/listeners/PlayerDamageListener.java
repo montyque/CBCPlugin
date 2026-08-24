@@ -1,6 +1,6 @@
-package neonique.cbcplugin_new.lobby.listeners;
+package neonique.cbcplugin_new.lobby_old.listeners;
 
-import neonique.cbcplugin_new.lobby.Lobby;
+import neonique.cbcplugin_new.lobby_old.Lobby;
 import neonique.cbcplugin_new.managers.GameManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

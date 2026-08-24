@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.lobby;
+package neonique.cbcplugin_new.lobby_old;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.*;
@@ -7,17 +7,17 @@ import neonique.cbcplugin_new.mapconfig.TeamMapData;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.combat.weapons.WeaponType;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
-import neonique.cbcplugin_new.lobby.listeners.MenuClickEvent;
-import neonique.cbcplugin_new.lobby.listeners.PlayerDamageListener;
+import neonique.cbcplugin_new.lobby_old.listeners.MenuClickEvent;
+import neonique.cbcplugin_new.lobby_old.listeners.PlayerDamageListener;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import neonique.cbcplugin_new.cbcevents.CBCEventPlayer;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
-import neonique.cbcplugin_new.lobby.tasks.GameCountdownTask;
-import neonique.cbcplugin_new.lobby.tasks.LobbySidebarManagerTask;
-import neonique.cbcplugin_new.lobby.tasks.PlayerSafetyTask;
+import neonique.cbcplugin_new.lobby_old.tasks.GameCountdownTask;
+import neonique.cbcplugin_new.lobby_old.tasks.LobbySidebarManagerTask;
+import neonique.cbcplugin_new.lobby_old.tasks.PlayerSafetyTask;
 import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.combat.weapons.presets.WeaponSettings;

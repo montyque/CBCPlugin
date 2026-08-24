@@ -2,8 +2,8 @@ package neonique.cbcplugin_new.commands_old.lobbysubcommands;
 
 import neonique.cbcplugin_new.commands_old.LobbyCommand;
 import neonique.cbcplugin_new.commands_old._SubCommand;
-import neonique.cbcplugin_new.lobby.Lobby;
-import neonique.cbcplugin_new.lobby.LobbyPlayer;
+import neonique.cbcplugin_new.lobby_old.Lobby;
+import neonique.cbcplugin_new.lobby_old.LobbyPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;

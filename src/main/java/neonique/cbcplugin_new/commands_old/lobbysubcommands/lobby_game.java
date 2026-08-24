@@ -10,7 +10,7 @@ import neonique.cbcplugin_new.weapons.presets.CreeperPreset;
 import neonique.cbcplugin_new.weapons.presets.FlamePreset;
 import neonique.cbcplugin_new.mechanics.OverallPreset;
 import neonique.cbcplugin_new.weapons.presets.XbowPreset;
-import neonique.cbcplugin_new.lobby.Lobby;
+import neonique.cbcplugin_new.lobby_old.Lobby;
 import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.combat.CombatManager;
 import net.kyori.adventure.text.Component;

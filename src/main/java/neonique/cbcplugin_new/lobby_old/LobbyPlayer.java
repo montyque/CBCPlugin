@@ -1,10 +1,8 @@
-package neonique.cbcplugin_new.lobby;
+package neonique.cbcplugin_new.lobby_old;
 
 import neonique.cbcplugin_new.core.PlayerLike;
 import neonique.cbcplugin_new.managers.GameManager;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;

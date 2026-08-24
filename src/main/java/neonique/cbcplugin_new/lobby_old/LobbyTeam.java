@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.lobby;
+package neonique.cbcplugin_new.lobby_old;
 
 import neonique.cbcplugin_new.core.PlayerLike;
 import neonique.cbcplugin_new.core.TeamColor;
@@ -7,7 +7,6 @@ import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 
 import java.util.*;

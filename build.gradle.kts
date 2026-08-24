@@ -55,7 +55,6 @@ java {
 sourceSets {
     main {
         java {
-            exclude("neonique/cbcplugin_new/lobby/**")
             exclude("neonique/cbcplugin_new/gamemodes/**")
             exclude("neonique/cbcplugin_new/managers/**")
             exclude("neonique/cbcplugin_new/listeners/**")
@@ -63,6 +62,7 @@ sourceSets {
             exclude("neonique/cbcplugin_new/cbcevents/**")
             exclude("neonique/cbcplugin_new/misc/**")
             exclude("neonique/cbcplugin_new/combat/CombatManager.java")
+            exclude("neonique/cbcplugin_new/lobby_old/**")
         }
     }
 }
