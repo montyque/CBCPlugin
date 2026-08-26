@@ -2,8 +2,8 @@ package neonique.cbcplugin_new.commands_old.lobbysubcommands;
 
 import neonique.cbcplugin_new.commands_old.LobbyCommand;
 import neonique.cbcplugin_new.commands_old._SubCommand;
-import neonique.cbcplugin_new.lobby_old.Lobby;
-import neonique.cbcplugin_new.lobby_old.LobbyPlayer;
+import neonique.cbcplugin_new.lobby.Lobby;
+import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
@@ -25,7 +25,7 @@ public class lobby_spectator extends _SubCommand {
         String subsubcommand = args[1].toLowerCase();
         if (subsubcommand.equals("toggle")) {
             // Check if player is in lobby
-            LobbyPlayer player = lobby.getLobbyPlayer(user);
+            LobbyPlayer player = lobby.getPlayer(user);
             if (player == null) {
                 user.sendMessage(Component.text("You are not registered in the lobby!").color(NamedTextColor.YELLOW));
                 return;
@@ -38,7 +38,7 @@ public class lobby_spectator extends _SubCommand {
             if (player == null) return;
 
             // Check if player is in lobby
-            LobbyPlayer lbPlayer = lobby.getLobbyPlayer(player);
+            LobbyPlayer lbPlayer = lobby.getPlayer(player);
             if (lbPlayer == null) {
                 user.sendMessage(Component.text("The player is not registered in the lobby!").color(NamedTextColor.YELLOW));
                 return;

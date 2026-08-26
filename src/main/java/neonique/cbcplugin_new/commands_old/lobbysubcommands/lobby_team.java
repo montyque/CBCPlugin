@@ -1,9 +1,9 @@
 package neonique.cbcplugin_new.commands_old.lobbysubcommands;
 
 import neonique.cbcplugin_new.commands_old.LobbyCommand;
-import neonique.cbcplugin_new.lobby_old.Lobby;
-import neonique.cbcplugin_new.lobby_old.LobbyPlayer;
-import neonique.cbcplugin_new.lobby_old.LobbyTeam;
+import neonique.cbcplugin_new.lobby.Lobby;
+import neonique.cbcplugin_new.lobby.LobbyPlayer;
+import neonique.cbcplugin_new.lobby.LobbyTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -86,8 +86,8 @@ public class lobby_team {
                 }
 
                 // Both players are in game, check if players are both in the lobby
-                LobbyPlayer player1 = lobby.getLobbyPlayer(player1Targeted);
-                LobbyPlayer player2 = lobby.getLobbyPlayer(player2Targeted);
+                LobbyPlayer player1 = lobby.getPlayer(player1Targeted);
+                LobbyPlayer player2 = lobby.getPlayer(player2Targeted);
                 if (player1 == null || player2 == null) {
                     user.sendMessage(Component.text("Either one or both players is not in lobby!").color(NamedTextColor.YELLOW));
                     return;
@@ -147,7 +147,7 @@ public class lobby_team {
                 }
 
                 // Both players are in game, check if players are both in the lobby
-                LobbyPlayer player = lobby.getLobbyPlayer(playerTargeted);
+                LobbyPlayer player = lobby.getPlayer(playerTargeted);
                 if (player == null) {
                     user.sendMessage(
                             Component.text("Player ").color(NamedTextColor.YELLOW)

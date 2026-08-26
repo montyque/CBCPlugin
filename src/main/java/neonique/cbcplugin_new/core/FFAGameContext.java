@@ -5,7 +5,7 @@ import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import java.util.List;
 
 public record FFAGameContext (GamemodeMapData mapData,
-                              List<PlayerLike> players,
+                              List<? extends PlayerLike> players,
                               GameSettings gameSettings) implements GameContext {}
 
 /*

@@ -1,6 +1,6 @@
-package neonique.cbcplugin_new.lobby_old.tasks;
+package neonique.cbcplugin_new.lobby.tasks;
 
-import neonique.cbcplugin_new.lobby_old.Lobby;
+import neonique.cbcplugin_new.lobby.Lobby;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class LobbySidebarManagerTask extends BukkitRunnable {

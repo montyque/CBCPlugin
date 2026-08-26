@@ -2,7 +2,7 @@ package neonique.cbcplugin_new.commands_old.lobbysubcommands;
 
 import neonique.cbcplugin_new.commands_old.LobbyCommand;
 import neonique.cbcplugin_new.managers.GameState;
-import neonique.cbcplugin_new.lobby_old.Lobby;
+import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.managers.GameManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

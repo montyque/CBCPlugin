@@ -1,21 +1,16 @@
-package neonique.cbcplugin_new.lobby_old;
+package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.core.PlayerLike;
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.core.TeamLike;
-import neonique.cbcplugin_new.managers.GameManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import net.kyori.adventure.text.Component;
-import org.bukkit.entity.Player;
 
 import java.util.*;
 
 // This class is used for storing the players in a team in the lobby
 public class LobbyTeam implements TeamLike {
-
-    private final GameManager gameManager;
-    private final Lobby lobby;
 
     // Team information
     private final String teamIdNum;
@@ -24,31 +19,27 @@ public class LobbyTeam implements TeamLike {
     private final String prefix;
     private final TeamColor teamColor;
 
-    private final CBCScoreboardTeam scoreboardTeam;
+    private CBCScoreboardTeam scoreboardTeam;
+    private final Map<UUID, LobbyPlayer> playersInTeam = new HashMap<>();
 
-    private final HashMap<UUID, LobbyPlayer> playersInTeam = new HashMap<>();
-
-    public LobbyTeam(GameManager gameManager, Lobby lobby, String teamIdNum, String id,
-                     String name, String prefix, TeamColor teamColor) {
-
-        this.gameManager = gameManager;
-        this.lobby = lobby;
+    public LobbyTeam(String teamIdNum, String id, String name, String prefix, TeamColor teamColor) {
 
         this.teamIdNum = teamIdNum;
         this.id = id;
         this.name = name;
         this.prefix = prefix;
         this.teamColor = teamColor;
-        scoreboardTeam = registerTeam();
 
     }
 
-    public CBCScoreboardTeam registerTeam () {
-        CBCScoreboardManager scoreboardManager = gameManager.getCbcScoreboardManager();
-        CBCScoreboardTeam team = scoreboardManager.registerNewTeam(teamIdNum + id + "Lobby");
-        team.setFriendlyFireEnabled(true);
-        team.setPrefix(Component.text(" ■ ").color(textColor()));
-        return team;
+    public void registerTeam (CBCScoreboardManager scoreboardManager) {
+        scoreboardTeam = scoreboardManager.registerNewTeam(teamIdNum + id + "Lobby");
+        scoreboardTeam.setFriendlyFireEnabled(true);
+        scoreboardTeam.setPrefix(Component.text(" ■ ").color(textColor()));
+    }
+
+    public void removeTeam() {
+        scoreboardTeam.unregister();
     }
 
     public void addPlayer(LobbyPlayer player) {
@@ -57,24 +48,8 @@ public class LobbyTeam implements TeamLike {
         player.playerJoinTeam(this);
     }
 
-    public Collection<LobbyPlayer> getPlayers() {
-        return playersInTeam.values();
-    }
-
-    public Set<LobbyPlayer> getOnlinePlayers() {
-        Set<LobbyPlayer> onlinePlayers = new HashSet<>();
-        for (LobbyPlayer player : playersInTeam.values()) {
-            if (player.isOnline()) onlinePlayers.add(player);
-        }
-        return onlinePlayers;
-    }
-
     public boolean isPlayerInTeam(LobbyPlayer player) {
         return playersInTeam.containsValue(player);
-    }
-
-    public boolean isPlayerEntityInTeam(Player player) {
-        return playersInTeam.containsKey(player.getUniqueId());
     }
 
     public void removePlayer(LobbyPlayer player) {
@@ -82,10 +57,6 @@ public class LobbyTeam implements TeamLike {
         playersInTeam.remove(player.getOfflinePlayer().getUniqueId());
         scoreboardTeam.removeEntityUUID(player.getOfflinePlayer().getUniqueId());
         player.playerLeaveTeam();
-    }
-
-    public void removeTeam() {
-        gameManager.getCbcScoreboardManager().unregisterTeam(scoreboardTeam);
     }
 
     public String id () {

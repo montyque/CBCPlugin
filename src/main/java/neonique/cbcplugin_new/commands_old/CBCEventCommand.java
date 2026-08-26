@@ -6,7 +6,7 @@ import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.gamemodes._base.PostGameStats;
 import neonique.cbcplugin_new.core.TeamGame;
-import neonique.cbcplugin_new.lobby_old.Lobby;
+import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.cbcevents.CBCEventManager;
 import neonique.cbcplugin_new.managers.GameManager;
 import net.kyori.adventure.text.Component;
