@@ -23,17 +23,14 @@ public class MapDataArgumentParser<M extends MapData> implements CustomArgument.
     @Override
     public M apply(CustomArgument.CustomArgumentInfo<String> info) throws CustomArgument.CustomArgumentException {
 
-        CBCPlugin.getPlugin().getLogger().info("help");
         Map<String, M> maps = mapSupplier.get();
         String input = info.input();
 
         M map = maps.get(input);
 
         if (map != null) {
-            CBCPlugin.getPlugin().getLogger().info(map.name());
             return map;
         } else {
-            CBCPlugin.getPlugin().getLogger().info("no map");
             throw CustomArgument.CustomArgumentException.fromAdventureComponent(
                     Component.text(input + " is not a valid map ID.")
                             .color(NamedTextColor.YELLOW)
