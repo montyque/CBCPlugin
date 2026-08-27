@@ -12,6 +12,11 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +24,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class Lobby implements ForwardingAudience {
+public class Lobby implements ForwardingAudience, Listener {
 
     private final Plugin plugin;
     private final World world;
@@ -31,14 +36,13 @@ public class Lobby implements ForwardingAudience {
     boolean active = false;
 
     // Lobby variables
-    private Location lobbyTeleport;
+    private final Location lobbyTeleport;
 
-    // Map selected
+    // Gamemode and map selection
     private LobbyGameSelector gameSelector;
 
     // If the game is starting
-    private boolean gameStarting;
-    private StartCountdownTask startingCountdown;
+    private StartCountdownTask startingCountdown = null;
 
     // Players and teams
     private Map<UUID, LobbyPlayer> players = new HashMap<>();
@@ -49,12 +53,14 @@ public class Lobby implements ForwardingAudience {
     public Lobby (Plugin plugin,
                   World world,
                   CBCScoreboardManager scoreboardManager,
-                  MapRepository repository) {
+                  MapRepository repository,
+                  Location lobbyTeleport) {
 
         this.plugin = plugin;
         this.world = world;
         this.scoreboardManager = scoreboardManager;
         this.mapRepository = repository;
+        this.lobbyTeleport = lobbyTeleport;
 
     }
 
@@ -65,9 +71,6 @@ public class Lobby implements ForwardingAudience {
 
         this.gameStarter = gameStarter;
         this.gameSelector = new LobbyGameSelector(mapRepository, this);
-
-        // Reset variables
-        gameStarting = false;
 
         // Set world spawn
         world.setSpawnLocation(lobbyTeleport);
@@ -80,6 +83,9 @@ public class Lobby implements ForwardingAudience {
         for (Player player : world.getPlayers()) {
             newPlayer(player);
         }
+
+        // Start tasks and listeners
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
     }
 
@@ -136,6 +142,8 @@ public class Lobby implements ForwardingAudience {
         players.clear();
         teams.clear();
 
+        HandlerList.unregisterAll(this);
+
     }
 
     public LobbyGameSelector gameSelector () {
@@ -177,7 +185,10 @@ public class Lobby implements ForwardingAudience {
     }
 
     public void playerJoinTeam (LobbyPlayer player, TeamColor color, boolean overrideCurrentTeam) {
-        LobbyTeam team = teams.computeIfAbsent(color, _ -> {throw new IllegalArgumentException("Team does not exist");});
+        if (!teams.containsKey(color)) {
+            throw new IllegalArgumentException("Team does not exist");
+        }
+        LobbyTeam team = teams.get(color);
         playerJoinTeam(player, team, overrideCurrentTeam);
     }
 
@@ -248,12 +259,10 @@ public class Lobby implements ForwardingAudience {
     }
 
     public boolean isGameStarting() {
-        return gameStarting;
+        return startingCountdown != null;
     }
 
     public void startGameCountdown() {
-
-        gameStarting = true;
 
         if (gameSelector.gamemodeSelected().isTeamGamemode()) {
             for (LobbyPlayer player : players.values()) {
@@ -289,10 +298,9 @@ public class Lobby implements ForwardingAudience {
 
     public void cancelGameCountdown (StartCountdownTask.CountdownCancelReason reason, Player cause) {
 
-        gameStarting = false;
-
         // Cancel countdown task
         startingCountdown.cancelCountdown(reason, cause);
+        startingCountdown = null;
 
         if (gameSelector.gamemodeSelected().isTeamGamemode()) {
             for (LobbyPlayer player : players.values()) {
@@ -308,8 +316,10 @@ public class Lobby implements ForwardingAudience {
         return lobbyTeleport;
     }
 
-    public void playerJoinServer(Player entity) {
+    @EventHandler
+    public void playerJoinServer(PlayerJoinEvent e) {
 
+        Player entity = e.getPlayer();
         entity.setGlowing(false);
 
         // Add player to lobby if not already in player list
@@ -324,10 +334,15 @@ public class Lobby implements ForwardingAudience {
 
     }
 
-    public void playerLeaveServer(Player entity) {
+    @EventHandler
+    public void playerLeaveServer(PlayerQuitEvent e) {
+
+        Player entity = e.getPlayer();
 
         // Cancel countdown timer if player is in game
         LobbyPlayer lbPlayer = getPlayer(entity);
+        if (lbPlayer == null) return;
+
         if (isGameStarting()) {
             if (isPlaying(lbPlayer)) cancelGameCountdown(StartCountdownTask.CountdownCancelReason.DISCONNECT, entity);
         }

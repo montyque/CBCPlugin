@@ -104,7 +104,7 @@ public class LobbyCommand implements Subcommand {
         LobbyPlayer player = (LobbyPlayer) arguments.get("player");
         if (player == null) throw CommandAPI.failWithString("The given player does not exist.");
 
-        TeamColor color = (TeamColor) arguments.get("TeamColor");
+        TeamColor color = (TeamColor) arguments.get("teamColor");
         if (color == null) throw CommandAPI.failWithString("The given team color does not exist.");
 
         // Join team with given color

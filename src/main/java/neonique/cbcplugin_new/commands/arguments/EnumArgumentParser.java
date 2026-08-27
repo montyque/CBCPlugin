@@ -38,7 +38,15 @@ public class EnumArgumentParser<T extends Enum<T>> implements CustomArgument.Cus
         String input = info.input().toUpperCase();
 
         try {
-            return T.valueOf(enumClass, input);
+            T value = T.valueOf(enumClass, input);
+            if (values.contains(value)) {
+                return T.valueOf(enumClass, input);
+            } else {
+                throw CustomArgument.CustomArgumentException.fromAdventureComponent(
+                        Component.text(input + " is not an allowed option.")
+                                .color(NamedTextColor.YELLOW)
+                );
+            }
         } catch (IllegalArgumentException e) {
             throw CustomArgument.CustomArgumentException.fromAdventureComponent(
                     Component.text(input + " is not a valid constant for enum " + enumClass.getSimpleName() + ".")
