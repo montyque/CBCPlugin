@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.lobby.tasks;
+/*package neonique.cbcplugin_new.lobby.tasks;
 
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -23,4 +23,4 @@ public class PlayerSafetyTask extends BukkitRunnable {
             }
         }
     }
-}
+}*/

@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.lobby.listeners;
+/*package neonique.cbcplugin_new.lobby.listeners;
 
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.managers.GameManager;
@@ -31,4 +31,4 @@ public class PlayerDamageListener implements Listener {
         e.setDamage(0);
         player.setHealth(20);
     }
-}
+}*/
