@@ -140,7 +140,7 @@ public class Lobby implements ForwardingAudience, Listener {
         spectatorTeam = null;
 
         players.clear();
-        teams.clear();
+        teams = Map.of();
 
         HandlerList.unregisterAll(this);
 

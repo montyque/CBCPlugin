@@ -31,7 +31,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 
-public final class CBCPlugin extends JavaPlugin implements Listener {
+public class CBCPlugin extends JavaPlugin implements Listener {
 
     private static final Set<CBCGamemode> ENABLED_GAMEMODES = Set.of(
             CBCGamemode.SHOWDOWN
