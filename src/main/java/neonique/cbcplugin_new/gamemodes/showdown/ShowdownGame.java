@@ -6,7 +6,6 @@ import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.core.TeamGameContext;
-import neonique.cbcplugin_new.gamemodes._base.*;
 import neonique.cbcplugin_new.gamemodes.showdown.tasks.*;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapconfig.spawns.MapStartSpawn;
@@ -81,7 +80,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     public void setupGame (TeamGameContext ctx) {
 
         // Create teams and players
-        List<TeamLike> teamTemplates = ctx.teams();
+        List<? extends TeamLike> teamTemplates = ctx.teams();
         createTeams(teamTemplates);
 
         // Set up settings and map
@@ -414,10 +413,6 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         // End round and do not start the next round
         roundOver(false);
 
-    }
-
-    public PostGameStats getPostGameStats() {
-        return new ShowdownPostGameStats(this);
     }
 
     @Override

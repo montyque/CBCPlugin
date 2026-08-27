@@ -55,7 +55,16 @@ java {
 sourceSets {
     main {
         java {
-            exclude("neonique/cbcplugin_new/gamemodes/**")
+            exclude("neonique/cbcplugin_new/gamemodes/_base/**")
+            exclude("neonique/cbcplugin_new/gamemodes/assassin/**")
+            exclude("neonique/cbcplugin_new/gamemodes/crossbowtag/**")
+            exclude("neonique/cbcplugin_new/gamemodes/ctf/**")
+            exclude("neonique/cbcplugin_new/gamemodes/holdthegold/**")
+            exclude("neonique/cbcplugin_new/gamemodes/kmation/**")
+            exclude("neonique/cbcplugin_new/gamemodes/koth/**")
+            exclude("neonique/cbcplugin_new/gamemodes/rendezvous/**")
+            exclude("neonique/cbcplugin_new/gamemodes/tdm/**")
+            exclude("neonique/cbcplugin_new/gamemodes/throwdown/**")
             exclude("neonique/cbcplugin_new/managers/**")
             exclude("neonique/cbcplugin_new/listeners/**")
             exclude("neonique/cbcplugin_new/commands_old/**")

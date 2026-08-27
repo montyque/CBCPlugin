@@ -1,5 +1,8 @@
 package neonique.cbcplugin_new.core;
 
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownGame;
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownMapData;
+import neonique.cbcplugin_new.gamemodes.showdown.ShowdownSettings;
 import neonique.cbcplugin_new.mapconfig.CBCMapData;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,7 +18,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public enum CBCGamemode {;
+public enum CBCGamemode {
 
     /*CTF ("Capture The Flag",
             1,
@@ -27,7 +30,7 @@ public enum CBCGamemode {;
             CTFSettings::new
     ),*/
 
-    /*SHOWDOWN ("Showdown",
+    SHOWDOWN ("Showdown",
             2,
             true,
             2,
@@ -35,7 +38,7 @@ public enum CBCGamemode {;
             ShowdownGame::new,
             ShowdownMapData::fromConfig,
             ShowdownSettings::new
-    );*/
+    );
 
     /*
     TDM ("Team Deathmatch",
