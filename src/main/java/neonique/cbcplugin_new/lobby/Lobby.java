@@ -1,9 +1,7 @@
 package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.core.*;
-import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import neonique.cbcplugin_new.mapconfig.MapRepository;
-import neonique.cbcplugin_new.mapconfig.TeamMapData;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardTeam;
 import neonique.cbcplugin_new.lobby.tasks.StartCountdownTask;
@@ -176,6 +174,11 @@ public class Lobby implements ForwardingAudience {
         LobbyPlayer newPlayer = new LobbyPlayer(player);
         players.put(player.getUniqueId(), newPlayer);
         ffaTeam.addEntityUUID(player.getUniqueId());
+    }
+
+    public void playerJoinTeam (LobbyPlayer player, TeamColor color, boolean overrideCurrentTeam) {
+        LobbyTeam team = teams.computeIfAbsent(color, _ -> {throw new IllegalArgumentException("Team does not exist");});
+        playerJoinTeam(player, team, overrideCurrentTeam);
     }
 
     public void playerJoinTeam(LobbyPlayer player, LobbyTeam team, boolean overrideCurrentTeam) {
