@@ -355,6 +355,10 @@ public class Lobby implements ForwardingAudience {
         return lobbyTeamIds;
     }
 
+    public MapRepository mapRepository () {
+        return mapRepository;
+    }
+
     @Override
     public @NotNull Iterable<? extends Audience> audiences () {
         return players.values().stream()
