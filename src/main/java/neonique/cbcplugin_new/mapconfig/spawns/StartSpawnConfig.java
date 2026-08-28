@@ -25,18 +25,13 @@ public interface StartSpawnConfig {
  * Configuration object for BoxSpawn.
  * @param vec The x, y and z coordinates of the spawn. Note that these coordinates should denote where players
  *            get teleported, i.e. one block above the bottom block of the box.
- * @param boxSizeX The X size of the entire box, in coordinates.
- * @param boxSizeY The Y size of the entire box, in coordinates.
- * @param boxSizeZ The Z size of the entire box, in coordinates.
+ * @param boxSize The x, y, and z size of the box.
  */
-record BoxSpawnConfig (Vector vec,
-                       int boxSizeX,
-                       int boxSizeY,
-                       int boxSizeZ) implements StartSpawnConfig {
+record BoxSpawnConfig (Vector vec, Vector boxSize) implements StartSpawnConfig {
 
     @Override
     public MapStartSpawn getSpawn(World world) {
-        return new BoxSpawn(world, vec, boxSizeX, boxSizeY, boxSizeZ);
+        return new BoxSpawn(world, vec, (int) boxSize.getX(), (int) boxSize.getY(), (int) boxSize.getZ());
     }
 
 }
