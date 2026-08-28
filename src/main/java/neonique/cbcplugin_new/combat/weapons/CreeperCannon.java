@@ -33,9 +33,9 @@ public class CreeperCannon implements CrossbowWeapon {
 
     public final static NamespacedKey MODEL = new NamespacedKey("cbc", "creeper_cannon");
 
-    public final static NamespacedKey horKbKey = new NamespacedKey(CBCPlugin.getPlugin(), "hor_kb");
-    public final static NamespacedKey verKbKey = new NamespacedKey(CBCPlugin.getPlugin(), "ver_kb");
-    public final static NamespacedKey allyDamageRatioKey = new NamespacedKey(CBCPlugin.getPlugin(), "ally_dmg_ratio");
+    public final static NamespacedKey horKbKey = new NamespacedKey("cbcplugin", "hor_kb");
+    public final static NamespacedKey verKbKey = new NamespacedKey("cbcplugin", "ver_kb");
+    public final static NamespacedKey allyDamageRatioKey = new NamespacedKey("cbcplugin", "ally_dmg_ratio");
 
     private final WeaponReloader weaponReloader;
     private final CreeperCannonSettings settings;

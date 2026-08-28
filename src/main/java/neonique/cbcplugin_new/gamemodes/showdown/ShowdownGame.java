@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
 import neonique.cbcplugin_new.combat.DeathInfo;
+import neonique.cbcplugin_new.combat.display.CombatDisplay;
 import neonique.cbcplugin_new.core.GameInitContext;
 import neonique.cbcplugin_new.core.TeamGame;
 import neonique.cbcplugin_new.core.TeamLike;
@@ -106,6 +107,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
     private void setupCombat () {
         combatSession().activate();
+        combatSession().setCombatDisplay(new CombatDisplay(this));
         combatSession().setupMap(getMap());
         combatSession().setDeathListener(this::onPlayerDeath);
         combatSession().setJoinAfterDeathListener(this::joinAfterDeath);

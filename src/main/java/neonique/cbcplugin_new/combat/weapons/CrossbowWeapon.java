@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 public interface CrossbowWeapon {
 
-    NamespacedKey LOADED_KEY = new NamespacedKey("cbc", "cbc_loaded");
+    NamespacedKey LOADED_KEY = new NamespacedKey("cbcplugin", "cbc_loaded");
 
     void fireWeapon (Plugin plugin, CBCPlayer player, Arrow arrowFired, Consumer<Projectile> projectileRegistry);
 

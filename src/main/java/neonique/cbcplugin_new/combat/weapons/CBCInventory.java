@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 public class CBCInventory {
 
-    public final static NamespacedKey slotKey = new NamespacedKey(CBCPlugin.getPlugin(), "cbc_item_slot");
+    public final static NamespacedKey slotKey = new NamespacedKey("cbcplugin", "cbc_item_slot");
 
     private final CBCLoadout loadout;
     private final Runnable inventoryUpdateListener;

@@ -12,7 +12,7 @@ public class AssignedSpawnList implements TeamSpawnList {
 
     private final Map<TeamColor, List<StartSpawnConfig>> teamSpawns;
 
-    private AssignedSpawnList (Map<TeamColor, List<StartSpawnConfig>> teamSpawns) {
+    public AssignedSpawnList(Map<TeamColor, List<StartSpawnConfig>> teamSpawns) {
         this.teamSpawns = teamSpawns;
     }
 
