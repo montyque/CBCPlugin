@@ -37,6 +37,7 @@ public class LobbyCommand implements Subcommand {
                 // Game subcommand
                 .withSubcommand(new CommandAPICommand("game")
                         .withSubcommand(new CommandAPICommand("select")
+                                .withPermission("cbcplugin.host")
                                 .withArguments(
                                         EnumArgumentParser.argument("gamemode", CBCGamemode.class, repository::allGamemodes),
                                         MapDataArgumentParser.argument("mapId",
@@ -45,9 +46,11 @@ public class LobbyCommand implements Subcommand {
                                 .executes(this::gameSelectExecutor)
                         )
                         .withSubcommand(new CommandAPICommand("start")
+                                .withPermission("cbcplugin.host")
                                 .executes(this::gameStartExecutor)
                         )
                         .withSubcommand(new CommandAPICommand("settings")
+                                .withPermission("cbcplugin.host")
                                 // TODO: Add settings modifiers
                         )
                 )
@@ -55,6 +58,7 @@ public class LobbyCommand implements Subcommand {
                 // Team subcommand
                 .withSubcommand(new CommandAPICommand("team")
                         .withSubcommand(new CommandAPICommand("randomize")
+                                .withPermission("cbcplugin.host")
                                 // TODO: add randomizer
                         )
                         .withSubcommand(new CommandAPICommand("join")
@@ -62,9 +66,11 @@ public class LobbyCommand implements Subcommand {
                                         PlayerArgumentParser.argument("player", lobby::players),
                                         EnumArgumentParser.argument("teamColor", TeamColor.class)
                                 )
+                                .withPermission("cbcplugin.host")
                                 .executes(this::teamJoinExecutor)
                         )
                         .withSubcommand(new CommandAPICommand("clear")
+                                .withPermission("cbcplugin.host")
                                 .executes(this::teamClearExecutor))
                 );
     }

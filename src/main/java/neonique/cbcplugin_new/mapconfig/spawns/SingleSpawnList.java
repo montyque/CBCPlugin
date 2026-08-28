@@ -12,7 +12,7 @@ public class SingleSpawnList implements TeamSpawnList {
 
     private final List<StartSpawnConfig> teamSpawns;
 
-    private SingleSpawnList (List<StartSpawnConfig> teamSpawns) {
+    public SingleSpawnList (List<StartSpawnConfig> teamSpawns) {
         this.teamSpawns = teamSpawns;
     }
 

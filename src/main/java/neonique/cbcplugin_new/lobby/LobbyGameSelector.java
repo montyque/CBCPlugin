@@ -68,9 +68,9 @@ public class LobbyGameSelector {
 
             // Check team amount is within boundaries
             if (teams.size() < teamMap.minTeams()) {
-                throw new IllegalGameConditionsException("Not enough teams, at least " + teams + " required");
+                throw new IllegalGameConditionsException("Not enough teams, at least " + teamMap.minTeams() + " required");
             } else if (teams.size() > teamMap.maxTeams()) {
-                throw new IllegalGameConditionsException("Not enough teams, at least " + teams + " required");
+                throw new IllegalGameConditionsException("Too many teams, limit of " + teamMap.maxTeams() + " required");
             }
 
             // Check all team colors are allowed

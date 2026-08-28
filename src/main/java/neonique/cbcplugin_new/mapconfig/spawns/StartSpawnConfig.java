@@ -8,7 +8,7 @@ import org.bukkit.util.Vector;
  * Its main purpose is to provide a place to store spawn information without storing a Bukkit-bound object, such
  * as a location.
  */
-public sealed interface StartSpawnConfig {
+public interface StartSpawnConfig {
 
     /**
      * Returns a MapStartSpawn from this spawn config.
