@@ -18,21 +18,21 @@ public class ConfigUtil {
     public static class MissingConfigKeyException extends RuntimeException {
         public MissingConfigKeyException(ConfigurationSection config, String key, String expectedType) {
             super("Missing required key '" + key + "' of expected type '" + expectedType + "'" +
-                    "in config section '" + config.getCurrentPath());
+                    "in config section '" + config.getCurrentPath() + "'");
         }
     }
 
     public static class InvalidConfigValueException extends RuntimeException {
         public InvalidConfigValueException(ConfigurationSection config, String key, String value, String reason) {
             super("Invalid value '" + value + "' for key '" + key + "'" +
-                    "in config section '" + config.getCurrentPath() + ": " + reason);
+                    "in config section '" + config.getCurrentPath() + "': " + reason);
         }
         public InvalidConfigValueException(ConfigurationSection config, String key, String reason) {
             super("Invalid value for key '" + key + "'" +
-                    "in config section '" + config.getCurrentPath() + ": " + reason);
+                    "in config section '" + config.getCurrentPath() + "': " + reason);
         }
         public InvalidConfigValueException(ConfigurationSection config, String key, Throwable cause) {
-            super("Invalid value for key '" + key + "'" + "in config section '" + config.getCurrentPath(), cause);
+            super("Invalid value for key '" + key + "'" + "in config section '" + config.getCurrentPath() + "'", cause);
         }
     }
 
