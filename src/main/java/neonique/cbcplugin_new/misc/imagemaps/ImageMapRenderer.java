@@ -2,7 +2,6 @@ package neonique.cbcplugin_new.misc.imagemaps;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.lobby.LobbyImageMaps;
-import neonique.cbcplugin_new.misc.LambdaRunnable;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;

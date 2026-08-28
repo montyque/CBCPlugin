@@ -2,8 +2,10 @@ package neonique.cbcplugin_new;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
+import neonique.cbcplugin_new.commands.LobbyCommand;
 import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.core.CBCGamemode;
+import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.mapconfig.MapLoader;
 import neonique.cbcplugin_new.mapconfig.MapMechanicLoader;
 import neonique.cbcplugin_new.mapconfig.MapRepository;
@@ -13,6 +15,7 @@ import neonique.cbcplugin_new.services.ArmorTrimService;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -28,9 +31,11 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 
-public final class CBCPlugin extends JavaPlugin implements Listener {
+public class CBCPlugin extends JavaPlugin implements Listener {
 
-    private Set<CBCGamemode> ENABLED_GAMEMODES = Set.of();
+    private static final Set<CBCGamemode> ENABLED_GAMEMODES = Set.of(
+            CBCGamemode.SHOWDOWN
+    );
 
     private static CBCPlugin plugin;
 
@@ -48,6 +53,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
     private CBCScoreboardManager scoreboardManager;
     private PracticeManager practiceManager;
+    private Lobby lobby;
     // private GameManager gameManager;
 
     @Override
@@ -109,6 +115,10 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         // Create practice manager
         loadPracticeManager();
 
+        // Create lobby
+        loadLobby();
+        lobby.activate(ctx -> world.sendMessage(Component.text("hiiiii")));
+
         // Create game manager
         // gameManager = new GameManager(this);
 
@@ -125,6 +135,7 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
 
         new CommandAPICommand("cbc")
                 .withSubcommand(new PracticeCommand(practiceManager).get())
+                .withSubcommand(new LobbyCommand(lobby).get())
                 .register(this);
 
     }
@@ -147,6 +158,17 @@ public final class CBCPlugin extends JavaPlugin implements Listener {
         Location teleport = VectorUtil.vecToLocation(ConfigUtil.requireVector(practiceSection, "teleport"), world);
 
         practiceManager = new PracticeManager(this, world, scoreboardManager, mapRepository, portal, hologram, teleport);
+
+    }
+
+    public void loadLobby () {
+
+        Configuration config = getConfig();
+        ConfigurationSection lobbySection = ConfigUtil.requireConfigurationSection(config, "lobby");
+
+        Location teleport = ConfigUtil.requireVector(lobbySection, "teleport").toLocation(world);
+
+        lobby = new Lobby(this, world, scoreboardManager, mapRepository, teleport);
 
     }
 

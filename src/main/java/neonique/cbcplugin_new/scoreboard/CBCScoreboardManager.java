@@ -28,6 +28,8 @@ public class CBCScoreboardManager {
 
         mainScoreboard = scoreboardManager.getMainScoreboard();
         mainScoreboard.getTeams();
+
+        teams = new HashMap<>();
         playerScoreboards = new HashMap<>();
 
         instance = this;

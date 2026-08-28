@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.lobby.listeners;
+/*package neonique.cbcplugin_new.lobby.listeners;
 
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.core.CBCGamemode;
@@ -241,4 +241,4 @@ public class MenuClickEvent implements Listener {
         }
     }
 
-}
+}*/

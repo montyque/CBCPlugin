@@ -1,29 +1,39 @@
 package neonique.cbcplugin_new.commands.arguments;
 
+import dev.jorel.commandapi.SuggestionInfo;
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.CustomArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.mapconfig.MapData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.command.CommandSender;
 
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class MapDataArgumentParser<M extends MapData> implements CustomArgument.CustomArgumentInfoParser<M, String> {
 
-    private final Supplier<Map<String, M>> mapSupplier;
+    private final Function<CommandArguments, Map<String, M>> mapSupplier;
 
     public MapDataArgumentParser (Supplier<Map<String, M>> mapSupplier) {
+        this.mapSupplier = (i) -> mapSupplier.get();
+    }
+
+    public MapDataArgumentParser (Function<CommandArguments, Map<String, M>> mapSupplier) {
         this.mapSupplier = mapSupplier;
     }
 
     @Override
     public M apply(CustomArgument.CustomArgumentInfo<String> info) throws CustomArgument.CustomArgumentException {
 
-        Map<String, M> maps = mapSupplier.get();
+        CBCPlugin.getPlugin().getLogger().info("help");
+        Map<String, M> maps = mapSupplier.apply(info.previousArgs());
         String input = info.input();
 
         M map = maps.get(input);
@@ -43,6 +53,12 @@ public class MapDataArgumentParser<M extends MapData> implements CustomArgument.
         return new CustomArgument<>(new StringArgument(arg), new MapDataArgumentParser<>(mapSupplier))
                 .replaceSuggestions(ArgumentSuggestions.strings(
                         i -> mapSupplier.get().keySet().toArray(new String[0])));
+    }
+
+    public static <T extends MapData> Argument<T> argument (String arg, Function<CommandArguments, Map<String, T>> mapSupplier) {
+        return new CustomArgument<>(new StringArgument(arg), new MapDataArgumentParser<>(mapSupplier))
+                .replaceSuggestions(ArgumentSuggestions.strings(
+                        i -> mapSupplier.apply(i.previousArgs()).keySet().toArray(new String[0])));
     }
 
 }

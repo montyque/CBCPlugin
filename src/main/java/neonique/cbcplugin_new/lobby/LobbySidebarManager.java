@@ -1,4 +1,4 @@
-package neonique.cbcplugin_new.lobby;
+/*package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.cbcevents.CBCEventTeam;
 import neonique.cbcplugin_new.core.CBCGamemode;
@@ -285,8 +285,8 @@ public class LobbySidebarManager {
         ArrayList<Component> clientStringList = new ArrayList<>(displayToEveryone);
 
         // Display current team
-        if (lobby.getLobbyPlayer(player) != null) {
-            LobbyPlayer lobbyPlayer = lobby.getLobbyPlayer(player);
+        if (lobby.getPlayer(player) != null) {
+            LobbyPlayer lobbyPlayer = lobby.getPlayer(player);
             if (lobbyPlayer.getAssignedTeam() != null) {
                 LobbyTeam playerTeam = lobbyPlayer.getAssignedTeam();
                 clientStringList.add(normalText(TextUtil.getSpaceOfLength(8))
@@ -372,3 +372,4 @@ public class LobbySidebarManager {
         return active;
     }
 }
+*/

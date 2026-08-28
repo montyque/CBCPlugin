@@ -1,5 +1,6 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
+/*
 import neonique.cbcplugin_new.managers.GameBossBarManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -9,8 +10,9 @@ import org.bukkit.entity.Player;
 
 import java.util.Collection;
 
-import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;
+import static neonique.cbcplugin_new.resourcepack.ResourcePackManager.smallText;*/
 
+/*
 public class ShowdownBossbarManager extends GameBossBarManager {
 
     private final ShowdownGame game;
@@ -124,3 +126,4 @@ public class ShowdownBossbarManager extends GameBossBarManager {
     }
 
 }
+*/

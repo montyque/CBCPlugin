@@ -13,7 +13,7 @@ public interface TeamMapData extends GamemodeMapData {
     }
 
     default int maxTeams () {
-        return teamRequirements().minTeams();
+        return teamRequirements().maxTeams();
     }
 
     default List<TeamColor> validTeamColors () {

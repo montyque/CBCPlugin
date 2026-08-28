@@ -47,4 +47,8 @@ public class MapRepository {
         m.forEach(i -> gamemodeList.put(i.mapData().id(), i));
     }
 
+    public Collection<CBCGamemode> allGamemodes () {
+        return gamemodeMaps.keySet();
+    }
+
 }

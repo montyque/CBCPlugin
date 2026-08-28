@@ -13,11 +13,8 @@ public enum StartSpawnType {
     BOX () {
         @Override
         public StartSpawnConfig fromConfig (ConfigurationSection parent, Vector vec) {
-            ConfigurationSection boxSize = ConfigUtil.requireConfigurationSection(parent, "box_size");
-            int x = ConfigUtil.requireInt(boxSize, "x");
-            int y = ConfigUtil.requireInt(boxSize, "y");
-            int z = ConfigUtil.requireInt(boxSize, "z");
-            return new BoxSpawnConfig(vec, x, y, z);
+            Vector boxSize = ConfigUtil.requireVector(parent, "box_size");
+            return new BoxSpawnConfig(vec, boxSize);
         }
     },
 

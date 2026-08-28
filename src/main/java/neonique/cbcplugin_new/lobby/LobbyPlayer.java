@@ -1,29 +1,26 @@
 package neonique.cbcplugin_new.lobby;
 
 import neonique.cbcplugin_new.core.PlayerLike;
-import neonique.cbcplugin_new.managers.GameManager;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import org.bukkit.GameMode;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.UUID;
 
-public class LobbyPlayer implements PlayerLike {
+public class LobbyPlayer implements PlayerLike, ForwardingAudience {
 
-    private GameManager gameManager;
+    private final UUID playerUUID;
 
-    private Lobby lobby;
-    private UUID playerUUID;
     private LobbyTeam assignedTeam;
     private boolean spectator = false;
 
-    public LobbyPlayer(GameManager gameManager, Lobby lobby, Player player) {
-        this.gameManager = gameManager;
-        this.lobby = lobby;
+    public LobbyPlayer(Player player) {
         this.playerUUID = player.getUniqueId();
         assignedTeam = null;
     }
@@ -51,7 +48,7 @@ public class LobbyPlayer implements PlayerLike {
 
         Player playerEntity = getPlayer();
         if (playerEntity == null) return;
-        AttributeInstance attr = playerEntity.getAttribute(Attribute.GENERIC_SCALE);
+        AttributeInstance attr = playerEntity.getAttribute(Attribute.SCALE);
         if (attr != null) {
             attr.setBaseValue(1.0);
         }
@@ -66,9 +63,13 @@ public class LobbyPlayer implements PlayerLike {
         spectator = b;
     }
 
-    public void playerJoinTeam(LobbyTeam team) { assignedTeam = team; }
+    public void playerJoinTeam (LobbyTeam team) {
+        assignedTeam = team;
+    }
 
-    public void playerLeaveTeam() { assignedTeam = null; }
+    public void playerLeaveTeam() {
+        assignedTeam = null;
+    }
 
     public LobbyTeam getAssignedTeam() {
         return assignedTeam;
@@ -78,7 +79,9 @@ public class LobbyPlayer implements PlayerLike {
         return spectator;
     }
 
-    public void setNewPlayer(Player newPlayer) {
-        playerUUID = newPlayer.getUniqueId();
+
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences() {
+        return isOnline() ? List.of(getPlayer()) : List.of();
     }
 }

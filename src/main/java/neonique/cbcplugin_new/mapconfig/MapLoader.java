@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.mapconfig;
 
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
 import neonique.cbcplugin_new.core.CBCGamemode;
+import neonique.cbcplugin_new.util.ConfigUtil;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -36,7 +37,8 @@ public class MapLoader {
         // Load all gamemodes
         Map<CBCGamemode, Map<String, GamemodeMapData>> gamemodeMaps = new HashMap<>();
         for (CBCGamemode gamemode : gamemodes) {
-            File gamemodeMapsFolder = new File(gamemodesFolder, "maps");
+            File gamemodeFolder = new File(gamemodesFolder, gamemode.name().toLowerCase());
+            File gamemodeMapsFolder = new File(gamemodeFolder, "maps");
             gamemodeMaps.put(gamemode, loadGamemodeMapsFromDirectory(gamemode, maps, gamemodeMapsFolder, logger));
         }
 
@@ -47,7 +49,7 @@ public class MapLoader {
         // Load gamemode maps into repo
         for (CBCGamemode gamemode : gamemodeMaps.keySet()) {
             repo.addGamemodeMaps(gamemode, gamemodeMaps.get(gamemode).values());
-            logger.info("Successfully loaded " + maps.size() + " " + gamemode + " maps");
+            logger.info("Successfully loaded " + gamemodeMaps.get(gamemode).size() + " " + gamemode + " maps");
         }
 
     }
@@ -149,7 +151,6 @@ public class MapLoader {
         if (!file.exists())
             throw new FileNotFoundException("Gamemode map file '%s' could not be found".formatted(file.getPath()));
 
-        String mapId = file.getName();
         try {
 
             // Parse YAML file
@@ -159,16 +160,17 @@ public class MapLoader {
             }
 
             // Retrieve base map
+            String mapId = ConfigUtil.requireString(ymlMapConfig, "id");
             CBCMapData baseMap = maps.get(mapId);
             if (baseMap == null) {
-                throw new IllegalArgumentException("No base map exists with map id '" + mapId + "'");
+                throw new IllegalArgumentException("No base map exists with id '" + mapId + "'");
             }
 
             // Parse YAML config into gamemode map data
             return gamemode.mapDataFromConfig(baseMap, ymlMapConfig);
 
         } catch (Exception e) {
-            throw new InvalidMapConfigException(gamemode, mapId, e);
+            throw new InvalidMapConfigException(gamemode, file.getName(), e);
         }
 
     }
