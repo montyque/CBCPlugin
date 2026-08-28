@@ -12,11 +12,13 @@ import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.lobby.IllegalGameConditionsException;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.lobby.LobbyPlayer;
+import neonique.cbcplugin_new.lobby.tasks.StartCountdownTask;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import neonique.cbcplugin_new.mapconfig.MapRepository;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class LobbyCommand implements Subcommand {
 
@@ -38,6 +40,7 @@ public class LobbyCommand implements Subcommand {
                 .withSubcommand(new CommandAPICommand("game")
                         .withSubcommand(new CommandAPICommand("select")
                                 .withPermission("cbcplugin.host")
+                                .withRequirement(_ -> !lobby.isGameStarting())
                                 .withArguments(
                                         EnumArgumentParser.argument("gamemode", CBCGamemode.class, repository::allGamemodes),
                                         MapDataArgumentParser.argument("mapId",
@@ -47,7 +50,13 @@ public class LobbyCommand implements Subcommand {
                         )
                         .withSubcommand(new CommandAPICommand("start")
                                 .withPermission("cbcplugin.host")
+                                .withRequirement(_ -> !lobby.isGameStarting())
                                 .executes(this::gameStartExecutor)
+                        )
+                        .withSubcommand(new CommandAPICommand("cancel")
+                                .withPermission("cbcplugin.host")
+                                .withRequirement(_ -> lobby.isGameStarting())
+                                .executes(this::gameCancelExecutor)
                         )
                         .withSubcommand(new CommandAPICommand("settings")
                                 .withPermission("cbcplugin.host")
@@ -99,6 +108,13 @@ public class LobbyCommand implements Subcommand {
         CBCGamemode gamemode = (CBCGamemode) arguments.get("gamemode");
         GamemodeMapData mapData = (GamemodeMapData) arguments.get("mapId");
         lobby.gameSelector().setGameSelection(gamemode, mapData);
+
+    }
+
+    private void gameCancelExecutor (CommandSender sender, CommandArguments arguments) {
+
+        // Sel
+        lobby.cancelGameCountdown(StartCountdownTask.CountdownCancelReason.COMMAND, (Player) sender);
 
     }
 

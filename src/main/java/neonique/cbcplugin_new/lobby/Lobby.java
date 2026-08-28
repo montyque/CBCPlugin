@@ -296,6 +296,10 @@ public class Lobby implements ForwardingAudience, Listener {
                 100,
                 1));
 
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.updateCommands();
+        }
+
     }
 
     public void cancelGameCountdown (StartCountdownTask.CountdownCancelReason reason, Player cause) {
@@ -310,6 +314,10 @@ public class Lobby implements ForwardingAudience, Listener {
                     ffaTeam.addEntityUUID(player.getOfflinePlayer().getUniqueId());
                 }
             }
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.updateCommands();
         }
 
     }

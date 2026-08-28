@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.time.Duration;
@@ -33,7 +34,7 @@ public class StartCountdownTask extends TimerTask {
             10, TextColor.color(248, 255, 62)
     );
 
-    private final Map<Integer, Consumer<Integer>> eventsMap = IntStream.range(1, 10).boxed()
+    private final Map<Integer, Consumer<Integer>> eventsMap = IntStream.range(1, 11).boxed()
             .collect(Collectors.toMap(
                     i -> i,
                     i -> (t -> countdownDisplay(t, colors.get(t)))
@@ -59,8 +60,11 @@ public class StartCountdownTask extends TimerTask {
                         Duration.ofMillis(250))
         ));
         audience.sendMessage(Component.text()
-                .content("Game starts in ")
-                .content(time + " second" + (time == 1 ? "!" : "s!"))
+                .append(Component.text()
+                        .content("Game starts in "))
+                .append(Component.text()
+                        .content(time + " second" + (time == 1 ? "!" : "s!"))
+                        .decorate(TextDecoration.BOLD))
                 .color(color)
         );
         audience.playSound(Sound.sound(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, Sound.Source.MASTER, 100, 1));
@@ -70,9 +74,9 @@ public class StartCountdownTask extends TimerTask {
         this.cancel();
 
         audience.sendMessage(switch (reason) {
-            case COMMAND -> Component.text("Countdown cancelled by " + cause.name() + ".")
+            case COMMAND -> Component.text("Countdown cancelled by " + cause.getName() + ".")
                     .color(NamedTextColor.YELLOW);
-            case DISCONNECT -> Component.text("Countdown cancelled by " + cause.name() + "'s disconnection from the server.")
+            case DISCONNECT -> Component.text("Countdown cancelled by " + cause.getName() + "'s disconnection from the server.")
                     .color(NamedTextColor.YELLOW);
         });
         audience.playSound(Sound.sound(org.bukkit.Sound.UI_BUTTON_CLICK, Sound.Source.MASTER, 100, 1));
