@@ -30,19 +30,21 @@ repositories {
 
 dependencies {
 
+    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.2:4.116.1")
+
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
     compileOnly("dev.jorel:commandapi-paper-core:12.0.0")
     compileOnly("io.papermc.paper:paper-api:26.2.build.115-stable")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
+
     testImplementation("dev.jorel:commandapi-paper-core:12.0.0")
     testImplementation("io.papermc.paper:paper-api:26.2.build.115-stable")
     testImplementation("net.dmulloy2:ProtocolLib:5.4.0")
     testImplementation("com.google.code.findbugs:jsr305:3.0.2")
-
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.2:4.116.1")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
 }
 
