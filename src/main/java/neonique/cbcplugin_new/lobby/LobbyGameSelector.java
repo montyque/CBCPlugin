@@ -37,10 +37,11 @@ public class LobbyGameSelector {
 
         // Send message to say what map has been selected
         audience.sendMessage(Component.text()
-                .content(gamemodeSelected.getGamemodeName() + " - " + map.mapData().name())
-                .decorate(TextDecoration.BOLD)
-                .content( " has been selected!")
-                .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
+                .append(Component.text()
+                        .content(gamemodeSelected.getGamemodeName() + " - " + mapSelected.mapData().name())
+                        .decorate(TextDecoration.BOLD))
+                .append(Component.text()
+                        .content(" has been selected!"))
                 .color(NamedTextColor.GREEN)
                 .build());
 
