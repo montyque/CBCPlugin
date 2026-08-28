@@ -136,13 +136,9 @@ public class LobbyTest {
         // Add mock player to lobby
         lobby.newPlayer(entity);
 
-        // Check player
         assertNotNull(lobby.getPlayer(entity));
         LobbyPlayer player = lobby.getPlayer(entity);
-
-        assertAll(
-                () -> assertTrue(lobby.players().contains(player))
-        );
+        assertTrue(lobby.players().contains(player));
 
     }
 
@@ -218,34 +214,24 @@ public class LobbyTest {
 
     @Test
     public void startGameTest() {
-
         boolean[] started = new boolean[]{false};
         lobby.activate(_ -> {
             started[0] = true;
         });
-
         lobby.startGame();
-
         assertTrue(started[0]);
-
     }
 
     @Test
     public void testStartFailWithNoGamemode () {
-
-        boolean[] started = new boolean[]{false};
-        lobby.activate(_ -> {started[0] = true;});
-
-        lobby.startGameCountdown();
-
+        lobby.activate(_ -> {});
+        assertThrows(IllegalGameConditionsException.class, () -> lobby.startGameCountdown());
     }
 
     @Test
     public void deactivateLobbyTest() {
-
         lobby.activate(_ -> {});
         lobby.deactivate();
-
     }
 
 }

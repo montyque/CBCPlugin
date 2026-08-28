@@ -264,6 +264,8 @@ public class Lobby implements ForwardingAudience, Listener {
 
     public void startGameCountdown() {
 
+        gameSelector.validateGameStart(getTeamsWithOnlinePlayers(), List.copyOf(players()));
+
         if (gameSelector.gamemodeSelected().isTeamGamemode()) {
             for (LobbyPlayer player : players.values()) {
 
