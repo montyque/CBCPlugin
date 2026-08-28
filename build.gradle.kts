@@ -104,5 +104,6 @@ tasks {
 
     test {
         useJUnitPlatform()
+        jvmArgs("--sun-misc-unsafe-memory-access=allow")
     }
 }
