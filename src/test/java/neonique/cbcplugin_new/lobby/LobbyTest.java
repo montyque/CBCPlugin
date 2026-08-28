@@ -5,10 +5,7 @@ import neonique.cbcplugin_new.combat.display.DeathMessageProvider;
 import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.gamemodes.showdown.ShowdownMapData;
-import neonique.cbcplugin_new.mapconfig.CBCMapData;
-import neonique.cbcplugin_new.mapconfig.MapOptions;
-import neonique.cbcplugin_new.mapconfig.MapRepository;
-import neonique.cbcplugin_new.mapconfig.TeamRequirements;
+import neonique.cbcplugin_new.mapconfig.*;
 import neonique.cbcplugin_new.mapconfig.spawns.*;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import org.bukkit.Location;
@@ -30,42 +27,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static neonique.cbcplugin_new.lobby.LobbyTestUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("markedForRemoval")
 public class LobbyTest {
-
-    public static final TeamSpawnList SPAWN_LIST = new SingleSpawnList(List.of(new StartSpawnConfig() {
-        @Override
-        public MapStartSpawn getSpawn(World world) {
-            return new FrozenSpawn(world, vec());
-        }
-        @Override
-        public Vector vec() {
-            return new Vector(0, 100, 0);
-        }
-    }));
-
-    public static final CBCMapData BASE_MAP_DATA = new CBCMapData(
-            "test",
-            "Test",
-            Material.AIR,
-            new Vector(0, 100, 0),
-            new Vector(10, 100, 10),
-            new Vector(-10, 100, 10),
-            List.of(new Vector(0, 100, 0)),
-            SPAWN_LIST,
-            MapOptions.DEFAULTS,
-            Map.of(),
-            DeathMessageProvider.empty()
-    );
-
-    public static final ShowdownMapData GAMEMODE_MAP_DATA = new ShowdownMapData(
-            BASE_MAP_DATA,
-            new TeamRequirements(1, 8, Arrays.stream(TeamColor.values()).toList()),
-            SPAWN_LIST,
-            null
-    );
 
     private ServerMock server;
     private JavaPlugin plugin;
@@ -223,9 +189,30 @@ public class LobbyTest {
     }
 
     @Test
-    public void testStartFailWithNoGamemode () {
+    public void testStartCountdownFailWithNoGamemode () {
         lobby.activate(_ -> {});
         assertThrows(IllegalGameConditionsException.class, () -> lobby.startGameCountdown());
+    }
+
+    @Test
+    public void testStartCountdownStopWhenPlayerLeaves () {
+
+        lobby.activate(_ -> {});
+
+        PlayerMock entity = server.addPlayer("player1");
+        lobby.newPlayer(entity);
+        LobbyPlayer player = lobby.getPlayer(entity);
+
+        lobby.playerJoinTeam(player, TeamColor.RED, true);
+        lobby.gameSelector().setGameSelection(CBCGamemode.SHOWDOWN, getMapDataWithConstraints(1, 2));
+        lobby.startGameCountdown();
+
+        assertTrue(lobby.isGameStarting());
+
+        entity.disconnect();
+
+        assertFalse(lobby.isGameStarting());
+
     }
 
     @Test

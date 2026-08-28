@@ -23,41 +23,10 @@ import org.mockbukkit.mockbukkit.world.WorldMock;
 
 import java.util.*;
 
+import static neonique.cbcplugin_new.lobby.LobbyTestUtil.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LobbyGameSelectorTest {
-
-    public static final TeamSpawnList SPAWN_LIST = new SingleSpawnList(List.of(new StartSpawnConfig() {
-        @Override
-        public MapStartSpawn getSpawn(World world) {
-            return new FrozenSpawn(world, vec());
-        }
-        @Override
-        public Vector vec() {
-            return new Vector(0, 100, 0);
-        }
-    }));
-
-    public static final CBCMapData BASE_MAP_DATA = new CBCMapData(
-            "test",
-            "Test",
-            Material.AIR,
-            new Vector(0, 100, 0),
-            new Vector(10, 100, 10),
-            new Vector(-10, 100, 10),
-            List.of(new Vector(0, 100, 0)),
-            SPAWN_LIST,
-            MapOptions.DEFAULTS,
-            Map.of(),
-            DeathMessageProvider.empty()
-    );
-
-    public static final ShowdownMapData GAMEMODE_MAP_DATA = new ShowdownMapData(
-            BASE_MAP_DATA,
-            new TeamRequirements(2, 4, Arrays.stream(TeamColor.values()).toList()),
-            SPAWN_LIST,
-            null
-    );
 
     private ServerMock server;
     private JavaPlugin plugin;
@@ -90,15 +59,6 @@ public class LobbyGameSelectorTest {
         MockBukkit.unmock();
     }
 
-    private List<LobbyPlayer> createMockLobbyPlayers (int count) {
-        List<LobbyPlayer> players = new ArrayList<>();
-        for (int i = 1; i <= count; i++) {
-            PlayerMock entity = server.addPlayer();
-            players.add(new LobbyPlayer(entity));
-        }
-        return players;
-    }
-
     private Map<TeamColor, LobbyTeam> createLobbyTeams () {
         var teams = Map.of(
                 TeamColor.RED, new LobbyTeam("01", "red", "Red", "R", TeamColor.RED),
@@ -120,26 +80,11 @@ public class LobbyGameSelectorTest {
                 .toList();
     }
 
-    private GamemodeMapData getMapDataWithConstraints (int minTeams, int maxTeams, List<TeamColor> validTeamColors) {
-        return new ShowdownMapData(
-                BASE_MAP_DATA,
-                new TeamRequirements(minTeams, maxTeams, validTeamColors),
-                SPAWN_LIST,
-                null
-        );
-    }
-
-    private GamemodeMapData getMapDataWithConstraints (int minTeams, int maxTeams) {
-        return getMapDataWithConstraints(minTeams, maxTeams, Arrays.stream(TeamColor.values()).toList());
-    }
-
-
-
     @Test
     public void testStartValidationSuccess () {
 
         Map<TeamColor, LobbyTeam> teams = createLobbyTeams();
-        List<LobbyPlayer> lobbyPlayers = createMockLobbyPlayers(2);
+        List<LobbyPlayer> lobbyPlayers = createMockLobbyPlayers(server, 2);
         teams.get(TeamColor.RED).addPlayer(lobbyPlayers.get(0));
         teams.get(TeamColor.BLUE).addPlayer(lobbyPlayers.get(1));
         gameSelector.setGameSelection(CBCGamemode.SHOWDOWN, GAMEMODE_MAP_DATA);
@@ -153,7 +98,7 @@ public class LobbyGameSelectorTest {
     public void testStartValidationNotEnoughTeams () {
 
         Map<TeamColor, LobbyTeam> teams = createLobbyTeams();
-        List<LobbyPlayer> lobbyPlayers = createMockLobbyPlayers(2);
+        List<LobbyPlayer> lobbyPlayers = createMockLobbyPlayers(server, 2);
         teams.get(TeamColor.RED).addPlayer(lobbyPlayers.getFirst());
         gameSelector.setGameSelection(CBCGamemode.SHOWDOWN, getMapDataWithConstraints(2, 4));
 
@@ -168,7 +113,7 @@ public class LobbyGameSelectorTest {
     public void testStartValidationTooManyTeams () {
 
         Map<TeamColor, LobbyTeam> teams = createLobbyTeams();
-        List<LobbyPlayer> lobbyPlayers = createMockLobbyPlayers(3);
+        List<LobbyPlayer> lobbyPlayers = createMockLobbyPlayers(server, 3);
         teams.get(TeamColor.RED).addPlayer(lobbyPlayers.get(0));
         teams.get(TeamColor.BLUE).addPlayer(lobbyPlayers.get(1));
         teams.get(TeamColor.GREEN).addPlayer(lobbyPlayers.get(2));
@@ -185,7 +130,7 @@ public class LobbyGameSelectorTest {
     public void testStartValidationInvalidTeamColors () {
 
         Map<TeamColor, LobbyTeam> teams = createLobbyTeams();
-        List<LobbyPlayer> lobbyPlayers = createMockLobbyPlayers(2);
+        List<LobbyPlayer> lobbyPlayers = createMockLobbyPlayers(server, 2);
         teams.get(TeamColor.BLUE).addPlayer(lobbyPlayers.get(0));
         teams.get(TeamColor.GREEN).addPlayer(lobbyPlayers.get(1));
         gameSelector.setGameSelection(CBCGamemode.SHOWDOWN,
