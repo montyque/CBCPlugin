@@ -92,7 +92,6 @@ public class Lobby implements ForwardingAudience, Listener {
 
     private void teamSetup () {
 
-        teams.clear();
         teams = createTeams();
         for (LobbyTeam team : teams.values()) {
             team.registerTeam(scoreboardManager);
@@ -179,10 +178,16 @@ public class Lobby implements ForwardingAudience, Listener {
     }
 
     public void newPlayer(Player player) {
+
         player.playerListName(null);
         LobbyPlayer newPlayer = new LobbyPlayer(player);
         players.put(player.getUniqueId(), newPlayer);
         ffaTeam.addEntityUUID(player.getUniqueId());
+
+        newPlayer.resetPlayer();
+        player.teleport(lobbyTeleport);
+        player.setRespawnLocation(lobbyTeleport, true);
+
     }
 
     public void playerJoinTeam (LobbyPlayer player, TeamColor color, boolean overrideCurrentTeam) {
