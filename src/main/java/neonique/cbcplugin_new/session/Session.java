@@ -5,10 +5,11 @@ import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.core.GameContext;
 import neonique.cbcplugin_new.core.GameInitContext;
 import neonique.cbcplugin_new.lobby.Lobby;
-import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import neonique.cbcplugin_new.practice.PracticeManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class Session {
@@ -35,10 +36,21 @@ public class Session {
         stateSwitch(SessionState.LOBBY);
         lobby.activate(this::startGame);
 
+        for (Player p : world.getPlayers()) {
+            lobby.newPlayer(p);
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.updateCommands();
+        }
+
     }
 
     public void deactivateLobby () {
         stateSwitch(SessionState.INACTIVE);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.updateCommands();
+        }
     }
 
     public void startGame (CBCGamemode gamemode, GameContext ctx) {
@@ -51,12 +63,20 @@ public class Session {
         currentGame = gamemode.newGameInstance(new GameInitContext(plugin, scoreboardManager, world));
         currentGame.setupGame(ctx);
 
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.updateCommands();
+        }
+
     }
 
     public void stopGame () {
 
         if (state != SessionState.IN_GAME) throw new IllegalStateException("There is no game active in this session");
         activateLobby();
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.updateCommands();
+        }
 
     }
 
@@ -70,6 +90,10 @@ public class Session {
 
         this.state = newState;
 
+    }
+
+    public SessionState state () {
+        return state;
     }
 
 }

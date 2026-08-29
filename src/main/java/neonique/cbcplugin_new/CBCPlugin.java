@@ -2,6 +2,7 @@ package neonique.cbcplugin_new;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import neonique.cbcplugin_new.combat.display.DeathMessageLoader;
+import neonique.cbcplugin_new.commands.GameCommand;
 import neonique.cbcplugin_new.commands.LobbyCommand;
 import neonique.cbcplugin_new.commands.PracticeCommand;
 import neonique.cbcplugin_new.core.CBCGamemode;
@@ -14,6 +15,7 @@ import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.services.ArmorTrimService;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.session.Session;
+import neonique.cbcplugin_new.session.SessionState;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
 import net.kyori.adventure.text.Component;
@@ -137,7 +139,8 @@ public class CBCPlugin extends JavaPlugin implements Listener {
 
         new CommandAPICommand("cbc")
                 .withSubcommand(new PracticeCommand(practiceManager).get())
-                .withSubcommand(new LobbyCommand(lobby).get())
+                .withSubcommand(new LobbyCommand(lobby, session).get())
+                .withSubcommand(new GameCommand(session).get())
                 .register(this);
 
     }
@@ -180,30 +183,13 @@ public class CBCPlugin extends JavaPlugin implements Listener {
         // Plugin shutdown logic
         getLogger().info("Shutting down the Crossbow Champions Plugin...");
 
-        //
+        // End practice if active
         if (practiceManager.instanceActive()) {
             practiceManager.endInstance();
         }
 
-        /*gameManager.onServerClose();
-
-        // Check if game is active
-        if (gameManager.getCurrentGame() != null) {
-            System.out.println("Shutting down current game...");
-            gameManager.getCurrentGame().resetGame();
-        }
-
-        // Check if lobby is active
-        if (gameManager.getGameState() == GameState.LOBBY) {
-            System.out.println("Shutting down current lobby...");
-            gameManager.stopLobby();
-        }
-
-        // Check if practice is active
-        if (gameManager.isPracticeActive()) {
-            System.out.println("Shutting down practice arena...");
-            gameManager.practiceManager.disable();
-        }*/
+        // End session
+        session.stateSwitch(SessionState.INACTIVE);
 
     }
 
@@ -211,48 +197,6 @@ public class CBCPlugin extends JavaPlugin implements Listener {
         return plugin;
     }
 
-    /*
-    public static void loadPermissions () {
-
-        // Open configuration file
-        FileConfiguration configFile = getPlugin().getConfig();
-
-        // Get UUIDs (in string form) of operators and administrators
-        List<String> operatorUUIDs = configFile.getStringList("operators");
-        List<String> adminUUIDs = configFile.getStringList("admins");
-
-        // Convert operator string UUIDs to UUID objects
-        gameOperators = new HashSet<>();
-        for (String uuidString : operatorUUIDs) {
-            // Attempt to convert string to UUID
-            try {
-                UUID uuid = UUID.fromString(uuidString);
-                gameOperators.add(uuid);
-            } catch (IllegalArgumentException ignored) {}
-        }
-
-        // Convert admin string UUIDs to UUID objects
-        gameAdmins = new HashSet<>();
-        for (String uuidString : adminUUIDs) {
-            // Attempt to convert string to UUID
-            try {
-                UUID uuid = UUID.fromString(uuidString);
-                gameAdmins.add(uuid);
-            } catch (IllegalArgumentException ignored) {}
-        }
-
-    }*/
-
-    /*
-    public static void savePermissions () {}
-
-    public static boolean isPlayerOperator (UUID uuid) {
-        return gameOperators.contains(uuid);
-    }
-
-    public static boolean isPlayerAdmin (UUID uuid) {
-        return gameAdmins.contains(uuid);
-    }*/
 
     @EventHandler
     public void playerJoin(PlayerJoinEvent e) {
@@ -279,26 +223,5 @@ public class CBCPlugin extends JavaPlugin implements Listener {
             }
         }.runTaskAsynchronously(this);
     }
-
-    /*
-    public static GameManager getGameManager() {
-        return gameManager;
-    }
-
-    public ArmorTrimService getTrimService () {
-        return trimService;
-    }
-
-    public WeaponPresetService getWeaponPresetService () {
-        return weaponPresetService;
-    }
-
-    public void registerListener (Listener listener) {
-        getServer().getPluginManager().registerEvents(listener, this);
-    }
-
-    public void unregisterListener (Listener listener) {
-        HandlerList.unregisterAll(listener);
-    }*/
 
 }

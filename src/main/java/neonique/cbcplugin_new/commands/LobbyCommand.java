@@ -15,6 +15,8 @@ import neonique.cbcplugin_new.lobby.LobbyPlayer;
 import neonique.cbcplugin_new.lobby.tasks.StartCountdownTask;
 import neonique.cbcplugin_new.mapconfig.GamemodeMapData;
 import neonique.cbcplugin_new.mapconfig.MapRepository;
+import neonique.cbcplugin_new.session.Session;
+import neonique.cbcplugin_new.session.SessionState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
@@ -23,10 +25,12 @@ import org.bukkit.entity.Player;
 public class LobbyCommand implements Subcommand {
 
     private final Lobby lobby;
+    private final Session session;
     private final MapRepository repository;
 
-    public LobbyCommand (Lobby lobby) {
+    public LobbyCommand (Lobby lobby, Session session) {
         this.lobby = lobby;
+        this.session = session;
         this.repository = lobby.mapRepository();
     }
 
@@ -34,10 +38,15 @@ public class LobbyCommand implements Subcommand {
     public CommandAPICommand get() {
 
         return new CommandAPICommand("lobby")
-                .withRequirement(s -> lobby.isActive())
+
+                .withSubcommand(new CommandAPICommand("activate")
+                        .withPermission("cbcplugin.host")
+                        .withRequirement(_ -> session.state() == SessionState.INACTIVE)
+                        .executes(this::activateExecutor))
 
                 // Game subcommand
                 .withSubcommand(new CommandAPICommand("game")
+                        .withRequirement(s -> lobby.isActive())
                         .withSubcommand(new CommandAPICommand("select")
                                 .withPermission("cbcplugin.host")
                                 .withRequirement(_ -> !lobby.isGameStarting())
@@ -66,6 +75,7 @@ public class LobbyCommand implements Subcommand {
 
                 // Team subcommand
                 .withSubcommand(new CommandAPICommand("team")
+                        .withRequirement(s -> lobby.isActive())
                         .withSubcommand(new CommandAPICommand("randomize")
                                 .withPermission("cbcplugin.host")
                                 // TODO: add randomizer
@@ -82,6 +92,10 @@ public class LobbyCommand implements Subcommand {
                                 .withPermission("cbcplugin.host")
                                 .executes(this::teamClearExecutor))
                 );
+    }
+
+    private void activateExecutor (CommandSender sender, CommandArguments arguments) {
+        session.activateLobby();
     }
 
     /**
