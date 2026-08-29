@@ -13,6 +13,7 @@ import neonique.cbcplugin_new.practice.PracticeManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.services.ArmorTrimService;
 import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
+import neonique.cbcplugin_new.session.Session;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
 import net.kyori.adventure.text.Component;
@@ -54,6 +55,8 @@ public class CBCPlugin extends JavaPlugin implements Listener {
     private CBCScoreboardManager scoreboardManager;
     private PracticeManager practiceManager;
     private Lobby lobby;
+
+    private Session session;
     // private GameManager gameManager;
 
     @Override
@@ -117,12 +120,11 @@ public class CBCPlugin extends JavaPlugin implements Listener {
 
         // Create lobby
         loadLobby();
-        lobby.activate(ctx -> world.sendMessage(Component.text("hiiiii")));
 
-        // Create game manager
-        // gameManager = new GameManager(this);
+        // Create single session
+        session = new Session(this, world, scoreboardManager, lobby, practiceManager);
 
-
+        // Register command
         registerMainCommand();
 
         // Print to show finished initialisation
