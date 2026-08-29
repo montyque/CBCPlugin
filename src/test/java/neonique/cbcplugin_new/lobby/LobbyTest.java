@@ -71,7 +71,7 @@ public class LobbyTest {
     public void activateLobbyTest() {
 
         // Activate the lobby
-        lobby.activate(_ -> {});
+        lobby.activate((_, _) -> {});
 
         // Assertions
         assertTrue(lobby.isActive()); // Lobby should be active
@@ -96,7 +96,7 @@ public class LobbyTest {
     @Test
     public void addPlayerTest() {
 
-        lobby.activate(_ -> {});
+        lobby.activate((_, _) -> {});
         PlayerMock entity = server.addPlayer("player1");
 
         // Add mock player to lobby
@@ -111,7 +111,7 @@ public class LobbyTest {
     @Test
     public void addPlayerToTeamTest() {
 
-        lobby.activate(_ -> {});
+        lobby.activate((_, _) -> {});
         PlayerMock entity = server.addPlayer("player1");
         lobby.newPlayer(entity);
         LobbyPlayer player = lobby.getPlayer(entity);
@@ -132,7 +132,7 @@ public class LobbyTest {
     @Test
     public void setPlayerSpectatorTest() {
 
-        lobby.activate(_ -> {});
+        lobby.activate((_, _) -> {});
         PlayerMock entity = server.addPlayer("player1");
         lobby.newPlayer(entity);
         LobbyPlayer player = lobby.getPlayer(entity);
@@ -152,7 +152,7 @@ public class LobbyTest {
     @Test
     public void togglePlayerSpectatorTest() {
 
-        lobby.activate(_ -> {});
+        lobby.activate((_, _) -> {});
         PlayerMock entity = server.addPlayer("player1");
         lobby.newPlayer(entity);
         LobbyPlayer player = lobby.getPlayer(entity);
@@ -181,7 +181,7 @@ public class LobbyTest {
     @Test
     public void startGameTest() {
         boolean[] started = new boolean[]{false};
-        lobby.activate(_ -> {
+        lobby.activate((_, _) -> {
             started[0] = true;
         });
         lobby.startGame();
@@ -190,14 +190,14 @@ public class LobbyTest {
 
     @Test
     public void testStartCountdownFailWithNoGamemode () {
-        lobby.activate(_ -> {});
+        lobby.activate((_, _) -> {});
         assertThrows(IllegalGameConditionsException.class, () -> lobby.startGameCountdown());
     }
 
     @Test
     public void testStartCountdownStopWhenPlayerLeaves () {
 
-        lobby.activate(_ -> {});
+        lobby.activate((_, _) -> {});
 
         PlayerMock entity = server.addPlayer("player1");
         lobby.newPlayer(entity);
@@ -217,7 +217,7 @@ public class LobbyTest {
 
     @Test
     public void deactivateLobbyTest() {
-        lobby.activate(_ -> {});
+        lobby.activate((_, _) -> {});
         lobby.deactivate();
     }
 

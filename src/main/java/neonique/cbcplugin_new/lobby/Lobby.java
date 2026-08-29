@@ -21,6 +21,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class Lobby implements ForwardingAudience, Listener {
     private final CBCScoreboardManager scoreboardManager;
     private final MapRepository mapRepository;
 
-    private Consumer<GameContext> gameStarter;
+    private BiConsumer<CBCGamemode, GameContext> gameStarter;
 
     boolean active = false;
 
@@ -64,7 +65,7 @@ public class Lobby implements ForwardingAudience, Listener {
 
     }
 
-    public void activate (Consumer<GameContext> gameStarter) {
+    public void activate (BiConsumer<CBCGamemode, GameContext> gameStarter) {
 
         if (active) return;
         active = true;
@@ -122,7 +123,7 @@ public class Lobby implements ForwardingAudience, Listener {
     }
 
     public void startGame() {
-        gameStarter.accept(gameSelector.getGameContext(
+        gameStarter.accept(gameSelector.gamemodeSelected(), gameSelector.getGameContext(
                 getTeamsWithOnlinePlayers(),
                 List.copyOf(players.values())));
     }
