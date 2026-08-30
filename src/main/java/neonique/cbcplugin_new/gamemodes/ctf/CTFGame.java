@@ -180,9 +180,9 @@ public class CTFGame extends TeamGame<CTFPlayer, CTFTeam> {
     }
 
     @Override
-    public void resetGame() {
+    public void stop() {
 
-        super.resetGame();
+        super.stop();
 
         // Deactivate sudden death border if existent
         if (suddenDeathBorder != null) {

@@ -367,9 +367,9 @@ public class TDMGame extends TeamGame<TDMPlayer, TDMMap, TDMTeam> {
 
     }
 
-    public void resetGame() {
+    public void stop() {
 
-        super.resetGame();
+        super.stop();
 
         cancelTask(startGameTimer);
         cancelTask(tdmGameTimerTask);

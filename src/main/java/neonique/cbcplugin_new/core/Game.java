@@ -5,19 +5,22 @@ import neonique.cbcplugin_new.combat.CombatSession;
 import neonique.cbcplugin_new.combat.DeathCause;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
-import neonique.cbcplugin_new.resourcepack.ResourcePackManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import neonique.cbcplugin_new.tasks.gamemodetasks.VictoryFireworkTask;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +30,7 @@ import java.util.stream.Collectors;
 
 import static neonique.cbcplugin_new.util.TextUtil.timerToText;
 
-public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, ForwardingAudience {
+public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, ForwardingAudience, Listener {
 
     private final Plugin plugin;
     private final CBCScoreboardManager scoreboardManager;
@@ -42,9 +45,6 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     private boolean gameOver = false;
     private int gameLength = 0;
-
-    // If global kills is enabled
-    private boolean globalKillsEnabled = true;
 
     public Game (GameInitContext ctx) {
         this.plugin = ctx.plugin();
@@ -104,9 +104,17 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         return playerList.get(player.getUUID());
     }
 
-    public void resetGame () {
+    public void setup (GameContext context) {
+        combatSession().activate();
+        gameOver = false;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        setupGame(context);
+    }
+
+    public void stop() {
         combatSession.deactivate();
-        setGameOver(true);
+        gameOver = true;
+        HandlerList.unregisterAll(this);
         gameCleanup();
     }
 
@@ -127,10 +135,6 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     }
 
-    public Component smallText(String target) {
-        return ResourcePackManager.setTextFont(target, ResourcePackFont.SMALL_5X5);
-    }
-
     public BaseGameCommands getGameCommands() {
         if (gameCommands == null) {
             return new BaseGameCommands(this);
@@ -146,27 +150,36 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         return List.copyOf(playerList.values());
     }
 
-    public void playerJoinServer(Player playerEntity) {
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
 
-        // Check if player is a player
+        Player playerEntity = e.getPlayer();
         if (hasPlayer(playerEntity)) {
-            P player = getPlayer(playerEntity);
-            combatSession.playerJoinAfterDeath(player);
+            playerJoinServer(getPlayer(playerEntity));
         } else if (spectatorUUIDs.contains(playerEntity.getUniqueId())) {
             teleportSpectator(playerEntity);
         }
 
     }
 
-    public void playerLeaveServer(Player playerEntity) {
+    public void playerJoinServer (P player) {
+        combatSession.playerJoinAfterDeath(player);
+    }
 
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent e) {
+
+        Player playerEntity = e.getPlayer();
         if (hasPlayer(playerEntity)) {
-            P player = getPlayer(playerEntity);
-            if (player.isAlive()) {
-                combatSession.playerDeath(player, DeathCause.DISCONNECT);
-            }
+            playerLeaveServer(getPlayer(playerEntity));
         }
 
+    }
+
+    public void playerLeaveServer (P player) {
+        if (player.isAlive()) {
+            combatSession.playerDeath(player, DeathCause.DISCONNECT);
+        }
     }
 
     // Firework celebration
@@ -175,10 +188,6 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         // If team is null, this means this is a free for all game
         new VictoryFireworkTask(team, getMap()).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
 
-    }
-
-    public void setGameOver (boolean b) {
-        gameOver = b;
     }
 
     public boolean isGameOver() {
@@ -201,42 +210,19 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         return gameLength;
     }
 
-    public void setPlayerSpectator(Player player) {
-
-        // Player is spectating, put player into spectator mode
-        player.setGameMode(GameMode.SPECTATOR);
-        player.teleport(getMap().getMapCentre());
-        player.sendMessage(
-                Component.text("You are now spectating this " +
-                        "Crossbow Champions - " + getGamemode().getGamemodeName() + " game.").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD)
-        );
-
-    }
-
     public void teleportSpectator (Player player) {
-
-        // Player is spectating, put player into spectator mode
         player.setGameMode(GameMode.SPECTATOR);
         player.teleport(getMap().getMapCentre());
-        player.sendMessage(
-                Component.text("You are now spectating this " +
-                        "Crossbow Champions - " + getGamemode().getGamemodeName() + " game.").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD)
-        );
-
-    }
-
-    public boolean isGlobalKillsEnabled() {
-        return globalKillsEnabled;
-    }
-
-    public TextColor getGamemodeColor() {
-        return getGamemode().getColor();
     }
 
     public void addSpectator (Player player) {
         teleportSpectator(player);
         spectatorUUIDs.add(player.getUniqueId());
         audiences.add(player.getUniqueId());
+        player.sendMessage(
+                Component.text("You are now spectating this " +
+                        "Crossbow Champions - " + getGamemode().getGamemodeName() + " game.").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD)
+        );
     }
 
     public void removeSpectator (Player player) {
@@ -254,12 +240,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
     }
 
     public void teleportSpectators () {
-        // Go through all players that aren't in the game
-        for (Player player : world.getPlayers()) {
-            if (!hasPlayer(player)) {
-                setPlayerSpectator(player);
-            }
-        }
+        spectators().forEach(this::teleportSpectator);
     }
 
     public World getWorld() {

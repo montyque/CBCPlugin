@@ -184,9 +184,9 @@ public class HTGGame extends TeamGame<HTGPlayer, HTGMap, HTGTeam> {
     }
 
     @Override
-    public void resetGame () {
+    public void stop() {
 
-        super.resetGame();
+        super.stop();
 
         getGameManager().getCbcScoreboardManager().unregisterTeam(goldTeam);
 

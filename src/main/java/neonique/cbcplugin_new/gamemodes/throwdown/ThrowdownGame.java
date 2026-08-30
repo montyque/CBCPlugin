@@ -214,9 +214,9 @@ public class ThrowdownGame extends FFAGame<ThrowdownPlayer, ThrowdownMap> {
     }
 
     @Override
-    public void resetGame() {
+    public void stop() {
 
-        super.resetGame();
+        super.stop();
 
         if (suddenDeathBorder != null) {
             if (suddenDeathBorder.isActive()) {

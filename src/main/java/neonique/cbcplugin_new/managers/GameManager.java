@@ -232,7 +232,7 @@ public class GameManager {
 
             // Attempt to reset games
             try {
-                currentGame.resetGame();
+                currentGame.stop();
             } catch (Exception ignore) {}
 
             currentGame = null;
@@ -291,7 +291,7 @@ public class GameManager {
         chatManager.clearChatManager();
 
         // Reset the game
-        currentGame.resetGame();
+        currentGame.stop();
         playerRegistry.clear();
 
         // Setup lobby

@@ -168,9 +168,9 @@ public class KMationGame extends FFAGame<KMationPlayer, KMationMap> {
     }
 
     @Override
-    public void resetGame() {
+    public void stop() {
 
-        super.resetGame();
+        super.stop();
 
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);
 

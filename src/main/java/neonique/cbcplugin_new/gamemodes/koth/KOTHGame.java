@@ -200,9 +200,9 @@ public class KOTHGame extends TeamGame<KOTHPlayer, KOTHMap, KOTHTeam> {
     }
 
     @Override
-    public void resetGame() {
+    public void stop() {
 
-        super.resetGame();
+        super.stop();
 
         // Cancel tasks
         cancelTask(startGameTimer);

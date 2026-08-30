@@ -9,10 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
-import org.mockbukkit.mockbukkit.entity.PlayerMock;
 import org.mockbukkit.mockbukkit.world.WorldMock;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +79,7 @@ public class ShowdownGameLifecycleTest {
                 new ShowdownSettings());
         game.setupGame(ctx);
 
-        game.resetGame();
+        game.stop();
 
     }
 

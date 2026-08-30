@@ -14,6 +14,7 @@ import neonique.cbcplugin_new.mapmechanics.HealthPadMechanic;
 import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
 import neonique.cbcplugin_new.mechanics.DeathBorder;
 import neonique.cbcplugin_new.core.CBCPlayer;
+import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.tasks.gamemodetasks.IncrementGameTimeTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -109,7 +110,6 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     }
 
     private void setupCombat () {
-        combatSession().activate();
         combatSession().setCombatDisplay(new CombatDisplay(this));
         combatSession().setupMap(getMap());
         combatSession().setDeathListener(this::onPlayerDeath);
@@ -251,6 +251,7 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     }
 
     public void joinAfterDeath (CBCPlayer victim) {
+        victim.entityDeath();
         victim.showTitle(getDeathTitle(victim, null));
     }
 
@@ -507,17 +508,15 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     }
 
     @Override
-    public void playerJoinServer(Player playerEntity) {
-        super.playerJoinServer(playerEntity);
-        ShowdownPlayer player = getPlayer(playerEntity);
-        if (player != null) {
-            ShowdownTeam team = getPlayerTeam(player);
-            if (team == null) return;
-            if (roundState == RoundState.AFTER_ROUND) {
-                player.playerSetupRound();
-                player.teleportPlayerToSpawn(roundSpawns.get(team).getFirst().location(), this.getMap().getMapCentre());
-            }
+    public void playerJoinServer(ShowdownPlayer player) {
+
+        ShowdownTeam team = getPlayerTeam(getTypedPlayer(player));
+        if (team == null) return;
+        if (roundState == RoundState.PRE_ROUND) {
+            player.playerSetupRound();
+            player.teleportPlayerToSpawn(roundSpawns.get(team).getFirst().location(), this.getMap().getMapCentre());
         }
+
     }
 
     public void updateFooter () {
@@ -530,21 +529,26 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
         TextComponent.Builder footer = Component.text()
                 .append(Component.newline())
-                .append(smallText("Round " + roundNumber + " ").color(NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
+                .append(Component.text()
+                        .content("Round " + roundNumber + " ")
+                        .color(NamedTextColor.AQUA)
+                        .decorate(TextDecoration.BOLD));
 
         for (int rd = 1; rd <= maxRounds; rd++) {
             if (roundWinOrder.size() >= rd) {
-                footer.append(smallText("■").color(roundWinOrder.get(rd - 1).textColor()));
+                footer.append(Component.text().content("■").color(roundWinOrder.get(rd - 1).textColor()));
             } else {
                 if (rd == roundNumber) {
-                    footer.append(smallText("□").color(NamedTextColor.WHITE));
+                    footer.append(Component.text().content("■").color(NamedTextColor.WHITE));
                 } else {
-                    footer.append(smallText("□").color(NamedTextColor.GRAY));
+                    footer.append(Component.text().content("□").color(NamedTextColor.GRAY));
                 }
             }
         }
 
-        return footer.build();
+        return footer
+                .font(ResourcePackFont.SMALL_5X5.getFontKey())
+                .build();
 
     }
 

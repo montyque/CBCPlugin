@@ -81,8 +81,8 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
     }
 
     @Override
-    public void resetGame () {
-        super.resetGame();
+    public void stop() {
+        super.stop();
         teams.values().forEach(CBCTeam::removeTeam);
     }
 

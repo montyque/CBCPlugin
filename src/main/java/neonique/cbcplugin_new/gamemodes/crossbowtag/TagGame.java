@@ -187,9 +187,9 @@ public class TagGame extends TeamGame<TagPlayer, TagTeam> {
     }
 
     @Override
-    public void resetGame() {
+    public void stop() {
 
-        super.resetGame();
+        super.stop();
 
         // Unregister no move listener from player move event
         PlayerMoveEvent.getHandlerList().unregister(noMoveListener);

@@ -217,9 +217,9 @@ public class RendezvousGame extends TeamGame<RendezvousPlayer, RendezvousMap, Re
     }
 
     @Override
-    public void resetGame() {
+    public void stop() {
 
-        super.resetGame();
+        super.stop();
 
         // Cancel tasks
         cancelTask(startGameTimer);

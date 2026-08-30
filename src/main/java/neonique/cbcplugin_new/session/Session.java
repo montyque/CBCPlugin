@@ -67,7 +67,7 @@ public class Session implements Listener {
         stateSwitch(SessionState.IN_GAME);
 
         currentGame = gamemode.newGameInstance(new GameInitContext(plugin, scoreboardManager, world));
-        currentGame.setupGame(ctx);
+        currentGame.setup(ctx);
         for (Player p : world.getPlayers()) {
             if (!currentGame.hasPlayer(p)) currentGame.addSpectator(p);
         }
@@ -94,7 +94,7 @@ public class Session implements Listener {
         if (state == SessionState.LOBBY) {
             lobby.deactivate();
         } else if (state == SessionState.IN_GAME) {
-            currentGame.resetGame();
+            currentGame.stop();
         }
 
         this.state = newState;
