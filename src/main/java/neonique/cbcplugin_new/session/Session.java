@@ -10,9 +10,12 @@ import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 
-public class Session {
+public class Session implements Listener {
 
     private final Plugin plugin;
     private final World world;
@@ -29,6 +32,9 @@ public class Session {
         this.scoreboardManager = scoreboardManager;
         this.lobby = lobby;
         this.practiceManager = practiceManager;
+
+        // Register joining event
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     public void activateLobby () {
@@ -92,6 +98,27 @@ public class Session {
         }
 
         this.state = newState;
+
+    }
+
+    /**
+     * This method is responsible for when a player not registered in either a lobby/game joins the server.
+     * If a player joins and is already registered in a lobby/game, their onPlayerJoin methods handle those.
+     */
+    @EventHandler
+    public void onPlayerJoin (PlayerJoinEvent e) {
+
+        Player entity = e.getPlayer();
+        if (state == SessionState.LOBBY) {
+            if (lobby.getPlayer(entity) == null) {
+                lobby.newPlayer(entity);
+            }
+        } else if (state == SessionState.IN_GAME) {
+            if (!currentGame.hasPlayer(entity) && !currentGame.hasSpectator(entity)) {
+                currentGame.addSpectator(entity);
+            }
+        }
+
 
     }
 

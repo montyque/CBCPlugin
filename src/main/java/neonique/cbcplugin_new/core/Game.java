@@ -271,4 +271,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
                 .toList();
     }
 
+    public boolean hasSpectator (Player player) {
+        return spectatorUUIDs.contains(player.getUniqueId());
+    }
 }

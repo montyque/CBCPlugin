@@ -358,16 +358,18 @@ public class Lobby implements ForwardingAudience, Listener {
         Player entity = e.getPlayer();
         entity.setGlowing(false);
 
+        if (players.containsKey(entity.getUniqueId())) {
+            LobbyPlayer player = players.get(entity.getUniqueId());
+            player.resetPlayer();
+            entity.setGlowing(false);
+            entity.teleport(lobbyTeleport);
+            entity.setRespawnLocation(lobbyTeleport, true);
+        }
+
         // Add player to lobby if not already in player list
         if (!players.containsKey(entity.getUniqueId())) {
             newPlayer(entity);
         }
-
-        LobbyPlayer player = players.get(entity.getUniqueId());
-        player.resetPlayer();
-        entity.teleport(lobbyTeleport);
-        entity.setRespawnLocation(lobbyTeleport, true);
-
     }
 
     @EventHandler
