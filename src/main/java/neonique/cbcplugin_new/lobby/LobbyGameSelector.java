@@ -9,6 +9,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class LobbyGameSelector {
@@ -51,7 +53,9 @@ public class LobbyGameSelector {
 
         if (gamemodeSelected == null) return null;
         if (gamemodeSelected.isTeamGamemode()) {
-            return new TeamGameContext((TeamMapData) mapSelected, teams, settings);
+            List<LobbyTeam> sorted = new ArrayList<>(teams);
+            sorted.sort(Comparator.comparingInt(t -> t.teamColor().num()));
+            return new TeamGameContext((TeamMapData) mapSelected, sorted, settings);
         } else {
             return new FFAGameContext(mapSelected, players, settings);
         }
