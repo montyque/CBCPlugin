@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static neonique.cbcplugin_new.util.TextUtil.timerToText;
+
 public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, ForwardingAudience {
 
     private final Plugin plugin;
@@ -62,6 +64,10 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
      * This should clean up all dependencies a gamemode uses, such as listeners, tasks, or teams.
      */
     public abstract void gameCleanup();
+
+    public String getGameSubtitle() {
+        return getMap().name();
+    }
 
     public Plugin plugin () {
         return plugin;
@@ -104,20 +110,20 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         gameCleanup();
     }
 
-    public void createHeaderTitle () {
+    public Component getHeaderTitle () {
 
-        String firstPart = "Crossbow Champions: ";
-
-        /*headerTitle = smallText("          " + firstPart).color(NamedTextColor.YELLOW)
-            .append(
-                    smallText(getGamemode().getGamemodeName().toUpperCase() + "          ").color(NamedTextColor.AQUA)
-            ).append(
-                    newline()
-            ).append(
-                    smallText(getMap().getName() + " - ").color(NamedTextColor.GRAY)
-            ).append(
-                    smallText(gameLengthToText()).color(NamedTextColor.GRAY)
-            );*/
+        return Component.text()
+                .append(Component.text()
+                        .content("CROSSBOW CHAMPIONS: ")
+                        .color(NamedTextColor.YELLOW))
+                .append(Component.text()
+                        .content(getGamemode().getGamemodeName())
+                        .color(NamedTextColor.AQUA))
+                .append(Component.newline())
+                .append(Component.text()
+                        .content(getGameSubtitle() + " - " + timerToText(getGameLength())))
+                .font(ResourcePackFont.SMALL_5X5.getFontKey())
+                .build();
 
     }
 
@@ -187,8 +193,8 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
     }
 
     public void incrementGameTime() {
-        createHeaderTitle();
         gameLength++;
+        sendPlayerListHeader(getHeaderTitle());
     }
 
     public int getGameLength() {

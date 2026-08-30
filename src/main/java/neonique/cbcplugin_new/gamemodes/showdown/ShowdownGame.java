@@ -89,11 +89,8 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         settings = (ShowdownSettings) ctx.gameSettings();
         setupMap(ctx);
 
-        // TODO: Set gamemode information
-        // createHeaderTitle();
-
-        // Activate combat manager
-        setupCombat();
+        setupCombat(); // Activate combat session
+        sendPlayerListHeader(getHeaderTitle()); // Update the header title
 
         // TODO: Setup game commands
         // setGameCommands(new TagGameCommands(this));
