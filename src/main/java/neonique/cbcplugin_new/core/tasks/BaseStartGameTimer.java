@@ -92,15 +92,18 @@ public class BaseStartGameTimer {
         TeamColor teamColor = team != null ? team.teamColor() : null;
         String gamemodeIcon = gamemode.getIcon(teamColor);
         return Component.text()
-                .content(gamemodeIcon)
-                .color(NamedTextColor.WHITE)
-                .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
-                .content(gamemode.getGamemodeName())
-                .color(textColor)
-                .decoration(TextDecoration.BOLD, TextDecoration.State.TRUE)
-                .content(gamemodeIcon)
-                .color(NamedTextColor.WHITE)
-                .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE)
+                .append(Component.text()
+                        .content(gamemodeIcon + " ")
+                        .color(NamedTextColor.WHITE)
+                        .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
+                .append(Component.text()
+                        .content(gamemode.getGamemodeName())
+                        .color(textColor)
+                        .decoration(TextDecoration.BOLD, TextDecoration.State.TRUE))
+                .append(Component.text()
+                        .content(" " + gamemodeIcon)
+                        .color(NamedTextColor.WHITE)
+                        .decoration(TextDecoration.BOLD, TextDecoration.State.FALSE))
                 .build();
     }
 
@@ -108,18 +111,21 @@ public class BaseStartGameTimer {
         TextColor textColor = team != null ? team.textColor() : gamemode.getColor();
         if (secs <= 5) {
             return Component.text()
-                    .content("Starting in ")
-                    .color(NamedTextColor.WHITE)
-                    .decorate(TextDecoration.BOLD)
-                    .content(String.valueOf(secs))
-                    .color(textColor)
-                    .decorate(TextDecoration.BOLD)
+                    .append(Component.text()
+                            .content("Starting in ")
+                            .color(NamedTextColor.WHITE)
+                            .decorate(TextDecoration.BOLD))
+                    .append(Component.text()
+                            .content(String.valueOf(secs))
+                            .color(textColor)
+                            .decorate(TextDecoration.BOLD))
                     .build();
         } else {
              return Component.text()
-                    .content(mapName)
-                    .decorate(TextDecoration.BOLD)
-                    .color(NamedTextColor.WHITE)
+                     .append(Component.text()
+                             .content(mapName)
+                             .decorate(TextDecoration.BOLD)
+                             .color(NamedTextColor.WHITE))
                     .build();
         }
     }

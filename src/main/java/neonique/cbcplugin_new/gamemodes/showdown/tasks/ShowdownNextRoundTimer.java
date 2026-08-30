@@ -23,10 +23,13 @@ public class ShowdownNextRoundTimer extends TimerTask {
 
     private void sendTimerWarning (int seconds) {
         audience.sendMessage(Component.text()
-                .content("Next round starting in ")
-                .color(NamedTextColor.GREEN)
-                .content(String.valueOf(seconds))
-                .color(NamedTextColor.YELLOW)
+                .append(Component.text()
+                        .content("Next round starting in ")
+                        .color(NamedTextColor.GREEN))
+                .append(Component.text()
+                        .content(String.valueOf(seconds))
+                        .color(NamedTextColor.YELLOW))
+                .build()
         );
     }
 

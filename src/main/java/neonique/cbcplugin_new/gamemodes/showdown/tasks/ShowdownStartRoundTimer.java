@@ -31,12 +31,14 @@ public class ShowdownStartRoundTimer extends BaseStartGameTimer {
 
     public Component getTitleComponent (int secs, CBCTeam<?> team) {
         TextColor textColor = team != null ? team.textColor() : CBCGamemode.SHOWDOWN.getColor();
-        if (round == 1 && secs <= 5) {
+        if (round == 1 && secs > 5) {
             return super.getTitleComponent(secs, team);
         } else {
             return Component.text()
-                    .content("ROUND " + round)
-                    .color(textColor)
+                    .append(Component.text()
+                            .content("ROUND " + round)
+                            .color(textColor)
+                            .decorate(TextDecoration.BOLD))
                     .build();
         }
     }
@@ -47,11 +49,12 @@ public class ShowdownStartRoundTimer extends BaseStartGameTimer {
             return super.getSubtitleComponent(secs, team);
         } else {
             return Component.text()
-                    .content("Starting in ")
-                    .color(NamedTextColor.WHITE)
-                    .decorate(TextDecoration.BOLD)
-                    .content(String.valueOf(secs))
-                    .color(textColor)
+                    .append(Component.text()
+                            .content("Starting in ")
+                            .color(NamedTextColor.WHITE))
+                    .append(Component.text()
+                            .content(String.valueOf(secs))
+                            .color(textColor))
                     .decorate(TextDecoration.BOLD)
                     .build();
         }

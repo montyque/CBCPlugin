@@ -36,13 +36,18 @@ public class ShowdownSDTimer extends TimerTask {
     }
 
     private void sendTimerWarning (NamedTextColor color, int seconds) {
+
         audience.sendMessage(Component.text()
-            .content("Sudden Death")
-            .color(NamedTextColor.RED)
-            .content(" begins in ")
-            .color(NamedTextColor.WHITE)
-            .content(seconds + (seconds == 1 ? " second!" : " seconds!"))
-            .color(color));
+                .append(Component.text()
+                        .content("Sudden Death")
+                        .color(NamedTextColor.RED))
+                .append(Component.text()
+                        .content(" begins in ")
+                        .color(NamedTextColor.WHITE))
+                .append(Component.text()
+                        .content(seconds + (seconds == 1 ? " second!" : " seconds!"))
+                        .color(color)));
+
         audience.playSound(Sound.sound()
             .source(Sound.Source.MASTER)
             .type(org.bukkit.Sound.UI_BUTTON_CLICK)

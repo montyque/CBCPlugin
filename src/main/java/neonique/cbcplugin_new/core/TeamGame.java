@@ -1,6 +1,7 @@
 package neonique.cbcplugin_new.core;
 
 import neonique.cbcplugin_new.mapmechanics.VoidMechanic;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -104,6 +105,8 @@ public abstract class TeamGame<P extends CBCPlayer, T extends CBCTeam<P>> extend
                         .append(Component.text(" has won the game!").color(NamedTextColor.WHITE))
                         .append(Component.newline())
         );
+
+        playSound(Sound.sound(org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, Sound.Source.MASTER, 200, 1));
 
         // Set all alive players to immune and remove void death
         for (P plr : this.players()) {
