@@ -39,7 +39,7 @@ public enum DeathCause {
     {
         @Override
         public void playDeathEffect (Audience audience, Location location, CBCPlayer victim) {
-            audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_BEE_STING, Sound.Source.PLAYER, 4, 1),
+            audience.playSound(Sound.sound(org.bukkit.Sound.ENTITY_GENERIC_EXTINGUISH_FIRE, Sound.Source.PLAYER, 4, 1),
                     location.getX(), location.getY(), location.getZ());
             location.getWorld().spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, location, 15,
                     0.4, 0, 0.4, 0.01);

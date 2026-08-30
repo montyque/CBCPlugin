@@ -84,7 +84,7 @@ public class DeathBorder {
             @Override
             public void run() {
                 for (CBCPlayer player : players.players()) {
-                    if (player.isOnline()) {
+                    if (player.isOnline() && player.isAlive()) {
                         checkIfPlayerOutsideBorder(player);
                     }
                 }
@@ -203,7 +203,7 @@ public class DeathBorder {
 
         World world = center.getWorld();
         double centerY = center.getY();
-        Particle.DustOptions dustOptions = new Particle.DustOptions(org.bukkit.Color.fromRGB(255, 0, 0), 12);
+        Particle.DustOptions dustOptions = new Particle.DustOptions(org.bukkit.Color.fromRGB(255, 0, 0), 4.0f);
 
         if (shape == DeathBorderShape.SQUARE) {
 
