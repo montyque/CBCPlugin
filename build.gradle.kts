@@ -11,6 +11,7 @@ java.sourceCompatibility = JavaVersion.VERSION_25
 
 repositories {
     mavenLocal()
+    mavenCentral()
     maven {
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
@@ -40,6 +41,10 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.115-stable")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
+
+    // Scoreboard-library
+    implementation("net.megavex:scoreboard-library-api:2.8.2")
+    runtimeOnly("net.megavex:scoreboard-library-implementation:2.8.2")
 
     testImplementation("dev.jorel:commandapi-paper-core:12.0.0")
     testImplementation("io.papermc.paper:paper-api:26.2.build.115-stable")
