@@ -62,6 +62,9 @@ public class Session {
 
         currentGame = gamemode.newGameInstance(new GameInitContext(plugin, scoreboardManager, world));
         currentGame.setupGame(ctx);
+        for (Player p : world.getPlayers()) {
+            if (!currentGame.hasPlayer(p)) currentGame.addSpectator(p);
+        }
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.updateCommands();

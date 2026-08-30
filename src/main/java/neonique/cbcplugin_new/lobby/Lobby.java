@@ -139,6 +139,8 @@ public class Lobby implements ForwardingAudience, Listener {
         ffaTeam = null;
         spectatorTeam = null;
 
+        startingCountdown = null;
+
         players.clear();
         teams = Map.of();
 
@@ -201,6 +203,8 @@ public class Lobby implements ForwardingAudience, Listener {
     public void playerJoinTeam(LobbyPlayer player, LobbyTeam team, boolean overrideCurrentTeam) {
         if (player.getAssignedTeam() != null && !overrideCurrentTeam) return;
         playerLeaveTeam(player, false);
+        spectatorTeam.removeEntityUUID(player.getOfflinePlayer().getUniqueId());
+        ffaTeam.removeEntityUUID(player.getOfflinePlayer().getUniqueId());
         team.addPlayer(player);
     }
 
@@ -252,6 +256,22 @@ public class Lobby implements ForwardingAudience, Listener {
 
     public Collection<LobbyPlayer> players() {
         return players.values();
+    }
+
+    public Collection<LobbyPlayer> spectators() {
+
+        if (gameSelector.gamemodeSelected() != null &&
+                gameSelector.gamemodeSelected().isTeamGamemode() &&
+                isGameStarting()) {
+            return players.values().stream()
+                    .filter(p -> p.getAssignedTeam() == null)
+                    .toList();
+        } else {
+            return players.values().stream()
+                    .filter(LobbyPlayer::isSpectator)
+                    .toList();
+        }
+
     }
 
     public LobbyPlayer getPlayer(Player player) {

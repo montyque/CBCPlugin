@@ -81,7 +81,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     public void addPlayer (P player) {
         playerList.put(player.getUUID(), player);
-        audiences.remove(player.getUUID());
+        audiences.add(player.getUUID());
     }
 
     public Optional<P> getPlayerByUUID (UUID uuid) {
@@ -229,7 +229,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     public void addSpectator (Player player) {
         teleportSpectator(player);
-        spectatorUUIDs.remove(player.getUniqueId());
+        spectatorUUIDs.add(player.getUniqueId());
         audiences.add(player.getUniqueId());
     }
 
