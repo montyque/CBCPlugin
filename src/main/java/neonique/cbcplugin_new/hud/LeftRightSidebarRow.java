@@ -32,7 +32,7 @@ public record LeftRightSidebarRow (List<SidebarRowComponent> left,
     public Component leftComponent () {
         TextComponent.Builder result = Component.text();
         for (SidebarRowComponent c : left) {
-            result.append(c.component());
+            result.append(c.getComponent());
         }
         return result.build();
     }
@@ -43,7 +43,7 @@ public record LeftRightSidebarRow (List<SidebarRowComponent> left,
     public Component rightComponent () {
         TextComponent.Builder result = Component.text();
         for (SidebarRowComponent c : left) {
-            result.append(c.component());
+            result.append(c.getComponent());
         }
         return result.build();
     }
