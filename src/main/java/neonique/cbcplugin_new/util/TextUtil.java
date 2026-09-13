@@ -80,6 +80,10 @@ public class TextUtil {
     }
 
     public static String getSpaceOfLength (int length) {
+        return getSpaceOfLength(length, false);
+    }
+
+    public static String getSpaceOfLength (int length, boolean addEndingSpace) {
 
         int currentLength = length;
         StringBuilder stringBuilder = new StringBuilder();
@@ -97,7 +101,9 @@ public class TextUtil {
             }
         }
 
-        stringBuilder.append("\uF801");
+        if (!addEndingSpace) {
+            stringBuilder.append("\uF801");
+        }
 
         return stringBuilder.toString();
     }
