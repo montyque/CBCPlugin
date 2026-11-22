@@ -19,6 +19,9 @@ import neonique.cbcplugin_new.session.SessionState;
 import neonique.cbcplugin_new.util.ConfigUtil;
 import neonique.cbcplugin_new.util.VectorUtil;
 import net.kyori.adventure.text.Component;
+import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
+import net.megavex.scoreboardlibrary.api.exception.NoPacketAdapterAvailableException;
+import net.megavex.scoreboardlibrary.api.noop.NoopScoreboardLibrary;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -54,6 +57,7 @@ public class CBCPlugin extends JavaPlugin implements Listener {
     private ArmorTrimService trimService;
     // private WeaponPresetService weaponPresetService;
 
+    private ScoreboardLibrary scoreboardLibrary;
     private CBCScoreboardManager scoreboardManager;
     private PracticeManager practiceManager;
     private Lobby lobby;
@@ -83,18 +87,15 @@ public class CBCPlugin extends JavaPlugin implements Listener {
         if (world == null) throw new IllegalStateException("World '" + "' was not found on this server");
         getLogger().info("Primary world: " + worldName + " has been found.");
 
-        /*
-        // Load permissions from config.yml
-        loadPermissions();
-
-        // Print out operator and administrator names
-        List<String> operatorNames = new ArrayList<>(gameOperators).stream().map(uuid -> Bukkit.getOfflinePlayer(uuid).getName()).collect(Collectors.toList());
-        System.out.println("CBC Operators (perms no. 2): " + String.join(", ", operatorNames));
-        List<String> adminNames = new ArrayList<>(gameAdmins).stream().map(uuid -> Bukkit.getOfflinePlayer(uuid).getName()).collect(Collectors.toList());
-        System.out.println("CBC Administrators (perms no. 1): " + String.join(", ", adminNames));*/
-
         // Register join server and leave server listeners
         getServer().getPluginManager().registerEvents(this, this);
+
+        try {
+            scoreboardLibrary = ScoreboardLibrary.loadScoreboardLibrary(plugin);
+        } catch (NoPacketAdapterAvailableException e) {
+            scoreboardLibrary = new NoopScoreboardLibrary();
+            plugin.getLogger().warning("Server version unsupported, scoreboard functionality will not be visible!");
+        }
 
         scoreboardManager = new CBCScoreboardManager(getServer().getScoreboardManager());
         scoreboardManager.activate();
@@ -124,7 +125,7 @@ public class CBCPlugin extends JavaPlugin implements Listener {
         loadLobby();
 
         // Create single session
-        session = new Session(this, world, scoreboardManager, lobby, practiceManager);
+        session = new Session(this, world, scoreboardManager, scoreboardLibrary, lobby, practiceManager);
 
         // Register command
         registerMainCommand();
@@ -182,6 +183,8 @@ public class CBCPlugin extends JavaPlugin implements Listener {
 
         // Plugin shutdown logic
         getLogger().info("Shutting down the Crossbow Champions Plugin...");
+
+        scoreboardLibrary.close();
 
         // End practice if active
         if (practiceManager.instanceActive()) {

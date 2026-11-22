@@ -117,3 +117,4 @@ build/
 run/
 
 notes/
+deploy.sh

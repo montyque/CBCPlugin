@@ -11,8 +11,16 @@ import net.kyori.adventure.text.Component;
  */
 public record SidebarRowComponent (SingleSidebarComponent component, int width, ComponentAlignment alignment) {
 
+    public static SidebarRowComponent space () {
+        return new SidebarRowComponent(SingleSidebarComponent.of(Component.space()), 4, ComponentAlignment.LEFT);
+    }
+
+    public static SidebarRowComponent space (int width) {
+        return new SidebarRowComponent(SingleSidebarComponent.empty(), width, ComponentAlignment.LEFT);
+    }
+
     /**
-     * @return Gets the component
+     * @return Gets the component.
      */
     public Component getComponent () {
 

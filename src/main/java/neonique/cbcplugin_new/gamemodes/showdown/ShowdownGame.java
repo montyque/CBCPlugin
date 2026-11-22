@@ -8,6 +8,7 @@ import neonique.cbcplugin_new.core.TeamLike;
 import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.core.TeamGameContext;
 import neonique.cbcplugin_new.gamemodes.showdown.tasks.*;
+import neonique.cbcplugin_new.hud.SidebarProvider;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.mapconfig.spawns.MapStartSpawn;
 import neonique.cbcplugin_new.mapmechanics.HealthPadMechanic;
@@ -74,6 +75,14 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
     private int gameInRoundTime = 0;
     private int suddenDeathRounds = 0;
 
+    // UI providers
+    private final ShowdownSidebarProvider sidebarProvider = new ShowdownSidebarProvider(this);
+
+    @Override
+    public SidebarProvider sidebarProvider() {
+        return sidebarProvider;
+    }
+
     @Override
     public CBCMap getMap () {
         return map.map();
@@ -92,12 +101,6 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
         setupCombat(); // Activate combat session
         sendPlayerListHeader(getHeaderTitle()); // Update the header title
-
-        // TODO: Setup game commands
-        // setGameCommands(new TagGameCommands(this));
-
-        // TODO: Create Bossbar/Sidebar managers
-        // createUIManagers();
 
         // Start first round
         new BukkitRunnable() {
@@ -131,9 +134,6 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
         suddenDeath = false;
         suddenDeathBorder = null;
 
-        // TODO: Update footer
-        // createFooter();
-
         // Setup map for start of round
         combatSession().mapMechanicsManager().getMechanicsOfType(HealthPadMechanic.class).forEach(
                 HealthPadMechanic::enableAll
@@ -162,6 +162,9 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
         // Start countdown for start of next round
         startRoundTimer();
+
+        sidebarProvider.updateTeamRows();
+        updateSidebarForAll();
 
     }
 
@@ -207,6 +210,9 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
         updatePlayerCounts();
 
+        sidebarProvider.updateTeamRows();
+        updateSidebarForAll();
+
     }
 
     private void startTimeAliveTracker () {
@@ -216,7 +222,10 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
                 if (isGameOver()) cancel();
                 if (roundState != RoundState.DURING_ROUND) cancel();
                 for (ShowdownPlayer player : players()) {
-                    if (player.isAlive()) player.incrementPlayerSecondsAlive();
+                    if (player.isAlive()) {
+                        player.incrementPlayerSecondsAlive();
+                        updateSidebarForPlayer(player.getPlayer());
+                    }
                 }
             }
         }.runTaskTimer(plugin(), 20, 20);
@@ -243,11 +252,16 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
             updatePlayerCounts();
         }
 
+        sidebarProvider.updateTeamRows();
+        updateSidebarForAll();
+
     }
 
     public void onPlayerRespawn (CBCPlayer player) {
         ShowdownTeam playerTeam = getPlayerTeam(getTypedPlayer(player));
         player.teleportPlayerToSpawn(roundSpawns.get(playerTeam).getFirst().location(), getMap().getMapCentre());
+        sidebarProvider.updateTeamRows();
+        updateSidebarForAll();
     }
 
     public void joinAfterDeath (CBCPlayer victim) {
@@ -554,6 +568,10 @@ public class ShowdownGame extends TeamGame<ShowdownPlayer, ShowdownTeam> {
 
     public ShowdownTeam getRoundWinner () {
         return roundWinner;
+    }
+
+    public ShowdownSettings settings () {
+        return settings;
     }
 
 }

@@ -3,9 +3,11 @@ package neonique.cbcplugin_new.core;
 import neonique.cbcplugin_new.CBCPlugin;
 import neonique.cbcplugin_new.combat.CombatSession;
 import neonique.cbcplugin_new.combat.DeathCause;
+import neonique.cbcplugin_new.hud.SidebarProvider;
 import neonique.cbcplugin_new.mapconfig.CBCMap;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import neonique.cbcplugin_new.hud.SidebarManager;
 import neonique.cbcplugin_new.tasks.gamemodetasks.VictoryFireworkTask;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
@@ -46,6 +48,9 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
     private boolean gameOver = false;
     private int gameLength = 0;
 
+    // UI elements
+    private SidebarManager sidebarManager;
+
     public Game (GameInitContext ctx) {
         this.plugin = ctx.plugin();
         this.scoreboardManager = ctx.scoreboardManager();
@@ -64,6 +69,24 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
      * This should clean up all dependencies a gamemode uses, such as listeners, tasks, or teams.
      */
     public abstract void gameCleanup();
+
+    public void attachSidebarManager (SidebarManager manager) {
+        sidebarManager = manager;
+        sidebarManager.setProvider(sidebarProvider());
+        sidebarManager.activate();
+    }
+
+    public SidebarProvider sidebarProvider () {
+        return SidebarProvider.hidden();
+    }
+
+    public void updateSidebarForAll () {
+        if (sidebarManager != null) sidebarManager.updateAll();
+    }
+
+    public void updateSidebarForPlayer (Player player) {
+        if (sidebarManager != null) sidebarManager.updatePlayer(player);
+    }
 
     public String getGameSubtitle() {
         return getMap().name();
@@ -87,7 +110,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     public void addPlayer (P player) {
         playerList.put(player.getUUID(), player);
-        audiences.add(player.getUUID());
+        addToAudience(player.getUUID());
     }
 
     public Optional<P> getPlayerByUUID (UUID uuid) {
@@ -96,7 +119,7 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
 
     public void removePlayer (P player) {
         playerList.remove(player.getUUID());
-        audiences.remove(player.getUUID());
+        removeFromAudience(player.getUUID());
     }
 
     public P getTypedPlayer (CBCPlayer player) {
@@ -112,9 +135,15 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
     }
 
     public void stop() {
+
         combatSession.deactivate();
         gameOver = true;
         HandlerList.unregisterAll(this);
+
+        if (sidebarManager != null) {
+            sidebarManager.deactivate();
+        }
+
         gameCleanup();
     }
 
@@ -182,12 +211,8 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
         }
     }
 
-    // Firework celebration
     public void playVictoryFireworks (CBCTeam<?> team) {
-
-        // If team is null, this means this is a free for all game
         new VictoryFireworkTask(team, getMap()).runTaskTimer(CBCPlugin.getPlugin(), 0, 10);
-
     }
 
     public boolean isGameOver() {
@@ -218,17 +243,27 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
     public void addSpectator (Player player) {
         teleportSpectator(player);
         spectatorUUIDs.add(player.getUniqueId());
-        audiences.add(player.getUniqueId());
+        addToAudience(player.getUniqueId());
         player.sendMessage(
                 Component.text("You are now spectating this " +
-                        "Crossbow Champions - " + getGamemode().getGamemodeName() + " game.").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD)
+                        "Crossbow Champions - " + getGamemode().getGamemodeName() + " game.").color(NamedTextColor.YELLOW)
         );
     }
 
     public void removeSpectator (Player player) {
         teleportSpectator(player);
         spectatorUUIDs.remove(player.getUniqueId());
-        audiences.remove(player.getUniqueId());
+        removeFromAudience(player.getUniqueId());
+    }
+
+    public void addToAudience (UUID playerUUID) {
+        audiences.add(playerUUID);
+        if (sidebarManager != null) sidebarManager.registerPlayer(playerUUID);
+    }
+
+    public void removeFromAudience (UUID playerUUID) {
+        audiences.remove(playerUUID);
+        if (sidebarManager != null) sidebarManager.removePlayerUUID(playerUUID);
     }
 
     public Collection<Player> spectators () {
@@ -255,6 +290,8 @@ public abstract class Game<P extends CBCPlayer> implements PlayerSession<P>, For
     public @NotNull Iterable<? extends Audience> audiences () {
         return audiences.stream()
                 .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .filter(Player::isOnline)
                 .toList();
     }
 

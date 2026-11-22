@@ -2,6 +2,7 @@ package neonique.cbcplugin_new.scoreboard;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
@@ -15,15 +16,13 @@ public class CBCScoreboardManager {
 
     private static CBCScoreboardManager instance;
 
-    private ScoreboardManager scoreboardManager;
-
+    private final ScoreboardManager scoreboardManager;
     private final Scoreboard mainScoreboard;
 
     private Map<String, CBCScoreboardTeam> teams;
     private final Map<UUID, Scoreboard> playerScoreboards;
 
     public CBCScoreboardManager (ScoreboardManager scoreboardManager) {
-
         this.scoreboardManager = scoreboardManager;
 
         mainScoreboard = scoreboardManager.getMainScoreboard();
@@ -108,7 +107,6 @@ public class CBCScoreboardManager {
         UUID playerUUID = player.getUniqueId();
         Scoreboard newScoreboard = scoreboardManager.getNewScoreboard();
 
-        player.setScoreboard(newScoreboard);
         playerScoreboards.put(playerUUID, newScoreboard);
 
         // Register teams on main scoreboard to client scoreboard

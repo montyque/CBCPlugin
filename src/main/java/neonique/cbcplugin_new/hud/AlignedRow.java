@@ -2,13 +2,39 @@ package neonique.cbcplugin_new.hud;
 
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.TextComponent;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public record LeftRightSidebarRow (List<SidebarRowComponent> left,
+public record AlignedRow (List<SidebarRowComponent> left,
                                    List<SidebarRowComponent> right) implements SidebarRow {
+
+    public static class Builder {
+
+        List<SidebarRowComponent> left = new ArrayList<>();
+        List<SidebarRowComponent> right = new ArrayList<>();
+
+        private Builder () {}
+
+        public Builder left (SidebarRowComponent c) {
+            left.add(c);
+            return this;
+        }
+
+        public Builder right (SidebarRowComponent c) {
+            right.add(c);
+            return this;
+        }
+
+        public AlignedRow build () {
+            return new AlignedRow(List.copyOf(left), List.copyOf(right));
+        }
+    }
+
+    public static Builder builder () {
+        return new Builder();
+    }
 
     /**
      * Get the row's contents as a component.
@@ -42,7 +68,7 @@ public record LeftRightSidebarRow (List<SidebarRowComponent> left,
      */
     public Component rightComponent () {
         TextComponent.Builder result = Component.text();
-        for (SidebarRowComponent c : left) {
+        for (SidebarRowComponent c : right) {
             result.append(c.getComponent());
         }
         return result.build();
