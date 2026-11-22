@@ -38,7 +38,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     compileOnly("dev.jorel:commandapi-paper-core:12.0.0")
-    compileOnly("io.papermc.paper:paper-api:26.2.build.115-stable")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.135-stable")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
@@ -47,7 +47,7 @@ dependencies {
     runtimeOnly("net.megavex:scoreboard-library-implementation:2.8.2")
 
     testImplementation("dev.jorel:commandapi-paper-core:12.0.0")
-    testImplementation("io.papermc.paper:paper-api:26.2.build.115-stable")
+    testImplementation("io.papermc.paper:paper-api:26.2.build.135-stable")
     testImplementation("net.dmulloy2:ProtocolLib:5.4.0")
     testImplementation("com.google.code.findbugs:jsr305:3.0.2")
 

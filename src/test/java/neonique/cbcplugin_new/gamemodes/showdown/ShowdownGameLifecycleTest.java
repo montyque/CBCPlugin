@@ -77,7 +77,7 @@ public class ShowdownGameLifecycleTest {
                 getShowdownMapData(BOXED_ASSIGNED_SPAWN_LIST, null),
                 teams,
                 new ShowdownSettings());
-        game.setupGame(ctx);
+        game.setup(ctx);
 
         game.stop();
 

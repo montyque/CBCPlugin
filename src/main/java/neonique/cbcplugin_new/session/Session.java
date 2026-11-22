@@ -4,9 +4,11 @@ import neonique.cbcplugin_new.core.CBCGamemode;
 import neonique.cbcplugin_new.core.Game;
 import neonique.cbcplugin_new.core.GameContext;
 import neonique.cbcplugin_new.core.GameInitContext;
+import neonique.cbcplugin_new.hud.SidebarManager;
 import neonique.cbcplugin_new.lobby.Lobby;
 import neonique.cbcplugin_new.practice.PracticeManager;
 import neonique.cbcplugin_new.scoreboard.CBCScoreboardManager;
+import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -20,21 +22,30 @@ public class Session implements Listener {
     private final Plugin plugin;
     private final World world;
     private final CBCScoreboardManager scoreboardManager;
+    private final ScoreboardLibrary scoreboardLibrary;
 
     private SessionState state = SessionState.INACTIVE;
     private final Lobby lobby;
     private final PracticeManager practiceManager;
     private Game<?> currentGame;
 
-    public Session (Plugin plugin, World world, CBCScoreboardManager scoreboardManager, Lobby lobby, PracticeManager practiceManager) {
+    public Session (Plugin plugin,
+                    World world,
+                    CBCScoreboardManager scoreboardManager,
+                    ScoreboardLibrary scoreboardLibrary,
+                    Lobby lobby,
+                    PracticeManager practiceManager) {
+
         this.plugin = plugin;
         this.world = world;
         this.scoreboardManager = scoreboardManager;
+        this.scoreboardLibrary = scoreboardLibrary;
         this.lobby = lobby;
         this.practiceManager = practiceManager;
 
         // Register joining event
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+
     }
 
     public void activateLobby () {
@@ -67,7 +78,9 @@ public class Session implements Listener {
         stateSwitch(SessionState.IN_GAME);
 
         currentGame = gamemode.newGameInstance(new GameInitContext(plugin, scoreboardManager, world));
+        currentGame.attachSidebarManager(new SidebarManager(plugin, scoreboardLibrary));
         currentGame.setup(ctx);
+
         for (Player p : world.getPlayers()) {
             if (!currentGame.hasPlayer(p)) currentGame.addSpectator(p);
         }

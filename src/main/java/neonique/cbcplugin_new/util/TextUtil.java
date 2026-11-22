@@ -53,33 +53,28 @@ public class TextUtil {
         lengthsForSpaces.put(256, "\uF82D");
         lengthsForSpaces.put(512, "\uF82E");
         lengthsForSpaces.put(1024, "\uF82F");
+
     }
 
     private TextUtil () {}
 
+    /// Returns the length of a given string in the default Minecraft font with no formatting, in pixels.
+    /// The strings must be made of letters only, otherwise this may not be accurate.
     public static int getPixelLengthOfText (String string) {
-
         int length = 0;
         int i = 0;
-
-        // Convert string to `char[]` array
-        char[] chars = string.toCharArray();
-
-        // Iterate over `char[]` array using enhanced for-loop
-        for (char ch : chars) {
-            // Check if character has a length different
-            length += charLengths.getOrDefault(ch, defaultCharLength);
+        for (char ch : string.toCharArray()) {
+            length += charLengths.getOrDefault(ch, defaultCharLength) + 1;
             i++;
-
-            // If not the last character, account for the 1 pixel width space in between characters
-            if (i != chars.length) {
-                length++;
-            }
         }
         return length;
     }
 
     public static String getSpaceOfLength (int length) {
+        return getSpaceOfLength(length, false);
+    }
+
+    public static String getSpaceOfLength (int length, boolean addEndingSpace) {
 
         int currentLength = length;
         StringBuilder stringBuilder = new StringBuilder();
@@ -97,7 +92,9 @@ public class TextUtil {
             }
         }
 
-        stringBuilder.append("\uF801");
+        if (addEndingSpace) {
+            stringBuilder.append("\uF821");
+        }
 
         return stringBuilder.toString();
     }

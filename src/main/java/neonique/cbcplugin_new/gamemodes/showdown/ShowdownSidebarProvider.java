@@ -1,107 +1,123 @@
 package neonique.cbcplugin_new.gamemodes.showdown;
 
-import neonique.cbcplugin_new.core.CBCTeam;
-import neonique.cbcplugin_new.core.PlayerSession;
 import neonique.cbcplugin_new.core.TeamColor;
 import neonique.cbcplugin_new.core.TeamLike;
+import neonique.cbcplugin_new.hud.*;
 import neonique.cbcplugin_new.resourcepack.ResourcePackFont;
-import neonique.cbcplugin_new.scoreboard.SidebarProvider;
 import neonique.cbcplugin_new.util.TextUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.megavex.scoreboardlibrary.api.objective.ScoreFormat;
+import net.megavex.scoreboardlibrary.api.sidebar.component.SidebarComponent;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.*;
 
-import static neonique.cbcplugin_new.util.TextUtil.getComponentSpaceOfLength;
+import static neonique.cbcplugin_new.util.TextUtil.*;
 
 public class ShowdownSidebarProvider implements SidebarProvider {
 
-    private PlayerSession<ShowdownPlayer> players;
-    private Runnable globalUpdateListener;
-    private Consumer<Player> clientUpdateListener;
+    private final ShowdownGame game;
+    private List<TeamRow> teamRows = List.of();
 
-    private int nameColumnWidth = 62;
-    private int playerCountColumnWidth = 20;
-    private int roundWinColumnWidth = 24;
-
-    private int roundsToWin;
-
-    private List<TeamRow> teamRows;
-
-    public ShowdownSidebarProvider (PlayerSession<ShowdownPlayer> players,
-                                    Runnable globalUpdateListener,
-                                    Consumer<Player> clientUpdateListener) {
-        this.globalUpdateListener = globalUpdateListener;
-        this.clientUpdateListener = clientUpdateListener;
+    public ShowdownSidebarProvider (ShowdownGame game) {
+        this.game = game;
     }
 
-    @Override
-    public Component getSidebarHeader() {
-        return Component.text()
-                .content("CBC: ")
-                .color(NamedTextColor.AQUA)
-                .font(ResourcePackFont.SMALL_5X5.getFontKey())
-                .content("SHOWDOWN")
-                .color(NamedTextColor.YELLOW)
-                .font(ResourcePackFont.SMALL_5X5.getFontKey())
-                .build();
-    }
-
-    @Override
-    public List<Component> getClientDisplay(Player client) {
-
-        ShowdownPlayer player = players.getPlayer(client);
-        TeamColor teamColor = player.teamOptional().map(TeamLike::teamColor).orElse(null);
-
-        List<Component> components = new ArrayList<>();
-        components.add(Component.space());
-        components.addAll(getTeamComponents(teamColor));
-
-        if (player != null) {
-
-        }
-
-        components.add(Component.space());
-
-        return Collections.unmodifiableList(components);
-
-    }
-
-    public void setRoundsToWin (int roundsToWin) {
-        this.roundsToWin = roundsToWin;
-        this.roundWinColumnWidth = 6 * roundsToWin;
-    }
-
-    public void updateTeamRows (Collection<ShowdownTeam> teams) {
-        teamRows.clear();
-        for (ShowdownTeam team : teams) {
-            teamRows.add(new TeamRow(
-                    team.teamColor(),
-                    team.name(),
-                    team.prefix(),
-                    team.getRoundsWon(),
-                    roundsToWin,
-                    team.getPlayersLeftAlive()
-            ));
-        }
-        Collections.sort(teamRows);
-        globalUpdateListener.run();
-    }
-
-    public List<Component> getTeamComponents (TeamColor ownTeam) {
-        return teamRows.stream()
-                .map(t -> t.getRowComponent(t.color() == ownTeam, nameColumnWidth,
-                        playerCountColumnWidth, roundWinColumnWidth))
+    public void updateTeamRows () {
+        teamRows = game.getTeams().stream()
+                .map(t -> new TeamRow(t.teamColor(), t.name(), t.prefix(), t.getRoundsWon(),
+                        game.settings().roundsToWin(), t.getPlayersLeftAlive()))
+                .sorted()
                 .toList();
+    }
+
+    @Override
+    public boolean visible (Player player) {
+        return true;
+    }
+
+    @Override
+    public SidebarComponent title () {
+        return SidebarComponent.staticLine(Component.text()
+                .append(Component.text("CBC: ").color(NamedTextColor.AQUA).font(ResourcePackFont.SMALL_5X5.getFontKey()))
+                .append(Component.text("SHOWDOWN").color(NamedTextColor.YELLOW).font(ResourcePackFont.SMALL_5X5.getFontKey()))
+                .build());
+    }
+
+    @Override
+    public SidebarComponent lines (Player client) {
+
+        List<SidebarRow> rows = getAllRows(client);
+
+        // Get maximum width of all rows
+        int maxWidth = rows.stream()
+                .mapToInt(SidebarRow::minWidth)
+                .max()
+                .orElse(0);
+
+        // Create list of components from rows
+        List<Component> rowComponents = rows.stream()
+                .map(r -> r.component(maxWidth))
+                .toList();
+
+        SidebarComponent.Builder builder = SidebarComponent.builder();
+        rowComponents.forEach(c -> builder.addStaticLine(c, ScoreFormat.blank()));
+        return builder.build();
+
+    }
+
+    public List<AlignedRow> getTeamRows (TeamColor color) {
+        return teamRows.stream()
+                .map(t -> t.getRowComponent(t.color() == color))
+                .toList();
+    }
+
+    /// Returns all rows to be displayed for a given client.
+    public List<SidebarRow> getAllRows (Player client) {
+
+        Optional<ShowdownPlayer> player = game.getPlayerByUUID(client.getUniqueId());
+        List<SidebarRow> rows = new ArrayList<>();
+        rows.add(SidebarRow.blank());
+
+        // Add team standings
+        rows.addAll(getTeamRows(player.map(p -> game.getPlayerTeam(p).teamColor()).orElse(null)));
+        rows.add(SidebarRow.blank());
+
+        // Add individual statistics
+        player.ifPresent(p -> rows.addAll(getPlayerStats(p)));
+        return List.copyOf(rows);
+
+    }
+
+    /// Returns the player's statistics to be displayed on the sidebar.
+    public List<SidebarRow> getPlayerStats (ShowdownPlayer player) {
+
+        List<SidebarRow> rows = new ArrayList<>();
+
+        rows.add(SingleSidebarComponent.of(Component.text()
+                .append(getComponentSpaceOfLength(10))
+                .append(Component.text("Kills: ").color(NamedTextColor.GREEN))
+                .append(Component.text(player.getKills()).color(NamedTextColor.YELLOW))
+                .build()));
+        rows.add(SingleSidebarComponent.of(Component.text()
+                .append(getComponentSpaceOfLength(10))
+                .append(Component.text("Round Kills: ").color(NamedTextColor.GREEN))
+                .append(Component.text(player.getPlayerRoundKills()).color(NamedTextColor.YELLOW))
+                .build()));
+        rows.add(SingleSidebarComponent.of(Component.text()
+                .append(getComponentSpaceOfLength(10))
+                .append(Component.text("Time Alive: ").color(NamedTextColor.GREEN))
+                .append(Component.text(TextUtil.timerToText(player.getPlayerSecondsAlive())).color(NamedTextColor.YELLOW))
+                .build()));
+        rows.add(SidebarRow.blank());
+
+        return List.copyOf(rows);
+
     }
 
 }
@@ -113,70 +129,71 @@ record TeamRow (TeamColor color,
                 int roundsToWin,
                 int playersAlive) implements Comparable<TeamRow> {
 
-    public Component getRowComponent (boolean highlight,
-                                      int nameColumnWidth,
-                                      int playerCountColumnWidth,
-                                      int roundWinColumnWidth) {
+    public static final int NAME_COL_WIDTH = 65;
+    public static final int PLAYER_COUNT_COL_WIDTH = 20;
 
+    public AlignedRow getRowComponent (boolean highlight) {
+        AlignedRow.Builder builder = AlignedRow.builder();
+        return builder
+                .left(SidebarRowComponent.space(3))
+                .left(pointer(highlight))
+                .left(SidebarRowComponent.space(3))
+                .left(prefixComponent())
+                .left(SidebarRowComponent.space(4))
+                .left(nameComponent())
+                .right(SidebarRowComponent.space(4))
+                .right(playerCountComponent())
+                .right(SidebarRowComponent.space(4))
+                .right(roundsWonComponent())
+                .right(SidebarRowComponent.space(3))
+                .build();
+    }
+
+    private SidebarRowComponent pointer (boolean highlight) {
+        Component pointer = highlight ? Component.text("\uE880").color(NamedTextColor.YELLOW) : getComponentSpaceOfLength(4);
+        return new SidebarRowComponent(
+                new SingleSidebarComponent(pointer, 4), 4, ComponentAlignment.LEFT
+        );
+    }
+
+    private SidebarRowComponent prefixComponent () {
+        int length = getPixelLengthOfText(prefix) + 2;
+        return new SidebarRowComponent(
+                new SingleSidebarComponent(Component.text(prefix)
+                        .color(color.color())
+                        .decorate(TextDecoration.BOLD),
+                        length), length, ComponentAlignment.LEFT
+        );
+    }
+
+    private SidebarRowComponent nameComponent () {
+        return new SidebarRowComponent(
+                SingleSidebarComponent.of(Component.text(name + " Team").color(color.color())), NAME_COL_WIDTH, ComponentAlignment.LEFT
+        );
+    }
+
+    private SidebarRowComponent playerCountComponent () {
         TextComponent.Builder builder = Component.text();
-
-        if (highlight) builder.append(Component.text("\uE880").color(NamedTextColor.YELLOW));
-        else builder.append(getComponentSpaceOfLength(5));
-
-        builder.append(getComponentSpaceOfLength(4));
-
-        builder.content(prefix)
-                .color(color.color())
-                .decorate(TextDecoration.BOLD);
-
-        addTeamName(builder, nameColumnWidth);
-        addPlayerCount(builder, playerCountColumnWidth);
-        builder.content(" ");
-        addRoundsWon(builder, roundWinColumnWidth);
-
-        return builder.build();
-
-    }
-
-    private void addTeamName (TextComponent.Builder builder, int width) {
-
-        // Left aligned
-        builder.content(name)
-                .color(color.color());
-
-        int contentWidth = TextUtil.getPixelLengthOfText(name);
-        builder.append(getComponentSpaceOfLength(width - contentWidth));
-
-    }
-
-    private void addPlayerCount (TextComponent.Builder builder, int width) {
-
-        // Right aligned
-        int contentWidth = String.valueOf(playersAlive).length() * 6 + 8;
-        builder.append(getComponentSpaceOfLength(width - contentWidth));
-        builder.content(playersAlive + "\uE881");
-
+        int contentWidth = String.valueOf(playersAlive).length() * 6 + 9;
+        builder.append(Component.text(playersAlive + "\uE881"));
         if (playersAlive == 0) builder.color(NamedTextColor.GRAY);
         else builder.color(NamedTextColor.GREEN);
-
+        return new SidebarRowComponent(
+                new SingleSidebarComponent(builder.build(), contentWidth), PLAYER_COUNT_COL_WIDTH, ComponentAlignment.RIGHT
+        );
     }
 
-    private void addRoundsWon (TextComponent.Builder builder, int width) {
-
-        // Right aligned
-        int contentWidth = roundsToWin * 6;
-        builder.append(getComponentSpaceOfLength(width - contentWidth));
-
+    private SidebarRowComponent roundsWonComponent () {
+        int width = roundsToWin * 6;
+        TextComponent.Builder builder = Component.text();
         for (int i = 1; i <= roundsToWin; i++) {
             if (i <= roundsWon) {
-                builder.content("■")
-                        .color(NamedTextColor.GREEN);
+                builder.append(Component.text("■").color(NamedTextColor.GREEN));
             } else {
-                builder.content("□")
-                        .color(NamedTextColor.WHITE);
+                builder.append(Component.text("□").color(NamedTextColor.WHITE));
             }
         }
-
+        return new SidebarRowComponent(new SingleSidebarComponent(builder.build(), width), width, ComponentAlignment.RIGHT);
     }
 
     @Override
